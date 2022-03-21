@@ -14,10 +14,13 @@ services:
       - CONNECTION_STRING=Host=dev-database;Port=5432;Database=testdb;Username=postgres;Password=mypassword
     links:
       - dev-database
+
   dev-database:
+    image: postgres:12
+    ports:
+      - 5432:5432
     env_file:
       - database.env
-    image: postgres:12
     volumes:
       - ./database:/docker-entrypoint-initdb.d
 
@@ -38,11 +41,10 @@ services:
       - test-database
 
   test-database:
-    image: test-database
-    build:
-      context: .
-      dockerfile: database/Dockerfile
+    image: postgres:12
     ports:
-      - 5432:5432
+      - 5435:5432
     env_file:
       - database.env
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
