@@ -6,13 +6,14 @@ ENV LBHPACKAGESTOKEN=$LBHPACKAGESTOKEN
 WORKDIR /app
 
 # Copy csproj and nuget config and restore as distinct layers
-COPY ./BrokerageApi/BrokerageApi.csproj ./
+COPY ./BrokerageApi.sln ./
+COPY ./BrokerageApi/BrokerageApi.csproj ./BrokerageApi/
 COPY /NuGet.Config /root/.nuget/NuGet/NuGet.Config
 
-RUN dotnet restore ./BrokerageApi.csproj
+RUN dotnet restore ./BrokerageApi/BrokerageApi.csproj
 
 # Copy everything else and build
-COPY ./BrokerageApi ./
+COPY . ./
 RUN dotnet build -c Release -o out
 RUN dotnet publish -c Release -o out
 
