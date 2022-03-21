@@ -28,8 +28,6 @@ using Hackney.Core.Middleware.Logging;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Hackney.Core.HealthCheck;
 using Hackney.Core.Middleware.CorrelationId;
-using Hackney.Core.DynamoDb.HealthCheck;
-using Hackney.Core.DynamoDb;
 using Hackney.Core.Middleware.Exception;
 
 namespace BrokerageApi
@@ -63,8 +61,6 @@ namespace BrokerageApi
             });
 
             services.AddSingleton<IApiVersionDescriptionProvider, DefaultApiVersionDescriptionProvider>();
-
-            services.AddDynamoDbHealthCheck<DatabaseEntity>();
 
             services.AddSwaggerGen(c =>
             {
@@ -128,8 +124,6 @@ namespace BrokerageApi
             services.AddLogCallAspect();
 
             ConfigureDbContext(services);
-            //TODO: For DynamoDb, remove the line above and uncomment the line below.
-            //services.ConfigureDynamoDB();
 
             RegisterGateways(services);
             RegisterUseCases(services);
@@ -148,9 +142,6 @@ namespace BrokerageApi
         private static void RegisterGateways(IServiceCollection services)
         {
             services.AddScoped<IExampleGateway, ExampleGateway>();
-
-            //TODO: For DynamoDb, remove the line above and uncomment the line below.
-            //services.AddScoped<IExampleDynamoGateway, DynamoDbGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
