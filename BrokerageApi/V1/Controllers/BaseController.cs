@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrokerageApi.V1.Infrastructure;
-using Hackney.Core.Middleware;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
@@ -19,7 +18,7 @@ namespace BrokerageApi.V1.Controllers
         public string GetCorrelationId()
         {
             StringValues correlationId;
-            HttpContext.Request.Headers.TryGetValue(HeaderConstants.CorrelationId, out correlationId);
+            HttpContext.Request.Headers.TryGetValue(Constants.CorrelationId, out correlationId);
 
             if (!correlationId.Any())
                 throw new KeyNotFoundException("Request is missing a correlationId");

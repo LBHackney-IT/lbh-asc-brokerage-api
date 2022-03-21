@@ -1,19 +1,13 @@
-using BrokerageApi.V1.Domain;
+using AutoFixture;
+using AutoFixture.Dsl;
+using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Factories;
 using NUnit.Framework;
 
 namespace BrokerageApi.Tests.V1.Factories
 {
+    [TestFixture]
     public class ResponseFactoryTest
     {
-        //TODO: add assertions for all the fields being mapped in `ResponseFactory.ToResponse()`. Also be sure to add test cases for
-        // any edge cases that might exist.
-        [Test]
-        public void CanMapADatabaseEntityToADomainObject()
-        {
-            var domain = new Entity();
-            var response = domain.ToResponse();
-            //TODO: check here that all of the fields have been mapped correctly. i.e. response.fieldOne.Should().Be("one")
-        }
     }
 }

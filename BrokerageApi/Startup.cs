@@ -5,10 +5,7 @@ using System.Linq;
 using System.Reflection;
 using BrokerageApi.V1.Controllers;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
-using BrokerageApi.V1.Gateways;
 using BrokerageApi.V1.Infrastructure;
-using BrokerageApi.V1.UseCase;
-using BrokerageApi.V1.UseCase.Interfaces;
 using BrokerageApi.Versioning;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -21,18 +18,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System.Diagnostics.CodeAnalysis;
-using Hackney.Core.Logging;
-using Hackney.Core.Middleware.Logging;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Hackney.Core.HealthCheck;
-using Hackney.Core.Middleware.CorrelationId;
-using Hackney.Core.Middleware.Exception;
 
 namespace BrokerageApi
 {
-    [ExcludeFromCodeCoverage]
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -44,14 +34,14 @@ namespace BrokerageApi
 
         public IConfiguration Configuration { get; }
         private static List<ApiVersionDescription> _apiVersions { get; set; }
-        //TODO update the below to the name of your API
-        private const string ApiName = "Your API Name";
+        private const string ApiName = "Brokerage";
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services
                 .AddMvc()
+                .AddNewtonsoftJson(o => o.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc)
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddApiVersioning(o =>
             {
@@ -119,49 +109,45 @@ namespace BrokerageApi
                     c.IncludeXmlComments(xmlPath);
             });
 
-            services.ConfigureLambdaLogging(Configuration);
-
-            services.AddLogCallAspect();
+            ConfigureLogging(services, Configuration);
 
             ConfigureDbContext(services);
-
-            RegisterGateways(services);
-            RegisterUseCases(services);
         }
 
-        private static void ConfigureDbContext(IServiceCollection services)
+        private void ConfigureDbContext(IServiceCollection services)
         {
-            var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+            var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")
+                                ?? Configuration.GetValue<string>("DatabaseConnectionString");
 
-            services.AddDbContext<DatabaseContext>(
-                opt => opt.UseNpgsql(connectionString).AddXRayInterceptor(true));
+            services.AddDbContext<BrokerageContext>(
+                opt => opt.UseNpgsql(connectionString)
+                    .UseSnakeCaseNamingConvention());
         }
 
-
-
-        private static void RegisterGateways(IServiceCollection services)
+        private static void ConfigureLogging(IServiceCollection services, IConfiguration configuration)
         {
-            services.AddScoped<IExampleGateway, ExampleGateway>();
-        }
+            // We rebuild the logging stack so as to ensure the console logger is not used in production.
+            // See here: https://weblog.west-wind.com/posts/2018/Dec/31/Dont-let-ASPNET-Core-Default-Console-Logging-Slow-your-App-down
+            services.AddLogging(config =>
+            {
+                // clear out default configuration
+                config.ClearProviders();
 
-        private static void RegisterUseCases(IServiceCollection services)
-        {
-            services.AddScoped<IGetAllUseCase, GetAllUseCase>();
-            services.AddScoped<IGetByIdUseCase, GetByIdUseCase>();
+                config.AddConfiguration(configuration.GetSection("Logging"));
+                config.AddDebug();
+                config.AddEventSourceLogger();
+
+                if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == Environments.Development)
+                {
+                    config.AddConsole();
+                }
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
+        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseCors(builder => builder
-                  .AllowAnyOrigin()
-                  .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .WithExposedHeaders("x-correlation-id"));
-
-            app.UseCorrelationId();
-            app.UseLoggingScope();
-            app.UseCustomExceptionHandler(logger);
+            app.UseCorrelation();
 
             if (env.IsDevelopment())
             {
@@ -195,13 +181,7 @@ namespace BrokerageApi
             {
                 // SwaggerGen won't find controllers that are routed via this technique.
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
-
-                endpoints.MapHealthChecks("/api/v1/healthcheck/ping", new HealthCheckOptions()
-                {
-                    ResponseWriter = HealthCheckResponseWriter.WriteResponse
-                });
             });
-            app.UseLogCall();
         }
     }
 }

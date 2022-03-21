@@ -12,11 +12,11 @@
     "brokerage_api": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "api/v1/healthcheck/ping",
-      "applicationUrl": "http://localhost:5000",
+      "launchUrl": "swagger/index.html",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "applicationUrl": "http://localhost:5100"
     }
   }
 }

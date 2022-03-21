@@ -5,35 +5,34 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 
 namespace BrokerageApi.Tests
 {
     public class MockWebApplicationFactory<TStartup>
         : WebApplicationFactory<TStartup> where TStartup : class
     {
-        private readonly DbConnection _connection;
+        private readonly DbContextOptionsBuilder _builder;
 
-        public MockWebApplicationFactory(DbConnection connection)
+        public MockWebApplicationFactory(DbContextOptionsBuilder builder)
         {
-            _connection = connection;
+            _builder = builder;
         }
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.ConfigureAppConfiguration(b => b.AddEnvironmentVariables())
-                .UseStartup<Startup>();
             builder.ConfigureServices(services =>
             {
-                var dbBuilder = new DbContextOptionsBuilder();
-                dbBuilder.UseNpgsql(_connection);
-                var context = new DatabaseContext(dbBuilder.Options);
-                services.AddSingleton(context);
+                Context = new BrokerageContext(_builder.Options);
+                services.AddSingleton(Context);
 
                 var serviceProvider = services.BuildServiceProvider();
-                var dbContext = serviceProvider.GetRequiredService<DatabaseContext>();
+                var dbContext = serviceProvider.GetRequiredService<BrokerageContext>();
 
-                dbContext.Database.EnsureCreated();
+                dbContext.Database.Migrate();
             });
         }
+
+        public BrokerageContext Context { get; set; }
     }
 }

@@ -9,17 +9,18 @@ namespace BrokerageApi.Tests
     public class DatabaseTests
     {
         private IDbContextTransaction _transaction;
-        protected DatabaseContext DatabaseContext { get; private set; }
+        protected BrokerageContext BrokerageContext { get; private set; }
 
         [SetUp]
         public void RunBeforeAnyTests()
         {
             var builder = new DbContextOptionsBuilder();
-            builder.UseNpgsql(ConnectionString.TestDatabase());
-            DatabaseContext = new DatabaseContext(builder.Options);
+            builder.UseNpgsql(ConnectionString.TestDatabase())
+                .UseSnakeCaseNamingConvention();
+            BrokerageContext = new BrokerageContext(builder.Options);
 
-            DatabaseContext.Database.EnsureCreated();
-            _transaction = DatabaseContext.Database.BeginTransaction();
+            BrokerageContext.Database.Migrate();
+            _transaction = BrokerageContext.Database.BeginTransaction();
         }
 
         [TearDown]
