@@ -63,3 +63,6 @@ tmp/
 
 .fake
 .ionide
+
+# Ignore local copies of terraform state
+**/.terraform/*

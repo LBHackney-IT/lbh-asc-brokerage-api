@@ -1,4 +1,7 @@
 service: brokerage-api
+
+frameworkVersion: '2'
+
 provider:
   name: aws
   runtime: dotnetcore3.1
@@ -19,11 +22,10 @@ provider:
           rateLimit: 100
 
 package:
-# TODO: Rename zipfile in build.sh and build.cmd to match this
   artifact: ./bin/release/netcoreapp3.1/brokerage-api.zip
 
 functions:
-  brokerageApi:
+  BrokerageApi:
     name: ${self:service}-${self:provider.stage}
     handler: BrokerageApi::BrokerageApi.LambdaEntryPoint::FunctionHandlerAsync
     role: lambdaExecutionRole
@@ -33,18 +35,7 @@ functions:
       - http:
           path: /{proxy+}
           method: ANY
-          cors:
-            origin: '*'
-            headers:
-              - Content-Type
-              - If-Match
-              - X-Amz-Date
-              - Authorization
-              - X-Api-Key
-              - X-Amz-Security-Token
-              - X-Amz-User-Agent
-              - x-correlation-id
-            allowCredentials: false
+          private: true
       - http:
           path: /swagger/{proxy+}
           method: GET
@@ -103,15 +94,11 @@ resources:
                   Resource: "*"
 custom:
   vpc:
-    development:
-      subnetIds:
-        - subnet-0deabb5d8fb9c3446
-        - subnet-000b89c249f12a8ad
     staging:
       subnetIds:
-        - subnet-06d3de1bd9181b0d7
-        - subnet-0ed7d7713d1127656
+        - subnet-0f5eeab6b619d5e1a # mosaic-stg-private-eu-west-2a
+        - subnet-0d4086ab96db46047 # mosaic-stg-private-eu-west-2b
     production:
       subnetIds:
-        - subnet-01d3657f97a243261
-        - subnet-0b7b8fea07efabf34
+        - subnet-0c39cd286eeaff2b2 # Mosaic-prod-private-eu-west-2a
+        - subnet-04c42d0aafb3738ad # Mosaic-prod-private-eu-west-2b

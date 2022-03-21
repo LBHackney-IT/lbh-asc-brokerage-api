@@ -9,11 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrokerageApi.Tests", "Broke
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Terraform", "Terraform", "{20433368-3BCA-4986-8E19-E98EEFE0B439}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "development", "development", "{8D8E7751-252E-4D37-AE8D-20DA2EFC9546}"
-	ProjectSection(SolutionItems) = preProject
-		terraform\development\main.tf = terraform\development\main.tf
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "staging", "staging", "{01FBC8E0-9AF8-4BF9-9BA6-18446AFB3DD3}"
 	ProjectSection(SolutionItems) = preProject
 		terraform\staging\main.tf = terraform\staging\main.tf
@@ -43,7 +38,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{8D8E7751-252E-4D37-AE8D-20DA2EFC9546} = {20433368-3BCA-4986-8E19-E98EEFE0B439}
 		{01FBC8E0-9AF8-4BF9-9BA6-18446AFB3DD3} = {20433368-3BCA-4986-8E19-E98EEFE0B439}
 		{4F1C4A5C-59AF-4DDE-AC02-A4B671F8C8EF} = {20433368-3BCA-4986-8E19-E98EEFE0B439}
 	EndGlobalSection
