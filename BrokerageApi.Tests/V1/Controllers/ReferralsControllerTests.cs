@@ -11,6 +11,8 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -21,6 +23,7 @@ namespace BrokerageApi.Tests.V1.Controllers
     {
         private Fixture _fixture;
         private Mock<ICreateReferralUseCase> _createReferralUseCaseMock;
+        private Mock<IGetCurrentReferralsUseCase> _getCurrentReferralsUseCaseMock;
         private MockProblemDetailsFactory _problemDetailsFactoryMock;
 
         private ReferralsController _classUnderTest;
@@ -30,9 +33,13 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             _fixture = FixtureHelpers.Fixture;
             _createReferralUseCaseMock = new Mock<ICreateReferralUseCase>();
+            _getCurrentReferralsUseCaseMock = new Mock<IGetCurrentReferralsUseCase>();
             _problemDetailsFactoryMock = new MockProblemDetailsFactory();
 
-            _classUnderTest = new ReferralsController(_createReferralUseCaseMock.Object);
+            _classUnderTest = new ReferralsController(
+                _createReferralUseCaseMock.Object,
+                _getCurrentReferralsUseCaseMock.Object
+            );
 
             // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
             _classUnderTest.ProblemDetailsFactory = _problemDetailsFactoryMock.Object;
@@ -57,6 +64,24 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
             result.Should().BeEquivalentTo(referral.ToResponse());
+        }
+
+        [Test]
+        public async Task GetCurrentReferrals()
+        {
+            // Arrange
+            var referrals = _fixture.CreateMany<Referral>();
+            _getCurrentReferralsUseCaseMock.Setup(x => x.ExecuteAsync())
+                .ReturnsAsync(referrals);
+
+            // Act
+            var objectResult = await _classUnderTest.GetCurrentReferrals();
+            var statusCode = GetStatusCode(objectResult);
+            var result = GetResultData<List<ReferralResponse>>(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            result.Should().BeEquivalentTo(referrals.Select(r => r.ToResponse()).ToList());
         }
     }
 }

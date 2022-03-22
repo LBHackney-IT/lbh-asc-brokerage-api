@@ -164,6 +164,7 @@ namespace BrokerageApi
         private static void RegisterUseCases(IServiceCollection services)
         {
             services.AddTransient<ICreateReferralUseCase, CreateReferralUseCase>();
+            services.AddTransient<IGetCurrentReferralsUseCase, GetCurrentReferralsUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

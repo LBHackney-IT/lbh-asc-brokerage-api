@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -17,12 +19,15 @@ namespace BrokerageApi.V1.Controllers
     public class ReferralsController : BaseController
     {
         private readonly ICreateReferralUseCase _createReferralUseCase;
+        private readonly IGetCurrentReferralsUseCase _getCurrentReferralsUseCase;
 
         public ReferralsController(
-          ICreateReferralUseCase createReferralUseCase
+          ICreateReferralUseCase createReferralUseCase,
+          IGetCurrentReferralsUseCase getCurrentReferralsUseCase
         )
         {
             _createReferralUseCase = createReferralUseCase;
+            _getCurrentReferralsUseCase = getCurrentReferralsUseCase;
         }
 
         [HttpPost]
@@ -53,6 +58,16 @@ namespace BrokerageApi.V1.Controllers
                     StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }
+        }
+
+        [HttpGet]
+        [Route("current")]
+        [ProducesResponseType(typeof(List<ReferralResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetCurrentReferrals()
+        {
+            var referrals = await _getCurrentReferralsUseCase.ExecuteAsync();
+            return Ok(referrals.Select(r => r.ToResponse()).ToList());
         }
     }
 }

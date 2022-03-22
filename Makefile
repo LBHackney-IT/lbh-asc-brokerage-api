@@ -7,7 +7,7 @@ build:
 	docker-compose build brokerage-api
 
 .PHONY: build-test
-build-test:
+build-test: build
 	docker-compose build brokerage-api-test
 
 .PHONY: serve
@@ -16,17 +16,20 @@ serve: build
 
 .PHONY: shell
 shell: build
-	docker-compose run brokerage-api bash
+	docker-compose run --rm brokerage-api bash
 
 .PHONY: test
-test: test-db build-test
-	docker-compose up brokerage-api-test
+test: test-db build-test migrate
+	docker-compose run --rm brokerage-api-test
 
 .PHONY: lint
 lint:
-	-dotnet tool install -g dotnet-format
-	dotnet tool update -g dotnet-format
 	dotnet format
+
+.PHONY: migrate
+migrate: test-db
+	CONNECTION_STRING="Host=127.0.0.1;Port=5435;Username=postgres;Password=mypassword;Database=testdb" \
+	dotnet ef database update -p BrokerageApi -c BrokerageApi.V1.Infrastructure.BrokerageContext
 
 .PHONY: stop
 stop:

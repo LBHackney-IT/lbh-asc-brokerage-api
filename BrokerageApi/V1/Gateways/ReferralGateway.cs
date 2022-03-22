@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,15 @@ namespace BrokerageApi.V1.Gateways
             await _context.SaveChangesAsync();
 
             return entry.Entity;
+        }
+
+        public async Task<IEnumerable<Referral>> GetCurrentAsync()
+        {
+            return await _context.Referrals
+                .Where(r => r.Status != ReferralStatus.Archived)
+                .Where(r => r.Status != ReferralStatus.Approved)
+                .OrderBy(r => r.Id)
+                .ToListAsync();
         }
 
         public async Task<Referral> GetByWorkflowIdAsync(string workflowId)
