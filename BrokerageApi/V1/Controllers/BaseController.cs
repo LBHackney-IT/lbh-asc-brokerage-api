@@ -4,6 +4,7 @@ using BrokerageApi.V1.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
 namespace BrokerageApi.V1.Controllers
@@ -36,6 +37,8 @@ namespace BrokerageApi.V1.Controllers
 
                 settings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
                 settings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
+
+                settings.Converters.Add(new StringEnumConverter());
 
                 return settings;
             };

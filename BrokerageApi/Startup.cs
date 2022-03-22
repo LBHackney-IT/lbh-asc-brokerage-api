@@ -5,7 +5,11 @@ using System.Linq;
 using System.Reflection;
 using BrokerageApi.V1.Controllers;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
+using BrokerageApi.V1.Gateways;
+using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
+using BrokerageApi.V1.UseCase;
+using BrokerageApi.V1.UseCase.Interfaces;
 using BrokerageApi.Versioning;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -34,7 +38,7 @@ namespace BrokerageApi
 
         public IConfiguration Configuration { get; }
         private static List<ApiVersionDescription> _apiVersions { get; set; }
-        private const string ApiName = "Brokerage";
+        private const string ApiName = "ASC Brokerage";
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -95,13 +99,14 @@ namespace BrokerageApi
                     var version = $"v{apiVersion.ApiVersion.ToString()}";
                     c.SwaggerDoc(version, new OpenApiInfo
                     {
-                        Title = $"{ApiName}-api {version}",
+                        Title = $"{ApiName} API {version}",
                         Version = version,
                         Description = $"{ApiName} version {version}. Please check older versions for depreciated endpoints."
                     });
                 }
 
-                c.CustomSchemaIds(x => x.FullName);
+                c.CustomSchemaIds(x => x.Name);
+
                 // Set the comments path for the Swagger JSON and UI.
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -109,9 +114,14 @@ namespace BrokerageApi
                     c.IncludeXmlComments(xmlPath);
             });
 
+            services.AddSwaggerGenNewtonsoftSupport();
+
             ConfigureLogging(services, Configuration);
 
             ConfigureDbContext(services);
+
+            RegisterGateways(services);
+            RegisterUseCases(services);
         }
 
         private void ConfigureDbContext(IServiceCollection services)
@@ -120,8 +130,10 @@ namespace BrokerageApi
                                 ?? Configuration.GetValue<string>("DatabaseConnectionString");
 
             services.AddDbContext<BrokerageContext>(
-                opt => opt.UseNpgsql(connectionString)
-                    .UseSnakeCaseNamingConvention());
+                opt => opt
+                    .UseNpgsql(connectionString)
+                    .UseSnakeCaseNamingConvention()
+            );
         }
 
         private static void ConfigureLogging(IServiceCollection services, IConfiguration configuration)
@@ -142,6 +154,16 @@ namespace BrokerageApi
                     config.AddConsole();
                 }
             });
+        }
+
+        private static void RegisterGateways(IServiceCollection services)
+        {
+            services.AddScoped<IReferralGateway, ReferralGateway>();
+        }
+
+        private static void RegisterUseCases(IServiceCollection services)
+        {
+            services.AddTransient<ICreateReferralUseCase, CreateReferralUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -172,7 +194,7 @@ namespace BrokerageApi
                 {
                     //Create a swagger endpoint for each swagger version
                     c.SwaggerEndpoint($"{apiVersionDescription.GetFormattedApiVersion()}/swagger.json",
-                        $"{ApiName}-api {apiVersionDescription.GetFormattedApiVersion()}");
+                        $"{ApiName} API {apiVersionDescription.GetFormattedApiVersion()}");
                 }
             });
             app.UseSwagger();
