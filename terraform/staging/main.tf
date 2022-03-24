@@ -43,8 +43,13 @@ data "aws_vpc" "default" {
 data "aws_subnet_ids" "private_subnets" {
   vpc_id = data.aws_vpc.default.id
 
-  tags = {
-    Type = "private"
+  filter {
+    name = "tag:Name"
+
+    values = [
+      "mosaic-stg-public-eu-west-2a",
+      "mosaic-stg-public-eu-west-2b"
+    ]
   }
 }
 
