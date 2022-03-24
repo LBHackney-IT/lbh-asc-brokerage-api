@@ -9,9 +9,10 @@ services:
      args:
      - LBHPACKAGESTOKEN=${LBHPACKAGESTOKEN}
     ports:
-      - 3000:3000
+      - 5100:5100
     environment:
       - CONNECTION_STRING=Host=dev-database;Port=5432;Database=testdb;Username=postgres;Password=mypassword
+      - REQUIRED_GOOGL_GROUPS=saml-socialcarefinance-brokerage
     depends_on:
       - dev-database
 

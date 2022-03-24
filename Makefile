@@ -11,7 +11,7 @@ build-test: build
 	docker-compose build brokerage-api-test
 
 .PHONY: serve
-serve: build
+serve: build migrate-dev-db
 	docker-compose up -d brokerage-api
 
 .PHONY: shell
@@ -19,15 +19,19 @@ shell: build
 	docker-compose run --rm brokerage-api bash
 
 .PHONY: test
-test: test-db build-test migrate
+test: test-db build-test migrate-test-db
 	docker-compose run --rm brokerage-api-test
 
 .PHONY: lint
 lint:
 	dotnet format
 
-.PHONY: migrate
-migrate: test-db
+.PHONY: migrate-dev-db
+migrate-dev-db: dev-db
+	docker-compose run --rm brokerage-api dotnet ef database update -p BrokerageApi -c BrokerageApi.V1.Infrastructure.BrokerageContext
+
+.PHONY: migrate-test-db
+migrate-test-db: test-db
 	docker-compose run --rm brokerage-api-test dotnet ef database update -p BrokerageApi -c BrokerageApi.V1.Infrastructure.BrokerageContext
 
 .PHONY: stop
