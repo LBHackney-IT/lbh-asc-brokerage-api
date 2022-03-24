@@ -28,6 +28,8 @@ commands:
     parameters:
       aws-account:
         type: string
+      aws-role:
+        type: string
     steps:
       - checkout
       - aws_assume_role/assume_role:
