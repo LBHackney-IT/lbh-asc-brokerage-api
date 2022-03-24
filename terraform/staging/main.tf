@@ -76,15 +76,3 @@ module "database" {
   publicly_accessible = false
   project_name = "brokerage"
 }
-
-resource "aws_ssm_parameter" "database_hostname" {
-  name        = "/${local.application}/${local.environment}/postgres-hostname"
-  type        = "String"
-  value       = aws_db_instance.database.address
-}
-
-resource "aws_ssm_parameter" "database_port" {
-  name        = "/${local.application}/${local.environment}/postgres-port"
-  type        = "String"
-  value       = aws_db_instance.database.port
-}
