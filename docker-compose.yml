@@ -24,6 +24,7 @@ services:
       - database.env
     volumes:
       - ./database:/docker-entrypoint-initdb.d
+      - db:/var/lib/postgresql/data
 
   brokerage-api-test:
     image: brokerage-api-test
@@ -50,3 +51,6 @@ services:
       - database.env
     volumes:
       - ./database:/docker-entrypoint-initdb.d
+
+volumes:
+  db:
