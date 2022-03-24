@@ -12,11 +12,6 @@ provider:
   vpc: ${self:custom.vpc.${opt:stage}}
   stage: ${opt:stage}
   region: eu-west-2
-  usagePlan:
-    - secureAccess:
-        throttle:
-          burstLimit: 200
-          rateLimit: 100
 
 package:
   artifact: ./bin/release/netcoreapp3.1/brokerage-api.zip
