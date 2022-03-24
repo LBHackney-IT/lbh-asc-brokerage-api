@@ -71,22 +71,63 @@ commands:
       - run:
           name: Install Node.js
           command: |
-            curl -sL https://deb.nodesource.com/setup_13.x | bash -
+            curl -sL https://deb.nodesource.com/setup_14.x | bash -
             apt-get update && apt-get install -y nodejs
       - run:
           name: Install serverless CLI
-          command: npm i -g serverless
+          command: npm i -g serverless@"<3.0.0"
       - run:
           name: Build lambda
           command: |
-            cd ./BaseApi/
+            cd ./BrokerageApi/
             chmod +x ./build.sh
             ./build.sh
       - run:
           name: Deploy lambda
           command: |
-            cd ./BaseApi/
-            sls deploy --stage <<parameters.stage>> --account <<parameters.aws-account>> --conceal
+            cd ./BrokerageApi/
+            sls deploy --stage <<parameters.stage>> --conceal
+  migrate-database:
+    description: "Migrate database"
+    parameters:
+      stage:
+        type: string
+    steps:
+      - *attach_workspace
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Install Unzip
+          command: apt-get update && apt-get install unzip
+      - run:
+          name: Install AWS CLI
+          command: |
+            curl -L -o awscliv2.zip "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+            unzip awscliv2.zip
+            ./aws/install
+      - run:
+          name: Install Session Manager plugin
+          command: |
+            curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "session-manager-plugin.deb"
+            dpkg -i session-manager-plugin.deb
+      - run:
+          name: Install dotnet ef core
+          command: dotnet tool install dotnet-ef --version 5.0.10 --tool-path ./dotnet-ef-local/
+      - run:
+          name: SSH into RDS and migrate database
+          command: |
+            aws ssm get-parameter --name "/platform-apis-jump-box-pem-key" --output text --query Parameter.Value > ./private-key.pem
+            chmod 400 ./private-key.pem
+            HOST=$(aws ssm get-parameter --name /brokerage-api/<<parameters.stage>>/postgres-hostname --query Parameter.Value)
+            PORT=$(aws ssm get-parameter --name /brokerage-api/<<parameters.stage>>/postgres-port --query Parameter.Value)
+            INSTANCE_NAME=$(aws ssm get-parameter --name /platform-apis-jump-box-instance-name --query Parameter.Value)
+            ssh -4 -i ./private-key.pem -Nf -M -L ${PORT//\"}:${HOST//\"}:${PORT//\"} -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -o ServerAliveInterval=30 -o ProxyCommand="aws ssm start-session --target %h --document AWS-StartSSHSession --parameters portNumber=%p --region=eu-west-2" ec2-user@${INSTANCE_NAME//\"}
+            PASSWORD=$(aws ssm get-parameter --name /brokerage-api/<<parameters.stage>>/postgres-password --query Parameter.Value)
+            USERNAME=$(aws ssm get-parameter --name /brokerage-api/<<parameters.stage>>/postgres-username --query Parameter.Value)
+            DATABASE=$(aws ssm get-parameter --name /brokerage-api/<<parameters.stage>>/postgres-database --query Parameter.Value)
+            CONN_STR="Host=localhost;Password=${PASSWORD};Port=${PORT};Username=${USERNAME};Database=${DATABASE}"
+            cd ./BrokerageApi/
+            CONNECTION_STRING=${CONN_STR} ./../dotnet-ef-local/dotnet-ef database update -c BrokerageApi.V1.Infrastructure.BrokerageContext
 
 jobs:
   check-code-formatting:
@@ -100,21 +141,19 @@ jobs:
           name: Run formatter check
           command: ./dotnet-format-local/dotnet-format --check
   build-and-test:
-    executor: docker-python
+    machine:
+      image: ubuntu-2004:202104-01
     steps:
       - checkout
-      - setup_remote_docker
       - run:
-          name: build
-          command: docker-compose build base-api-test
+          name: Build
+          command: docker-compose build brokerage-api-test
+      - run:
+          name: Migrate database
+          command: docker-compose run brokerage-api-test dotnet ef database update -p BrokerageApi -c BrokerageApi.V1.Infrastructure.BrokerageContext
       - run:
           name: Run tests
-          command: docker-compose run base-api-test
-  assume-role-development:
-    executor: docker-python
-    steps:
-      - assume-role-and-persist-workspace:
-          aws-account: $AWS_ACCOUNT_DEVELOPMENT
+          command: docker-compose run brokerage-api-test
   assume-role-staging:
     executor: docker-python
     steps:
@@ -125,11 +164,6 @@ jobs:
     steps:
       - assume-role-and-persist-workspace:
           aws-account: $AWS_ACCOUNT_PRODUCTION
-  terraform-init-and-apply-to-development:
-    executor: docker-terraform
-    steps:
-      - terraform-init-then-apply:
-          environment: "development"
   terraform-init-and-apply-to-staging:
     executor: docker-terraform
     steps:
@@ -140,12 +174,6 @@ jobs:
     steps:
       - terraform-init-then-apply:
           environment: "production"
-  deploy-to-development:
-    executor: docker-dotnet
-    steps:
-      - deploy-lambda:
-          stage: "development"
-          aws-account: $AWS_ACCOUNT_DEVELOPMENT
   deploy-to-staging:
     executor: docker-dotnet
     steps:
@@ -158,90 +186,94 @@ jobs:
       - deploy-lambda:
           stage: "production"
           aws-account: $AWS_ACCOUNT_PRODUCTION
+  migrate-database-staging:
+    executor: docker-dotnet
+    steps:
+      - migrate-database:
+          stage: "staging"
+  migrate-database-production:
+    executor: docker-dotnet
+    steps:
+      - migrate-database:
+          stage: "production"
 
 workflows:
-  check-and-deploy-development:
+  check-development:
     jobs:
       - check-code-formatting:
           context: api-nuget-token-context
       - build-and-test:
           context: api-nuget-token-context
-      - assume-role-development:
-          context: api-assume-role-housing-development-context
-          requires:
-            - build-and-test
+  check-and-deploy-staging-and-production:
+      jobs:
+      - build-and-test:
+          context: api-nuget-token-context
           filters:
             branches:
-              only: development
-      - terraform-init-and-apply-to-development:
+              only: master
+      - assume-role-staging:
+          context: api-assume-role-social-care-staging-context
           requires:
-            - assume-role-development
+              - build-and-test
+          filters:
+             branches:
+               only: master
+      - terraform-init-and-apply-to-staging:
+          requires:
+            - assume-role-staging
           filters:
             branches:
-              only: development
-      - deploy-to-development:
+              only: master
+      - migrate-database-staging:
+          requires:
+            - terraform-init-and-apply-to-staging
+          filters:
+            branches:
+              only: master
+      - deploy-to-staging:
           context: api-nuget-token-context
           requires:
-            - terraform-init-and-apply-to-development
+            - terraform-init-and-apply-to-staging
+            - migrate-database-staging
           filters:
             branches:
-              only: development
-#   check-and-deploy-staging-and-production:
-#       jobs:
-#       - build-and-test:
-#           context: api-nuget-token-context
-#           filters:
-#             branches:
-#               only: master
-#       - assume-role-staging:
-#           context: api-assume-role-staging-context
-#           requires:
-#               - build-and-test
-#           filters:
-#              branches:
-#                only: master
-#       - terraform-init-and-apply-to-staging:
-#           requires:
-#             - assume-role-staging
-#           filters:
-#             branches:
-#               only: master
-#       - deploy-to-staging:
-#           context: api-nuget-token-context
-#           requires:
-#             - terraform-init-and-apply-to-staging
-#           filters:
-#             branches:
-#               only: master
-#       - permit-production-terraform-release:
-#           type: approval
-#           requires:
-#             - deploy-to-staging
-#       - assume-role-production:
-#           context: api-assume-role-production-context
-#           requires:
-#               - permit-production-terraform-release
-#           filters:
-#              branches:
-#                only: master
-#       - terraform-init-and-apply-to-production:
-#           requires:
-#             - assume-role-production
-#           filters:
-#             branches:
-#               only: master
-#       - permit-production-release:
-#           type: approval
-#           requires:
-#             - deploy-to-staging
-#           filters:
-#             branches:
-#               only: master
-#       - deploy-to-production:
-#           context: api-nuget-token-context
-#           requires:
-#             - permit-production-release
-#             - terraform-init-and-apply-to-production
-#           filters:
-#             branches:
-#               only: master
+              only: master
+      - permit-production-terraform-release:
+          type: approval
+          requires:
+            - deploy-to-staging
+      - assume-role-production:
+          context: api-assume-role-social-care-production-context
+          requires:
+              - permit-production-terraform-release
+          filters:
+             branches:
+               only: master
+      - terraform-init-and-apply-to-production:
+          requires:
+            - assume-role-production
+          filters:
+            branches:
+              only: master
+      - migrate-database-production:
+          requires:
+            - terraform-init-and-apply-to-production
+          filters:
+            branches:
+              only: master
+      - permit-production-release:
+          type: approval
+          requires:
+            - deploy-to-staging
+          filters:
+            branches:
+              only: master
+      - deploy-to-production:
+          context: api-nuget-token-context
+          requires:
+            - permit-production-release
+            - terraform-init-and-apply-to-production
+            - migrate-database-production
+          filters:
+            branches:
+              only: master

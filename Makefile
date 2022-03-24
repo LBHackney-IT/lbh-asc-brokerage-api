@@ -4,25 +4,47 @@ setup:
 
 .PHONY: build
 build:
-	docker-compose build base-api
+	docker-compose build brokerage-api
+
+.PHONY: build-test
+build-test: build
+	docker-compose build brokerage-api-test
 
 .PHONY: serve
-serve:
-	docker-compose build base-api && docker-compose up base-api
+serve: build migrate-dev-db
+	docker-compose up -d brokerage-api
 
 .PHONY: shell
-shell:
-	docker-compose run base-api bash
+shell: build
+	docker-compose run --rm brokerage-api bash
 
 .PHONY: test
-test:
-	docker-compose up test-database & docker-compose build base-api-test && docker-compose up base-api-test
+test: test-db build-test migrate-test-db
+	docker-compose run --rm brokerage-api-test
 
 .PHONY: lint
 lint:
-	-dotnet tool install -g dotnet-format
-	dotnet tool update -g dotnet-format
 	dotnet format
+
+.PHONY: migrate-dev-db
+migrate-dev-db: dev-db
+	docker-compose run --rm brokerage-api dotnet ef database update -p BrokerageApi -c BrokerageApi.V1.Infrastructure.BrokerageContext
+
+.PHONY: migrate-test-db
+migrate-test-db: test-db
+	docker-compose run --rm brokerage-api-test dotnet ef database update -p BrokerageApi -c BrokerageApi.V1.Infrastructure.BrokerageContext
+
+.PHONY: stop
+stop:
+	docker-compose down
+
+.PHONY: dev-db
+dev-db:
+	docker-compose up -d dev-database
+
+.PHONY: test-db
+test-db:
+	docker-compose up -d test-database
 
 .PHONY: restart-db
 restart-db:

@@ -1,0 +1,104 @@
+service: brokerage-api
+
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: dotnetcore3.1
+  memorySize: 2048
+  tracing:
+    lambda: true
+    apiGateway: true
+  vpc: ${self:custom.vpc.${opt:stage}}
+  stage: ${opt:stage}
+  region: eu-west-2
+  apiKeys:
+    - secureAccess:
+      - api-key-${self:service}-${self:provider.stage}
+  usagePlan:
+    - secureAccess:
+        throttle:
+          burstLimit: 200
+          rateLimit: 100
+
+package:
+  artifact: ./bin/release/netcoreapp3.1/brokerage-api.zip
+
+functions:
+  BrokerageApi:
+    name: ${self:service}-${self:provider.stage}
+    handler: BrokerageApi::BrokerageApi.LambdaEntryPoint::FunctionHandlerAsync
+    role: lambdaExecutionRole
+    environment:
+      CONNECTION_STRING: Host=${ssm:/brokerage-api/${self:provider.stage}/postgres-hostname};Port=${ssm:/brokerage-api/${self:provider.stage}/postgres-port};Database=brokerage-api-mirror;Username=${ssm:/brokerage-api/${self:provider.stage}/postgres-username};Password=${ssm:/brokerage-api/${self:provider.stage}/postgres-password}
+    events:
+      - http:
+          path: /{proxy+}
+          method: ANY
+          private: true
+      - http:
+          path: /swagger/{proxy+}
+          method: GET
+          private: false
+resources:
+  Resources:
+    lambdaExecutionRole:
+      Type: AWS::IAM::Role
+      Properties:
+        Path: /${self:service}/${self:provider.stage}/
+        RoleName: ${self:service}-lambdaExecutionRole
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+          - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+        Policies:
+          - PolicyName: manageLogs
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogGroup
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                  Resource:
+                    - 'Fn::Join':
+                        - ':'
+                        - - 'arn:aws:logs'
+                          - Ref: 'AWS::Region'
+                          - Ref: 'AWS::AccountId'
+                          - 'log-group:/aws/lambda/*:*:*'
+                - Effect: "Allow"
+                  Action:
+                    - "s3:PutObject"
+                    - "s3:GetObject"
+                  Resource:
+                    Fn::Join:
+                      - ""
+                      - - "arn:aws:s3:::"
+                        - "Ref": "ServerlessDeploymentBucket"
+          - PolicyName: lambdaInvocation
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - "lambda:InvokeFunction"
+                  Resource: "*"
+custom:
+  vpc:
+    staging:
+      subnetIds:
+        - subnet-0f5eeab6b619d5e1a # mosaic-stg-private-eu-west-2a
+        - subnet-0d4086ab96db46047 # mosaic-stg-private-eu-west-2b
+    production:
+      subnetIds:
+        - subnet-0c39cd286eeaff2b2 # Mosaic-prod-private-eu-west-2a
+        - subnet-04c42d0aafb3738ad # Mosaic-prod-private-eu-west-2b

@@ -59,7 +59,10 @@ bin/
 .idea/
 tmp/
 .vs/
-/base-api.Tests/Properties/launchSettings.json
+/BrokerageApi.Tests/Properties/launchSettings.json
 
 .fake
 .ionide
+
+# Ignore local copies of terraform state
+**/.terraform/*
