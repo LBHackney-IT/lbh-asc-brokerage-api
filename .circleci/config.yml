@@ -197,8 +197,10 @@ jobs:
 workflows:
   check-development:
     jobs:
-      - check-code-formatting
-      - build-and-test
+      - check-code-formatting:
+          context: api-nuget-token-context
+      - build-and-test:
+          context: api-nuget-token-context
   check-and-deploy-staging-and-production:
       jobs:
       - build-and-test:
