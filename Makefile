@@ -28,8 +28,7 @@ lint:
 
 .PHONY: migrate
 migrate: test-db
-	CONNECTION_STRING="Host=127.0.0.1;Port=5435;Username=postgres;Password=mypassword;Database=testdb" \
-	dotnet ef database update -p BrokerageApi -c BrokerageApi.V1.Infrastructure.BrokerageContext
+	docker-compose run --rm brokerage-api-test dotnet ef database update -p BrokerageApi -c BrokerageApi.V1.Infrastructure.BrokerageContext
 
 .PHONY: stop
 stop:

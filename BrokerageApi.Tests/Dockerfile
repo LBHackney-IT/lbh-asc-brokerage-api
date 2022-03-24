@@ -8,6 +8,12 @@ ENV LBHPACKAGESTOKEN=$LBHPACKAGESTOKEN
 
 WORKDIR /app
 
+# Install dotnet-ef tool to run migrations
+RUN dotnet tool install --global dotnet-ef
+
+# Ensure dotnet tools are in the path
+ENV PATH="$PATH:/root/.dotnet/tools"
+
 # Copy csproj and nuget config and restore as distinct layers
 COPY ./BrokerageApi.sln ./
 COPY ./BrokerageApi/BrokerageApi.csproj ./BrokerageApi/
