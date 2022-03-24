@@ -225,6 +225,7 @@ workflows:
             branches:
               only: master
       - migrate-database-staging:
+          context: api-nuget-token-context
           requires:
             - terraform-init-and-apply-to-staging
           filters:
