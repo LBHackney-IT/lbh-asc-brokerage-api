@@ -91,6 +91,8 @@ custom:
       subnetIds:
         - subnet-0f5eeab6b619d5e1a # mosaic-stg-private-eu-west-2a
         - subnet-0d4086ab96db46047 # mosaic-stg-private-eu-west-2b
+      securityGroupIds:
+        - sg-080d70d1f1158f7e1 # allow_brokerage_api_db_staging_db_traffic
     production:
       subnetIds:
         - subnet-0c39cd286eeaff2b2 # Mosaic-prod-private-eu-west-2a
