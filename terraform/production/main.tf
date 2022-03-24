@@ -30,7 +30,7 @@ locals {
   aws_region      = data.aws_region.current.name
   parameter_store = "arn:aws:ssm:${local.aws_region}:${local.aws_account}:parameter"
 
-  db_name = "brokerage-api-db-production"
+  db_name = "brokerage_api_db_production"
   db_port = "5432"
 }
 
