@@ -1,3 +1,4 @@
+using System;
 using System.Data.Common;
 using BrokerageApi.V1.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
@@ -31,6 +32,8 @@ namespace BrokerageApi.Tests
 
                 dbContext.Database.Migrate();
             });
+
+            Environment.SetEnvironmentVariable("REQUIRED_GOOGL_GROUPS", "saml-socialcarefinance-brokerage");
         }
 
         public BrokerageContext Context { get; set; }

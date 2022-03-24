@@ -1,9 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
 using BrokerageApi.V1.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -35,7 +40,10 @@ namespace BrokerageApi.Tests
         public void BaseSetup()
         {
             _factory = new MockWebApplicationFactory<TStartup>(_builder);
+
             Client = _factory.CreateClient();
+            Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", GenerateToken());
+
             _factory.Context.Database.Migrate();
             _transaction = _factory.Context.Database.BeginTransaction();
         }
@@ -109,6 +117,29 @@ namespace BrokerageApi.Tests
             {
                 throw new Exception($"Result Serialisation Failed. Response Had Code {result.StatusCode}, Response: {responseContent}", e);
             }
+        }
+
+        private static string GenerateToken()
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("super-secret-token"));
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                    new Claim("sub", "123456789012345678901"),
+                    new Claim("email", "a.broker@hackney.gov.uk"),
+                    new Claim("name", "A Broker"),
+                    new Claim("groups", "HackneyAll"),
+                    new Claim("groups", "saml-socialcarefinance-brokerage")
+                }),
+                Issuer = "Hackney",
+                IssuedAt = DateTime.UtcNow,
+                SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
     }
 }
