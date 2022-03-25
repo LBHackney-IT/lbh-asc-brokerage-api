@@ -15,6 +15,8 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public string Name { get; set; }
 
+        public DateTime? UrgentSince { get; set; }
+
         public string AssignedTo { get; set; }
 
         public ReferralStatus Status { get; set; }

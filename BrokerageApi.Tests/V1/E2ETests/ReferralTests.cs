@@ -44,7 +44,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "88114daf-788b-48af-917b-996420afbf61",
                 WorkflowType = WorkflowType.Assessment,
                 SocialCareId = "33556688",
-                Name = "A Service User"
+                Name = "A Service User",
+                UrgentSince = null
             };
 
             // Act
@@ -56,6 +57,37 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response.WorkflowType, Is.EqualTo(WorkflowType.Assessment));
             Assert.That(response.SocialCareId, Is.EqualTo("33556688"));
             Assert.That(response.Name, Is.EqualTo("A Service User"));
+            Assert.That(response.UrgentSince, Is.Null);
+            Assert.That(response.AssignedTo, Is.Null);
+            Assert.That(response.Status, Is.EqualTo(ReferralStatus.Unassigned));
+            Assert.That(response.CreatedAt, Is.EqualTo(DateTime.UtcNow).Within(2).Seconds);
+            Assert.That(response.UpdatedAt, Is.EqualTo(DateTime.UtcNow).Within(2).Seconds);
+        }
+
+        [Test]
+        public async Task CanCreateUrgentReferral()
+        {
+            // Arrange
+            var urgentSince = DateTime.UtcNow;
+            var request = new CreateReferralRequest()
+            {
+                WorkflowId = "88114daf-788b-48af-917b-996420afbf61",
+                WorkflowType = WorkflowType.Assessment,
+                SocialCareId = "33556688",
+                Name = "A Service User",
+                UrgentSince = urgentSince
+            };
+
+            // Act
+            var (code, response) = await Post<ReferralResponse>($"/api/v1/referrals", request);
+
+            // Assert
+            Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(response.WorkflowId, Is.EqualTo("88114daf-788b-48af-917b-996420afbf61"));
+            Assert.That(response.WorkflowType, Is.EqualTo(WorkflowType.Assessment));
+            Assert.That(response.SocialCareId, Is.EqualTo("33556688"));
+            Assert.That(response.Name, Is.EqualTo("A Service User"));
+            Assert.That(response.UrgentSince, Is.EqualTo(urgentSince));
             Assert.That(response.AssignedTo, Is.Null);
             Assert.That(response.Status, Is.EqualTo(ReferralStatus.Unassigned));
             Assert.That(response.CreatedAt, Is.EqualTo(DateTime.UtcNow).Within(2).Seconds);

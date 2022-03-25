@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using BrokerageApi.V1.Infrastructure;
 
@@ -16,5 +17,7 @@ namespace BrokerageApi.V1.Boundary.Request
 
         [Required]
         public string Name { get; set; }
+
+        public DateTime? UrgentSince { get; set; }
     }
 }
