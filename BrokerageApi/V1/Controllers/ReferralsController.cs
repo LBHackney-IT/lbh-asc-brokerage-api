@@ -21,14 +21,17 @@ namespace BrokerageApi.V1.Controllers
     {
         private readonly ICreateReferralUseCase _createReferralUseCase;
         private readonly IGetCurrentReferralsUseCase _getCurrentReferralsUseCase;
+        private readonly IGetReferralByIdUseCase _getReferralByIdUseCase;
 
         public ReferralsController(
           ICreateReferralUseCase createReferralUseCase,
-          IGetCurrentReferralsUseCase getCurrentReferralsUseCase
+          IGetCurrentReferralsUseCase getCurrentReferralsUseCase,
+          IGetReferralByIdUseCase getReferralByIdUseCase
         )
         {
             _createReferralUseCase = createReferralUseCase;
             _getCurrentReferralsUseCase = getCurrentReferralsUseCase;
+            _getReferralByIdUseCase = getReferralByIdUseCase;
         }
 
         [HttpPost]
@@ -69,6 +72,28 @@ namespace BrokerageApi.V1.Controllers
         {
             var referrals = await _getCurrentReferralsUseCase.ExecuteAsync(status);
             return Ok(referrals.Select(r => r.ToResponse()).ToList());
+        }
+
+        [HttpGet]
+        [Route("{id}")]
+        [ProducesResponseType(typeof(ReferralResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetReferral([FromRoute] int id)
+        {
+            var referral = await _getReferralByIdUseCase.ExecuteAsync(id);
+
+            if (referral is null)
+            {
+                return Problem(
+                    "The requested referral was not found",
+                    $"/api/v1/referrals/{id}",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+
+            return Ok(referral.ToResponse());
         }
     }
 }

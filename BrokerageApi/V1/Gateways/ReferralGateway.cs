@@ -51,5 +51,12 @@ namespace BrokerageApi.V1.Gateways
                 .Where(r => r.WorkflowId == workflowId)
                 .SingleOrDefaultAsync();
         }
+
+        public async Task<Referral> GetByIdAsync(int id)
+        {
+            return await _context.Referrals
+                .Where(r => r.Id == id)
+                .SingleOrDefaultAsync();
+        }
     }
 }

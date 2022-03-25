@@ -24,6 +24,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Fixture _fixture;
         private Mock<ICreateReferralUseCase> _createReferralUseCaseMock;
         private Mock<IGetCurrentReferralsUseCase> _getCurrentReferralsUseCaseMock;
+        private Mock<IGetReferralByIdUseCase> _getReferralByIdUseCaseCaseMock;
         private MockProblemDetailsFactory _problemDetailsFactoryMock;
 
         private ReferralsController _classUnderTest;
@@ -34,11 +35,13 @@ namespace BrokerageApi.Tests.V1.Controllers
             _fixture = FixtureHelpers.Fixture;
             _createReferralUseCaseMock = new Mock<ICreateReferralUseCase>();
             _getCurrentReferralsUseCaseMock = new Mock<IGetCurrentReferralsUseCase>();
+            _getReferralByIdUseCaseCaseMock = new Mock<IGetReferralByIdUseCase>();
             _problemDetailsFactoryMock = new MockProblemDetailsFactory();
 
             _classUnderTest = new ReferralsController(
                 _createReferralUseCaseMock.Object,
-                _getCurrentReferralsUseCaseMock.Object
+                _getCurrentReferralsUseCaseMock.Object,
+                _getReferralByIdUseCaseCaseMock.Object
             );
 
             // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
@@ -100,6 +103,40 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
             result.Should().BeEquivalentTo(referrals.Select(r => r.ToResponse()).ToList());
+        }
+
+        [Test]
+        public async Task GetReferral()
+        {
+            // Arrange
+            var referral = _fixture.Create<Referral>();
+            _getReferralByIdUseCaseCaseMock.Setup(x => x.ExecuteAsync(referral.Id))
+                .ReturnsAsync(referral);
+
+            // Act
+            var objectResult = await _classUnderTest.GetReferral(referral.Id);
+            var statusCode = GetStatusCode(objectResult);
+            var result = GetResultData<ReferralResponse>(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            result.Should().BeEquivalentTo(referral.ToResponse());
+        }
+
+        [Test]
+        public async Task GetReferralWhenDoesNotExist()
+        {
+            // Arrange
+            _getReferralByIdUseCaseCaseMock.Setup(x => x.ExecuteAsync(404))
+                .ReturnsAsync(null as Referral);
+
+            // Act
+            var objectResult = await _classUnderTest.GetReferral(404);
+            var statusCode = GetStatusCode(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.NotFound);
+            _problemDetailsFactoryMock.VerifyStatusCode(HttpStatusCode.NotFound);
         }
     }
 }

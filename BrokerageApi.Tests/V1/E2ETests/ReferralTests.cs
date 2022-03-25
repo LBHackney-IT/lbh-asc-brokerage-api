@@ -237,5 +237,31 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response, Contains.Item(unassignedReferral.ToResponse()).Using(comparer));
             Assert.That(response, Does.Not.Contain(inReviewReferral.ToResponse()).Using(comparer));
         }
+
+        [Test]
+        public async Task CanGetReferralById()
+        {
+            // Arrange
+            var comparer = new ReferralResponseComparer();
+
+            var referral = new Referral()
+            {
+                WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
+                WorkflowType = WorkflowType.Assessment,
+                SocialCareId = "33556688",
+                Name = "A Service User",
+                Status = ReferralStatus.Unassigned
+            };
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.SaveChangesAsync();
+
+            // Act
+            var (code, response) = await Get<ReferralResponse>($"/api/v1/referrals/{referral.Id}");
+
+            // Assert
+            Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(response, Is.EqualTo(referral.ToResponse()).Using(comparer));
+        }
     }
 }
