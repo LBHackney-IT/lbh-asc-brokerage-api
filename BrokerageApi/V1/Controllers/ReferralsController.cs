@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Factories;
+using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.UseCase.Interfaces;
 
 namespace BrokerageApi.V1.Controllers
@@ -64,9 +65,9 @@ namespace BrokerageApi.V1.Controllers
         [Route("current")]
         [ProducesResponseType(typeof(List<ReferralResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetCurrentReferrals()
+        public async Task<IActionResult> GetCurrentReferrals([FromQuery] ReferralStatus? status = null)
         {
-            var referrals = await _getCurrentReferralsUseCase.ExecuteAsync();
+            var referrals = await _getCurrentReferralsUseCase.ExecuteAsync(status);
             return Ok(referrals.Select(r => r.ToResponse()).ToList());
         }
     }

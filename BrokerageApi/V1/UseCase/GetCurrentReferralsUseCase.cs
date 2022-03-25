@@ -15,9 +15,9 @@ namespace BrokerageApi.V1.UseCase
             _referralGateway = referralGateway;
         }
 
-        public async Task<IEnumerable<Referral>> ExecuteAsync()
+        public async Task<IEnumerable<Referral>> ExecuteAsync(ReferralStatus? status = null)
         {
-            return await _referralGateway.GetCurrentAsync();
+            return await _referralGateway.GetCurrentAsync(status);
         }
     }
 }

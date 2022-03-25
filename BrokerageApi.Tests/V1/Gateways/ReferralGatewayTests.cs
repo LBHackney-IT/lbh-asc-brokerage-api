@@ -154,6 +154,39 @@ namespace BrokerageApi.Tests.V1.Gateways
         }
 
         [Test]
+        public async Task GetsFilteredCurrentReferrals()
+        {
+            // Arrange
+            var unassignedReferral = new Referral()
+            {
+                WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
+                WorkflowType = WorkflowType.Assessment,
+                SocialCareId = "33556688",
+                Name = "A Service User",
+                Status = ReferralStatus.Unassigned
+            };
+
+            var inReviewReferral = new Referral()
+            {
+                WorkflowId = "b018672b-a169-4b35-afa7-b8a9344073c1",
+                WorkflowType = WorkflowType.Assessment,
+                SocialCareId = "33556688",
+                Name = "A Service User",
+                Status = ReferralStatus.InReview
+            };
+
+            await BrokerageContext.Referrals.AddAsync(unassignedReferral);
+            await BrokerageContext.Referrals.AddAsync(inReviewReferral);
+            await BrokerageContext.SaveChangesAsync();
+
+            // Act
+            var result = await _classUnderTest.GetCurrentAsync(ReferralStatus.Unassigned);
+
+            Assert.That(result, Contains.Item(unassignedReferral));
+            Assert.That(result, Does.Not.Contain(inReviewReferral));
+        }
+
+        [Test]
         public async Task GetsReferralByWorkflowId()
         {
             // Arrange

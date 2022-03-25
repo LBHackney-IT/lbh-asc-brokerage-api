@@ -32,11 +32,27 @@ namespace BrokerageApi.Tests.V1.UseCase
             // Arrange
             var expectedReferrals = _fixture.CreateMany<Referral>();
             _mockReferralGateway
-                .Setup(x => x.GetCurrentAsync())
+                .Setup(x => x.GetCurrentAsync(null))
                 .ReturnsAsync(expectedReferrals);
 
             // Act
-            var result = await _classUnderTest.ExecuteAsync();
+            var result = await _classUnderTest.ExecuteAsync(null);
+
+            // Assert
+            result.Should().BeEquivalentTo(expectedReferrals);
+        }
+
+        [Test]
+        public async Task GetFilteredCurrentReferrals()
+        {
+            // Arrange
+            var expectedReferrals = _fixture.CreateMany<Referral>();
+            _mockReferralGateway
+                .Setup(x => x.GetCurrentAsync(ReferralStatus.Unassigned))
+                .ReturnsAsync(expectedReferrals);
+
+            // Act
+            var result = await _classUnderTest.ExecuteAsync(ReferralStatus.Unassigned);
 
             // Assert
             result.Should().BeEquivalentTo(expectedReferrals);

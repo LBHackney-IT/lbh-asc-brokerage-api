@@ -200,5 +200,42 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response, Does.Not.Contain(archivedReferral.ToResponse()).Using(comparer));
             Assert.That(response, Does.Not.Contain(approvedReferral.ToResponse()).Using(comparer));
         }
+
+        [Test]
+        public async Task CanGetFilteredCurrentReferrals()
+        {
+            // Arrange
+            var comparer = new ReferralResponseComparer();
+
+            var unassignedReferral = new Referral()
+            {
+                WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
+                WorkflowType = WorkflowType.Assessment,
+                SocialCareId = "33556688",
+                Name = "A Service User",
+                Status = ReferralStatus.Unassigned
+            };
+
+            var inReviewReferral = new Referral()
+            {
+                WorkflowId = "b018672b-a169-4b35-afa7-b8a9344073c1",
+                WorkflowType = WorkflowType.Assessment,
+                SocialCareId = "33556688",
+                Name = "A Service User",
+                Status = ReferralStatus.InReview
+            };
+
+            await Context.Referrals.AddAsync(unassignedReferral);
+            await Context.Referrals.AddAsync(inReviewReferral);
+            await Context.SaveChangesAsync();
+
+            // Act
+            var (code, response) = await Get<List<ReferralResponse>>($"/api/v1/referrals/current?status=Unassigned");
+
+            // Assert
+            Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(response, Contains.Item(unassignedReferral.ToResponse()).Using(comparer));
+            Assert.That(response, Does.Not.Contain(inReviewReferral.ToResponse()).Using(comparer));
+        }
     }
 }
