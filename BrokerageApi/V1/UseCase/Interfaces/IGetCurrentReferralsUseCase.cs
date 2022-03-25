@@ -6,6 +6,6 @@ namespace BrokerageApi.V1.UseCase.Interfaces
 {
     public interface IGetCurrentReferralsUseCase
     {
-        public Task<IEnumerable<Referral>> ExecuteAsync();
+        public Task<IEnumerable<Referral>> ExecuteAsync(ReferralStatus? status = null);
     }
 }

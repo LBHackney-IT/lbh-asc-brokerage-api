@@ -71,11 +71,29 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             var referrals = _fixture.CreateMany<Referral>();
-            _getCurrentReferralsUseCaseMock.Setup(x => x.ExecuteAsync())
+            _getCurrentReferralsUseCaseMock.Setup(x => x.ExecuteAsync(null))
                 .ReturnsAsync(referrals);
 
             // Act
-            var objectResult = await _classUnderTest.GetCurrentReferrals();
+            var objectResult = await _classUnderTest.GetCurrentReferrals(null);
+            var statusCode = GetStatusCode(objectResult);
+            var result = GetResultData<List<ReferralResponse>>(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            result.Should().BeEquivalentTo(referrals.Select(r => r.ToResponse()).ToList());
+        }
+
+        [Test]
+        public async Task GetFilteredCurrentReferrals()
+        {
+            // Arrange
+            var referrals = _fixture.CreateMany<Referral>();
+            _getCurrentReferralsUseCaseMock.Setup(x => x.ExecuteAsync(ReferralStatus.Unassigned))
+                .ReturnsAsync(referrals);
+
+            // Act
+            var objectResult = await _classUnderTest.GetCurrentReferrals(ReferralStatus.Unassigned);
             var statusCode = GetStatusCode(objectResult);
             var result = GetResultData<List<ReferralResponse>>(objectResult);
 

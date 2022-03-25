@@ -24,13 +24,25 @@ namespace BrokerageApi.V1.Gateways
             return entry.Entity;
         }
 
-        public async Task<IEnumerable<Referral>> GetCurrentAsync()
+        public async Task<IEnumerable<Referral>> GetCurrentAsync(ReferralStatus? status = null)
         {
-            return await _context.Referrals
-                .Where(r => r.Status != ReferralStatus.Archived)
-                .Where(r => r.Status != ReferralStatus.Approved)
-                .OrderBy(r => r.Id)
-                .ToListAsync();
+            if (status == null)
+            {
+                return await _context.Referrals
+                    .Where(r => r.Status != ReferralStatus.Archived)
+                    .Where(r => r.Status != ReferralStatus.Approved)
+                    .OrderBy(r => r.Id)
+                    .ToListAsync();
+            }
+            else
+            {
+                return await _context.Referrals
+                    .Where(r => r.Status != ReferralStatus.Archived)
+                    .Where(r => r.Status != ReferralStatus.Approved)
+                    .Where(r => r.Status == status)
+                    .OrderBy(r => r.Id)
+                    .ToListAsync();
+            }
         }
 
         public async Task<Referral> GetByWorkflowIdAsync(string workflowId)
