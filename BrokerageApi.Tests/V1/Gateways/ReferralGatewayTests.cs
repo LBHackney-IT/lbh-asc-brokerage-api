@@ -200,6 +200,20 @@ namespace BrokerageApi.Tests.V1.Gateways
             result.Should().BeEquivalentTo(referral);
         }
 
+        [Test]
+        public async Task GetsReferralById()
+        {
+            // Arrange
+            var workflowId = "88114daf-788b-48af-917b-996420afbf61";
+            var referral = await AddReferral(workflowId);
+
+            // Act
+            var result = await _classUnderTest.GetByIdAsync(referral.Id);
+
+            // Assert
+            result.Should().BeEquivalentTo(referral);
+        }
+
         private async Task<Referral> AddReferral(string workflowId)
         {
             var referral = BuildReferral(workflowId);
