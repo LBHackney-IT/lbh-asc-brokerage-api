@@ -23,5 +23,19 @@ namespace BrokerageApi.V1.Factories
                 UpdatedAt = referral.UpdatedAt
             };
         }
+
+        public static UserResponse ToResponse(this User user)
+        {
+            return new UserResponse
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                Roles = user.Roles,
+                IsActive = user.IsActive,
+                CreatedAt = user.CreatedAt,
+                UpdatedAt = user.UpdatedAt
+            };
+        }
     }
 }
