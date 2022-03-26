@@ -162,6 +162,7 @@ namespace BrokerageApi
         private static void RegisterGateways(IServiceCollection services)
         {
             services.AddScoped<IReferralGateway, ReferralGateway>();
+            services.AddScoped<IUserGateway, UserGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
@@ -169,6 +170,7 @@ namespace BrokerageApi
             services.AddTransient<ICreateReferralUseCase, CreateReferralUseCase>();
             services.AddTransient<IGetCurrentReferralsUseCase, GetCurrentReferralsUseCase>();
             services.AddTransient<IGetReferralByIdUseCase, GetReferralByIdUseCase>();
+            services.AddTransient<IGetAllUsersUseCase, GetAllUsersUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

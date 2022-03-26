@@ -12,6 +12,7 @@ namespace BrokerageApi.V1.Infrastructure
         {
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ReferralStatus>("referral_status");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<WorkflowType>("workflow_type");
+            NpgsqlConnection.GlobalTypeMapper.MapEnum<UserRole>("user_role");
         }
 
         public BrokerageContext(DbContextOptions options) : base(options)
@@ -19,6 +20,7 @@ namespace BrokerageApi.V1.Infrastructure
         }
 
         public DbSet<Referral> Referrals { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -30,9 +32,14 @@ namespace BrokerageApi.V1.Infrastructure
         {
             modelBuilder.HasPostgresEnum<ReferralStatus>();
             modelBuilder.HasPostgresEnum<WorkflowType>();
+            modelBuilder.HasPostgresEnum<UserRole>();
 
             modelBuilder.Entity<Referral>()
                 .HasIndex(r => r.WorkflowId)
+                .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
                 .IsUnique();
         }
 
