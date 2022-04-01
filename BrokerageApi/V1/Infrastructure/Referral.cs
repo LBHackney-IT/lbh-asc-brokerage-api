@@ -14,6 +14,9 @@ namespace BrokerageApi.V1.Infrastructure
         public WorkflowType WorkflowType { get; set; }
 
         [Required]
+        public string FormName { get; set; }
+
+        [Required]
         public string SocialCareId { get; set; }
 
         [Required]

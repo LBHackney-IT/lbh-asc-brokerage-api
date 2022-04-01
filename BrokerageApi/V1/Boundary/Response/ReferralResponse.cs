@@ -15,6 +15,9 @@ namespace BrokerageApi.V1.Boundary.Response
         public WorkflowType WorkflowType { get; set; }
 
         [JsonProperty(Required = Required.DisallowNull)]
+        public string FormName { get; set; }
+
+        [JsonProperty(Required = Required.DisallowNull)]
         public string SocialCareId { get; set; }
 
         [JsonProperty(Required = Required.DisallowNull)]

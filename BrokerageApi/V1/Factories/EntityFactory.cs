@@ -11,6 +11,7 @@ namespace BrokerageApi.V1.Factories
             {
                 WorkflowId = request.WorkflowId,
                 WorkflowType = request.WorkflowType,
+                FormName = request.FormName,
                 SocialCareId = request.SocialCareId,
                 ResidentName = request.ResidentName,
                 UrgentSince = request.UrgentSince,
