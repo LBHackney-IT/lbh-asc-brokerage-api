@@ -44,7 +44,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "88114daf-788b-48af-917b-996420afbf61",
                 WorkflowType = WorkflowType.Assessment,
                 SocialCareId = "33556688",
-                Name = "A Service User",
+                ResidentName = "A Service User",
                 UrgentSince = null
             };
 
@@ -56,7 +56,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response.WorkflowId, Is.EqualTo("88114daf-788b-48af-917b-996420afbf61"));
             Assert.That(response.WorkflowType, Is.EqualTo(WorkflowType.Assessment));
             Assert.That(response.SocialCareId, Is.EqualTo("33556688"));
-            Assert.That(response.Name, Is.EqualTo("A Service User"));
+            Assert.That(response.ResidentName, Is.EqualTo("A Service User"));
             Assert.That(response.UrgentSince, Is.Null);
             Assert.That(response.AssignedTo, Is.Null);
             Assert.That(response.Status, Is.EqualTo(ReferralStatus.Unassigned));
@@ -74,7 +74,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "88114daf-788b-48af-917b-996420afbf61",
                 WorkflowType = WorkflowType.Assessment,
                 SocialCareId = "33556688",
-                Name = "A Service User",
+                ResidentName = "A Service User",
                 UrgentSince = urgentSince
             };
 
@@ -86,7 +86,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response.WorkflowId, Is.EqualTo("88114daf-788b-48af-917b-996420afbf61"));
             Assert.That(response.WorkflowType, Is.EqualTo(WorkflowType.Assessment));
             Assert.That(response.SocialCareId, Is.EqualTo("33556688"));
-            Assert.That(response.Name, Is.EqualTo("A Service User"));
+            Assert.That(response.ResidentName, Is.EqualTo("A Service User"));
             Assert.That(response.UrgentSince, Is.EqualTo(urgentSince));
             Assert.That(response.AssignedTo, Is.Null);
             Assert.That(response.Status, Is.EqualTo(ReferralStatus.Unassigned));
@@ -105,7 +105,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
                 WorkflowType = WorkflowType.Assessment,
                 SocialCareId = "33556688",
-                Name = "A Service User",
+                ResidentName = "A Service User",
                 Status = ReferralStatus.Unassigned
             };
 
@@ -114,7 +114,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "b018672b-a169-4b35-afa7-b8a9344073c1",
                 WorkflowType = WorkflowType.Assessment,
                 SocialCareId = "33556688",
-                Name = "A Service User",
+                ResidentName = "A Service User",
                 Status = ReferralStatus.InReview
             };
 
@@ -123,7 +123,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "755caa62-3602-4229-90da-e30199a0336d",
                 WorkflowType = WorkflowType.Assessment,
                 SocialCareId = "33556688",
-                Name = "A Service User",
+                ResidentName = "A Service User",
                 AssignedTo = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.Assigned
             };
@@ -133,7 +133,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "ff245519-a28e-426c-ad13-4459216a2b2f",
                 WorkflowType = WorkflowType.Assessment,
                 SocialCareId = "33556688",
-                Name = "A Service User",
+                ResidentName = "A Service User",
                 Status = ReferralStatus.OnHold
             };
 
@@ -142,7 +142,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "c265bf16-dbc4-4d6d-afdf-9f9fd4ec7d14",
                 WorkflowType = WorkflowType.Assessment,
                 SocialCareId = "33556688",
-                Name = "A Service User",
+                ResidentName = "A Service User",
                 Status = ReferralStatus.Archived
             };
 
@@ -151,7 +151,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "3e48adb1-0ca2-456c-845a-efcd4eca4554",
                 WorkflowType = WorkflowType.Assessment,
                 SocialCareId = "33556688",
-                Name = "A Service User",
+                ResidentName = "A Service User",
                 AssignedTo = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.InProgress
             };
@@ -161,7 +161,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "9cab0511-094f-4d6b-ba81-7246ec0dc716",
                 WorkflowType = WorkflowType.Assessment,
                 SocialCareId = "33556688",
-                Name = "A Service User",
+                ResidentName = "A Service User",
                 AssignedTo = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.AwaitingApproval
             };
@@ -171,7 +171,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "174079ae-75b4-43b4-9d29-363e88e7dd40",
                 WorkflowType = WorkflowType.Assessment,
                 SocialCareId = "33556688",
-                Name = "A Service User",
+                ResidentName = "A Service User",
                 AssignedTo = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.Approved
             };
@@ -212,7 +212,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
                 WorkflowType = WorkflowType.Assessment,
                 SocialCareId = "33556688",
-                Name = "A Service User",
+                ResidentName = "A Service User",
                 Status = ReferralStatus.Unassigned
             };
 
@@ -221,7 +221,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "b018672b-a169-4b35-afa7-b8a9344073c1",
                 WorkflowType = WorkflowType.Assessment,
                 SocialCareId = "33556688",
-                Name = "A Service User",
+                ResidentName = "A Service User",
                 Status = ReferralStatus.InReview
             };
 
@@ -249,7 +249,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
                 WorkflowType = WorkflowType.Assessment,
                 SocialCareId = "33556688",
-                Name = "A Service User",
+                ResidentName = "A Service User",
                 Status = ReferralStatus.Unassigned
             };
 

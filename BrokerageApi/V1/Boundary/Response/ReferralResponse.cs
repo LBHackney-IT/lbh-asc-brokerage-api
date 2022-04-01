@@ -18,7 +18,7 @@ namespace BrokerageApi.V1.Boundary.Response
         public string SocialCareId { get; set; }
 
         [JsonProperty(Required = Required.DisallowNull)]
-        public string Name { get; set; }
+        public string ResidentName { get; set; }
 
         public DateTime? UrgentSince { get; set; }
 

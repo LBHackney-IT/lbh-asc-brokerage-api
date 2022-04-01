@@ -17,7 +17,7 @@ namespace BrokerageApi.V1.Infrastructure
         public string SocialCareId { get; set; }
 
         [Required]
-        public string Name { get; set; }
+        public string ResidentName { get; set; }
 
         public DateTime? UrgentSince { get; set; }
 

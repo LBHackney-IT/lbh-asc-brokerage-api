@@ -15,7 +15,7 @@ namespace BrokerageApi.V1.Factories
                 WorkflowId = referral.WorkflowId,
                 WorkflowType = referral.WorkflowType,
                 SocialCareId = referral.SocialCareId,
-                Name = referral.Name,
+                ResidentName = referral.ResidentName,
                 UrgentSince = referral.UrgentSince,
                 Status = referral.Status,
                 AssignedTo = referral.AssignedTo,
