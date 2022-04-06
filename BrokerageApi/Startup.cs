@@ -125,6 +125,8 @@ namespace BrokerageApi
 
             RegisterGateways(services);
             RegisterUseCases(services);
+
+            services.AddTransient<IDbSaver, DbSaver>();
         }
 
         private void ConfigureDbContext(IServiceCollection services)
@@ -171,6 +173,7 @@ namespace BrokerageApi
             services.AddTransient<IGetCurrentReferralsUseCase, GetCurrentReferralsUseCase>();
             services.AddTransient<IGetReferralByIdUseCase, GetReferralByIdUseCase>();
             services.AddTransient<IGetAllUsersUseCase, GetAllUsersUseCase>();
+            services.AddTransient<IAssignBrokerToReferralUseCase, AssignBrokerToReferralUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

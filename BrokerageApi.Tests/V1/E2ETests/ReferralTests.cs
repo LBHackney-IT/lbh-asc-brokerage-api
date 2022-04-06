@@ -276,5 +276,46 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(response, Is.EqualTo(referral.ToResponse()).Using(comparer));
         }
+
+        [Test]
+        public async Task CanAssignReferral()
+        {
+            var request = new AssignBrokerRequest()
+            {
+                Broker = "a.broker@hackney.gov.uk"
+            };
+
+            var referral = new Referral()
+            {
+                WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                Status = ReferralStatus.Unassigned
+            };
+
+            var broker = new User()
+            {
+                Name = "A Broker",
+                Email = "a.broker@hackney.gov.uk",
+                IsActive = true,
+                Roles = new List<UserRole>() {
+                    UserRole.Broker
+                }
+            };
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.Users.AddAsync(broker);
+            await Context.SaveChangesAsync();
+
+            // Act
+            var (code, response) = await Post<ReferralResponse>($"/api/v1/referrals/{referral.Id}/assign", request);
+
+            // Assert
+            Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(response.Status, Is.EqualTo(ReferralStatus.Assigned));
+            Assert.That(response.AssignedTo, Is.EqualTo("a.broker@hackney.gov.uk"));
+        }
     }
 }

@@ -22,16 +22,19 @@ namespace BrokerageApi.V1.Controllers
         private readonly ICreateReferralUseCase _createReferralUseCase;
         private readonly IGetCurrentReferralsUseCase _getCurrentReferralsUseCase;
         private readonly IGetReferralByIdUseCase _getReferralByIdUseCase;
+        private readonly IAssignBrokerToReferralUseCase _assignBrokerToReferralUseCase;
 
         public ReferralsController(
           ICreateReferralUseCase createReferralUseCase,
           IGetCurrentReferralsUseCase getCurrentReferralsUseCase,
-          IGetReferralByIdUseCase getReferralByIdUseCase
+          IGetReferralByIdUseCase getReferralByIdUseCase,
+          IAssignBrokerToReferralUseCase assignBrokerToReferralUseCase
         )
         {
             _createReferralUseCase = createReferralUseCase;
             _getCurrentReferralsUseCase = getCurrentReferralsUseCase;
             _getReferralByIdUseCase = getReferralByIdUseCase;
+            _assignBrokerToReferralUseCase = assignBrokerToReferralUseCase;
         }
 
         [HttpPost]
@@ -94,6 +97,37 @@ namespace BrokerageApi.V1.Controllers
             }
 
             return Ok(referral.ToResponse());
+        }
+
+        [HttpPost]
+        [Route("{id}/assign")]
+        [ProducesResponseType(typeof(ReferralResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> AssignBroker([FromRoute] int id, [FromBody] AssignBrokerRequest request)
+        {
+            try
+            {
+                var referral = await _assignBrokerToReferralUseCase.ExecuteAsync(id, request);
+                return Ok(referral.ToResponse());
+            }
+            catch (ArgumentException)
+            {
+                return Problem(
+                    "The requested referral was not found",
+                    $"/api/v1/referrals/{id}/assign",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (InvalidOperationException)
+            {
+                return Problem(
+                    "The requested referral was in an invalid state for assignment",
+                    $"/api/v1/referrals/{id}/assign",
+                    StatusCodes.Status400BadRequest, "Not Found"
+                );
+            }
         }
     }
 }
