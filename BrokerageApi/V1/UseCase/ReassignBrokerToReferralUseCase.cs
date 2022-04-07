@@ -7,12 +7,12 @@ using BrokerageApi.V1.UseCase.Interfaces;
 
 namespace BrokerageApi.V1.UseCase
 {
-    public class AssignBrokerToReferralUseCase : IAssignBrokerToReferralUseCase
+    public class ReassignBrokerToReferralUseCase : IReassignBrokerToReferralUseCase
     {
         private readonly IReferralGateway _referralGateway;
         private readonly IDbSaver _dbSaver;
 
-        public AssignBrokerToReferralUseCase(IReferralGateway referralGateway, IDbSaver dbSaver)
+        public ReassignBrokerToReferralUseCase(IReferralGateway referralGateway, IDbSaver dbSaver)
         {
             _referralGateway = referralGateway;
             _dbSaver = dbSaver;
@@ -27,21 +27,20 @@ namespace BrokerageApi.V1.UseCase
                 throw new ArgumentException($"Referral not found for: {referralId}");
             }
 
-            if (!CanBeAssigned(referral))
+            if (!CanBeReassigned(referral))
             {
-                throw new InvalidOperationException($"Referral is not in a valid state for assignment");
+                throw new InvalidOperationException($"Referral is not in a valid state for reassignment");
             }
 
-            referral.Status = ReferralStatus.Assigned;
             referral.AssignedTo = request.Broker;
             await _dbSaver.SaveChangesAsync();
 
             return referral;
         }
 
-        private static bool CanBeAssigned(Referral referral)
+        private static bool CanBeReassigned(Referral referral)
         {
-            return referral.Status == ReferralStatus.Unassigned;
+            return referral.Status == ReferralStatus.Assigned || referral.Status == ReferralStatus.InProgress;
         }
     }
 }
