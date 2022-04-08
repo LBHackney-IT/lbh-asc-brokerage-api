@@ -23,18 +23,21 @@ namespace BrokerageApi.V1.Controllers
         private readonly IGetCurrentReferralsUseCase _getCurrentReferralsUseCase;
         private readonly IGetReferralByIdUseCase _getReferralByIdUseCase;
         private readonly IAssignBrokerToReferralUseCase _assignBrokerToReferralUseCase;
+        private readonly IReassignBrokerToReferralUseCase _reassignBrokerToReferralUseCase;
 
         public ReferralsController(
           ICreateReferralUseCase createReferralUseCase,
           IGetCurrentReferralsUseCase getCurrentReferralsUseCase,
           IGetReferralByIdUseCase getReferralByIdUseCase,
-          IAssignBrokerToReferralUseCase assignBrokerToReferralUseCase
+          IAssignBrokerToReferralUseCase assignBrokerToReferralUseCase,
+          IReassignBrokerToReferralUseCase reassignBrokerToReferralUseCase
         )
         {
             _createReferralUseCase = createReferralUseCase;
             _getCurrentReferralsUseCase = getCurrentReferralsUseCase;
             _getReferralByIdUseCase = getReferralByIdUseCase;
             _assignBrokerToReferralUseCase = assignBrokerToReferralUseCase;
+            _reassignBrokerToReferralUseCase = reassignBrokerToReferralUseCase;
         }
 
         [HttpPost]
@@ -125,7 +128,38 @@ namespace BrokerageApi.V1.Controllers
                 return Problem(
                     "The requested referral was in an invalid state for assignment",
                     $"/api/v1/referrals/{id}/assign",
-                    StatusCodes.Status400BadRequest, "Not Found"
+                    StatusCodes.Status400BadRequest, "Bad Request"
+                );
+            }
+        }
+
+        [HttpPost]
+        [Route("{id}/reassign")]
+        [ProducesResponseType(typeof(ReferralResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ReassignBroker([FromRoute] int id, [FromBody] AssignBrokerRequest request)
+        {
+            try
+            {
+                var referral = await _reassignBrokerToReferralUseCase.ExecuteAsync(id, request);
+                return Ok(referral.ToResponse());
+            }
+            catch (ArgumentException)
+            {
+                return Problem(
+                    "The requested referral was not found",
+                    $"/api/v1/referrals/{id}/reassign",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (InvalidOperationException)
+            {
+                return Problem(
+                    "The requested referral was in an invalid state for reassignment",
+                    $"/api/v1/referrals/{id}/reassign",
+                    StatusCodes.Status400BadRequest, "Bad Request"
                 );
             }
         }

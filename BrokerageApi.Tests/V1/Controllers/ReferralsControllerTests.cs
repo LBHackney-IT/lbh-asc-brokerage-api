@@ -26,6 +26,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Mock<IGetCurrentReferralsUseCase> _getCurrentReferralsUseCaseMock;
         private Mock<IGetReferralByIdUseCase> _getReferralByIdUseCaseMock;
         private Mock<IAssignBrokerToReferralUseCase> _assignBrokerToReferralUseCaseMock;
+        private Mock<IReassignBrokerToReferralUseCase> _reassignBrokerToReferralUseCaseMock;
         private MockProblemDetailsFactory _problemDetailsFactoryMock;
 
         private ReferralsController _classUnderTest;
@@ -38,13 +39,15 @@ namespace BrokerageApi.Tests.V1.Controllers
             _getCurrentReferralsUseCaseMock = new Mock<IGetCurrentReferralsUseCase>();
             _getReferralByIdUseCaseMock = new Mock<IGetReferralByIdUseCase>();
             _assignBrokerToReferralUseCaseMock = new Mock<IAssignBrokerToReferralUseCase>();
+            _reassignBrokerToReferralUseCaseMock = new Mock<IReassignBrokerToReferralUseCase>();
             _problemDetailsFactoryMock = new MockProblemDetailsFactory();
 
             _classUnderTest = new ReferralsController(
                 _createReferralUseCaseMock.Object,
                 _getCurrentReferralsUseCaseMock.Object,
                 _getReferralByIdUseCaseMock.Object,
-                _assignBrokerToReferralUseCaseMock.Object
+                _assignBrokerToReferralUseCaseMock.Object,
+                _reassignBrokerToReferralUseCaseMock.Object
             );
 
             // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
@@ -204,6 +207,75 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Act
             var objectResult = await _classUnderTest.AssignBroker(referral.Id, request);
+            var statusCode = GetStatusCode(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.BadRequest);
+            _problemDetailsFactoryMock.VerifyStatusCode(HttpStatusCode.BadRequest);
+        }
+
+        [Test]
+        public async Task ReassignBroker()
+        {
+            // Arrange
+            var request = _fixture.Build<AssignBrokerRequest>()
+                .With(x => x.Broker, "a.broker@hackney.gov.uk")
+                .Create();
+
+            var referral = _fixture.Build<Referral>()
+                .With(x => x.Status, ReferralStatus.Assigned)
+                .Create();
+
+            _reassignBrokerToReferralUseCaseMock.Setup(x => x.ExecuteAsync(referral.Id, request))
+                .ReturnsAsync(referral);
+
+            // Act
+            var objectResult = await _classUnderTest.ReassignBroker(referral.Id, request);
+            var statusCode = GetStatusCode(objectResult);
+            var result = GetResultData<ReferralResponse>(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            result.Should().BeEquivalentTo(referral.ToResponse());
+        }
+
+        [Test]
+        public async Task ReassignBrokerWhenReferralDoesNotExist()
+        {
+            // Arrange
+            var request = _fixture.Build<AssignBrokerRequest>()
+                .With(x => x.Broker, "a.broker@hackney.gov.uk")
+                .Create();
+
+            _reassignBrokerToReferralUseCaseMock.Setup(x => x.ExecuteAsync(123456, request))
+                .ThrowsAsync(new ArgumentException("Referral not found for: 123456"));
+
+            // Act
+            var objectResult = await _classUnderTest.ReassignBroker(123456, request);
+            var statusCode = GetStatusCode(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.NotFound);
+            _problemDetailsFactoryMock.VerifyStatusCode(HttpStatusCode.NotFound);
+        }
+
+        [Test]
+        public async Task ReassignBrokerWhenReferralIsUnassigned()
+        {
+            // Arrange
+            var request = _fixture.Build<AssignBrokerRequest>()
+                .With(x => x.Broker, "a.broker@hackney.gov.uk")
+                .Create();
+
+            var referral = _fixture.Build<Referral>()
+                .With(x => x.Status, ReferralStatus.Unassigned)
+                .Create();
+
+            _reassignBrokerToReferralUseCaseMock.Setup(x => x.ExecuteAsync(referral.Id, request))
+                .ThrowsAsync(new InvalidOperationException("Referral is not in a valid state for assignment"));
+
+            // Act
+            var objectResult = await _classUnderTest.ReassignBroker(referral.Id, request);
             var statusCode = GetStatusCode(objectResult);
 
             // Assert
