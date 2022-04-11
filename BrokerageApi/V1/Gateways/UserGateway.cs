@@ -34,5 +34,12 @@ namespace BrokerageApi.V1.Gateways
                     .ToListAsync();
             }
         }
+
+        public async Task<User> GetByEmailAsync(string email)
+        {
+            return await _context.Users
+                .Where(u => u.Email == email)
+                .SingleOrDefaultAsync();
+        }
     }
 }

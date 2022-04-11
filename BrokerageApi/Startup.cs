@@ -210,6 +210,7 @@ namespace BrokerageApi
             });
             app.UseSwagger();
             app.UseGoogleGroupAuthorization();
+            app.UseUserRoles();
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
