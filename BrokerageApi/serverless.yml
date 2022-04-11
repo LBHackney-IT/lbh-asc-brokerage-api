@@ -29,6 +29,23 @@ functions:
           path: /{proxy+}
           method: ANY
           private: false
+          authorizer:
+            arn: ${ssm:/api-authenticator/${self:provider.stage}/arn}
+            type: request
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.Authorization
+            managedExternally: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - x-correlation-id
+            allowCredentials: false
       - http:
           path: /swagger/{proxy+}
           method: GET
