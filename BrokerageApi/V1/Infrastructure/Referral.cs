@@ -27,5 +27,7 @@ namespace BrokerageApi.V1.Infrastructure
         public string AssignedTo { get; set; }
 
         public ReferralStatus Status { get; set; }
+
+        public string Note { get; set; }
     }
 }
