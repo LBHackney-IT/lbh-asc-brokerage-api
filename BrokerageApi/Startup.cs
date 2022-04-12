@@ -24,8 +24,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using Hackney.Core.Authorization;
-using Hackney.Core.JWT;
 
 namespace BrokerageApi
 {
@@ -117,7 +115,6 @@ namespace BrokerageApi
             });
 
             services.AddSwaggerGenNewtonsoftSupport();
-            services.AddTokenFactory();
 
             ConfigureLogging(services, Configuration);
 
@@ -209,7 +206,6 @@ namespace BrokerageApi
                 }
             });
             app.UseSwagger();
-            app.UseGoogleGroupAuthorization();
             app.UseUserRoles();
             app.UseRouting();
             app.UseEndpoints(endpoints =>
