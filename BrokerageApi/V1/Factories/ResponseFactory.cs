@@ -20,6 +20,7 @@ namespace BrokerageApi.V1.Factories
                 UrgentSince = referral.UrgentSince,
                 Status = referral.Status,
                 AssignedTo = referral.AssignedTo,
+                Note = referral.Note,
                 CreatedAt = referral.CreatedAt,
                 UpdatedAt = referral.UpdatedAt
             };

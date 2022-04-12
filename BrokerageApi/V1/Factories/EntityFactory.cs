@@ -15,7 +15,8 @@ namespace BrokerageApi.V1.Factories
                 SocialCareId = request.SocialCareId,
                 ResidentName = request.ResidentName,
                 UrgentSince = request.UrgentSince,
-                Status = ReferralStatus.Unassigned
+                Status = ReferralStatus.Unassigned,
+                Note = request.Note
             };
         }
     }

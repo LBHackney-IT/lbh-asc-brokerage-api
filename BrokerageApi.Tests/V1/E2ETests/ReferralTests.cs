@@ -46,7 +46,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
-                UrgentSince = null
+                UrgentSince = null,
+                Note = "Some notes"
             };
 
             // Act
@@ -61,6 +62,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response.UrgentSince, Is.Null);
             Assert.That(response.AssignedTo, Is.Null);
             Assert.That(response.Status, Is.EqualTo(ReferralStatus.Unassigned));
+            Assert.That(response.Note, Is.EqualTo("Some notes"));
             Assert.That(response.CreatedAt, Is.EqualTo(DateTime.UtcNow).Within(2).Seconds);
             Assert.That(response.UpdatedAt, Is.EqualTo(DateTime.UtcNow).Within(2).Seconds);
         }
@@ -77,7 +79,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
-                UrgentSince = urgentSince
+                UrgentSince = urgentSince,
+                Note = "Some notes"
             };
 
             // Act
@@ -92,6 +95,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response.UrgentSince, Is.EqualTo(urgentSince));
             Assert.That(response.AssignedTo, Is.Null);
             Assert.That(response.Status, Is.EqualTo(ReferralStatus.Unassigned));
+            Assert.That(response.Note, Is.EqualTo("Some notes"));
             Assert.That(response.CreatedAt, Is.EqualTo(DateTime.UtcNow).Within(2).Seconds);
             Assert.That(response.UpdatedAt, Is.EqualTo(DateTime.UtcNow).Within(2).Seconds);
         }
