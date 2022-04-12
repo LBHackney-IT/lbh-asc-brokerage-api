@@ -32,8 +32,6 @@ namespace BrokerageApi.Tests
 
                 dbContext.Database.Migrate();
             });
-
-            Environment.SetEnvironmentVariable("REQUIRED_GOOGL_GROUPS", "saml-socialcarefinance-brokerage");
         }
 
         public BrokerageContext Context { get; set; }
