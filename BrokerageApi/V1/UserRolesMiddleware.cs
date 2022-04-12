@@ -25,6 +25,10 @@ namespace BrokerageApi.V1.Controllers
             // Get email from JWT
             var handler = new JwtSecurityTokenHandler();
             string authHeader = context.Request.Headers[Constants.Authorization];
+
+            // Remove `Bearer ` if present
+            authHeader = authHeader.Replace("Bearer ", "");
+
             var jsonToken = handler.ReadToken(authHeader);
             var jsonString = jsonToken.ToString();
 
@@ -36,10 +40,11 @@ namespace BrokerageApi.V1.Controllers
             // handler.ValidateToken(/* some service */)
 
             // Get roles from users table, set at x- header
-            string email = authObject["email"].ToString();
+            string email = authObject["email"]?.ToString();
             var user = await userGateway.GetByEmailAsync(email);
             if (user == null)
             {
+                Console.WriteLine("No match for " + email);
                 context.Request.Headers[Constants.UserRoles] = "";
             }
             else
