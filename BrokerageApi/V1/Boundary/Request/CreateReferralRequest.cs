@@ -22,5 +22,7 @@ namespace BrokerageApi.V1.Boundary.Request
         public string ResidentName { get; set; }
 
         public DateTime? UrgentSince { get; set; }
+
+        public string Note { get; set; }
     }
 }
