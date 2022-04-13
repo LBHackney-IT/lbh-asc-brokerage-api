@@ -35,7 +35,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
         {
         }
 
-        [Test]
+        [Test, Property("AsUser", "Referrer")]
         public async Task CanCreateReferral()
         {
             // Arrange
@@ -67,7 +67,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response.UpdatedAt, Is.EqualTo(DateTime.UtcNow).Within(2).Seconds);
         }
 
-        [Test]
+        [Test, Property("AsUser", "Referrer")]
         public async Task CanCreateUrgentReferral()
         {
             // Arrange
@@ -100,7 +100,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response.UpdatedAt, Is.EqualTo(DateTime.UtcNow).Within(2).Seconds);
         }
 
-        [Test]
+        [Test, Property("AsUser", "BrokerageAssistant")]
         public async Task CanGetCurrentReferrals()
         {
             // Arrange
@@ -215,7 +215,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response, Does.Not.Contain(approvedReferral.ToResponse()).Using(comparer));
         }
 
-        [Test]
+        [Test, Property("AsUser", "BrokerageAssistant")]
         public async Task CanGetFilteredCurrentReferrals()
         {
             // Arrange
@@ -254,7 +254,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response, Does.Not.Contain(inReviewReferral.ToResponse()).Using(comparer));
         }
 
-        [Test]
+        [Test, Property("AsUser", "BrokerageAssistant")]
         public async Task CanGetReferralById()
         {
             // Arrange
@@ -281,7 +281,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response, Is.EqualTo(referral.ToResponse()).Using(comparer));
         }
 
-        [Test]
+        [Test, Property("AsUser", "BrokerageAssistant")]
         public async Task CanAssignReferral()
         {
             var request = new AssignBrokerRequest()
@@ -322,7 +322,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response.AssignedTo, Is.EqualTo("a.broker@hackney.gov.uk"));
         }
 
-        [Test]
+        [Test, Property("AsUser", "BrokerageAssistant")]
         public async Task CanReassignReferral()
         {
             var request = new AssignBrokerRequest()

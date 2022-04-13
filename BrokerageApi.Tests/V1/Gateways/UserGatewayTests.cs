@@ -138,5 +138,51 @@ namespace BrokerageApi.Tests.V1.Gateways
             Assert.That(result, Does.Not.Contain(careChargesOfficer));
             Assert.That(result, Does.Not.Contain(deactivatedUser));
         }
+
+        [Test]
+        public async Task GetsUserByEmail()
+        {
+            // Arrange
+            var user = new User()
+            {
+                Name = "Brokerage Assistant",
+                Email = "brokerage.assistant@hackney.gov.uk",
+                IsActive = true,
+                Roles = new List<UserRole>() {
+                    UserRole.BrokerageAssistant
+                }
+            };
+
+            await BrokerageContext.Users.AddAsync(user);
+            await BrokerageContext.SaveChangesAsync();
+
+            // Act
+            var result = await _classUnderTest.GetByEmailAsync("brokerage.assistant@hackney.gov.uk");
+
+            // Assert
+            Assert.That(result, Is.EqualTo(user));
+        }
+
+        [Test]
+        public async Task DoesNotGetUserByEmailWhenDeactivated()
+        {
+            // Arrange
+            var user = new User()
+            {
+                Name = "Deactivated User",
+                Email = "deactivated.user@hackney.gov.uk",
+                IsActive = false,
+                Roles = new List<UserRole>()
+            };
+
+            await BrokerageContext.Users.AddAsync(user);
+            await BrokerageContext.SaveChangesAsync();
+
+            // Act
+            var result = await _classUnderTest.GetByEmailAsync("deactivated.user@hackney.gov.uk");
+
+            // Assert
+            Assert.That(result, Is.Null);
+        }
     }
 }

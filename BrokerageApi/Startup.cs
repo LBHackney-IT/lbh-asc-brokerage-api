@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Claims;
 using BrokerageApi.V1.Controllers;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using BrokerageApi.V1.Gateways;
@@ -11,6 +13,8 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.UseCase;
 using BrokerageApi.V1.UseCase.Interfaces;
 using BrokerageApi.Versioning;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +25,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -44,6 +49,7 @@ namespace BrokerageApi
         public void ConfigureServices(IServiceCollection services)
         {
             services
+                .AddCors()
                 .AddMvc()
                 .AddNewtonsoftJson(o => o.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc)
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
@@ -58,25 +64,28 @@ namespace BrokerageApi
 
             services.AddSwaggerGen(c =>
             {
-                c.AddSecurityDefinition("Token",
-                    new OpenApiSecurityScheme
-                    {
-                        In = ParameterLocation.Header,
-                        Description = "Your Hackney Token",
-                        Name = "Authorization",
-                        Type = SecuritySchemeType.ApiKey
-                    });
-
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                var scheme = new OpenApiSecurityScheme
                 {
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Description = "Your Hackney Token",
+                    Reference = new OpenApiReference
                     {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Token" }
-                        },
-                        new List<string>()
+                        Id = JwtBearerDefaults.AuthenticationScheme,
+                        Type = ReferenceType.SecurityScheme
                     }
-                });
+                };
+
+                var requirement = new OpenApiSecurityRequirement
+                {
+                    { scheme, Array.Empty<string>() }
+                };
+
+                c.AddSecurityDefinition(scheme.Reference.Id, scheme);
+                c.AddSecurityRequirement(requirement);
 
                 //Looks at the APIVersionAttribute [ApiVersion("x")] on controllers and decides whether or not
                 //to include it in that version of the swagger document
@@ -114,6 +123,28 @@ namespace BrokerageApi
                     c.IncludeXmlComments(xmlPath);
             });
 
+            // Add JWT bearer token authentication
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, x =>
+                {
+                    x.IncludeErrorDetails = true;
+                    x.RequireHttpsMetadata = false;
+                    x.SaveToken = true;
+
+                    x.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        NameClaimType = ClaimTypes.Email,
+                        ValidIssuers = new List<string>() { "Hackney" },
+                        ValidateAudience = false,
+                        RequireAudience = false,
+                        RequireExpirationTime = false,
+                        SignatureValidator = delegate (string token, TokenValidationParameters parameters)
+                        {
+                            return new JwtSecurityToken(token);
+                        }
+                    };
+                });
+
             services.AddSwaggerGenNewtonsoftSupport();
 
             ConfigureLogging(services, Configuration);
@@ -123,6 +154,7 @@ namespace BrokerageApi
             RegisterGateways(services);
             RegisterUseCases(services);
 
+            services.AddTransient<IClaimsTransformation, BrokerageClaimsTransformer>();
             services.AddTransient<IDbSaver, DbSaver>();
         }
 
@@ -190,12 +222,11 @@ namespace BrokerageApi
 
             app.UseXRay("brokerage-api");
 
-
-            //Get All ApiVersions,
+            // Get All ApiVersions,
             var api = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();
             _apiVersions = api.ApiVersionDescriptions.ToList();
 
-            //Swagger ui to view the swagger.json file
+            // Swagger ui to view the swagger.json file
             app.UseSwaggerUI(c =>
             {
                 foreach (var apiVersionDescription in _apiVersions)
@@ -207,6 +238,15 @@ namespace BrokerageApi
             });
             app.UseSwagger();
             app.UseRouting();
+
+            app.UseCors(x => x
+                .AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod());
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
                 // SwaggerGen won't find controllers that are routed via this technique.

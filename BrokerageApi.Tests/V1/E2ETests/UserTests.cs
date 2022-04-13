@@ -35,7 +35,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
         {
         }
 
-        [Test]
+        [Test, Property("AsUser", "BrokerageAssistant")]
         public async Task CanGetAllUsers()
         {
             // Arrange
@@ -101,7 +101,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             // Assert
             Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
-            Assert.That(response, Has.Count.EqualTo(4));
+            Assert.That(response, Has.Count.EqualTo(5)); // Add one for the API user
             Assert.That(response, Contains.Item(approver.ToResponse()).Using(comparer));
             Assert.That(response, Contains.Item(broker.ToResponse()).Using(comparer));
             Assert.That(response, Contains.Item(brokerageAssistant.ToResponse()).Using(comparer));
@@ -110,7 +110,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response, Is.Ordered.Ascending.By("Name"));
         }
 
-        [Test]
+        [Test, Property("AsUser", "BrokerageAssistant")]
         public async Task CanGetFilteredAllUsers()
         {
             // Arrange
@@ -154,7 +154,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             // Assert
             Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
-            Assert.That(response, Has.Count.EqualTo(1));
+            Assert.That(response, Has.Count.EqualTo(2)); // Add one for the API user
             Assert.That(response, Contains.Item(brokerageAssistant.ToResponse()).Using(comparer));
             Assert.That(response, Does.Not.Contain(careChargesOfficer.ToResponse()).Using(comparer));
             Assert.That(response, Does.Not.Contain(deactivatedUser.ToResponse()).Using(comparer));
