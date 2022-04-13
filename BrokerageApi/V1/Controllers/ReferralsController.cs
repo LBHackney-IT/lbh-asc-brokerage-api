@@ -13,6 +13,7 @@ using BrokerageApi.V1.UseCase.Interfaces;
 
 namespace BrokerageApi.V1.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/v1/referrals")]
     [Produces("application/json")]
@@ -40,6 +41,7 @@ namespace BrokerageApi.V1.Controllers
             _reassignBrokerToReferralUseCase = reassignBrokerToReferralUseCase;
         }
 
+        [Authorize(Roles = "Referrer")]
         [HttpPost]
         [ProducesResponseType(typeof(ReferralResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]

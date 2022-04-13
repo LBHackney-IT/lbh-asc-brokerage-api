@@ -13,6 +13,7 @@ using BrokerageApi.V1.UseCase.Interfaces;
 
 namespace BrokerageApi.V1.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/v1/users")]
     [Produces("application/json")]

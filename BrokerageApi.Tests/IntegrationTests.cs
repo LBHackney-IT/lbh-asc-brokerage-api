@@ -1,13 +1,18 @@
 using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Sockets;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using BrokerageApi.V1.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Npgsql;
 using NUnit.Framework;
@@ -39,6 +44,11 @@ namespace BrokerageApi.Tests
 
             _factory.Context.Database.Migrate();
             _transaction = _factory.Context.Database.BeginTransaction();
+
+            if (IsAuthenticated())
+            {
+                SetupAuthentication(AsUser());
+            }
         }
 
         [TearDown]
@@ -96,6 +106,40 @@ namespace BrokerageApi.Tests
             return result;
         }
 
+        private void SetupAuthentication(string user)
+        {
+            switch (user)
+            {
+                case "Referrer":
+                    SetAuthorizationHeader(GenerateToken("saml-socialcare-corepathwayspilot"));
+                    break;
+
+                case "BrokerageAssistant":
+                    SetAuthorizationHeader(GenerateToken("saml-socialcarefinance-brokerage"));
+                    CreateApiUser(UserRole.BrokerageAssistant);
+                    break;
+            }
+        }
+
+        private void SetAuthorizationHeader(string token)
+        {
+            Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
+
+        private void CreateApiUser(UserRole role)
+        {
+            var user = new User()
+            {
+                Name = "Api User",
+                Email = "api.user@hackney.gov.uk",
+                Roles = new List<UserRole>() { role },
+                IsActive = true
+            };
+
+            Context.Users.Add(user);
+            Context.SaveChanges();
+        }
+
         private static async Task<TResponse> ProcessResponse<TResponse>(HttpResponseMessage result)
         {
             var responseContent = await result.Content.ReadAsStringAsync();
@@ -110,6 +154,39 @@ namespace BrokerageApi.Tests
             {
                 throw new Exception($"Result Serialisation Failed. Response Had Code {result.StatusCode}, Response: {responseContent}", e);
             }
+        }
+
+        private static bool IsAuthenticated()
+        {
+            return TestContext.CurrentContext.Test.Properties.ContainsKey("AsUser");
+        }
+
+        private static string AsUser()
+        {
+            return (string) TestContext.CurrentContext.Test.Properties.Get("AsUser");
+        }
+
+        private static string GenerateToken(string group)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("super-secret-token"));
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                    new Claim("sub", "123456789012345678901"),
+                    new Claim("email", "api.user@hackney.gov.uk"),
+                    new Claim("name", "Api User"),
+                    new Claim("groups", "HackneyAll"),
+                    new Claim("groups", group)
+                }),
+                Issuer = "Hackney",
+                IssuedAt = DateTime.UtcNow,
+                SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
     }
 }

@@ -10,6 +10,7 @@ namespace BrokerageApi.V1.Infrastructure
         BrokerageAssistant,
         Broker,
         Approver,
-        CareChargesOfficer
+        CareChargesOfficer,
+        Referrer
     }
 }
