@@ -21,6 +21,7 @@ namespace BrokerageApi.V1.Controllers
     public class ReferralsController : BaseController
     {
         private readonly ICreateReferralUseCase _createReferralUseCase;
+        private readonly IGetAssignedReferralsUseCase _getAssignedReferralsUseCase;
         private readonly IGetCurrentReferralsUseCase _getCurrentReferralsUseCase;
         private readonly IGetReferralByIdUseCase _getReferralByIdUseCase;
         private readonly IAssignBrokerToReferralUseCase _assignBrokerToReferralUseCase;
@@ -28,6 +29,7 @@ namespace BrokerageApi.V1.Controllers
 
         public ReferralsController(
           ICreateReferralUseCase createReferralUseCase,
+          IGetAssignedReferralsUseCase getAssignedReferralsUseCase,
           IGetCurrentReferralsUseCase getCurrentReferralsUseCase,
           IGetReferralByIdUseCase getReferralByIdUseCase,
           IAssignBrokerToReferralUseCase assignBrokerToReferralUseCase,
@@ -35,6 +37,7 @@ namespace BrokerageApi.V1.Controllers
         )
         {
             _createReferralUseCase = createReferralUseCase;
+            _getAssignedReferralsUseCase = getAssignedReferralsUseCase;
             _getCurrentReferralsUseCase = getCurrentReferralsUseCase;
             _getReferralByIdUseCase = getReferralByIdUseCase;
             _assignBrokerToReferralUseCase = assignBrokerToReferralUseCase;
@@ -70,6 +73,16 @@ namespace BrokerageApi.V1.Controllers
                     StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }
+        }
+
+        [HttpGet]
+        [Route("assigned")]
+        [ProducesResponseType(typeof(List<ReferralResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetAssignedReferrals([FromQuery] ReferralStatus? status = null)
+        {
+            var referrals = await _getAssignedReferralsUseCase.ExecuteAsync(User.Identity.Name, status);
+            return Ok(referrals.Select(r => r.ToResponse()).ToList());
         }
 
         [HttpGet]

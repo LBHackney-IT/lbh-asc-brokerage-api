@@ -23,6 +23,7 @@ namespace BrokerageApi.Tests.V1.Controllers
     {
         private Fixture _fixture;
         private Mock<ICreateReferralUseCase> _createReferralUseCaseMock;
+        private Mock<IGetAssignedReferralsUseCase> _getAssignedReferralsUseCaseMock;
         private Mock<IGetCurrentReferralsUseCase> _getCurrentReferralsUseCaseMock;
         private Mock<IGetReferralByIdUseCase> _getReferralByIdUseCaseMock;
         private Mock<IAssignBrokerToReferralUseCase> _assignBrokerToReferralUseCaseMock;
@@ -36,6 +37,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             _fixture = FixtureHelpers.Fixture;
             _createReferralUseCaseMock = new Mock<ICreateReferralUseCase>();
+            _getAssignedReferralsUseCaseMock = new Mock<IGetAssignedReferralsUseCase>();
             _getCurrentReferralsUseCaseMock = new Mock<IGetCurrentReferralsUseCase>();
             _getReferralByIdUseCaseMock = new Mock<IGetReferralByIdUseCase>();
             _assignBrokerToReferralUseCaseMock = new Mock<IAssignBrokerToReferralUseCase>();
@@ -44,6 +46,7 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             _classUnderTest = new ReferralsController(
                 _createReferralUseCaseMock.Object,
+                _getAssignedReferralsUseCaseMock.Object,
                 _getCurrentReferralsUseCaseMock.Object,
                 _getReferralByIdUseCaseMock.Object,
                 _assignBrokerToReferralUseCaseMock.Object,
@@ -52,6 +55,8 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
             _classUnderTest.ProblemDetailsFactory = _problemDetailsFactoryMock.Object;
+
+            SetupAuthentication(_classUnderTest);
         }
 
         [Test]
@@ -103,6 +108,42 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Act
             var objectResult = await _classUnderTest.GetCurrentReferrals(ReferralStatus.Unassigned);
+            var statusCode = GetStatusCode(objectResult);
+            var result = GetResultData<List<ReferralResponse>>(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            result.Should().BeEquivalentTo(referrals.Select(r => r.ToResponse()).ToList());
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task GetAssignedReferrals()
+        {
+            // Arrange
+            var referrals = _fixture.CreateMany<Referral>();
+            _getAssignedReferralsUseCaseMock.Setup(x => x.ExecuteAsync("a.broker@hackney.gov.uk", null))
+                .ReturnsAsync(referrals);
+
+            // Act
+            var objectResult = await _classUnderTest.GetAssignedReferrals(null);
+            var statusCode = GetStatusCode(objectResult);
+            var result = GetResultData<List<ReferralResponse>>(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            result.Should().BeEquivalentTo(referrals.Select(r => r.ToResponse()).ToList());
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task GetFilteredAssignedReferrals()
+        {
+            // Arrange
+            var referrals = _fixture.CreateMany<Referral>();
+            _getAssignedReferralsUseCaseMock.Setup(x => x.ExecuteAsync("a.broker@hackney.gov.uk", ReferralStatus.InProgress))
+                .ReturnsAsync(referrals);
+
+            // Act
+            var objectResult = await _classUnderTest.GetAssignedReferrals(ReferralStatus.InProgress);
             var statusCode = GetStatusCode(objectResult);
             var result = GetResultData<List<ReferralResponse>>(objectResult);
 

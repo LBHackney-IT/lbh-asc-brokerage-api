@@ -10,5 +10,6 @@ namespace BrokerageApi.V1.Gateways.Interfaces
         public Task<IEnumerable<Referral>> GetCurrentAsync(ReferralStatus? status = null);
         public Task<Referral> GetByWorkflowIdAsync(string workflowId);
         public Task<Referral> GetByIdAsync(int id);
+        public Task<IEnumerable<Referral>> GetAssignedAsync(string email, ReferralStatus? status = null);
     }
 }

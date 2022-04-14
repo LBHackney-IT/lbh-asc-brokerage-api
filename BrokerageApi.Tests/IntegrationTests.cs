@@ -114,6 +114,11 @@ namespace BrokerageApi.Tests
                     SetAuthorizationHeader(GenerateToken("saml-socialcare-corepathwayspilot"));
                     break;
 
+                case "Broker":
+                    SetAuthorizationHeader(GenerateToken("saml-socialcarefinance-brokerage"));
+                    CreateApiUser(UserRole.Broker);
+                    break;
+
                 case "BrokerageAssistant":
                     SetAuthorizationHeader(GenerateToken("saml-socialcarefinance-brokerage"));
                     CreateApiUser(UserRole.BrokerageAssistant);
