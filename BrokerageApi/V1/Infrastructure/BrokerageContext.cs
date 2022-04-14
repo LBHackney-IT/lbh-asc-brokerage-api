@@ -20,6 +20,7 @@ namespace BrokerageApi.V1.Infrastructure
         }
 
         public DbSet<Referral> Referrals { get; set; }
+        public DbSet<Service> Services { get; set; }
         public DbSet<User> Users { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -37,6 +38,14 @@ namespace BrokerageApi.V1.Infrastructure
             modelBuilder.Entity<Referral>()
                 .HasIndex(r => r.WorkflowId)
                 .IsUnique();
+
+            modelBuilder.Entity<Service>()
+                .Property(s => s.Id)
+                .ValueGeneratedNever();
+
+            modelBuilder.Entity<Service>()
+                .Property(s => s.IsArchived)
+                .HasDefaultValue(false);
 
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
