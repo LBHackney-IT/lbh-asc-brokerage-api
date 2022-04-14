@@ -10,6 +10,7 @@ namespace BrokerageApi.V1.Infrastructure
     {
         static BrokerageContext()
         {
+            NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementCostType>("element_cost_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ReferralStatus>("referral_status");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<WorkflowType>("workflow_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<UserRole>("user_role");
@@ -19,6 +20,7 @@ namespace BrokerageApi.V1.Infrastructure
         {
         }
 
+        public DbSet<ElementType> ElementTypes { get; set; }
         public DbSet<Referral> Referrals { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<User> Users { get; set; }
@@ -31,9 +33,26 @@ namespace BrokerageApi.V1.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasPostgresEnum<ElementCostType>();
             modelBuilder.HasPostgresEnum<ReferralStatus>();
             modelBuilder.HasPostgresEnum<WorkflowType>();
             modelBuilder.HasPostgresEnum<UserRole>();
+
+            modelBuilder.Entity<ElementType>()
+                .Property(et => et.Id)
+                .ValueGeneratedNever();
+
+            modelBuilder.Entity<ElementType>()
+                .Property(et => et.NonPersonalBudget)
+                .HasDefaultValue(false);
+
+            modelBuilder.Entity<ElementType>()
+                .Property(et => et.IsArchived)
+                .HasDefaultValue(false);
+
+            modelBuilder.Entity<ElementType>()
+                .HasIndex(et => new { et.ServiceId, et.Name })
+                .IsUnique();
 
             modelBuilder.Entity<Referral>()
                 .HasIndex(r => r.WorkflowId)

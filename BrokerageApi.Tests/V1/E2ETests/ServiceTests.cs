@@ -28,6 +28,19 @@ namespace BrokerageApi.Tests.V1.E2ETests
         }
     }
 
+    public class ElementTypeResponseComparer : IEqualityComparer<ElementTypeResponse>
+    {
+        public bool Equals(ElementTypeResponse et1, ElementTypeResponse et2)
+        {
+            return et1.Id == et2.Id;
+        }
+
+        public int GetHashCode(ElementTypeResponse et)
+        {
+            return et.Id.GetHashCode();
+        }
+    }
+
     public class ServiceTests : IntegrationTests<Startup>
     {
         [SetUp]
@@ -80,6 +93,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Services.AddAsync(archivedService);
             await Context.SaveChangesAsync();
 
+            Context.ChangeTracker.Clear();
+
             // Act
             var (code, response) = await Get<List<ServiceResponse>>($"/api/v1/services");
 
@@ -90,6 +105,59 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response, Contains.Item(parentService.ToResponse()).Using(comparer));
             Assert.That(response, Contains.Item(childService.ToResponse()).Using(comparer));
             Assert.That(response, Does.Not.Contain(archivedService.ToResponse()).Using(comparer));
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanGetService()
+        {
+            // Arrange
+            var serviceComparer = new ServiceResponseComparer();
+            var elementTypeComparer = new ElementTypeResponseComparer();
+
+            var service = new Service()
+            {
+                Id = 1,
+                Name = "Supported Living",
+                Position = 1,
+                IsArchived = false
+            };
+
+            var legacyElementType = new ElementType
+            {
+                Id = 1,
+                ServiceId = 1,
+                Name = "Legacy Element Type",
+                CostType = ElementCostType.Daily,
+                NonPersonalBudget = false,
+                IsArchived = true
+            };
+
+            var activeElementType = new ElementType
+            {
+                Id = 2,
+                ServiceId = 1,
+                Name = "Day Opportunities (daily)",
+                CostType = ElementCostType.Daily,
+                NonPersonalBudget = false,
+                IsArchived = false
+            };
+
+            await Context.Services.AddAsync(service);
+            await Context.ElementTypes.AddAsync(legacyElementType);
+            await Context.ElementTypes.AddAsync(activeElementType);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            // Act
+            var (code, response) = await Get<ServiceResponse>($"/api/v1/services/{service.Id}");
+
+            // Assert
+            Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(response, Is.EqualTo(service.ToResponse()).Using(serviceComparer));
+            Assert.That(response.ElementTypes, Has.Count.EqualTo(1));
+            Assert.That(response.ElementTypes, Contains.Item(activeElementType.ToResponse()).Using(elementTypeComparer));
+            Assert.That(response.ElementTypes, Does.Not.Contain(legacyElementType.ToResponse()).Using(elementTypeComparer));
         }
     }
 }

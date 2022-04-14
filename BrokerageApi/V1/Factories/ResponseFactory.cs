@@ -7,6 +7,17 @@ namespace BrokerageApi.V1.Factories
 {
     public static class ResponseFactory
     {
+        public static ElementTypeResponse ToResponse(this ElementType elementType)
+        {
+            return new ElementTypeResponse
+            {
+                Id = elementType.Id,
+                Name = elementType.Name,
+                CostType = elementType.CostType,
+                NonPersonalBudget = elementType.NonPersonalBudget
+            };
+        }
+
         public static ReferralResponse ToResponse(this Referral referral)
         {
             return new ReferralResponse
@@ -33,7 +44,8 @@ namespace BrokerageApi.V1.Factories
                 Id = service.Id,
                 ParentId = service.ParentId,
                 Name = service.Name,
-                Description = service.Description
+                Description = service.Description,
+                ElementTypes = service.ElementTypes?.Select(et => et.ToResponse()).ToList()
             };
         }
 
