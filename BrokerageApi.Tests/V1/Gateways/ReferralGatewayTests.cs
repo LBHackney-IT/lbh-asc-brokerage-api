@@ -197,6 +197,168 @@ namespace BrokerageApi.Tests.V1.Gateways
         }
 
         [Test]
+        public async Task GetsAssignedReferrals()
+        {
+            // Arrange
+            var unassignedReferral = new Referral()
+            {
+                WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                Status = ReferralStatus.Unassigned
+            };
+
+            var inReviewReferral = new Referral()
+            {
+                WorkflowId = "b018672b-a169-4b35-afa7-b8a9344073c1",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                Status = ReferralStatus.InReview
+            };
+
+            var assignedReferral = new Referral()
+            {
+                WorkflowId = "755caa62-3602-4229-90da-e30199a0336d",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                AssignedTo = "a.broker@hackney.gov.uk",
+                Status = ReferralStatus.Assigned
+            };
+
+            var otherAssignedReferral = new Referral()
+            {
+                WorkflowId = "501d5410-a6ca-4766-8080-23a3c2da374b",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                AssignedTo = "other.broker@hackney.gov.uk",
+                Status = ReferralStatus.Assigned
+            };
+
+            var onHoldReferral = new Referral()
+            {
+                WorkflowId = "ff245519-a28e-426c-ad13-4459216a2b2f",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                Status = ReferralStatus.OnHold
+            };
+
+            var archivedReferral = new Referral()
+            {
+                WorkflowId = "c265bf16-dbc4-4d6d-afdf-9f9fd4ec7d14",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                Status = ReferralStatus.Archived
+            };
+
+            var inProgressReferral = new Referral()
+            {
+                WorkflowId = "3e48adb1-0ca2-456c-845a-efcd4eca4554",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                AssignedTo = "a.broker@hackney.gov.uk",
+                Status = ReferralStatus.InProgress
+            };
+
+            var awaitingApprovalReferral = new Referral()
+            {
+                WorkflowId = "9cab0511-094f-4d6b-ba81-7246ec0dc716",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                AssignedTo = "a.broker@hackney.gov.uk",
+                Status = ReferralStatus.AwaitingApproval
+            };
+
+            var approvedReferral = new Referral()
+            {
+                WorkflowId = "174079ae-75b4-43b4-9d29-363e88e7dd40",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                AssignedTo = "a.broker@hackney.gov.uk",
+                Status = ReferralStatus.Approved
+            };
+
+            await BrokerageContext.Referrals.AddAsync(unassignedReferral);
+            await BrokerageContext.Referrals.AddAsync(inReviewReferral);
+            await BrokerageContext.Referrals.AddAsync(assignedReferral);
+            await BrokerageContext.Referrals.AddAsync(otherAssignedReferral);
+            await BrokerageContext.Referrals.AddAsync(onHoldReferral);
+            await BrokerageContext.Referrals.AddAsync(archivedReferral);
+            await BrokerageContext.Referrals.AddAsync(inProgressReferral);
+            await BrokerageContext.Referrals.AddAsync(awaitingApprovalReferral);
+            await BrokerageContext.Referrals.AddAsync(approvedReferral);
+            await BrokerageContext.SaveChangesAsync();
+
+            // Act
+            var result = await _classUnderTest.GetAssignedAsync("a.broker@hackney.gov.uk");
+
+            Assert.That(result, Contains.Item(assignedReferral));
+            Assert.That(result, Contains.Item(inProgressReferral));
+            Assert.That(result, Contains.Item(awaitingApprovalReferral));
+
+            Assert.That(result, Does.Not.Contain(unassignedReferral));
+            Assert.That(result, Does.Not.Contain(inReviewReferral));
+            Assert.That(result, Does.Not.Contain(onHoldReferral));
+            Assert.That(result, Does.Not.Contain(otherAssignedReferral));
+            Assert.That(result, Does.Not.Contain(archivedReferral));
+            Assert.That(result, Does.Not.Contain(approvedReferral));
+        }
+
+        [Test]
+        public async Task GetsFilteredAssignedReferrals()
+        {
+            // Arrange
+            var assignedReferral = new Referral()
+            {
+                WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                AssignedTo = "a.broker@hackney.gov.uk",
+                Status = ReferralStatus.Assigned
+            };
+
+            var inProgressReferral = new Referral()
+            {
+                WorkflowId = "b018672b-a169-4b35-afa7-b8a9344073c1",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                AssignedTo = "a.broker@hackney.gov.uk",
+                Status = ReferralStatus.InProgress
+            };
+
+            await BrokerageContext.Referrals.AddAsync(assignedReferral);
+            await BrokerageContext.Referrals.AddAsync(inProgressReferral);
+            await BrokerageContext.SaveChangesAsync();
+
+            // Act
+            var result = await _classUnderTest.GetAssignedAsync("a.broker@hackney.gov.uk", ReferralStatus.InProgress);
+
+            Assert.That(result, Contains.Item(inProgressReferral));
+            Assert.That(result, Does.Not.Contain(assignedReferral));
+        }
+
+        [Test]
         public async Task GetsReferralByWorkflowId()
         {
             // Arrange

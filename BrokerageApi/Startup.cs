@@ -199,6 +199,7 @@ namespace BrokerageApi
         private static void RegisterUseCases(IServiceCollection services)
         {
             services.AddTransient<ICreateReferralUseCase, CreateReferralUseCase>();
+            services.AddTransient<IGetAssignedReferralsUseCase, GetAssignedReferralsUseCase>();
             services.AddTransient<IGetCurrentReferralsUseCase, GetCurrentReferralsUseCase>();
             services.AddTransient<IGetReferralByIdUseCase, GetReferralByIdUseCase>();
             services.AddTransient<IGetAllUsersUseCase, GetAllUsersUseCase>();

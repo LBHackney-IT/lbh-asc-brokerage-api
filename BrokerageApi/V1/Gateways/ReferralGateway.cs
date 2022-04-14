@@ -10,10 +10,16 @@ namespace BrokerageApi.V1.Gateways
     public class ReferralGateway : IReferralGateway
     {
         private readonly BrokerageContext _context;
+        private readonly IOrderedQueryable<Referral> _currentReferrals;
 
         public ReferralGateway(BrokerageContext context)
         {
             _context = context;
+
+            _currentReferrals = _context.Referrals
+                .Where(r => r.Status != ReferralStatus.Archived)
+                .Where(r => r.Status != ReferralStatus.Approved)
+                .OrderBy(r => r.Id);
         }
 
         public async Task<Referral> CreateAsync(Referral referral)
@@ -28,19 +34,30 @@ namespace BrokerageApi.V1.Gateways
         {
             if (status == null)
             {
-                return await _context.Referrals
-                    .Where(r => r.Status != ReferralStatus.Archived)
-                    .Where(r => r.Status != ReferralStatus.Approved)
-                    .OrderBy(r => r.Id)
+                return await _currentReferrals
                     .ToListAsync();
             }
             else
             {
-                return await _context.Referrals
-                    .Where(r => r.Status != ReferralStatus.Archived)
-                    .Where(r => r.Status != ReferralStatus.Approved)
+                return await _currentReferrals
                     .Where(r => r.Status == status)
-                    .OrderBy(r => r.Id)
+                    .ToListAsync();
+            }
+        }
+
+        public async Task<IEnumerable<Referral>> GetAssignedAsync(string email, ReferralStatus? status = null)
+        {
+            if (status == null)
+            {
+                return await _currentReferrals
+                    .Where(r => r.AssignedTo == email)
+                    .ToListAsync();
+            }
+            else
+            {
+                return await _currentReferrals
+                    .Where(r => r.AssignedTo == email)
+                    .Where(r => r.Status == status)
                     .ToListAsync();
             }
         }
