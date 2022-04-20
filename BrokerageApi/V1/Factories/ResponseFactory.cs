@@ -39,6 +39,7 @@ namespace BrokerageApi.V1.Factories
                 FormName = referral.FormName,
                 SocialCareId = referral.SocialCareId,
                 ResidentName = referral.ResidentName,
+                PrimarySupportReason = referral.PrimarySupportReason,
                 UrgentSince = referral.UrgentSince,
                 Status = referral.Status,
                 AssignedTo = referral.AssignedTo,
