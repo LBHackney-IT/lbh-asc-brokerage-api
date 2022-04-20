@@ -24,6 +24,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Fixture _fixture;
         private Mock<IGetAllServicesUseCase> _getAllServicesUseCaseMock;
         private Mock<IGetServiceByIdUseCase> _getServiceByIdUseCaseMock;
+        private Mock<IFindProvidersByServiceUseCase> _findProvidersByServiceUseCaseMock;
         private MockProblemDetailsFactory _problemDetailsFactoryMock;
 
         private ServicesController _classUnderTest;
@@ -34,11 +35,13 @@ namespace BrokerageApi.Tests.V1.Controllers
             _fixture = FixtureHelpers.Fixture;
             _getAllServicesUseCaseMock = new Mock<IGetAllServicesUseCase>();
             _getServiceByIdUseCaseMock = new Mock<IGetServiceByIdUseCase>();
+            _findProvidersByServiceUseCaseMock = new Mock<IFindProvidersByServiceUseCase>();
             _problemDetailsFactoryMock = new MockProblemDetailsFactory();
 
             _classUnderTest = new ServicesController(
                 _getAllServicesUseCaseMock.Object,
-                _getServiceByIdUseCaseMock.Object
+                _getServiceByIdUseCaseMock.Object,
+                _findProvidersByServiceUseCaseMock.Object
             );
 
             // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
@@ -79,6 +82,27 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
             result.Should().BeEquivalentTo(service.ToResponse());
+        }
+
+        [Test]
+        public async Task FindProvidersByService()
+        {
+            // Arrange
+            var service = _fixture.Create<Service>();
+            var providers = _fixture.CreateMany<Provider>();
+            _getServiceByIdUseCaseMock.Setup(x => x.ExecuteAsync(service.Id))
+                .ReturnsAsync(service);
+            _findProvidersByServiceUseCaseMock.Setup(x => x.ExecuteAsync(service, "Acme"))
+                .ReturnsAsync(providers);
+
+            // Act
+            var objectResult = await _classUnderTest.FindProvidersByService(service.Id, "Acme");
+            var statusCode = GetStatusCode(objectResult);
+            var result = GetResultData<List<ProviderResponse>>(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            result.Should().BeEquivalentTo(providers.Select(s => s.ToResponse()).ToList());
         }
     }
 }
