@@ -6,19 +6,15 @@ using BrokerageApi.V1.Infrastructure;
 
 namespace BrokerageApi.V1.Boundary.Response
 {
-    public class ServiceResponse
+    public class ElementTypeResponse
     {
         public int Id { get; set; }
-
-        public int? ParentId { get; set; }
 
         [JsonProperty(Required = Required.DisallowNull)]
         public string Name { get; set; }
 
-        public string Description { get; set; }
+        public ElementCostType CostType { get; set; }
 
-        public List<ElementTypeResponse> ElementTypes { get; set; }
-
-        public bool ShouldSerializeElementTypes() => ElementTypes != null;
+        public bool NonPersonalBudget { get; set; }
     }
 }

@@ -23,6 +23,7 @@ namespace BrokerageApi.Tests.V1.Controllers
     {
         private Fixture _fixture;
         private Mock<IGetAllServicesUseCase> _getAllServicesUseCaseMock;
+        private Mock<IGetServiceByIdUseCase> _getServiceByIdUseCaseMock;
         private MockProblemDetailsFactory _problemDetailsFactoryMock;
 
         private ServicesController _classUnderTest;
@@ -32,10 +33,12 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             _fixture = FixtureHelpers.Fixture;
             _getAllServicesUseCaseMock = new Mock<IGetAllServicesUseCase>();
+            _getServiceByIdUseCaseMock = new Mock<IGetServiceByIdUseCase>();
             _problemDetailsFactoryMock = new MockProblemDetailsFactory();
 
             _classUnderTest = new ServicesController(
-                _getAllServicesUseCaseMock.Object
+                _getAllServicesUseCaseMock.Object,
+                _getServiceByIdUseCaseMock.Object
             );
 
             // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
@@ -58,6 +61,24 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
             result.Should().BeEquivalentTo(services.Select(s => s.ToResponse()).ToList());
+        }
+
+        [Test]
+        public async Task GetService()
+        {
+            // Arrange
+            var service = _fixture.Create<Service>();
+            _getServiceByIdUseCaseMock.Setup(x => x.ExecuteAsync(service.Id))
+                .ReturnsAsync(service);
+
+            // Act
+            var objectResult = await _classUnderTest.GetService(service.Id);
+            var statusCode = GetStatusCode(objectResult);
+            var result = GetResultData<ServiceResponse>(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            result.Should().BeEquivalentTo(service.ToResponse());
         }
     }
 }

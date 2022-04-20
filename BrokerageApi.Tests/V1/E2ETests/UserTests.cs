@@ -96,6 +96,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Users.AddAsync(deactivatedUser);
             await Context.SaveChangesAsync();
 
+            Context.ChangeTracker.Clear();
+
             // Act
             var (code, response) = await Get<List<UserResponse>>($"/api/v1/users");
 
@@ -148,6 +150,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Users.AddAsync(brokerageAssistant);
             await Context.Users.AddAsync(deactivatedUser);
             await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
 
             // Act
             var (code, response) = await Get<List<UserResponse>>($"/api/v1/users?role=BrokerageAssistant");

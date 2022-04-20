@@ -21,12 +21,15 @@ namespace BrokerageApi.V1.Controllers
     public class ServicesController : BaseController
     {
         private readonly IGetAllServicesUseCase _getAllServicesUseCase;
+        private readonly IGetServiceByIdUseCase _getServiceByIdUseCase;
 
         public ServicesController(
-          IGetAllServicesUseCase getAllServicesUseCase
+          IGetAllServicesUseCase getAllServicesUseCase,
+          IGetServiceByIdUseCase getServiceByIdUseCase
         )
         {
             _getAllServicesUseCase = getAllServicesUseCase;
+            _getServiceByIdUseCase = getServiceByIdUseCase;
         }
 
         [HttpGet]
@@ -36,6 +39,28 @@ namespace BrokerageApi.V1.Controllers
         {
             var services = await _getAllServicesUseCase.ExecuteAsync();
             return Ok(services.Select(s => s.ToResponse()).ToList());
+        }
+
+        [HttpGet]
+        [Route("{id}")]
+        [ProducesResponseType(typeof(ServiceResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetService([FromRoute] int id)
+        {
+            var service = await _getServiceByIdUseCase.ExecuteAsync(id);
+
+            if (service is null)
+            {
+                return Problem(
+                    "The requested service was not found",
+                    $"/api/v1/service/{id}",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+
+            return Ok(service.ToResponse());
         }
     }
 }

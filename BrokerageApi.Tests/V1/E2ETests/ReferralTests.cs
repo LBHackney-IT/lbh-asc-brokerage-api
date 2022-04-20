@@ -245,6 +245,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Referrals.AddAsync(inReviewReferral);
             await Context.SaveChangesAsync();
 
+            Context.ChangeTracker.Clear();
+
             // Act
             var (code, response) = await Get<List<ReferralResponse>>($"/api/v1/referrals/current?status=Unassigned");
 
@@ -366,6 +368,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Referrals.AddAsync(approvedReferral);
             await Context.SaveChangesAsync();
 
+            Context.ChangeTracker.Clear();
+
             // Act
             var (code, response) = await Get<List<ReferralResponse>>($"/api/v1/referrals/assigned");
 
@@ -414,6 +418,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Referrals.AddAsync(inProgressReferral);
             await Context.SaveChangesAsync();
 
+            Context.ChangeTracker.Clear();
+
             // Act
             var (code, response) = await Get<List<ReferralResponse>>($"/api/v1/referrals/assigned?status=InProgress");
 
@@ -441,6 +447,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             await Context.Referrals.AddAsync(referral);
             await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
 
             // Act
             var (code, response) = await Get<ReferralResponse>($"/api/v1/referrals/{referral.Id}");
@@ -481,6 +489,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Referrals.AddAsync(referral);
             await Context.Users.AddAsync(broker);
             await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
 
             // Act
             var (code, response) = await Post<ReferralResponse>($"/api/v1/referrals/{referral.Id}/assign", request);
@@ -523,6 +533,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Referrals.AddAsync(referral);
             await Context.Users.AddAsync(broker);
             await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
 
             // Act
             var (code, response) = await Post<ReferralResponse>($"/api/v1/referrals/{referral.Id}/reassign", request);

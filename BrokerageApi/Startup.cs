@@ -203,6 +203,7 @@ namespace BrokerageApi
             services.AddTransient<IGetAssignedReferralsUseCase, GetAssignedReferralsUseCase>();
             services.AddTransient<IGetCurrentReferralsUseCase, GetCurrentReferralsUseCase>();
             services.AddTransient<IGetReferralByIdUseCase, GetReferralByIdUseCase>();
+            services.AddTransient<IGetServiceByIdUseCase, GetServiceByIdUseCase>();
             services.AddTransient<IGetAllServicesUseCase, GetAllServicesUseCase>();
             services.AddTransient<IGetAllUsersUseCase, GetAllUsersUseCase>();
             services.AddTransient<IAssignBrokerToReferralUseCase, AssignBrokerToReferralUseCase>();

@@ -7,5 +7,6 @@ namespace BrokerageApi.V1.Gateways.Interfaces
     public interface IServiceGateway
     {
         public Task<IEnumerable<Service>> GetAllAsync();
+        public Task<Service> GetByIdAsync(int id);
     }
 }
