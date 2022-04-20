@@ -26,6 +26,17 @@ namespace BrokerageApi.V1.Factories
             };
         }
 
+        public static ServiceResponse ToResponse(this Service service)
+        {
+            return new ServiceResponse
+            {
+                Id = service.Id,
+                ParentId = service.ParentId,
+                Name = service.Name,
+                Description = service.Description
+            };
+        }
+
         public static UserResponse ToResponse(this User user)
         {
             return new UserResponse
