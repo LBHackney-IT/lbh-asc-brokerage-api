@@ -22,14 +22,17 @@ namespace BrokerageApi.V1.Controllers
     {
         private readonly IGetAllServicesUseCase _getAllServicesUseCase;
         private readonly IGetServiceByIdUseCase _getServiceByIdUseCase;
+        private readonly IFindProvidersByServiceUseCase _findProvidersByServiceUseCase;
 
         public ServicesController(
-          IGetAllServicesUseCase getAllServicesUseCase,
-          IGetServiceByIdUseCase getServiceByIdUseCase
+            IGetAllServicesUseCase getAllServicesUseCase,
+            IGetServiceByIdUseCase getServiceByIdUseCase,
+            IFindProvidersByServiceUseCase findProvidersByServiceUseCase
         )
         {
             _getAllServicesUseCase = getAllServicesUseCase;
             _getServiceByIdUseCase = getServiceByIdUseCase;
+            _findProvidersByServiceUseCase = findProvidersByServiceUseCase;
         }
 
         [HttpGet]
@@ -61,6 +64,29 @@ namespace BrokerageApi.V1.Controllers
             }
 
             return Ok(service.ToResponse());
+        }
+
+        [HttpGet]
+        [Route("{id}/providers")]
+        [ProducesResponseType(typeof(List<ProviderResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> FindProvidersByService([FromRoute] int id, [FromQuery] string query)
+        {
+            var service = await _getServiceByIdUseCase.ExecuteAsync(id);
+
+            if (service is null)
+            {
+                return Problem(
+                    "The requested service was not found",
+                    $"/api/v1/service/{id}",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+
+            var providers = await _findProvidersByServiceUseCase.ExecuteAsync(service, query);
+            return Ok(providers.Select(s => s.ToResponse()).ToList());
         }
     }
 }

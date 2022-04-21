@@ -11,6 +11,7 @@ namespace BrokerageApi.V1.Infrastructure
         static BrokerageContext()
         {
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementCostType>("element_cost_type");
+            NpgsqlConnection.GlobalTypeMapper.MapEnum<ProviderType>("provider_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ReferralStatus>("referral_status");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<WorkflowType>("workflow_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<UserRole>("user_role");
@@ -21,6 +22,8 @@ namespace BrokerageApi.V1.Infrastructure
         }
 
         public DbSet<ElementType> ElementTypes { get; set; }
+        public DbSet<Provider> Providers { get; set; }
+        public DbSet<ProviderService> ProviderServices { get; set; }
         public DbSet<Referral> Referrals { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<User> Users { get; set; }
@@ -34,6 +37,7 @@ namespace BrokerageApi.V1.Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasPostgresEnum<ElementCostType>();
+            modelBuilder.HasPostgresEnum<ProviderType>();
             modelBuilder.HasPostgresEnum<ReferralStatus>();
             modelBuilder.HasPostgresEnum<WorkflowType>();
             modelBuilder.HasPostgresEnum<UserRole>();
@@ -53,6 +57,34 @@ namespace BrokerageApi.V1.Infrastructure
             modelBuilder.Entity<ElementType>()
                 .HasIndex(et => new { et.ServiceId, et.Name })
                 .IsUnique();
+
+            modelBuilder.Entity<Provider>()
+                .HasMany(p => p.Services)
+                .WithMany(s => s.Providers)
+                .UsingEntity<ProviderService>(
+                    j => j
+                        .HasOne(ps => ps.Service)
+                        .WithMany(s => s.ProviderServices)
+                        .HasForeignKey(ps => ps.ServiceId),
+                    j => j
+                        .HasOne(ps => ps.Provider)
+                        .WithMany(p => p.ProviderServices)
+                        .HasForeignKey(ps => ps.ProviderId),
+                    j =>
+                    {
+                        j.HasKey(ps => new { ps.ProviderId, ps.ServiceId });
+                    });
+
+            modelBuilder.Entity<Provider>()
+                .Property(p => p.IsArchived)
+                .HasDefaultValue(false);
+
+            modelBuilder.Entity<Provider>()
+                .HasGeneratedTsVectorColumn(
+                    p => p.SearchVector, "simple",
+                    p => new { p.Name, p.Address })
+                .HasIndex(p => p.SearchVector)
+                .HasMethod("GIN");
 
             modelBuilder.Entity<Referral>()
                 .HasIndex(r => r.WorkflowId)

@@ -18,6 +18,17 @@ namespace BrokerageApi.V1.Factories
             };
         }
 
+        public static ProviderResponse ToResponse(this Provider provider)
+        {
+            return new ProviderResponse
+            {
+                Id = provider.Id,
+                Name = provider.Name,
+                Address = provider.Address,
+                Type = provider.Type
+            };
+        }
+
         public static ReferralResponse ToResponse(this Referral referral)
         {
             return new ReferralResponse
