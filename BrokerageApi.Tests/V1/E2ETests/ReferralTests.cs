@@ -46,6 +46,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 UrgentSince = null,
                 Note = "Some notes"
             };
@@ -59,6 +60,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response.WorkflowType, Is.EqualTo(WorkflowType.Assessment));
             Assert.That(response.SocialCareId, Is.EqualTo("33556688"));
             Assert.That(response.ResidentName, Is.EqualTo("A Service User"));
+            Assert.That(response.PrimarySupportReason, Is.EqualTo("Physical Support"));
             Assert.That(response.UrgentSince, Is.Null);
             Assert.That(response.AssignedTo, Is.Null);
             Assert.That(response.Status, Is.EqualTo(ReferralStatus.Unassigned));
@@ -79,6 +81,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 UrgentSince = urgentSince,
                 Note = "Some notes"
             };
@@ -92,6 +95,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response.WorkflowType, Is.EqualTo(WorkflowType.Assessment));
             Assert.That(response.SocialCareId, Is.EqualTo("33556688"));
             Assert.That(response.ResidentName, Is.EqualTo("A Service User"));
+            Assert.That(response.PrimarySupportReason, Is.EqualTo("Physical Support"));
             Assert.That(response.UrgentSince, Is.EqualTo(urgentSince));
             Assert.That(response.AssignedTo, Is.Null);
             Assert.That(response.Status, Is.EqualTo(ReferralStatus.Unassigned));
@@ -113,6 +117,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 Status = ReferralStatus.Unassigned
             };
 
@@ -123,6 +128,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 Status = ReferralStatus.InReview
             };
 
@@ -133,6 +139,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 AssignedTo = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.Assigned
             };
@@ -144,6 +151,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 Status = ReferralStatus.OnHold
             };
 
@@ -154,6 +162,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 Status = ReferralStatus.Archived
             };
 
@@ -164,6 +173,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 AssignedTo = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.InProgress
             };
@@ -175,6 +185,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 AssignedTo = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.AwaitingApproval
             };
@@ -186,6 +197,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 AssignedTo = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.Approved
             };
@@ -228,6 +240,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 Status = ReferralStatus.Unassigned
             };
 
@@ -238,6 +251,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 Status = ReferralStatus.InReview
             };
 
@@ -269,6 +283,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 Status = ReferralStatus.Unassigned
             };
 
@@ -279,6 +294,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 Status = ReferralStatus.InReview
             };
 
@@ -289,6 +305,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 AssignedTo = "api.user@hackney.gov.uk",
                 Status = ReferralStatus.Assigned
             };
@@ -300,6 +317,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 AssignedTo = "other.user@hackney.gov.uk",
                 Status = ReferralStatus.Assigned
             };
@@ -311,6 +329,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 Status = ReferralStatus.OnHold
             };
 
@@ -321,6 +340,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 Status = ReferralStatus.Archived
             };
 
@@ -331,6 +351,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 AssignedTo = "api.user@hackney.gov.uk",
                 Status = ReferralStatus.InProgress
             };
@@ -342,6 +363,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 AssignedTo = "api.user@hackney.gov.uk",
                 Status = ReferralStatus.AwaitingApproval
             };
@@ -353,6 +375,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 AssignedTo = "api.user@hackney.gov.uk",
                 Status = ReferralStatus.Approved
             };
@@ -399,6 +422,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 AssignedTo = "api.user@hackney.gov.uk",
                 Status = ReferralStatus.Assigned
             };
@@ -410,6 +434,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 AssignedTo = "api.user@hackney.gov.uk",
                 Status = ReferralStatus.InProgress
             };
@@ -442,6 +467,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 Status = ReferralStatus.Unassigned
             };
 
@@ -473,6 +499,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 Status = ReferralStatus.Unassigned
             };
 
@@ -516,6 +543,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
                 Status = ReferralStatus.InProgress,
                 AssignedTo = "other.broker@hackney.gov.uk"
             };

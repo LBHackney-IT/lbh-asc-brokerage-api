@@ -23,6 +23,8 @@ namespace BrokerageApi.V1.Boundary.Response
         [JsonProperty(Required = Required.DisallowNull)]
         public string ResidentName { get; set; }
 
+        public string PrimarySupportReason { get; set; }
+
         public DateTime? UrgentSince { get; set; }
 
         public string AssignedTo { get; set; }
