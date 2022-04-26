@@ -44,6 +44,7 @@ namespace BrokerageApi.V1.Factories
                 Status = referral.Status,
                 AssignedTo = referral.AssignedTo,
                 Note = referral.Note,
+                StartedAt = referral.StartedAt,
                 CreatedAt = referral.CreatedAt,
                 UpdatedAt = referral.UpdatedAt
             };

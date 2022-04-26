@@ -175,7 +175,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 AssignedTo = "a.broker@hackney.gov.uk",
-                Status = ReferralStatus.InProgress
+                Status = ReferralStatus.InProgress,
+                StartedAt = DateTime.UtcNow
             };
 
             var awaitingApprovalReferral = new Referral()
@@ -353,7 +354,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 AssignedTo = "api.user@hackney.gov.uk",
-                Status = ReferralStatus.InProgress
+                Status = ReferralStatus.InProgress,
+                StartedAt = DateTime.UtcNow
             };
 
             var awaitingApprovalReferral = new Referral()
@@ -436,7 +438,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 AssignedTo = "api.user@hackney.gov.uk",
-                Status = ReferralStatus.InProgress
+                Status = ReferralStatus.InProgress,
+                StartedAt = DateTime.UtcNow
             };
 
             await Context.Referrals.AddAsync(assignedReferral);
@@ -545,6 +548,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 Status = ReferralStatus.InProgress,
+                StartedAt = DateTime.UtcNow,
                 AssignedTo = "other.broker@hackney.gov.uk"
             };
 

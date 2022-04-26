@@ -31,5 +31,7 @@ namespace BrokerageApi.V1.Infrastructure
         public ReferralStatus Status { get; set; }
 
         public string Note { get; set; }
+
+        public DateTime? StartedAt { get; set; }
     }
 }
