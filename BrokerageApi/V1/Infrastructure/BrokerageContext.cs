@@ -2,14 +2,20 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
 using Npgsql;
+using BrokerageApi.V1.Services.Interfaces;
 
 namespace BrokerageApi.V1.Infrastructure
 {
     public class BrokerageContext : DbContext
     {
+        private readonly IClockService _clock;
+
         static BrokerageContext()
         {
+            NpgsqlConnection.GlobalTypeMapper.UseNodaTime();
+
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementCostType>("element_cost_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ProviderType>("provider_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ReferralStatus>("referral_status");
@@ -17,8 +23,9 @@ namespace BrokerageApi.V1.Infrastructure
             NpgsqlConnection.GlobalTypeMapper.MapEnum<UserRole>("user_role");
         }
 
-        public BrokerageContext(DbContextOptions options) : base(options)
+        public BrokerageContext(DbContextOptions options, IClockService clock) : base(options)
         {
+            _clock = clock;
         }
 
         public DbSet<ElementType> ElementTypes { get; set; }
@@ -31,7 +38,9 @@ namespace BrokerageApi.V1.Infrastructure
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder
-                .UseNpgsql(o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery));
+                .UseNpgsql(o => o
+                    .UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery)
+                    .UseNodaTime());
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -121,7 +130,7 @@ namespace BrokerageApi.V1.Infrastructure
         private void OnBeforeSaving()
         {
             var entries = ChangeTracker.Entries();
-            var currentTime = DateTime.UtcNow;
+            var currentTime = _clock.Now;
 
             foreach (var entry in entries)
             {

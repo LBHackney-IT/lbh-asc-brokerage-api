@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using NodaTime;
 
 namespace BrokerageApi.V1.Infrastructure
 {
@@ -24,7 +25,7 @@ namespace BrokerageApi.V1.Infrastructure
 
         public string PrimarySupportReason { get; set; }
 
-        public DateTime? UrgentSince { get; set; }
+        public Instant? UrgentSince { get; set; }
 
         public string AssignedTo { get; set; }
 
@@ -32,6 +33,6 @@ namespace BrokerageApi.V1.Infrastructure
 
         public string Note { get; set; }
 
-        public DateTime? StartedAt { get; set; }
+        public Instant? StartedAt { get; set; }
     }
 }

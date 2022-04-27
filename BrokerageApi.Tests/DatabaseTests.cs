@@ -1,7 +1,11 @@
 using BrokerageApi.V1.Infrastructure;
+using BrokerageApi.V1.Services;
+using BrokerageApi.V1.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using NUnit.Framework;
+using NodaTime;
+using NodaTime.Testing;
 
 namespace BrokerageApi.Tests
 {
@@ -9,7 +13,9 @@ namespace BrokerageApi.Tests
     public class DatabaseTests
     {
         private IDbContextTransaction _transaction;
+        private IClockService _clock;
         protected BrokerageContext BrokerageContext { get; private set; }
+        protected Instant CurrentInstant => _clock.Now;
 
         [SetUp]
         public void RunBeforeAnyTests()
@@ -17,8 +23,12 @@ namespace BrokerageApi.Tests
             var builder = new DbContextOptionsBuilder();
             builder.UseNpgsql(ConnectionString.TestDatabase())
                 .UseSnakeCaseNamingConvention();
-            BrokerageContext = new BrokerageContext(builder.Options);
 
+            var currentTime = SystemClock.Instance.GetCurrentInstant();
+            var fakeClock = new FakeClock(currentTime);
+            _clock = new ClockService(fakeClock);
+
+            BrokerageContext = new BrokerageContext(builder.Options, _clock);
             BrokerageContext.Database.Migrate();
             _transaction = BrokerageContext.Database.BeginTransaction();
         }

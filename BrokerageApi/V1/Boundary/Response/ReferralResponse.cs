@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
+using NodaTime;
 using BrokerageApi.V1.Infrastructure;
 
 namespace BrokerageApi.V1.Boundary.Response
@@ -25,7 +26,7 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public string PrimarySupportReason { get; set; }
 
-        public DateTime? UrgentSince { get; set; }
+        public Instant? UrgentSince { get; set; }
 
         public string AssignedTo { get; set; }
 
@@ -33,10 +34,10 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public string Note { get; set; }
 
-        public DateTime? StartedAt { get; set; }
+        public Instant? StartedAt { get; set; }
 
-        public DateTime CreatedAt { get; set; }
+        public Instant CreatedAt { get; set; }
 
-        public DateTime UpdatedAt { get; set; }
+        public Instant UpdatedAt { get; set; }
     }
 }

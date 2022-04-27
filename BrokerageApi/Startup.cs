@@ -9,6 +9,8 @@ using BrokerageApi.V1.Controllers;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using BrokerageApi.V1.Gateways;
 using BrokerageApi.V1.Gateways.Interfaces;
+using BrokerageApi.V1.Services;
+using BrokerageApi.V1.Services.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.UseCase;
 using BrokerageApi.V1.UseCase.Interfaces;
@@ -28,6 +30,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using NodaTime;
+using NodaTime.Serialization.JsonNet;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace BrokerageApi
@@ -51,7 +55,7 @@ namespace BrokerageApi
             services
                 .AddCors()
                 .AddMvc()
-                .AddNewtonsoftJson(o => o.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc)
+                .AddNewtonsoftJson(o => o.SerializerSettings.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddApiVersioning(o =>
             {
@@ -114,6 +118,11 @@ namespace BrokerageApi
                     });
                 }
 
+                c.MapType<NodaTime.Instant>(() => new OpenApiSchema { Type = "string", Format = "date-time" });
+                c.MapType<NodaTime.Instant?>(() => new OpenApiSchema { Type = "string", Format = "date-time", Nullable = true });
+                c.MapType<NodaTime.LocalDate>(() => new OpenApiSchema { Type = "string", Format = "date" });
+                c.MapType<NodaTime.LocalDate?>(() => new OpenApiSchema { Type = "string", Format = "date", Nullable = true });
+
                 c.CustomSchemaIds(x => x.Name);
 
                 // Set the comments path for the Swagger JSON and UI.
@@ -149,6 +158,8 @@ namespace BrokerageApi
 
             ConfigureLogging(services, Configuration);
 
+            services.AddScoped<IClockService, ClockService>();
+
             ConfigureDbContext(services);
 
             RegisterGateways(services);
@@ -165,7 +176,7 @@ namespace BrokerageApi
 
             services.AddDbContext<BrokerageContext>(
                 opt => opt
-                    .UseNpgsql(connectionString)
+                    .UseNpgsql(connectionString, o => o.UseNodaTime())
                     .UseSnakeCaseNamingConvention()
             );
         }

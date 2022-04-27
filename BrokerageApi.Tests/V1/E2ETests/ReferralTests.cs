@@ -65,15 +65,15 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response.AssignedTo, Is.Null);
             Assert.That(response.Status, Is.EqualTo(ReferralStatus.Unassigned));
             Assert.That(response.Note, Is.EqualTo("Some notes"));
-            Assert.That(response.CreatedAt, Is.EqualTo(DateTime.UtcNow).Within(2).Seconds);
-            Assert.That(response.UpdatedAt, Is.EqualTo(DateTime.UtcNow).Within(2).Seconds);
+            Assert.That(response.CreatedAt, Is.EqualTo(CurrentInstant));
+            Assert.That(response.UpdatedAt, Is.EqualTo(CurrentInstant));
         }
 
         [Test, Property("AsUser", "Referrer")]
         public async Task CanCreateUrgentReferral()
         {
             // Arrange
-            var urgentSince = DateTime.UtcNow;
+            var urgentSince = CurrentInstant;
             var request = new CreateReferralRequest()
             {
                 WorkflowId = "88114daf-788b-48af-917b-996420afbf61",
@@ -100,8 +100,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response.AssignedTo, Is.Null);
             Assert.That(response.Status, Is.EqualTo(ReferralStatus.Unassigned));
             Assert.That(response.Note, Is.EqualTo("Some notes"));
-            Assert.That(response.CreatedAt, Is.EqualTo(DateTime.UtcNow).Within(2).Seconds);
-            Assert.That(response.UpdatedAt, Is.EqualTo(DateTime.UtcNow).Within(2).Seconds);
+            Assert.That(response.CreatedAt, Is.EqualTo(CurrentInstant));
+            Assert.That(response.UpdatedAt, Is.EqualTo(CurrentInstant));
         }
 
         [Test, Property("AsUser", "BrokerageAssistant")]
@@ -176,7 +176,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 PrimarySupportReason = "Physical Support",
                 AssignedTo = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.InProgress,
-                StartedAt = DateTime.UtcNow
+                StartedAt = CurrentInstant
             };
 
             var awaitingApprovalReferral = new Referral()
@@ -355,7 +355,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 PrimarySupportReason = "Physical Support",
                 AssignedTo = "api.user@hackney.gov.uk",
                 Status = ReferralStatus.InProgress,
-                StartedAt = DateTime.UtcNow
+                StartedAt = CurrentInstant
             };
 
             var awaitingApprovalReferral = new Referral()
@@ -439,7 +439,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 PrimarySupportReason = "Physical Support",
                 AssignedTo = "api.user@hackney.gov.uk",
                 Status = ReferralStatus.InProgress,
-                StartedAt = DateTime.UtcNow
+                StartedAt = CurrentInstant
             };
 
             await Context.Referrals.AddAsync(assignedReferral);
@@ -548,7 +548,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 Status = ReferralStatus.InProgress,
-                StartedAt = DateTime.UtcNow,
+                StartedAt = CurrentInstant,
                 AssignedTo = "other.broker@hackney.gov.uk"
             };
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
+using NodaTime;
 using BrokerageApi.V1.Infrastructure;
 
 namespace BrokerageApi.V1.Boundary.Response
@@ -20,8 +21,8 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public bool IsActive { get; set; }
 
-        public DateTime CreatedAt { get; set; }
+        public Instant CreatedAt { get; set; }
 
-        public DateTime UpdatedAt { get; set; }
+        public Instant UpdatedAt { get; set; }
     }
 }

@@ -9,6 +9,8 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using BrokerageApi.V1.Infrastructure;
+using BrokerageApi.V1.Services;
+using BrokerageApi.V1.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -16,6 +18,8 @@ using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Npgsql;
 using NUnit.Framework;
+using NodaTime;
+using NodaTime.Testing;
 
 namespace BrokerageApi.Tests
 {
@@ -23,23 +27,29 @@ namespace BrokerageApi.Tests
     {
         protected HttpClient Client { get; private set; }
         protected BrokerageContext Context => _factory.Context;
+        protected Instant CurrentInstant => _clock.Now;
 
         private MockWebApplicationFactory<TStartup> _factory;
         private IDbContextTransaction _transaction;
         private DbContextOptionsBuilder _builder;
+        private IClockService _clock;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
             _builder = new DbContextOptionsBuilder();
-            _builder.UseNpgsql(ConnectionString.TestDatabase())
+            _builder.UseNpgsql(ConnectionString.TestDatabase(), o => o.UseNodaTime())
                 .UseSnakeCaseNamingConvention();
         }
 
         [SetUp]
         public void BaseSetup()
         {
-            _factory = new MockWebApplicationFactory<TStartup>(_builder);
+            var currentTime = SystemClock.Instance.GetCurrentInstant();
+            var fakeClock = new FakeClock(currentTime);
+            _clock = new ClockService(fakeClock);
+
+            _factory = new MockWebApplicationFactory<TStartup>(_builder, _clock);
             Client = _factory.CreateClient();
 
             _factory.Context.Database.Migrate();
