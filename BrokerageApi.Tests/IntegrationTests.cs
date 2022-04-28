@@ -28,6 +28,7 @@ namespace BrokerageApi.Tests
         protected HttpClient Client { get; private set; }
         protected BrokerageContext Context => _factory.Context;
         protected Instant CurrentInstant => _clock.Now;
+        protected Instant PreviousInstant => _clock.Now - Duration.FromHours(2);
 
         private MockWebApplicationFactory<TStartup> _factory;
         private IDbContextTransaction _transaction;

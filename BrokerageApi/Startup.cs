@@ -221,6 +221,7 @@ namespace BrokerageApi
             services.AddTransient<IGetAllUsersUseCase, GetAllUsersUseCase>();
             services.AddTransient<IAssignBrokerToReferralUseCase, AssignBrokerToReferralUseCase>();
             services.AddTransient<IReassignBrokerToReferralUseCase, ReassignBrokerToReferralUseCase>();
+            services.AddTransient<IStartCarePackageUseCase, StartCarePackageUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

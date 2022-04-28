@@ -31,6 +31,7 @@ namespace BrokerageApi.Tests
             {
                 Context = new BrokerageContext(_builder.Options, _clock);
                 services.AddSingleton(Context);
+                services.AddSingleton(_clock);
 
                 var serviceProvider = services.BuildServiceProvider();
                 var dbContext = serviceProvider.GetRequiredService<BrokerageContext>();

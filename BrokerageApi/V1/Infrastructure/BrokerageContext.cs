@@ -143,8 +143,12 @@ namespace BrokerageApi.V1.Infrastructure
                             break;
 
                         case EntityState.Added:
-                            trackable.CreatedAt = currentTime;
-                            trackable.UpdatedAt = currentTime;
+                            trackable.CreatedAt =
+                                trackable.CreatedAt == NodaConstants.UnixEpoch ?
+                                currentTime : trackable.CreatedAt;
+                            trackable.UpdatedAt =
+                                trackable.UpdatedAt == NodaConstants.UnixEpoch ?
+                                currentTime : trackable.UpdatedAt;
                             break;
                     }
                 }
