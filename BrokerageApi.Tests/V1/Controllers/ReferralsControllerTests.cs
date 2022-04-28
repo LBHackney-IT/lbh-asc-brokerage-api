@@ -121,7 +121,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             var referrals = _fixture.CreateMany<Referral>();
-            _getAssignedReferralsUseCaseMock.Setup(x => x.ExecuteAsync("a.broker@hackney.gov.uk", null))
+            _getAssignedReferralsUseCaseMock.Setup(x => x.ExecuteAsync(null))
                 .ReturnsAsync(referrals);
 
             // Act
@@ -139,7 +139,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             var referrals = _fixture.CreateMany<Referral>();
-            _getAssignedReferralsUseCaseMock.Setup(x => x.ExecuteAsync("a.broker@hackney.gov.uk", ReferralStatus.InProgress))
+            _getAssignedReferralsUseCaseMock.Setup(x => x.ExecuteAsync(ReferralStatus.InProgress))
                 .ReturnsAsync(referrals);
 
             // Act

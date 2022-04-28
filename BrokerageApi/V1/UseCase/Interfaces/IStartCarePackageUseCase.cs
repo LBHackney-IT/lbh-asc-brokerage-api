@@ -6,6 +6,6 @@ namespace BrokerageApi.V1.UseCase.Interfaces
 {
     public interface IStartCarePackageUseCase
     {
-        public Task<Referral> ExecuteAsync(int referralId, string user);
+        public Task<Referral> ExecuteAsync(int referralId);
     }
 }

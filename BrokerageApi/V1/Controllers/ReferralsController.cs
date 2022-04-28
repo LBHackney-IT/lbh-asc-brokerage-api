@@ -81,7 +81,7 @@ namespace BrokerageApi.V1.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAssignedReferrals([FromQuery] ReferralStatus? status = null)
         {
-            var referrals = await _getAssignedReferralsUseCase.ExecuteAsync(User.Identity.Name, status);
+            var referrals = await _getAssignedReferralsUseCase.ExecuteAsync(status);
             return Ok(referrals.Select(r => r.ToResponse()).ToList());
         }
 

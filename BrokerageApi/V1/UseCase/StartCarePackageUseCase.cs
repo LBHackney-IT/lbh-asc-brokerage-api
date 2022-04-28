@@ -11,17 +11,24 @@ namespace BrokerageApi.V1.UseCase
     public class StartCarePackageUseCase : IStartCarePackageUseCase
     {
         private readonly IReferralGateway _referralGateway;
+        private readonly IUserService _userService;
         private readonly IClockService _clock;
         private readonly IDbSaver _dbSaver;
 
-        public StartCarePackageUseCase(IReferralGateway referralGateway, IClockService clock, IDbSaver dbSaver)
+        public StartCarePackageUseCase(
+            IReferralGateway referralGateway,
+            IUserService userService,
+            IClockService clock,
+            IDbSaver dbSaver
+        )
         {
             _referralGateway = referralGateway;
+            _userService = userService;
             _clock = clock;
             _dbSaver = dbSaver;
         }
 
-        public async Task<Referral> ExecuteAsync(int referralId, string user)
+        public async Task<Referral> ExecuteAsync(int referralId)
         {
             var referral = await _referralGateway.GetByIdAsync(referralId);
 
@@ -35,9 +42,9 @@ namespace BrokerageApi.V1.UseCase
                 throw new InvalidOperationException($"Referral is not in a valid state to start editing");
             }
 
-            if (referral.AssignedTo != user)
+            if (referral.AssignedTo != _userService.Name)
             {
-                throw new UnauthorizedAccessException($"Referral is not assigned to {user}");
+                throw new UnauthorizedAccessException($"Referral is not assigned to {_userService.Name}");
             }
 
             referral.Status = ReferralStatus.InProgress;

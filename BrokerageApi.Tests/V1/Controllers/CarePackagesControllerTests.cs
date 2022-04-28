@@ -48,13 +48,12 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task StartCarePackage()
         {
             // Arrange
-            var assignedUser = "a.broker@hackney.gov.uk";
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.Assigned)
-                .With(x => x.AssignedTo, assignedUser)
+                .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
                 .Create();
 
-            _startCarePackageUseCaseMock.Setup(x => x.ExecuteAsync(referral.Id, assignedUser))
+            _startCarePackageUseCaseMock.Setup(x => x.ExecuteAsync(referral.Id))
                 .ReturnsAsync(referral);
 
             // Act
@@ -71,7 +70,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task StartCarePackageWhenReferralDoesNotExist()
         {
             // Arrange
-            _startCarePackageUseCaseMock.Setup(x => x.ExecuteAsync(123456, "a.broker@hackney.gov.uk"))
+            _startCarePackageUseCaseMock.Setup(x => x.ExecuteAsync(123456))
                 .ThrowsAsync(new ArgumentException("Referral not found for: 123456"));
 
             // Act
@@ -91,7 +90,7 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.Status, ReferralStatus.Unassigned)
                 .Create();
 
-            _startCarePackageUseCaseMock.Setup(x => x.ExecuteAsync(referral.Id, "a.broker@hackney.gov.uk"))
+            _startCarePackageUseCaseMock.Setup(x => x.ExecuteAsync(referral.Id))
                 .ThrowsAsync(new InvalidOperationException("Referral is not in a valid state to start editing"));
 
             // Act
@@ -112,7 +111,7 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.AssignedTo, "other.broker@hackney.gov.uk")
                 .Create();
 
-            _startCarePackageUseCaseMock.Setup(x => x.ExecuteAsync(referral.Id, "a.broker@hackney.gov.uk"))
+            _startCarePackageUseCaseMock.Setup(x => x.ExecuteAsync(referral.Id))
                 .ThrowsAsync(new UnauthorizedAccessException("Referral is not assigned to a.broker@hackney.gov.uk"));
 
             // Act

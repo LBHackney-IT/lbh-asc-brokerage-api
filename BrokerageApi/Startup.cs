@@ -155,10 +155,12 @@ namespace BrokerageApi
                 });
 
             services.AddSwaggerGenNewtonsoftSupport();
+            services.AddHttpContextAccessor();
 
             ConfigureLogging(services, Configuration);
 
             services.AddScoped<IClockService, ClockService>();
+            services.AddScoped<IUserService, UserService>();
 
             ConfigureDbContext(services);
 

@@ -41,7 +41,7 @@ namespace BrokerageApi.V1.Controllers
         {
             try
             {
-                var referral = await _startCarePackageUseCase.ExecuteAsync(referralId, User.Identity.Name);
+                var referral = await _startCarePackageUseCase.ExecuteAsync(referralId);
                 return Ok(referral.ToResponse());
             }
             catch (ArgumentException)

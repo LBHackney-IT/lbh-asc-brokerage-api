@@ -20,6 +20,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         private StartCarePackageUseCase _classUnderTest;
         private Fixture _fixture;
         private Mock<IReferralGateway> _referralGatewayMock;
+        private Mock<IUserService> _userServiceMock;
         private Mock<IClockService> _clockMock;
         private Mock<IDbSaver> _dbSaverMock;
 
@@ -28,11 +29,13 @@ namespace BrokerageApi.Tests.V1.UseCase
         {
             _fixture = FixtureHelpers.Fixture;
             _referralGatewayMock = new Mock<IReferralGateway>();
+            _userServiceMock = new Mock<IUserService>();
             _clockMock = new Mock<IClockService>();
             _dbSaverMock = new Mock<IDbSaver>();
 
             _classUnderTest = new StartCarePackageUseCase(
                 _referralGatewayMock.Object,
+                _userServiceMock.Object,
                 _clockMock.Object,
                 _dbSaverMock.Object
             );
@@ -43,16 +46,18 @@ namespace BrokerageApi.Tests.V1.UseCase
         {
             // Arrange
             var currentInstant = SystemClock.Instance.GetCurrentInstant();
-            var assignedUser = "a.broker@hackney.gov.uk";
 
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.Assigned)
-                .With(x => x.AssignedTo, assignedUser)
+                .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
                 .Without(x => x.StartedAt)
                 .Create();
 
             _referralGatewayMock.Setup(x => x.GetByIdAsync(referral.Id))
                 .ReturnsAsync(referral);
+
+            _userServiceMock.SetupGet(x => x.Name)
+                .Returns("a.broker@hackney.gov.uk");
 
             _clockMock.SetupGet(x => x.Now)
                 .Returns(currentInstant);
@@ -61,7 +66,7 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .Returns(Task.CompletedTask);
 
             // Act
-            var result = await _classUnderTest.ExecuteAsync(referral.Id, assignedUser);
+            var result = await _classUnderTest.ExecuteAsync(referral.Id);
 
             // Assert
             Assert.That(result.Status, Is.EqualTo(ReferralStatus.InProgress));
@@ -76,9 +81,12 @@ namespace BrokerageApi.Tests.V1.UseCase
             _referralGatewayMock.Setup(x => x.GetByIdAsync(123456))
                 .ReturnsAsync(null as Referral);
 
+            _userServiceMock.SetupGet(x => x.Name)
+                .Returns("a.broker@hackney.gov.uk");
+
             // Act
             var exception = Assert.ThrowsAsync<ArgumentException>(
-                async () => await _classUnderTest.ExecuteAsync(123456, "a.broker@hackney.gov.uk"));
+                async () => await _classUnderTest.ExecuteAsync(123456));
 
             // Assert
             Assert.That(exception.Message, Is.EqualTo("Referral not found for: 123456"));
@@ -95,9 +103,12 @@ namespace BrokerageApi.Tests.V1.UseCase
             _referralGatewayMock.Setup(x => x.GetByIdAsync(referral.Id))
                 .ReturnsAsync(referral);
 
+            _userServiceMock.SetupGet(x => x.Name)
+                .Returns("a.broker@hackney.gov.uk");
+
             // Act
             var exception = Assert.ThrowsAsync<InvalidOperationException>(
-                async () => await _classUnderTest.ExecuteAsync(referral.Id, "a.broker@hackney.gov.uk"));
+                async () => await _classUnderTest.ExecuteAsync(referral.Id));
 
             // Assert
             Assert.That(exception.Message, Is.EqualTo("Referral is not in a valid state to start editing"));
@@ -115,9 +126,12 @@ namespace BrokerageApi.Tests.V1.UseCase
             _referralGatewayMock.Setup(x => x.GetByIdAsync(referral.Id))
                 .ReturnsAsync(referral);
 
+            _userServiceMock.SetupGet(x => x.Name)
+                .Returns("a.broker@hackney.gov.uk");
+
             // Act
             var exception = Assert.ThrowsAsync<UnauthorizedAccessException>(
-                async () => await _classUnderTest.ExecuteAsync(referral.Id, "a.broker@hackney.gov.uk"));
+                async () => await _classUnderTest.ExecuteAsync(referral.Id));
 
             // Assert
             Assert.That(exception.Message, Is.EqualTo("Referral is not assigned to a.broker@hackney.gov.uk"));
