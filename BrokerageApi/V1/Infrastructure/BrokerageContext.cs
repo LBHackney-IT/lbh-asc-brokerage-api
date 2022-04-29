@@ -17,6 +17,7 @@ namespace BrokerageApi.V1.Infrastructure
             NpgsqlConnection.GlobalTypeMapper.UseNodaTime();
 
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementCostType>("element_cost_type");
+            NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementStatus>("element_status");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ProviderType>("provider_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ReferralStatus>("referral_status");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<WorkflowType>("workflow_type");
@@ -28,10 +29,17 @@ namespace BrokerageApi.V1.Infrastructure
             _clock = clock;
         }
 
+        public IClockService Clock
+        {
+            get => _clock;
+        }
+
+        public DbSet<Element> Elements { get; set; }
         public DbSet<ElementType> ElementTypes { get; set; }
         public DbSet<Provider> Providers { get; set; }
         public DbSet<ProviderService> ProviderServices { get; set; }
         public DbSet<Referral> Referrals { get; set; }
+        public DbSet<ReferralElement> ReferralElements { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<User> Users { get; set; }
 
@@ -46,10 +54,20 @@ namespace BrokerageApi.V1.Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasPostgresEnum<ElementCostType>();
+            modelBuilder.HasPostgresEnum<ElementStatus>();
             modelBuilder.HasPostgresEnum<ProviderType>();
             modelBuilder.HasPostgresEnum<ReferralStatus>();
             modelBuilder.HasPostgresEnum<WorkflowType>();
             modelBuilder.HasPostgresEnum<UserRole>();
+
+            modelBuilder.Entity<Element>()
+                .HasOne(e => e.RelatedElement)
+                .WithMany(e => e.RelatedElements)
+                .HasForeignKey("RelatedElementId");
+
+            modelBuilder.Entity<Element>()
+                .Property(e => e.InternalStatus)
+                .HasDefaultValue(ElementStatus.InProgress);
 
             modelBuilder.Entity<ElementType>()
                 .Property(et => et.Id)
@@ -98,6 +116,23 @@ namespace BrokerageApi.V1.Infrastructure
             modelBuilder.Entity<Referral>()
                 .HasIndex(r => r.WorkflowId)
                 .IsUnique();
+
+            modelBuilder.Entity<Referral>()
+                .HasMany(r => r.Elements)
+                .WithMany(e => e.Referrals)
+                .UsingEntity<ReferralElement>(
+                    j => j
+                        .HasOne(re => re.Element)
+                        .WithMany(e => e.ReferralElements)
+                        .HasForeignKey(re => re.ElementId),
+                    j => j
+                        .HasOne(re => re.Referral)
+                        .WithMany(e => e.ReferralElements)
+                        .HasForeignKey(re => re.ReferralId),
+                    j =>
+                    {
+                        j.HasKey(re => new { re.ElementId, re.ReferralId });
+                    });
 
             modelBuilder.Entity<Service>()
                 .Property(s => s.Id)

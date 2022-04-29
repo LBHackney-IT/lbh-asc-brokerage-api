@@ -205,6 +205,7 @@ namespace BrokerageApi
 
         private static void RegisterGateways(IServiceCollection services)
         {
+            services.AddScoped<IElementTypeGateway, ElementTypeGateway>();
             services.AddScoped<IProviderGateway, ProviderGateway>();
             services.AddScoped<IReferralGateway, ReferralGateway>();
             services.AddScoped<IServiceGateway, ServiceGateway>();
@@ -213,6 +214,7 @@ namespace BrokerageApi
 
         private static void RegisterUseCases(IServiceCollection services)
         {
+            services.AddTransient<ICreateElementUseCase, CreateElementUseCase>();
             services.AddTransient<ICreateReferralUseCase, CreateReferralUseCase>();
             services.AddTransient<IFindProvidersByServiceUseCase, FindProvidersByServiceUseCase>();
             services.AddTransient<IGetAssignedReferralsUseCase, GetAssignedReferralsUseCase>();

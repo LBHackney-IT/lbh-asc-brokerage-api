@@ -7,6 +7,31 @@ namespace BrokerageApi.V1.Factories
 {
     public static class ResponseFactory
     {
+        public static ElementResponse ToResponse(this Element element)
+        {
+            return new ElementResponse
+            {
+                Id = element.Id,
+                ElementType = element.ElementType?.ToResponse(),
+                NonPersonalBudget = element.NonPersonalBudget,
+                Provider = element.Provider?.ToResponse(),
+                Details = element.Details,
+                StartDate = element.StartDate,
+                EndDate = element.EndDate,
+                Monday = element.Monday,
+                Tuesday = element.Tuesday,
+                Wednesday = element.Wednesday,
+                Thursday = element.Thursday,
+                Friday = element.Friday,
+                Saturday = element.Saturday,
+                Sunday = element.Sunday,
+                Quantity = element.Quantity,
+                Cost = element.Cost,
+                CreatedAt = element.CreatedAt,
+                UpdatedAt = element.UpdatedAt
+            };
+        }
+
         public static ElementTypeResponse ToResponse(this ElementType elementType)
         {
             return new ElementTypeResponse

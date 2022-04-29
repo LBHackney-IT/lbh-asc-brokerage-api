@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using NodaTime;
 
@@ -34,5 +35,9 @@ namespace BrokerageApi.V1.Infrastructure
         public string Note { get; set; }
 
         public Instant? StartedAt { get; set; }
+
+        public List<ReferralElement> ReferralElements { get; set; }
+
+        public List<Element> Elements { get; set; }
     }
 }

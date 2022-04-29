@@ -22,5 +22,7 @@ namespace BrokerageApi.V1.Infrastructure
         public bool IsArchived { get; set; }
 
         public Service Service { get; set; }
+
+        public List<Element> Elements { get; set; }
     }
 }

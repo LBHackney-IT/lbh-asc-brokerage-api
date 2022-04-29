@@ -23,6 +23,7 @@ namespace BrokerageApi.Tests.V1.Controllers
     {
         private Fixture _fixture;
         private Mock<IStartCarePackageUseCase> _startCarePackageUseCaseMock;
+        private Mock<ICreateElementUseCase> _createElementUseCaseMock;
         private MockProblemDetailsFactory _problemDetailsFactoryMock;
 
         private CarePackagesController _classUnderTest;
@@ -32,10 +33,12 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             _fixture = FixtureHelpers.Fixture;
             _startCarePackageUseCaseMock = new Mock<IStartCarePackageUseCase>();
+            _createElementUseCaseMock = new Mock<ICreateElementUseCase>();
             _problemDetailsFactoryMock = new MockProblemDetailsFactory();
 
             _classUnderTest = new CarePackagesController(
-                _startCarePackageUseCaseMock.Object
+                _startCarePackageUseCaseMock.Object,
+                _createElementUseCaseMock.Object
             );
 
             // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it

@@ -13,6 +13,8 @@ namespace BrokerageApi.Tests.V1.Helpers
         {
             var fixture = new Fixture();
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+            fixture.Customizations.Add(new LocalDateGenerator());
+
             return fixture;
         }
     }

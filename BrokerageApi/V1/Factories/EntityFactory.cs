@@ -20,5 +20,28 @@ namespace BrokerageApi.V1.Factories
                 Note = request.Note
             };
         }
+
+        public static Element ToDatabase(this CreateElementRequest request)
+        {
+            return new Element
+            {
+                ElementTypeId = request.ElementTypeId,
+                NonPersonalBudget = request.NonPersonalBudget,
+                ProviderId = request.ProviderId,
+                Details = request.Details,
+                RelatedElementId = request.RelatedElementId,
+                StartDate = request.StartDate,
+                EndDate = request.EndDate,
+                Monday = request.Monday,
+                Tuesday = request.Tuesday,
+                Wednesday = request.Wednesday,
+                Thursday = request.Thursday,
+                Friday = request.Friday,
+                Saturday = request.Saturday,
+                Sunday = request.Sunday,
+                Quantity = request.Quantity,
+                Cost = request.Cost
+            };
+        }
     }
 }

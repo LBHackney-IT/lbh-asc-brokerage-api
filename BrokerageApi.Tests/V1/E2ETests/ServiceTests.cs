@@ -67,7 +67,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 Id = 2,
                 Name = "Residential Care",
                 IsArchived = false,
-                Position = 2,
+                Position = 2
             };
 
             var childService = new Service()
