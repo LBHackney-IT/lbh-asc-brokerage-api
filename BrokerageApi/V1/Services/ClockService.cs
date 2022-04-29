@@ -20,5 +20,15 @@ namespace BrokerageApi.V1.Services
         {
             get => _clock.GetCurrentInstant();
         }
+
+        public DateTimeZone TimeZone
+        {
+            get => DateTimeZoneProviders.Tzdb["Europe/London"];
+        }
+
+        public LocalDate Today
+        {
+            get => Now.InZone(TimeZone).Date;
+        }
     }
 }
