@@ -40,7 +40,7 @@ namespace BrokerageApi.V1.UseCase
 
             if (referral is null)
             {
-                throw new ArgumentException($"Referral not found for: {referralId}");
+                throw new ArgumentNullException(nameof(referralId), $"Referral not found for: {referralId}");
             }
 
             if (referral.Status != ReferralStatus.InProgress)
@@ -57,14 +57,14 @@ namespace BrokerageApi.V1.UseCase
 
             if (elementType is null)
             {
-                throw new ArgumentNullException($"Element type not found for: {request.ElementTypeId}");
+                throw new ArgumentException($"Element type not found for: {request.ElementTypeId}");
             }
 
             var provider = await _providerGateway.GetByIdAsync(request.ProviderId);
 
             if (provider is null)
             {
-                throw new ArgumentNullException($"Provider not found for: {request.ProviderId}");
+                throw new ArgumentException($"Provider not found for: {request.ProviderId}");
             }
 
             var element = request.ToDatabase();

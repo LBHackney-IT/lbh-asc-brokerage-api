@@ -74,7 +74,8 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             _startCarePackageUseCaseMock.Setup(x => x.ExecuteAsync(123456))
-                .ThrowsAsync(new ArgumentException("Referral not found for: 123456"));
+                .Callback((int referralId) => throw new ArgumentNullException(nameof(referralId), "Referral not found for: 123456"))
+                .Returns(Task.FromResult(new Referral()));
 
             // Act
             var objectResult = await _classUnderTest.StartCarePackage(123456);
@@ -101,8 +102,8 @@ namespace BrokerageApi.Tests.V1.Controllers
             var statusCode = GetStatusCode(objectResult);
 
             // Assert
-            statusCode.Should().Be((int) HttpStatusCode.BadRequest);
-            _problemDetailsFactoryMock.VerifyStatusCode(HttpStatusCode.BadRequest);
+            statusCode.Should().Be((int) HttpStatusCode.UnprocessableEntity);
+            _problemDetailsFactoryMock.VerifyStatusCode(HttpStatusCode.UnprocessableEntity);
         }
 
         [Test, Property("AsUser", "Broker")]

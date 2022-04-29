@@ -75,7 +75,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         }
 
         [Test]
-        public void ThrowsArgumentExceptionWhenReferralDoesntExist()
+        public void ThrowsArgumentNullExceptionWhenReferralDoesntExist()
         {
             // Arrange
             _referralGatewayMock.Setup(x => x.GetByIdAsync(123456))
@@ -85,11 +85,11 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .Returns("a.broker@hackney.gov.uk");
 
             // Act
-            var exception = Assert.ThrowsAsync<ArgumentException>(
+            var exception = Assert.ThrowsAsync<ArgumentNullException>(
                 async () => await _classUnderTest.ExecuteAsync(123456));
 
             // Assert
-            Assert.That(exception.Message, Is.EqualTo("Referral not found for: 123456"));
+            Assert.That(exception.Message, Is.EqualTo("Referral not found for: 123456 (Parameter 'referralId')"));
         }
 
         [Test]

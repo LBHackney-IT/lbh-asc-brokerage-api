@@ -36,9 +36,9 @@ namespace BrokerageApi.V1.Controllers
         [HttpPost]
         [Route("start")]
         [ProducesResponseType(typeof(ReferralResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> StartCarePackage([FromRoute] int referralId)
         {
@@ -47,7 +47,7 @@ namespace BrokerageApi.V1.Controllers
                 var referral = await _startCarePackageUseCase.ExecuteAsync(referralId);
                 return Ok(referral.ToResponse());
             }
-            catch (ArgumentException)
+            catch (ArgumentNullException)
             {
                 return Problem(
                     "The requested referral was not found",
@@ -60,7 +60,7 @@ namespace BrokerageApi.V1.Controllers
                 return Problem(
                     "The requested referral was in an invalid state to start editing",
                     $"/api/v1/referrals/{referralId}/care-package/start",
-                    StatusCodes.Status400BadRequest, "Bad Request"
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }
             catch (UnauthorizedAccessException)
@@ -80,6 +80,7 @@ namespace BrokerageApi.V1.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateElement([FromRoute] int referralId, [FromBody] CreateElementRequest request)
         {
@@ -91,17 +92,17 @@ namespace BrokerageApi.V1.Controllers
             catch (ArgumentNullException)
             {
                 return Problem(
-                    "One of the associated resources was not found",
+                    "The requested referral was not found",
                     $"/api/v1/referrals/{referralId}/care-package/elements",
-                    StatusCodes.Status400BadRequest, "Bad Request"
+                    StatusCodes.Status404NotFound, "Not Found"
                 );
             }
             catch (ArgumentException)
             {
                 return Problem(
-                    "The requested referral was not found",
+                    "The request was invalid",
                     $"/api/v1/referrals/{referralId}/care-package/elements",
-                    StatusCodes.Status404NotFound, "Not Found"
+                    StatusCodes.Status400BadRequest, "Bad Request"
                 );
             }
             catch (InvalidOperationException)

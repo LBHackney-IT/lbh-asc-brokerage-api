@@ -120,8 +120,8 @@ namespace BrokerageApi.V1.Controllers
         [HttpPost]
         [Route("{id}/assign")]
         [ProducesResponseType(typeof(ReferralResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AssignBroker([FromRoute] int id, [FromBody] AssignBrokerRequest request)
         {
@@ -130,7 +130,7 @@ namespace BrokerageApi.V1.Controllers
                 var referral = await _assignBrokerToReferralUseCase.ExecuteAsync(id, request);
                 return Ok(referral.ToResponse());
             }
-            catch (ArgumentException)
+            catch (ArgumentNullException)
             {
                 return Problem(
                     "The requested referral was not found",
@@ -143,7 +143,7 @@ namespace BrokerageApi.V1.Controllers
                 return Problem(
                     "The requested referral was in an invalid state for assignment",
                     $"/api/v1/referrals/{id}/assign",
-                    StatusCodes.Status400BadRequest, "Bad Request"
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }
         }
@@ -151,8 +151,8 @@ namespace BrokerageApi.V1.Controllers
         [HttpPost]
         [Route("{id}/reassign")]
         [ProducesResponseType(typeof(ReferralResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ReassignBroker([FromRoute] int id, [FromBody] AssignBrokerRequest request)
         {
@@ -161,7 +161,7 @@ namespace BrokerageApi.V1.Controllers
                 var referral = await _reassignBrokerToReferralUseCase.ExecuteAsync(id, request);
                 return Ok(referral.ToResponse());
             }
-            catch (ArgumentException)
+            catch (ArgumentNullException)
             {
                 return Problem(
                     "The requested referral was not found",
@@ -174,7 +174,7 @@ namespace BrokerageApi.V1.Controllers
                 return Problem(
                     "The requested referral was in an invalid state for reassignment",
                     $"/api/v1/referrals/{id}/reassign",
-                    StatusCodes.Status400BadRequest, "Bad Request"
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }
         }

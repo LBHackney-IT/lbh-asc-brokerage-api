@@ -34,7 +34,7 @@ namespace BrokerageApi.V1.UseCase
 
             if (referral is null)
             {
-                throw new ArgumentException($"Referral not found for: {referralId}");
+                throw new ArgumentNullException(nameof(referralId), $"Referral not found for: {referralId}");
             }
 
             if (referral.Status != ReferralStatus.Assigned)
