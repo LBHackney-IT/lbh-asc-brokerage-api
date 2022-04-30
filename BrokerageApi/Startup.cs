@@ -9,6 +9,8 @@ using BrokerageApi.V1.Controllers;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using BrokerageApi.V1.Gateways;
 using BrokerageApi.V1.Gateways.Interfaces;
+using BrokerageApi.V1.Services;
+using BrokerageApi.V1.Services.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.UseCase;
 using BrokerageApi.V1.UseCase.Interfaces;
@@ -28,6 +30,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using NodaTime;
+using NodaTime.Serialization.JsonNet;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace BrokerageApi
@@ -51,7 +55,7 @@ namespace BrokerageApi
             services
                 .AddCors()
                 .AddMvc()
-                .AddNewtonsoftJson(o => o.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc)
+                .AddNewtonsoftJson(o => o.SerializerSettings.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddApiVersioning(o =>
             {
@@ -114,6 +118,11 @@ namespace BrokerageApi
                     });
                 }
 
+                c.MapType<NodaTime.Instant>(() => new OpenApiSchema { Type = "string", Format = "date-time" });
+                c.MapType<NodaTime.Instant?>(() => new OpenApiSchema { Type = "string", Format = "date-time", Nullable = true });
+                c.MapType<NodaTime.LocalDate>(() => new OpenApiSchema { Type = "string", Format = "date" });
+                c.MapType<NodaTime.LocalDate?>(() => new OpenApiSchema { Type = "string", Format = "date", Nullable = true });
+
                 c.CustomSchemaIds(x => x.Name);
 
                 // Set the comments path for the Swagger JSON and UI.
@@ -146,8 +155,12 @@ namespace BrokerageApi
                 });
 
             services.AddSwaggerGenNewtonsoftSupport();
+            services.AddHttpContextAccessor();
 
             ConfigureLogging(services, Configuration);
+
+            services.AddScoped<IClockService, ClockService>();
+            services.AddScoped<IUserService, UserService>();
 
             ConfigureDbContext(services);
 
@@ -165,7 +178,7 @@ namespace BrokerageApi
 
             services.AddDbContext<BrokerageContext>(
                 opt => opt
-                    .UseNpgsql(connectionString)
+                    .UseNpgsql(connectionString, o => o.UseNodaTime())
                     .UseSnakeCaseNamingConvention()
             );
         }
@@ -192,6 +205,7 @@ namespace BrokerageApi
 
         private static void RegisterGateways(IServiceCollection services)
         {
+            services.AddScoped<IElementTypeGateway, ElementTypeGateway>();
             services.AddScoped<IProviderGateway, ProviderGateway>();
             services.AddScoped<IReferralGateway, ReferralGateway>();
             services.AddScoped<IServiceGateway, ServiceGateway>();
@@ -200,6 +214,7 @@ namespace BrokerageApi
 
         private static void RegisterUseCases(IServiceCollection services)
         {
+            services.AddTransient<ICreateElementUseCase, CreateElementUseCase>();
             services.AddTransient<ICreateReferralUseCase, CreateReferralUseCase>();
             services.AddTransient<IFindProvidersByServiceUseCase, FindProvidersByServiceUseCase>();
             services.AddTransient<IGetAssignedReferralsUseCase, GetAssignedReferralsUseCase>();
@@ -210,6 +225,7 @@ namespace BrokerageApi
             services.AddTransient<IGetAllUsersUseCase, GetAllUsersUseCase>();
             services.AddTransient<IAssignBrokerToReferralUseCase, AssignBrokerToReferralUseCase>();
             services.AddTransient<IReassignBrokerToReferralUseCase, ReassignBrokerToReferralUseCase>();
+            services.AddTransient<IStartCarePackageUseCase, StartCarePackageUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

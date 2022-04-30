@@ -25,5 +25,11 @@ namespace BrokerageApi.V1.Gateways
                 .OrderBy(p => p.Name)
                 .ToListAsync();
         }
+
+        public async Task<Provider> GetByIdAsync(int id)
+        {
+            return await _context.Providers
+                .SingleOrDefaultAsync(p => p.Id == id);
+        }
     }
 }

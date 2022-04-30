@@ -58,7 +58,7 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     "The requested service was not found",
-                    $"/api/v1/service/{id}",
+                    $"/api/v1/services/{id}",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
@@ -80,7 +80,7 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     "The requested service was not found",
-                    $"/api/v1/service/{id}",
+                    $"/api/v1/services/{id}",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }

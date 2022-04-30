@@ -5,6 +5,7 @@ using BrokerageApi.V1.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using NpgsqlTypes;
 
@@ -18,6 +19,7 @@ namespace V1.Infrastructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasPostgresEnum(null, "element_cost_type", new[] { "hourly", "daily", "weekly", "transport", "one_off" })
+                .HasPostgresEnum(null, "element_status", new[] { "in_progress", "awaiting_approval", "approved", "inactive", "active", "ended", "suspended" })
                 .HasPostgresEnum(null, "provider_type", new[] { "framework", "spot" })
                 .HasPostgresEnum(null, "referral_status", new[] { "unassigned", "in_review", "assigned", "on_hold", "archived", "in_progress", "awaiting_approval", "approved" })
                 .HasPostgresEnum(null, "user_role", new[] { "brokerage_assistant", "broker", "approver", "care_charges_officer", "referrer" })
@@ -25,6 +27,113 @@ namespace V1.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
                 .HasAnnotation("ProductVersion", "5.0.10")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Element", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<decimal>("Cost")
+                        .HasColumnType("numeric")
+                        .HasColumnName("cost");
+
+                    b.Property<Instant>("CreatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Details")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("details");
+
+                    b.Property<int>("ElementTypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("element_type_id");
+
+                    b.Property<LocalDate?>("EndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("end_date");
+
+                    b.Property<ElementCost?>("Friday")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("friday");
+
+                    b.Property<ElementStatus>("InternalStatus")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("element_status")
+                        .HasDefaultValue(ElementStatus.InProgress)
+                        .HasColumnName("internal_status");
+
+                    b.Property<ElementCost?>("Monday")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("monday");
+
+                    b.Property<bool>("NonPersonalBudget")
+                        .HasColumnType("boolean")
+                        .HasColumnName("non_personal_budget");
+
+                    b.Property<int>("ProviderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("provider_id");
+
+                    b.Property<decimal?>("Quantity")
+                        .HasColumnType("numeric")
+                        .HasColumnName("quantity");
+
+                    b.Property<int?>("RelatedElementId")
+                        .HasColumnType("integer")
+                        .HasColumnName("related_element_id");
+
+                    b.Property<ElementCost?>("Saturday")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("saturday");
+
+                    b.Property<string>("SocialCareId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("social_care_id");
+
+                    b.Property<LocalDate>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
+
+                    b.Property<ElementCost?>("Sunday")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("sunday");
+
+                    b.Property<ElementCost?>("Thursday")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("thursday");
+
+                    b.Property<ElementCost?>("Tuesday")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("tuesday");
+
+                    b.Property<Instant>("UpdatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("updated_at");
+
+                    b.Property<ElementCost?>("Wednesday")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("wednesday");
+
+                    b.HasKey("Id")
+                        .HasName("pk_elements");
+
+                    b.HasIndex("ElementTypeId")
+                        .HasDatabaseName("ix_elements_element_type_id");
+
+                    b.HasIndex("ProviderId")
+                        .HasDatabaseName("ix_elements_provider_id");
+
+                    b.HasIndex("RelatedElementId")
+                        .HasDatabaseName("ix_elements_related_element_id");
+
+                    b.ToTable("elements");
+                });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ElementType", b =>
                 {
@@ -84,8 +193,8 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("address");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone")
+                    b.Property<Instant>("CreatedAt")
+                        .HasColumnType("timestamp")
                         .HasColumnName("created_at");
 
                     b.Property<bool>("IsArchived")
@@ -110,8 +219,8 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("provider_type")
                         .HasColumnName("type");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone")
+                    b.Property<Instant>("UpdatedAt")
+                        .HasColumnType("timestamp")
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id")
@@ -160,8 +269,8 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("assigned_to");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone")
+                    b.Property<Instant>("CreatedAt")
+                        .HasColumnType("timestamp")
                         .HasColumnName("created_at");
 
                     b.Property<string>("FormName")
@@ -187,16 +296,20 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("social_care_id");
 
+                    b.Property<Instant?>("StartedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("started_at");
+
                     b.Property<ReferralStatus>("Status")
                         .HasColumnType("referral_status")
                         .HasColumnName("status");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone")
+                    b.Property<Instant>("UpdatedAt")
+                        .HasColumnType("timestamp")
                         .HasColumnName("updated_at");
 
-                    b.Property<DateTime?>("UrgentSince")
-                        .HasColumnType("timestamp without time zone")
+                    b.Property<Instant?>("UrgentSince")
+                        .HasColumnType("timestamp")
                         .HasColumnName("urgent_since");
 
                     b.Property<string>("WorkflowId")
@@ -216,6 +329,25 @@ namespace V1.Infrastructure.Migrations
                         .HasDatabaseName("ix_referrals_workflow_id");
 
                     b.ToTable("referrals");
+                });
+
+            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ReferralElement", b =>
+                {
+                    b.Property<int>("ElementId")
+                        .HasColumnType("integer")
+                        .HasColumnName("element_id");
+
+                    b.Property<int>("ReferralId")
+                        .HasColumnType("integer")
+                        .HasColumnName("referral_id");
+
+                    b.HasKey("ElementId", "ReferralId")
+                        .HasName("pk_referral_elements");
+
+                    b.HasIndex("ReferralId")
+                        .HasDatabaseName("ix_referral_elements_referral_id");
+
+                    b.ToTable("referral_elements");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Service", b =>
@@ -264,8 +396,8 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnName("id")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone")
+                    b.Property<Instant>("CreatedAt")
+                        .HasColumnType("timestamp")
                         .HasColumnName("created_at");
 
                     b.Property<string>("Email")
@@ -286,8 +418,8 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("user_role[]")
                         .HasColumnName("roles");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone")
+                    b.Property<Instant>("UpdatedAt")
+                        .HasColumnType("timestamp")
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id")
@@ -298,6 +430,34 @@ namespace V1.Infrastructure.Migrations
                         .HasDatabaseName("ix_users_email");
 
                     b.ToTable("users");
+                });
+
+            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Element", b =>
+                {
+                    b.HasOne("BrokerageApi.V1.Infrastructure.ElementType", "ElementType")
+                        .WithMany("Elements")
+                        .HasForeignKey("ElementTypeId")
+                        .HasConstraintName("fk_elements_element_types_element_type_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BrokerageApi.V1.Infrastructure.Provider", "Provider")
+                        .WithMany("Elements")
+                        .HasForeignKey("ProviderId")
+                        .HasConstraintName("fk_elements_providers_provider_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BrokerageApi.V1.Infrastructure.Element", "RelatedElement")
+                        .WithMany("RelatedElements")
+                        .HasForeignKey("RelatedElementId")
+                        .HasConstraintName("fk_elements_elements_related_element_id");
+
+                    b.Navigation("ElementType");
+
+                    b.Navigation("Provider");
+
+                    b.Navigation("RelatedElement");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ElementType", b =>
@@ -333,6 +493,27 @@ namespace V1.Infrastructure.Migrations
                     b.Navigation("Service");
                 });
 
+            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ReferralElement", b =>
+                {
+                    b.HasOne("BrokerageApi.V1.Infrastructure.Element", "Element")
+                        .WithMany("ReferralElements")
+                        .HasForeignKey("ElementId")
+                        .HasConstraintName("fk_referral_elements_elements_element_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BrokerageApi.V1.Infrastructure.Referral", "Referral")
+                        .WithMany("ReferralElements")
+                        .HasForeignKey("ReferralId")
+                        .HasConstraintName("fk_referral_elements_referrals_referral_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Element");
+
+                    b.Navigation("Referral");
+                });
+
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Service", b =>
                 {
                     b.HasOne("BrokerageApi.V1.Infrastructure.Service", "Parent")
@@ -343,9 +524,28 @@ namespace V1.Infrastructure.Migrations
                     b.Navigation("Parent");
                 });
 
+            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Element", b =>
+                {
+                    b.Navigation("ReferralElements");
+
+                    b.Navigation("RelatedElements");
+                });
+
+            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ElementType", b =>
+                {
+                    b.Navigation("Elements");
+                });
+
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Provider", b =>
                 {
+                    b.Navigation("Elements");
+
                     b.Navigation("ProviderServices");
+                });
+
+            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Referral", b =>
+                {
+                    b.Navigation("ReferralElements");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Service", b =>

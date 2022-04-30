@@ -30,9 +30,9 @@ namespace BrokerageApi.Tests.V1.Gateways
             var result = await _classUnderTest.CreateAsync(referral);
 
             // Assert
-            result.Should().BeEquivalentTo(referral);
-            result.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, 2.Seconds());
-            result.UpdatedAt.Should().BeCloseTo(DateTime.UtcNow, 2.Seconds());
+            Assert.That(result, Is.EqualTo(referral));
+            Assert.That(result.CreatedAt, Is.EqualTo(CurrentInstant));
+            Assert.That(result.UpdatedAt, Is.EqualTo(CurrentInstant));
         }
 
         [Test]
@@ -118,7 +118,8 @@ namespace BrokerageApi.Tests.V1.Gateways
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 AssignedTo = "a.broker@hackney.gov.uk",
-                Status = ReferralStatus.InProgress
+                Status = ReferralStatus.InProgress,
+                StartedAt = CurrentInstant
             };
 
             var awaitingApprovalReferral = new Referral()
@@ -287,7 +288,8 @@ namespace BrokerageApi.Tests.V1.Gateways
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 AssignedTo = "a.broker@hackney.gov.uk",
-                Status = ReferralStatus.InProgress
+                Status = ReferralStatus.InProgress,
+                StartedAt = CurrentInstant
             };
 
             var awaitingApprovalReferral = new Referral()
@@ -365,7 +367,8 @@ namespace BrokerageApi.Tests.V1.Gateways
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 AssignedTo = "a.broker@hackney.gov.uk",
-                Status = ReferralStatus.InProgress
+                Status = ReferralStatus.InProgress,
+                StartedAt = CurrentInstant
             };
 
             await BrokerageContext.Referrals.AddAsync(assignedReferral);

@@ -6,6 +6,8 @@ using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using NodaTime;
+using NodaTime.Serialization.JsonNet;
 
 namespace BrokerageApi.V1.Controllers
 {
@@ -35,9 +37,7 @@ namespace BrokerageApi.V1.Controllers
                 settings.Formatting = Formatting.Indented;
                 settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
 
-                settings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-                settings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
-
+                settings.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
                 settings.Converters.Add(new StringEnumConverter());
 
                 return settings;

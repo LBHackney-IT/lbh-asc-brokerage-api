@@ -1,11 +1,12 @@
 using System;
+using NodaTime;
 
 namespace BrokerageApi.V1.Infrastructure
 {
     public class BaseEntity
     {
-        public DateTime CreatedAt { get; set; }
+        public Instant CreatedAt { get; set; }
 
-        public DateTime UpdatedAt { get; set; }
+        public Instant UpdatedAt { get; set; }
     }
 }

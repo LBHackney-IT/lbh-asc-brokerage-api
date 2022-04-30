@@ -121,7 +121,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             var referrals = _fixture.CreateMany<Referral>();
-            _getAssignedReferralsUseCaseMock.Setup(x => x.ExecuteAsync("a.broker@hackney.gov.uk", null))
+            _getAssignedReferralsUseCaseMock.Setup(x => x.ExecuteAsync(null))
                 .ReturnsAsync(referrals);
 
             // Act
@@ -139,7 +139,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             var referrals = _fixture.CreateMany<Referral>();
-            _getAssignedReferralsUseCaseMock.Setup(x => x.ExecuteAsync("a.broker@hackney.gov.uk", ReferralStatus.InProgress))
+            _getAssignedReferralsUseCaseMock.Setup(x => x.ExecuteAsync(ReferralStatus.InProgress))
                 .ReturnsAsync(referrals);
 
             // Act
@@ -220,7 +220,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .Create();
 
             _assignBrokerToReferralUseCaseMock.Setup(x => x.ExecuteAsync(123456, request))
-                .ThrowsAsync(new ArgumentException("Referral not found for: 123456"));
+                .Callback((int referralId, AssignBrokerRequest request) => throw new ArgumentNullException(nameof(referralId), "Referral not found for: 123456"))
+                .Returns(Task.FromResult(new Referral()));
 
             // Act
             var objectResult = await _classUnderTest.AssignBroker(123456, request);
@@ -251,8 +252,8 @@ namespace BrokerageApi.Tests.V1.Controllers
             var statusCode = GetStatusCode(objectResult);
 
             // Assert
-            statusCode.Should().Be((int) HttpStatusCode.BadRequest);
-            _problemDetailsFactoryMock.VerifyStatusCode(HttpStatusCode.BadRequest);
+            statusCode.Should().Be((int) HttpStatusCode.UnprocessableEntity);
+            _problemDetailsFactoryMock.VerifyStatusCode(HttpStatusCode.UnprocessableEntity);
         }
 
         [Test]
@@ -289,7 +290,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .Create();
 
             _reassignBrokerToReferralUseCaseMock.Setup(x => x.ExecuteAsync(123456, request))
-                .ThrowsAsync(new ArgumentException("Referral not found for: 123456"));
+                .Callback((int referralId, AssignBrokerRequest request) => throw new ArgumentNullException(nameof(referralId), "Referral not found for: 123456"))
+                .Returns(Task.FromResult(new Referral()));
 
             // Act
             var objectResult = await _classUnderTest.ReassignBroker(123456, request);
@@ -320,8 +322,8 @@ namespace BrokerageApi.Tests.V1.Controllers
             var statusCode = GetStatusCode(objectResult);
 
             // Assert
-            statusCode.Should().Be((int) HttpStatusCode.BadRequest);
-            _problemDetailsFactoryMock.VerifyStatusCode(HttpStatusCode.BadRequest);
+            statusCode.Should().Be((int) HttpStatusCode.UnprocessableEntity);
+            _problemDetailsFactoryMock.VerifyStatusCode(HttpStatusCode.UnprocessableEntity);
         }
     }
 }
