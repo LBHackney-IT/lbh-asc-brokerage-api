@@ -24,7 +24,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Fixture _fixture;
         private Mock<IGetAllServicesUseCase> _getAllServicesUseCaseMock;
         private Mock<IGetServiceByIdUseCase> _getServiceByIdUseCaseMock;
-        private Mock<IFindProvidersByServiceUseCase> _findProvidersByServiceUseCaseMock;
+        private Mock<IFindProvidersByServiceIdUseCase> _findProvidersByServiceUseCaseMock;
         private MockProblemDetailsFactory _problemDetailsFactoryMock;
 
         private ServicesController _classUnderTest;
@@ -35,7 +35,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             _fixture = FixtureHelpers.Fixture;
             _getAllServicesUseCaseMock = new Mock<IGetAllServicesUseCase>();
             _getServiceByIdUseCaseMock = new Mock<IGetServiceByIdUseCase>();
-            _findProvidersByServiceUseCaseMock = new Mock<IFindProvidersByServiceUseCase>();
+            _findProvidersByServiceUseCaseMock = new Mock<IFindProvidersByServiceIdUseCase>();
             _problemDetailsFactoryMock = new MockProblemDetailsFactory();
 
             _classUnderTest = new ServicesController(
@@ -53,7 +53,8 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             var services = _fixture.CreateMany<Service>();
-            _getAllServicesUseCaseMock.Setup(x => x.ExecuteAsync())
+            _getAllServicesUseCaseMock
+                .Setup(x => x.ExecuteAsync())
                 .ReturnsAsync(services);
 
             // Act
@@ -71,7 +72,8 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             var service = _fixture.Create<Service>();
-            _getServiceByIdUseCaseMock.Setup(x => x.ExecuteAsync(service.Id))
+            _getServiceByIdUseCaseMock
+                .Setup(x => x.ExecuteAsync(service.Id))
                 .ReturnsAsync(service);
 
             // Act
@@ -85,14 +87,31 @@ namespace BrokerageApi.Tests.V1.Controllers
         }
 
         [Test]
+        public async Task GetServiceWhenDoesNotExist()
+        {
+            // Arrange
+            _getServiceByIdUseCaseMock
+                .Setup(x => x.ExecuteAsync(123456))
+                .Callback((int id) => throw new ArgumentNullException(nameof(id), "Service not found for: 123456"))
+                .Returns(Task.FromResult(new Service()));
+
+            // Act
+            var objectResult = await _classUnderTest.GetService(123456);
+            var statusCode = GetStatusCode(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.NotFound);
+            _problemDetailsFactoryMock.VerifyStatusCode(HttpStatusCode.NotFound);
+        }
+
+        [Test]
         public async Task FindProvidersByService()
         {
             // Arrange
             var service = _fixture.Create<Service>();
             var providers = _fixture.CreateMany<Provider>();
-            _getServiceByIdUseCaseMock.Setup(x => x.ExecuteAsync(service.Id))
-                .ReturnsAsync(service);
-            _findProvidersByServiceUseCaseMock.Setup(x => x.ExecuteAsync(service, "Acme"))
+            _findProvidersByServiceUseCaseMock
+                .Setup(x => x.ExecuteAsync(service.Id, "Acme"))
                 .ReturnsAsync(providers);
 
             // Act
@@ -103,6 +122,24 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
             result.Should().BeEquivalentTo(providers.Select(s => s.ToResponse()).ToList());
+        }
+
+        [Test]
+        public async Task FindProvidersByServiceWhenDoesNotExist()
+        {
+            // Arrange
+            _findProvidersByServiceUseCaseMock
+                .Setup(x => x.ExecuteAsync(123456, "Acme"))
+                .Callback((int serviceId, string query) => throw new ArgumentNullException(nameof(serviceId), "Service not found for: 123456"))
+                .Returns(Task.FromResult(new List<Provider>() as IEnumerable<Provider>));
+
+            // Act
+            var objectResult = await _classUnderTest.FindProvidersByService(123456, "Acme");
+            var statusCode = GetStatusCode(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.NotFound);
+            _problemDetailsFactoryMock.VerifyStatusCode(HttpStatusCode.NotFound);
         }
     }
 }

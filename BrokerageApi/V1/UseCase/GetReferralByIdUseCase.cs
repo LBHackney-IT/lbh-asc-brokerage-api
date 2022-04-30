@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
@@ -16,7 +17,14 @@ namespace BrokerageApi.V1.UseCase
 
         public async Task<Referral> ExecuteAsync(int id)
         {
-            return await _referralGateway.GetByIdAsync(id);
+            var referral = await _referralGateway.GetByIdAsync(id);
+
+            if (referral is null)
+            {
+                throw new ArgumentNullException(nameof(id), $"Referral not found for: {id}");
+            }
+
+            return referral;
         }
     }
 }

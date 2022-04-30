@@ -52,7 +52,7 @@ namespace BrokerageApi.Tests.V1.Gateways
             await BrokerageContext.SaveChangesAsync();
 
             // Act
-            var result = await _classUnderTest.FindByServiceAsync(service, "Acme");
+            var result = await _classUnderTest.FindByServiceIdAsync(service.Id, "Acme");
 
             // Assert
             Assert.That(result, Has.Count.EqualTo(1));
@@ -91,7 +91,7 @@ namespace BrokerageApi.Tests.V1.Gateways
             await BrokerageContext.SaveChangesAsync();
 
             // Act
-            var result = await _classUnderTest.FindByServiceAsync(service, "Knowhere");
+            var result = await _classUnderTest.FindByServiceIdAsync(service.Id, "Knowhere");
 
             // Assert
             Assert.That(result, Has.Count.EqualTo(1));
@@ -130,7 +130,7 @@ namespace BrokerageApi.Tests.V1.Gateways
             await BrokerageContext.SaveChangesAsync();
 
             // Act
-            var result = await _classUnderTest.FindByServiceAsync(service, "Acme Knowhere");
+            var result = await _classUnderTest.FindByServiceIdAsync(service.Id, "Acme Knowhere");
 
             // Assert
             Assert.That(result, Has.Count.EqualTo(1));
@@ -170,7 +170,7 @@ namespace BrokerageApi.Tests.V1.Gateways
             await BrokerageContext.SaveChangesAsync();
 
             // Act
-            var result = await _classUnderTest.FindByServiceAsync(service, "Acme");
+            var result = await _classUnderTest.FindByServiceIdAsync(service.Id, "Acme");
 
             // Assert
             Assert.That(result, Has.Count.EqualTo(0));
@@ -208,7 +208,7 @@ namespace BrokerageApi.Tests.V1.Gateways
             await BrokerageContext.SaveChangesAsync();
 
             // Act
-            var result = await _classUnderTest.FindByServiceAsync(service, "FooBar");
+            var result = await _classUnderTest.FindByServiceIdAsync(service.Id, "FooBar");
 
             // Assert
             Assert.That(result, Has.Count.EqualTo(0));
@@ -255,7 +255,7 @@ namespace BrokerageApi.Tests.V1.Gateways
             await BrokerageContext.SaveChangesAsync();
 
             // Act
-            var result = await _classUnderTest.FindByServiceAsync(service, "Acme");
+            var result = await _classUnderTest.FindByServiceIdAsync(service.Id, "Acme");
 
             // Assert
             Assert.That(result, Has.Count.EqualTo(0));

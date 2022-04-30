@@ -47,7 +47,8 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             var users = _fixture.CreateMany<User>();
-            _getAllUsersUseCaseMock.Setup(x => x.ExecuteAsync(null))
+            _getAllUsersUseCaseMock
+                .Setup(x => x.ExecuteAsync(null))
                 .ReturnsAsync(users);
 
             // Act
@@ -65,7 +66,8 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             var users = _fixture.CreateMany<User>();
-            _getAllUsersUseCaseMock.Setup(x => x.ExecuteAsync(UserRole.Broker))
+            _getAllUsersUseCaseMock
+                .Setup(x => x.ExecuteAsync(UserRole.Broker))
                 .ReturnsAsync(users);
 
             // Act

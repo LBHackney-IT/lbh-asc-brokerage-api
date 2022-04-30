@@ -56,7 +56,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
                 .Create();
 
-            _startCarePackageUseCaseMock.Setup(x => x.ExecuteAsync(referral.Id))
+            _startCarePackageUseCaseMock
+                .Setup(x => x.ExecuteAsync(referral.Id))
                 .ReturnsAsync(referral);
 
             // Act
@@ -73,7 +74,8 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task StartCarePackageWhenReferralDoesNotExist()
         {
             // Arrange
-            _startCarePackageUseCaseMock.Setup(x => x.ExecuteAsync(123456))
+            _startCarePackageUseCaseMock
+                .Setup(x => x.ExecuteAsync(123456))
                 .Callback((int referralId) => throw new ArgumentNullException(nameof(referralId), "Referral not found for: 123456"))
                 .Returns(Task.FromResult(new Referral()));
 
@@ -94,7 +96,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.Status, ReferralStatus.Unassigned)
                 .Create();
 
-            _startCarePackageUseCaseMock.Setup(x => x.ExecuteAsync(referral.Id))
+            _startCarePackageUseCaseMock
+                .Setup(x => x.ExecuteAsync(referral.Id))
                 .ThrowsAsync(new InvalidOperationException("Referral is not in a valid state to start editing"));
 
             // Act
@@ -115,7 +118,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.AssignedTo, "other.broker@hackney.gov.uk")
                 .Create();
 
-            _startCarePackageUseCaseMock.Setup(x => x.ExecuteAsync(referral.Id))
+            _startCarePackageUseCaseMock
+                .Setup(x => x.ExecuteAsync(referral.Id))
                 .ThrowsAsync(new UnauthorizedAccessException("Referral is not assigned to a.broker@hackney.gov.uk"));
 
             // Act

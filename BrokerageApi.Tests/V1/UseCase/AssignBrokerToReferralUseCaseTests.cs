@@ -41,10 +41,12 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .With(x => x.Status, ReferralStatus.Unassigned)
                 .Create();
 
-            _referralGatewayMock.Setup(x => x.GetByIdAsync(referral.Id))
+            _referralGatewayMock
+                .Setup(x => x.GetByIdAsync(referral.Id))
                 .ReturnsAsync(referral);
 
-            _dbSaverMock.Setup(x => x.SaveChangesAsync())
+            _dbSaverMock
+                .Setup(x => x.SaveChangesAsync())
                 .Returns(Task.CompletedTask);
 
             // Act
@@ -64,7 +66,8 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .With(x => x.Broker, "a.broker@hackney.gov.uk")
                 .Create();
 
-            _referralGatewayMock.Setup(x => x.GetByIdAsync(123456))
+            _referralGatewayMock
+                .Setup(x => x.GetByIdAsync(123456))
                 .ReturnsAsync(null as Referral);
 
             // Act
@@ -87,7 +90,8 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .With(x => x.Status, ReferralStatus.Assigned)
                 .Create();
 
-            _referralGatewayMock.Setup(x => x.GetByIdAsync(referral.Id))
+            _referralGatewayMock
+                .Setup(x => x.GetByIdAsync(referral.Id))
                 .ReturnsAsync(referral);
 
             // Act

@@ -103,9 +103,12 @@ namespace BrokerageApi.V1.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetReferral([FromRoute] int id)
         {
-            var referral = await _getReferralByIdUseCase.ExecuteAsync(id);
-
-            if (referral is null)
+            try
+            {
+                var referral = await _getReferralByIdUseCase.ExecuteAsync(id);
+                return Ok(referral.ToResponse());
+            }
+            catch (ArgumentNullException)
             {
                 return Problem(
                     "The requested referral was not found",
@@ -113,8 +116,6 @@ namespace BrokerageApi.V1.Controllers
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
-
-            return Ok(referral.ToResponse());
         }
 
         [HttpPost]

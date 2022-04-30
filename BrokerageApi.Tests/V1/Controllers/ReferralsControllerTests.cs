@@ -85,7 +85,8 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             var referrals = _fixture.CreateMany<Referral>();
-            _getCurrentReferralsUseCaseMock.Setup(x => x.ExecuteAsync(null))
+            _getCurrentReferralsUseCaseMock
+                .Setup(x => x.ExecuteAsync(null))
                 .ReturnsAsync(referrals);
 
             // Act
@@ -103,7 +104,8 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             var referrals = _fixture.CreateMany<Referral>();
-            _getCurrentReferralsUseCaseMock.Setup(x => x.ExecuteAsync(ReferralStatus.Unassigned))
+            _getCurrentReferralsUseCaseMock
+                .Setup(x => x.ExecuteAsync(ReferralStatus.Unassigned))
                 .ReturnsAsync(referrals);
 
             // Act
@@ -121,7 +123,8 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             var referrals = _fixture.CreateMany<Referral>();
-            _getAssignedReferralsUseCaseMock.Setup(x => x.ExecuteAsync(null))
+            _getAssignedReferralsUseCaseMock
+                .Setup(x => x.ExecuteAsync(null))
                 .ReturnsAsync(referrals);
 
             // Act
@@ -139,7 +142,8 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             var referrals = _fixture.CreateMany<Referral>();
-            _getAssignedReferralsUseCaseMock.Setup(x => x.ExecuteAsync(ReferralStatus.InProgress))
+            _getAssignedReferralsUseCaseMock
+                .Setup(x => x.ExecuteAsync(ReferralStatus.InProgress))
                 .ReturnsAsync(referrals);
 
             // Act
@@ -157,7 +161,8 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             var referral = _fixture.Create<Referral>();
-            _getReferralByIdUseCaseMock.Setup(x => x.ExecuteAsync(referral.Id))
+            _getReferralByIdUseCaseMock
+                .Setup(x => x.ExecuteAsync(referral.Id))
                 .ReturnsAsync(referral);
 
             // Act
@@ -174,11 +179,13 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task GetReferralWhenDoesNotExist()
         {
             // Arrange
-            _getReferralByIdUseCaseMock.Setup(x => x.ExecuteAsync(404))
-                .ReturnsAsync(null as Referral);
+            _getReferralByIdUseCaseMock
+                .Setup(x => x.ExecuteAsync(123456))
+                .Callback((int id) => throw new ArgumentNullException(nameof(id), "Referral not found for: 123456"))
+                .Returns(Task.FromResult(new Referral()));
 
             // Act
-            var objectResult = await _classUnderTest.GetReferral(404);
+            var objectResult = await _classUnderTest.GetReferral(123456);
             var statusCode = GetStatusCode(objectResult);
 
             // Assert
@@ -198,7 +205,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.Status, ReferralStatus.Assigned)
                 .Create();
 
-            _assignBrokerToReferralUseCaseMock.Setup(x => x.ExecuteAsync(referral.Id, request))
+            _assignBrokerToReferralUseCaseMock
+                .Setup(x => x.ExecuteAsync(referral.Id, request))
                 .ReturnsAsync(referral);
 
             // Act
@@ -219,7 +227,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.Broker, "a.broker@hackney.gov.uk")
                 .Create();
 
-            _assignBrokerToReferralUseCaseMock.Setup(x => x.ExecuteAsync(123456, request))
+            _assignBrokerToReferralUseCaseMock
+                .Setup(x => x.ExecuteAsync(123456, request))
                 .Callback((int referralId, AssignBrokerRequest request) => throw new ArgumentNullException(nameof(referralId), "Referral not found for: 123456"))
                 .Returns(Task.FromResult(new Referral()));
 
@@ -244,7 +253,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.Status, ReferralStatus.Assigned)
                 .Create();
 
-            _assignBrokerToReferralUseCaseMock.Setup(x => x.ExecuteAsync(referral.Id, request))
+            _assignBrokerToReferralUseCaseMock
+                .Setup(x => x.ExecuteAsync(referral.Id, request))
                 .ThrowsAsync(new InvalidOperationException("Referral is not in a valid state for assignment"));
 
             // Act
@@ -268,7 +278,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.Status, ReferralStatus.Assigned)
                 .Create();
 
-            _reassignBrokerToReferralUseCaseMock.Setup(x => x.ExecuteAsync(referral.Id, request))
+            _reassignBrokerToReferralUseCaseMock
+                .Setup(x => x.ExecuteAsync(referral.Id, request))
                 .ReturnsAsync(referral);
 
             // Act
@@ -289,7 +300,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.Broker, "a.broker@hackney.gov.uk")
                 .Create();
 
-            _reassignBrokerToReferralUseCaseMock.Setup(x => x.ExecuteAsync(123456, request))
+            _reassignBrokerToReferralUseCaseMock
+                .Setup(x => x.ExecuteAsync(123456, request))
                 .Callback((int referralId, AssignBrokerRequest request) => throw new ArgumentNullException(nameof(referralId), "Referral not found for: 123456"))
                 .Returns(Task.FromResult(new Referral()));
 
@@ -314,7 +326,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.Status, ReferralStatus.Unassigned)
                 .Create();
 
-            _reassignBrokerToReferralUseCaseMock.Setup(x => x.ExecuteAsync(referral.Id, request))
+            _reassignBrokerToReferralUseCaseMock
+                .Setup(x => x.ExecuteAsync(referral.Id, request))
                 .ThrowsAsync(new InvalidOperationException("Referral is not in a valid state for assignment"));
 
             // Act

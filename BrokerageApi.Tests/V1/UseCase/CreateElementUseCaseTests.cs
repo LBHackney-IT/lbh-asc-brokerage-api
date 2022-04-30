@@ -96,10 +96,12 @@ namespace BrokerageApi.Tests.V1.UseCase
             // Arrange
             var request = _fixture.Create<CreateElementRequest>();
 
-            _referralGatewayMock.Setup(x => x.GetByIdAsync(123456))
+            _referralGatewayMock
+                .Setup(x => x.GetByIdAsync(123456))
                 .ReturnsAsync(null as Referral);
 
-            _userServiceMock.SetupGet(x => x.Name)
+            _userServiceMock
+                .SetupGet(x => x.Name)
                 .Returns("a.broker@hackney.gov.uk");
 
             // Act
@@ -121,10 +123,12 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .With(x => x.AssignedTo, "a.broker@hackney.go.uk")
                 .Create();
 
-            _referralGatewayMock.Setup(x => x.GetByIdAsync(referral.Id))
+            _referralGatewayMock
+                .Setup(x => x.GetByIdAsync(referral.Id))
                 .ReturnsAsync(referral);
 
-            _userServiceMock.SetupGet(x => x.Name)
+            _userServiceMock
+                .SetupGet(x => x.Name)
                 .Returns("a.broker@hackney.gov.uk");
 
             // Act
@@ -146,10 +150,12 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .With(x => x.AssignedTo, "other.broker@hackney.gov.uk")
                 .Create();
 
-            _referralGatewayMock.Setup(x => x.GetByIdAsync(referral.Id))
+            _referralGatewayMock
+                .Setup(x => x.GetByIdAsync(referral.Id))
                 .ReturnsAsync(referral);
 
-            _userServiceMock.SetupGet(x => x.Name)
+            _userServiceMock
+                .SetupGet(x => x.Name)
                 .Returns("a.broker@hackney.gov.uk");
 
             // Act
@@ -173,13 +179,16 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
                 .Create();
 
-            _referralGatewayMock.Setup(x => x.GetByIdAsync(referral.Id))
+            _referralGatewayMock
+                .Setup(x => x.GetByIdAsync(referral.Id))
                 .ReturnsAsync(referral);
 
-            _userServiceMock.SetupGet(x => x.Name)
+            _userServiceMock
+                .SetupGet(x => x.Name)
                 .Returns("a.broker@hackney.gov.uk");
 
-            _elementTypeGatewayMock.Setup(x => x.GetByIdAsync(123456))
+            _elementTypeGatewayMock
+                .Setup(x => x.GetByIdAsync(123456))
                 .ReturnsAsync(null as ElementType);
 
             // Act
@@ -206,16 +215,20 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
                 .Create();
 
-            _referralGatewayMock.Setup(x => x.GetByIdAsync(referral.Id))
+            _referralGatewayMock
+                .Setup(x => x.GetByIdAsync(referral.Id))
                 .ReturnsAsync(referral);
 
-            _userServiceMock.SetupGet(x => x.Name)
+            _userServiceMock
+                .SetupGet(x => x.Name)
                 .Returns("a.broker@hackney.gov.uk");
 
-            _elementTypeGatewayMock.Setup(x => x.GetByIdAsync(elementType.Id))
+            _elementTypeGatewayMock
+                .Setup(x => x.GetByIdAsync(elementType.Id))
                 .ReturnsAsync(elementType);
 
-            _providerGatewayMock.Setup(x => x.GetByIdAsync(123456))
+            _providerGatewayMock
+                .Setup(x => x.GetByIdAsync(123456))
                 .ReturnsAsync(null as Provider);
 
             // Act
