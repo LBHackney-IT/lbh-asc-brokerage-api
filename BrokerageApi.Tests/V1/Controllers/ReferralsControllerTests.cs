@@ -22,13 +22,13 @@ namespace BrokerageApi.Tests.V1.Controllers
     public class ReferralsControllerTests : ControllerTests
     {
         private Fixture _fixture;
-        private Mock<ICreateReferralUseCase> _createReferralUseCaseMock;
-        private Mock<IGetAssignedReferralsUseCase> _getAssignedReferralsUseCaseMock;
-        private Mock<IGetCurrentReferralsUseCase> _getCurrentReferralsUseCaseMock;
-        private Mock<IGetReferralByIdUseCase> _getReferralByIdUseCaseMock;
-        private Mock<IAssignBrokerToReferralUseCase> _assignBrokerToReferralUseCaseMock;
-        private Mock<IReassignBrokerToReferralUseCase> _reassignBrokerToReferralUseCaseMock;
-        private MockProblemDetailsFactory _problemDetailsFactoryMock;
+        private Mock<ICreateReferralUseCase> _mockCreateReferralUseCase;
+        private Mock<IGetAssignedReferralsUseCase> _mockGetAssignedReferralsUseCase;
+        private Mock<IGetCurrentReferralsUseCase> _mockGetCurrentReferralsUseCase;
+        private Mock<IGetReferralByIdUseCase> _mockGetReferralByIdUseCase;
+        private Mock<IAssignBrokerToReferralUseCase> _mockAssignBrokerToReferralUseCase;
+        private Mock<IReassignBrokerToReferralUseCase> _mockReassignBrokerToReferralUseCase;
+        private MockProblemDetailsFactory _mockProblemDetailsFactory;
 
         private ReferralsController _classUnderTest;
 
@@ -36,25 +36,25 @@ namespace BrokerageApi.Tests.V1.Controllers
         public void SetUp()
         {
             _fixture = FixtureHelpers.Fixture;
-            _createReferralUseCaseMock = new Mock<ICreateReferralUseCase>();
-            _getAssignedReferralsUseCaseMock = new Mock<IGetAssignedReferralsUseCase>();
-            _getCurrentReferralsUseCaseMock = new Mock<IGetCurrentReferralsUseCase>();
-            _getReferralByIdUseCaseMock = new Mock<IGetReferralByIdUseCase>();
-            _assignBrokerToReferralUseCaseMock = new Mock<IAssignBrokerToReferralUseCase>();
-            _reassignBrokerToReferralUseCaseMock = new Mock<IReassignBrokerToReferralUseCase>();
-            _problemDetailsFactoryMock = new MockProblemDetailsFactory();
+            _mockCreateReferralUseCase = new Mock<ICreateReferralUseCase>();
+            _mockGetAssignedReferralsUseCase = new Mock<IGetAssignedReferralsUseCase>();
+            _mockGetCurrentReferralsUseCase = new Mock<IGetCurrentReferralsUseCase>();
+            _mockGetReferralByIdUseCase = new Mock<IGetReferralByIdUseCase>();
+            _mockAssignBrokerToReferralUseCase = new Mock<IAssignBrokerToReferralUseCase>();
+            _mockReassignBrokerToReferralUseCase = new Mock<IReassignBrokerToReferralUseCase>();
+            _mockProblemDetailsFactory = new MockProblemDetailsFactory();
 
             _classUnderTest = new ReferralsController(
-                _createReferralUseCaseMock.Object,
-                _getAssignedReferralsUseCaseMock.Object,
-                _getCurrentReferralsUseCaseMock.Object,
-                _getReferralByIdUseCaseMock.Object,
-                _assignBrokerToReferralUseCaseMock.Object,
-                _reassignBrokerToReferralUseCaseMock.Object
+                _mockCreateReferralUseCase.Object,
+                _mockGetAssignedReferralsUseCase.Object,
+                _mockGetCurrentReferralsUseCase.Object,
+                _mockGetReferralByIdUseCase.Object,
+                _mockAssignBrokerToReferralUseCase.Object,
+                _mockReassignBrokerToReferralUseCase.Object
             );
 
             // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
-            _classUnderTest.ProblemDetailsFactory = _problemDetailsFactoryMock.Object;
+            _classUnderTest.ProblemDetailsFactory = _mockProblemDetailsFactory.Object;
 
             SetupAuthentication(_classUnderTest);
         }
@@ -66,7 +66,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             var request = _fixture.Create<CreateReferralRequest>();
             var referral = _fixture.Create<Referral>();
 
-            _createReferralUseCaseMock
+            _mockCreateReferralUseCase
                 .Setup(x => x.ExecuteAsync(request))
                 .ReturnsAsync(referral);
 
@@ -85,7 +85,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             var referrals = _fixture.CreateMany<Referral>();
-            _getCurrentReferralsUseCaseMock
+            _mockGetCurrentReferralsUseCase
                 .Setup(x => x.ExecuteAsync(null))
                 .ReturnsAsync(referrals);
 
@@ -104,7 +104,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             var referrals = _fixture.CreateMany<Referral>();
-            _getCurrentReferralsUseCaseMock
+            _mockGetCurrentReferralsUseCase
                 .Setup(x => x.ExecuteAsync(ReferralStatus.Unassigned))
                 .ReturnsAsync(referrals);
 
@@ -123,7 +123,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             var referrals = _fixture.CreateMany<Referral>();
-            _getAssignedReferralsUseCaseMock
+            _mockGetAssignedReferralsUseCase
                 .Setup(x => x.ExecuteAsync(null))
                 .ReturnsAsync(referrals);
 
@@ -142,7 +142,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             var referrals = _fixture.CreateMany<Referral>();
-            _getAssignedReferralsUseCaseMock
+            _mockGetAssignedReferralsUseCase
                 .Setup(x => x.ExecuteAsync(ReferralStatus.InProgress))
                 .ReturnsAsync(referrals);
 
@@ -161,7 +161,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             var referral = _fixture.Create<Referral>();
-            _getReferralByIdUseCaseMock
+            _mockGetReferralByIdUseCase
                 .Setup(x => x.ExecuteAsync(referral.Id))
                 .ReturnsAsync(referral);
 
@@ -179,7 +179,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task GetReferralWhenDoesNotExist()
         {
             // Arrange
-            _getReferralByIdUseCaseMock
+            _mockGetReferralByIdUseCase
                 .Setup(x => x.ExecuteAsync(123456))
                 .Callback((int id) => throw new ArgumentNullException(nameof(id), "Referral not found for: 123456"))
                 .Returns(Task.FromResult(new Referral()));
@@ -190,7 +190,7 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _problemDetailsFactoryMock.VerifyStatusCode(HttpStatusCode.NotFound);
+            _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.NotFound);
         }
 
         [Test]
@@ -205,7 +205,7 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.Status, ReferralStatus.Assigned)
                 .Create();
 
-            _assignBrokerToReferralUseCaseMock
+            _mockAssignBrokerToReferralUseCase
                 .Setup(x => x.ExecuteAsync(referral.Id, request))
                 .ReturnsAsync(referral);
 
@@ -227,7 +227,7 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.Broker, "a.broker@hackney.gov.uk")
                 .Create();
 
-            _assignBrokerToReferralUseCaseMock
+            _mockAssignBrokerToReferralUseCase
                 .Setup(x => x.ExecuteAsync(123456, request))
                 .Callback((int referralId, AssignBrokerRequest request) => throw new ArgumentNullException(nameof(referralId), "Referral not found for: 123456"))
                 .Returns(Task.FromResult(new Referral()));
@@ -238,7 +238,7 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _problemDetailsFactoryMock.VerifyStatusCode(HttpStatusCode.NotFound);
+            _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.NotFound);
         }
 
         [Test]
@@ -253,7 +253,7 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.Status, ReferralStatus.Assigned)
                 .Create();
 
-            _assignBrokerToReferralUseCaseMock
+            _mockAssignBrokerToReferralUseCase
                 .Setup(x => x.ExecuteAsync(referral.Id, request))
                 .ThrowsAsync(new InvalidOperationException("Referral is not in a valid state for assignment"));
 
@@ -263,7 +263,7 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.UnprocessableEntity);
-            _problemDetailsFactoryMock.VerifyStatusCode(HttpStatusCode.UnprocessableEntity);
+            _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.UnprocessableEntity);
         }
 
         [Test]
@@ -278,7 +278,7 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.Status, ReferralStatus.Assigned)
                 .Create();
 
-            _reassignBrokerToReferralUseCaseMock
+            _mockReassignBrokerToReferralUseCase
                 .Setup(x => x.ExecuteAsync(referral.Id, request))
                 .ReturnsAsync(referral);
 
@@ -300,7 +300,7 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.Broker, "a.broker@hackney.gov.uk")
                 .Create();
 
-            _reassignBrokerToReferralUseCaseMock
+            _mockReassignBrokerToReferralUseCase
                 .Setup(x => x.ExecuteAsync(123456, request))
                 .Callback((int referralId, AssignBrokerRequest request) => throw new ArgumentNullException(nameof(referralId), "Referral not found for: 123456"))
                 .Returns(Task.FromResult(new Referral()));
@@ -311,7 +311,7 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _problemDetailsFactoryMock.VerifyStatusCode(HttpStatusCode.NotFound);
+            _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.NotFound);
         }
 
         [Test]
@@ -326,7 +326,7 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.Status, ReferralStatus.Unassigned)
                 .Create();
 
-            _reassignBrokerToReferralUseCaseMock
+            _mockReassignBrokerToReferralUseCase
                 .Setup(x => x.ExecuteAsync(referral.Id, request))
                 .ThrowsAsync(new InvalidOperationException("Referral is not in a valid state for assignment"));
 
@@ -336,7 +336,7 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.UnprocessableEntity);
-            _problemDetailsFactoryMock.VerifyStatusCode(HttpStatusCode.UnprocessableEntity);
+            _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.UnprocessableEntity);
         }
     }
 }

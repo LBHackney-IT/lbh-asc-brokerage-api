@@ -17,16 +17,16 @@ namespace BrokerageApi.Tests.V1.UseCase
     {
         private AssignBrokerToReferralUseCase _classUnderTest;
         private Fixture _fixture;
-        private Mock<IReferralGateway> _referralGatewayMock;
-        private Mock<IDbSaver> _dbSaverMock;
+        private Mock<IReferralGateway> _mockReferralGateway;
+        private Mock<IDbSaver> _mockDbSaver;
 
         [SetUp]
         public void Setup()
         {
             _fixture = FixtureHelpers.Fixture;
-            _referralGatewayMock = new Mock<IReferralGateway>();
-            _dbSaverMock = new Mock<IDbSaver>();
-            _classUnderTest = new AssignBrokerToReferralUseCase(_referralGatewayMock.Object, _dbSaverMock.Object);
+            _mockReferralGateway = new Mock<IReferralGateway>();
+            _mockDbSaver = new Mock<IDbSaver>();
+            _classUnderTest = new AssignBrokerToReferralUseCase(_mockReferralGateway.Object, _mockDbSaver.Object);
         }
 
         [Test]
@@ -41,11 +41,11 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .With(x => x.Status, ReferralStatus.Unassigned)
                 .Create();
 
-            _referralGatewayMock
+            _mockReferralGateway
                 .Setup(x => x.GetByIdAsync(referral.Id))
                 .ReturnsAsync(referral);
 
-            _dbSaverMock
+            _mockDbSaver
                 .Setup(x => x.SaveChangesAsync())
                 .Returns(Task.CompletedTask);
 
@@ -55,7 +55,7 @@ namespace BrokerageApi.Tests.V1.UseCase
             // Assert
             Assert.That(result.Status, Is.EqualTo(ReferralStatus.Assigned));
             Assert.That(result.AssignedTo, Is.EqualTo("a.broker@hackney.gov.uk"));
-            _dbSaverMock.Verify(x => x.SaveChangesAsync(), Times.Once());
+            _mockDbSaver.Verify(x => x.SaveChangesAsync(), Times.Once());
         }
 
         [Test]
@@ -66,7 +66,7 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .With(x => x.Broker, "a.broker@hackney.gov.uk")
                 .Create();
 
-            _referralGatewayMock
+            _mockReferralGateway
                 .Setup(x => x.GetByIdAsync(123456))
                 .ReturnsAsync(null as Referral);
 
@@ -90,7 +90,7 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .With(x => x.Status, ReferralStatus.Assigned)
                 .Create();
 
-            _referralGatewayMock
+            _mockReferralGateway
                 .Setup(x => x.GetByIdAsync(referral.Id))
                 .ReturnsAsync(referral);
 

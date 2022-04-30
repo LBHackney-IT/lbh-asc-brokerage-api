@@ -22,8 +22,8 @@ namespace BrokerageApi.Tests.V1.Controllers
     public class UsersControllerTests : ControllerTests
     {
         private Fixture _fixture;
-        private Mock<IGetAllUsersUseCase> _getAllUsersUseCaseMock;
-        private MockProblemDetailsFactory _problemDetailsFactoryMock;
+        private Mock<IGetAllUsersUseCase> _mockGetAllUsersUseCase;
+        private MockProblemDetailsFactory _mockProblemDetailsFactory;
 
         private UsersController _classUnderTest;
 
@@ -31,15 +31,15 @@ namespace BrokerageApi.Tests.V1.Controllers
         public void SetUp()
         {
             _fixture = FixtureHelpers.Fixture;
-            _getAllUsersUseCaseMock = new Mock<IGetAllUsersUseCase>();
-            _problemDetailsFactoryMock = new MockProblemDetailsFactory();
+            _mockGetAllUsersUseCase = new Mock<IGetAllUsersUseCase>();
+            _mockProblemDetailsFactory = new MockProblemDetailsFactory();
 
             _classUnderTest = new UsersController(
-                _getAllUsersUseCaseMock.Object
+                _mockGetAllUsersUseCase.Object
             );
 
             // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
-            _classUnderTest.ProblemDetailsFactory = _problemDetailsFactoryMock.Object;
+            _classUnderTest.ProblemDetailsFactory = _mockProblemDetailsFactory.Object;
         }
 
         [Test]
@@ -47,7 +47,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             var users = _fixture.CreateMany<User>();
-            _getAllUsersUseCaseMock
+            _mockGetAllUsersUseCase
                 .Setup(x => x.ExecuteAsync(null))
                 .ReturnsAsync(users);
 
@@ -66,7 +66,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             var users = _fixture.CreateMany<User>();
-            _getAllUsersUseCaseMock
+            _mockGetAllUsersUseCase
                 .Setup(x => x.ExecuteAsync(UserRole.Broker))
                 .ReturnsAsync(users);
 
