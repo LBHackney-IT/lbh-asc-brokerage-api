@@ -17,14 +17,14 @@ namespace BrokerageApi.Tests.V1.UseCase
     {
         private CreateReferralUseCase _classUnderTest;
         private Fixture _fixture;
-        private Mock<IReferralGateway> _referralGatewayMock;
+        private Mock<IReferralGateway> _mockReferralGateway;
 
         [SetUp]
         public void Setup()
         {
             _fixture = FixtureHelpers.Fixture;
-            _referralGatewayMock = new Mock<IReferralGateway>();
-            _classUnderTest = new CreateReferralUseCase(_referralGatewayMock.Object);
+            _mockReferralGateway = new Mock<IReferralGateway>();
+            _classUnderTest = new CreateReferralUseCase(_mockReferralGateway.Object);
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace BrokerageApi.Tests.V1.UseCase
             var request = _fixture.Create<CreateReferralRequest>();
             var referral = _fixture.Create<Referral>();
 
-            _referralGatewayMock
+            _mockReferralGateway
                 .Setup(m => m.CreateAsync(It.IsAny<Referral>()))
                 .ReturnsAsync(referral);
 
@@ -43,7 +43,7 @@ namespace BrokerageApi.Tests.V1.UseCase
 
             // Assert
             result.Should().BeEquivalentTo(referral);
-            _referralGatewayMock.Verify(m => m.CreateAsync(It.IsAny<Referral>()));
+            _mockReferralGateway.Verify(m => m.CreateAsync(It.IsAny<Referral>()));
         }
     }
 }

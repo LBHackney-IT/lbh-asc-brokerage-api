@@ -22,17 +22,17 @@ namespace BrokerageApi.V1.Controllers
     {
         private readonly IGetAllServicesUseCase _getAllServicesUseCase;
         private readonly IGetServiceByIdUseCase _getServiceByIdUseCase;
-        private readonly IFindProvidersByServiceUseCase _findProvidersByServiceUseCase;
+        private readonly IFindProvidersByServiceIdUseCase _findProvidersByServiceIdUseCase;
 
         public ServicesController(
             IGetAllServicesUseCase getAllServicesUseCase,
             IGetServiceByIdUseCase getServiceByIdUseCase,
-            IFindProvidersByServiceUseCase findProvidersByServiceUseCase
+            IFindProvidersByServiceIdUseCase findProvidersByServiceIdUseCase
         )
         {
             _getAllServicesUseCase = getAllServicesUseCase;
             _getServiceByIdUseCase = getServiceByIdUseCase;
-            _findProvidersByServiceUseCase = findProvidersByServiceUseCase;
+            _findProvidersByServiceIdUseCase = findProvidersByServiceIdUseCase;
         }
 
         [HttpGet]
@@ -52,9 +52,12 @@ namespace BrokerageApi.V1.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetService([FromRoute] int id)
         {
-            var service = await _getServiceByIdUseCase.ExecuteAsync(id);
-
-            if (service is null)
+            try
+            {
+                var service = await _getServiceByIdUseCase.ExecuteAsync(id);
+                return Ok(service.ToResponse());
+            }
+            catch (ArgumentNullException)
             {
                 return Problem(
                     "The requested service was not found",
@@ -62,8 +65,6 @@ namespace BrokerageApi.V1.Controllers
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
-
-            return Ok(service.ToResponse());
         }
 
         [HttpGet]
@@ -74,9 +75,12 @@ namespace BrokerageApi.V1.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> FindProvidersByService([FromRoute] int id, [FromQuery] string query)
         {
-            var service = await _getServiceByIdUseCase.ExecuteAsync(id);
-
-            if (service is null)
+            try
+            {
+                var providers = await _findProvidersByServiceIdUseCase.ExecuteAsync(id, query);
+                return Ok(providers.Select(s => s.ToResponse()).ToList());
+            }
+            catch (ArgumentNullException)
             {
                 return Problem(
                     "The requested service was not found",
@@ -84,9 +88,6 @@ namespace BrokerageApi.V1.Controllers
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
-
-            var providers = await _findProvidersByServiceUseCase.ExecuteAsync(service, query);
-            return Ok(providers.Select(s => s.ToResponse()).ToList());
         }
     }
 }

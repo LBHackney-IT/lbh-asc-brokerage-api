@@ -16,11 +16,11 @@ namespace BrokerageApi.V1.Gateways
             _context = context;
         }
 
-        public async Task<IEnumerable<Provider>> FindByServiceAsync(Service service, string query)
+        public async Task<IEnumerable<Provider>> FindByServiceIdAsync(int serviceId, string query)
         {
             return await _context.Providers
                 .Where(p => p.IsArchived == false)
-                .Where(p => p.Services.Any(s => s.Id == service.Id))
+                .Where(p => p.Services.Any(s => s.Id == serviceId))
                 .Where(p => p.SearchVector.Matches(EF.Functions.PlainToTsQuery("simple", query)))
                 .OrderBy(p => p.Name)
                 .ToListAsync();

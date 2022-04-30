@@ -19,25 +19,25 @@ namespace BrokerageApi.Tests.V1.UseCase
     {
         private StartCarePackageUseCase _classUnderTest;
         private Fixture _fixture;
-        private Mock<IReferralGateway> _referralGatewayMock;
-        private Mock<IUserService> _userServiceMock;
-        private Mock<IClockService> _clockMock;
-        private Mock<IDbSaver> _dbSaverMock;
+        private Mock<IReferralGateway> _mockReferralGateway;
+        private Mock<IUserService> _mockUserService;
+        private Mock<IClockService> _mockClock;
+        private Mock<IDbSaver> _mockDbSaver;
 
         [SetUp]
         public void Setup()
         {
             _fixture = FixtureHelpers.Fixture;
-            _referralGatewayMock = new Mock<IReferralGateway>();
-            _userServiceMock = new Mock<IUserService>();
-            _clockMock = new Mock<IClockService>();
-            _dbSaverMock = new Mock<IDbSaver>();
+            _mockReferralGateway = new Mock<IReferralGateway>();
+            _mockUserService = new Mock<IUserService>();
+            _mockClock = new Mock<IClockService>();
+            _mockDbSaver = new Mock<IDbSaver>();
 
             _classUnderTest = new StartCarePackageUseCase(
-                _referralGatewayMock.Object,
-                _userServiceMock.Object,
-                _clockMock.Object,
-                _dbSaverMock.Object
+                _mockReferralGateway.Object,
+                _mockUserService.Object,
+                _mockClock.Object,
+                _mockDbSaver.Object
             );
         }
 
@@ -53,16 +53,20 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .Without(x => x.StartedAt)
                 .Create();
 
-            _referralGatewayMock.Setup(x => x.GetByIdAsync(referral.Id))
+            _mockReferralGateway
+                .Setup(x => x.GetByIdAsync(referral.Id))
                 .ReturnsAsync(referral);
 
-            _userServiceMock.SetupGet(x => x.Name)
+            _mockUserService
+                .SetupGet(x => x.Name)
                 .Returns("a.broker@hackney.gov.uk");
 
-            _clockMock.SetupGet(x => x.Now)
+            _mockClock
+                .SetupGet(x => x.Now)
                 .Returns(currentInstant);
 
-            _dbSaverMock.Setup(x => x.SaveChangesAsync())
+            _mockDbSaver
+                .Setup(x => x.SaveChangesAsync())
                 .Returns(Task.CompletedTask);
 
             // Act
@@ -71,17 +75,19 @@ namespace BrokerageApi.Tests.V1.UseCase
             // Assert
             Assert.That(result.Status, Is.EqualTo(ReferralStatus.InProgress));
             Assert.That(result.StartedAt, Is.EqualTo(currentInstant));
-            _dbSaverMock.Verify(x => x.SaveChangesAsync(), Times.Once());
+            _mockDbSaver.Verify(x => x.SaveChangesAsync(), Times.Once());
         }
 
         [Test]
         public void ThrowsArgumentNullExceptionWhenReferralDoesntExist()
         {
             // Arrange
-            _referralGatewayMock.Setup(x => x.GetByIdAsync(123456))
+            _mockReferralGateway
+                .Setup(x => x.GetByIdAsync(123456))
                 .ReturnsAsync(null as Referral);
 
-            _userServiceMock.SetupGet(x => x.Name)
+            _mockUserService
+                .SetupGet(x => x.Name)
                 .Returns("a.broker@hackney.gov.uk");
 
             // Act
@@ -100,10 +106,12 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .With(x => x.Status, ReferralStatus.Unassigned)
                 .Create();
 
-            _referralGatewayMock.Setup(x => x.GetByIdAsync(referral.Id))
+            _mockReferralGateway
+                .Setup(x => x.GetByIdAsync(referral.Id))
                 .ReturnsAsync(referral);
 
-            _userServiceMock.SetupGet(x => x.Name)
+            _mockUserService
+                .SetupGet(x => x.Name)
                 .Returns("a.broker@hackney.gov.uk");
 
             // Act
@@ -123,10 +131,12 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .With(x => x.AssignedTo, "other.broker@hackney.gov.uk")
                 .Create();
 
-            _referralGatewayMock.Setup(x => x.GetByIdAsync(referral.Id))
+            _mockReferralGateway
+                .Setup(x => x.GetByIdAsync(referral.Id))
                 .ReturnsAsync(referral);
 
-            _userServiceMock.SetupGet(x => x.Name)
+            _mockUserService
+                .SetupGet(x => x.Name)
                 .Returns("a.broker@hackney.gov.uk");
 
             // Act

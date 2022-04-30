@@ -31,6 +31,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         {
             // Arrange
             var referral = _fixture.Create<Referral>();
+
             _mockReferralGateway
                 .Setup(x => x.GetByIdAsync(referral.Id))
                 .ReturnsAsync(referral);
@@ -40,6 +41,22 @@ namespace BrokerageApi.Tests.V1.UseCase
 
             // Assert
             result.Should().BeEquivalentTo(referral);
+        }
+
+        [Test]
+        public void ThrowsArgumentNullExceptionWhenReferralDoesntExist()
+        {
+            // Arrange
+            _mockReferralGateway
+                .Setup(x => x.GetByIdAsync(123456))
+                .ReturnsAsync(null as Referral);
+
+            // Act
+            var exception = Assert.ThrowsAsync<ArgumentNullException>(
+                async () => await _classUnderTest.ExecuteAsync(123456));
+
+            // Assert
+            Assert.That(exception.Message, Is.EqualTo("Referral not found for: 123456 (Parameter 'id')"));
         }
     }
 }

@@ -12,10 +12,11 @@ using NUnit.Framework;
 
 namespace BrokerageApi.Tests.V1.UseCase
 {
-    public class GetServiceByIdUseCaseTests
+    public class FindProvidersByServiceIdUseCaseTests
     {
         private Mock<IServiceGateway> _mockServiceGateway;
-        private GetServiceByIdUseCase _classUnderTest;
+        private Mock<IProviderGateway> _mockProviderGateway;
+        private FindProvidersByServiceIdUseCase _classUnderTest;
         private Fixture _fixture;
 
         [SetUp]
@@ -23,23 +24,33 @@ namespace BrokerageApi.Tests.V1.UseCase
         {
             _fixture = FixtureHelpers.Fixture;
             _mockServiceGateway = new Mock<IServiceGateway>();
-            _classUnderTest = new GetServiceByIdUseCase(_mockServiceGateway.Object);
+            _mockProviderGateway = new Mock<IProviderGateway>();
+            _classUnderTest = new FindProvidersByServiceIdUseCase(
+                _mockServiceGateway.Object,
+                _mockProviderGateway.Object
+            );
         }
 
         [Test]
-        public async Task GetService()
+        public async Task FindProvidersByService()
         {
             // Arrange
             var service = _fixture.Create<Service>();
+            var expectedProviders = _fixture.CreateMany<Provider>();
+
             _mockServiceGateway
                 .Setup(x => x.GetByIdAsync(service.Id))
                 .ReturnsAsync(service);
 
+            _mockProviderGateway
+                .Setup(x => x.FindByServiceIdAsync(service.Id, "Acme"))
+                .ReturnsAsync(expectedProviders);
+
             // Act
-            var result = await _classUnderTest.ExecuteAsync(service.Id);
+            var result = await _classUnderTest.ExecuteAsync(service.Id, "Acme");
 
             // Assert
-            result.Should().BeEquivalentTo(service);
+            result.Should().BeEquivalentTo(expectedProviders);
         }
 
         [Test]
@@ -52,10 +63,10 @@ namespace BrokerageApi.Tests.V1.UseCase
 
             // Act
             var exception = Assert.ThrowsAsync<ArgumentNullException>(
-                async () => await _classUnderTest.ExecuteAsync(123456));
+                async () => await _classUnderTest.ExecuteAsync(123456, "Acme"));
 
             // Assert
-            Assert.That(exception.Message, Is.EqualTo("Service not found for: 123456 (Parameter 'id')"));
+            Assert.That(exception.Message, Is.EqualTo("Service not found for: 123456 (Parameter 'serviceId')"));
         }
     }
 }

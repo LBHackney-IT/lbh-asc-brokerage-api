@@ -22,9 +22,9 @@ namespace BrokerageApi.Tests.V1.Controllers
     public class CarePackagesControllerTests : ControllerTests
     {
         private Fixture _fixture;
-        private Mock<IStartCarePackageUseCase> _startCarePackageUseCaseMock;
-        private Mock<ICreateElementUseCase> _createElementUseCaseMock;
-        private MockProblemDetailsFactory _problemDetailsFactoryMock;
+        private Mock<IStartCarePackageUseCase> _mockStartCarePackageUseCase;
+        private Mock<ICreateElementUseCase> _mockCreateElementUseCase;
+        private MockProblemDetailsFactory _mockProblemDetailsFactory;
 
         private CarePackagesController _classUnderTest;
 
@@ -32,17 +32,17 @@ namespace BrokerageApi.Tests.V1.Controllers
         public void SetUp()
         {
             _fixture = FixtureHelpers.Fixture;
-            _startCarePackageUseCaseMock = new Mock<IStartCarePackageUseCase>();
-            _createElementUseCaseMock = new Mock<ICreateElementUseCase>();
-            _problemDetailsFactoryMock = new MockProblemDetailsFactory();
+            _mockStartCarePackageUseCase = new Mock<IStartCarePackageUseCase>();
+            _mockCreateElementUseCase = new Mock<ICreateElementUseCase>();
+            _mockProblemDetailsFactory = new MockProblemDetailsFactory();
 
             _classUnderTest = new CarePackagesController(
-                _startCarePackageUseCaseMock.Object,
-                _createElementUseCaseMock.Object
+                _mockStartCarePackageUseCase.Object,
+                _mockCreateElementUseCase.Object
             );
 
             // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
-            _classUnderTest.ProblemDetailsFactory = _problemDetailsFactoryMock.Object;
+            _classUnderTest.ProblemDetailsFactory = _mockProblemDetailsFactory.Object;
 
             SetupAuthentication(_classUnderTest);
         }
@@ -56,7 +56,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
                 .Create();
 
-            _startCarePackageUseCaseMock.Setup(x => x.ExecuteAsync(referral.Id))
+            _mockStartCarePackageUseCase
+                .Setup(x => x.ExecuteAsync(referral.Id))
                 .ReturnsAsync(referral);
 
             // Act
@@ -73,7 +74,8 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task StartCarePackageWhenReferralDoesNotExist()
         {
             // Arrange
-            _startCarePackageUseCaseMock.Setup(x => x.ExecuteAsync(123456))
+            _mockStartCarePackageUseCase
+                .Setup(x => x.ExecuteAsync(123456))
                 .Callback((int referralId) => throw new ArgumentNullException(nameof(referralId), "Referral not found for: 123456"))
                 .Returns(Task.FromResult(new Referral()));
 
@@ -83,7 +85,7 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _problemDetailsFactoryMock.VerifyStatusCode(HttpStatusCode.NotFound);
+            _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.NotFound);
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -94,7 +96,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.Status, ReferralStatus.Unassigned)
                 .Create();
 
-            _startCarePackageUseCaseMock.Setup(x => x.ExecuteAsync(referral.Id))
+            _mockStartCarePackageUseCase
+                .Setup(x => x.ExecuteAsync(referral.Id))
                 .ThrowsAsync(new InvalidOperationException("Referral is not in a valid state to start editing"));
 
             // Act
@@ -103,7 +106,7 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.UnprocessableEntity);
-            _problemDetailsFactoryMock.VerifyStatusCode(HttpStatusCode.UnprocessableEntity);
+            _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.UnprocessableEntity);
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -115,7 +118,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.AssignedTo, "other.broker@hackney.gov.uk")
                 .Create();
 
-            _startCarePackageUseCaseMock.Setup(x => x.ExecuteAsync(referral.Id))
+            _mockStartCarePackageUseCase
+                .Setup(x => x.ExecuteAsync(referral.Id))
                 .ThrowsAsync(new UnauthorizedAccessException("Referral is not assigned to a.broker@hackney.gov.uk"));
 
             // Act
@@ -124,7 +128,7 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.Forbidden);
-            _problemDetailsFactoryMock.VerifyStatusCode(HttpStatusCode.Forbidden);
+            _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.Forbidden);
         }
     }
 }
