@@ -7,6 +7,31 @@ namespace BrokerageApi.V1.Factories
 {
     public static class ResponseFactory
     {
+        public static CarePackageResponse ToResponse(this CarePackage carePackage)
+        {
+            return new CarePackageResponse
+            {
+                Id = carePackage.Id,
+                WorkflowId = carePackage.WorkflowId,
+                WorkflowType = carePackage.WorkflowType,
+                FormName = carePackage.FormName,
+                SocialCareId = carePackage.SocialCareId,
+                ResidentName = carePackage.ResidentName,
+                PrimarySupportReason = carePackage.PrimarySupportReason,
+                UrgentSince = carePackage.UrgentSince,
+                Status = carePackage.Status,
+                AssignedTo = carePackage.AssignedTo,
+                Note = carePackage.Note,
+                StartedAt = carePackage.StartedAt,
+                CreatedAt = carePackage.CreatedAt,
+                UpdatedAt = carePackage.UpdatedAt,
+                StartDate = carePackage.StartDate,
+                WeeklyCost = carePackage.WeeklyCost,
+                WeeklyPayment = carePackage.WeeklyPayment,
+                Elements = carePackage.Elements.Select(e => e.ToResponse()).ToList()
+            };
+        }
+
         public static ElementResponse ToResponse(this Element element)
         {
             return new ElementResponse
@@ -39,7 +64,16 @@ namespace BrokerageApi.V1.Factories
                 Id = elementType.Id,
                 Name = elementType.Name,
                 CostType = elementType.CostType,
-                NonPersonalBudget = elementType.NonPersonalBudget
+                NonPersonalBudget = elementType.NonPersonalBudget,
+                Service = elementType.Service != null
+                    ? new ServiceResponse
+                    {
+                        Id = elementType.Service.Id,
+                        ParentId = elementType.Service.ParentId,
+                        Name = elementType.Service.Name,
+                        Description = elementType.Service.Description
+                    }
+                    : null
             };
         }
 

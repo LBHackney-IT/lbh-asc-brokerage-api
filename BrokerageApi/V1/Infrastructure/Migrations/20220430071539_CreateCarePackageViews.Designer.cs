@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using BrokerageApi.V1.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,10 @@ using NpgsqlTypes;
 namespace V1.Infrastructure.Migrations
 {
     [DbContext(typeof(BrokerageContext))]
-    partial class BrokerageContextModelSnapshot : ModelSnapshot
+    [Migration("20220430071539_CreateCarePackageViews")]
+    partial class CreateCarePackageViews
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,86 +29,6 @@ namespace V1.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
                 .HasAnnotation("ProductVersion", "5.0.10")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.CarePackage", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    b.Property<string>("AssignedTo")
-                        .HasColumnType("text")
-                        .HasColumnName("assigned_to");
-
-                    b.Property<Instant>("CreatedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("FormName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("form_name");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("text")
-                        .HasColumnName("note");
-
-                    b.Property<string>("PrimarySupportReason")
-                        .HasColumnType("text")
-                        .HasColumnName("primary_support_reason");
-
-                    b.Property<string>("ResidentName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("resident_name");
-
-                    b.Property<string>("SocialCareId")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("social_care_id");
-
-                    b.Property<LocalDate?>("StartDate")
-                        .HasColumnType("date")
-                        .HasColumnName("start_date");
-
-                    b.Property<Instant?>("StartedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("started_at");
-
-                    b.Property<ReferralStatus>("Status")
-                        .HasColumnType("referral_status")
-                        .HasColumnName("status");
-
-                    b.Property<Instant>("UpdatedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("updated_at");
-
-                    b.Property<Instant?>("UrgentSince")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("urgent_since");
-
-                    b.Property<decimal?>("WeeklyCost")
-                        .HasColumnType("numeric")
-                        .HasColumnName("weekly_cost");
-
-                    b.Property<decimal?>("WeeklyPayment")
-                        .HasColumnType("numeric")
-                        .HasColumnName("weekly_payment");
-
-                    b.Property<string>("WorkflowId")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("workflow_id");
-
-                    b.Property<WorkflowType>("WorkflowType")
-                        .HasColumnType("workflow_type")
-                        .HasColumnName("workflow_type");
-
-                    b.HasKey("Id")
-                        .HasName("pk_care_packages");
-
-                    b.ToView("care_packages");
-                });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Element", b =>
                 {
@@ -582,21 +504,12 @@ namespace V1.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BrokerageApi.V1.Infrastructure.CarePackage", "CarePackage")
-                        .WithMany("ReferralElements")
-                        .HasForeignKey("ReferralId")
-                        .HasConstraintName("fk_referral_elements_care_packages_care_package_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("BrokerageApi.V1.Infrastructure.Referral", "Referral")
                         .WithMany("ReferralElements")
                         .HasForeignKey("ReferralId")
                         .HasConstraintName("fk_referral_elements_referrals_referral_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("CarePackage");
 
                     b.Navigation("Element");
 
@@ -611,11 +524,6 @@ namespace V1.Infrastructure.Migrations
                         .HasConstraintName("fk_services_services_parent_id");
 
                     b.Navigation("Parent");
-                });
-
-            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.CarePackage", b =>
-                {
-                    b.Navigation("ReferralElements");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Element", b =>

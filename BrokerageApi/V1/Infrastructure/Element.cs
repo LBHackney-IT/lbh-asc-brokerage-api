@@ -74,6 +74,8 @@ namespace BrokerageApi.V1.Infrastructure
 
         public List<Referral> Referrals { get; set; }
 
+        public List<CarePackage> CarePackages { get; set; }
+
         public List<Element> RelatedElements { get; set; }
 
         public ElementStatus Status

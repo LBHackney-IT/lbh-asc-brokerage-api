@@ -34,6 +34,7 @@ namespace BrokerageApi.V1.Infrastructure
             get => _clock;
         }
 
+        public DbSet<CarePackage> CarePackages { get; set; }
         public DbSet<Element> Elements { get; set; }
         public DbSet<ElementType> ElementTypes { get; set; }
         public DbSet<Provider> Providers { get; set; }
@@ -59,6 +60,32 @@ namespace BrokerageApi.V1.Infrastructure
             modelBuilder.HasPostgresEnum<ReferralStatus>();
             modelBuilder.HasPostgresEnum<WorkflowType>();
             modelBuilder.HasPostgresEnum<UserRole>();
+
+            modelBuilder
+                .Entity<CarePackage>()
+                .ToView("care_packages")
+                .HasKey(c => c.Id);
+
+            modelBuilder.Entity<CarePackage>()
+                .Property(c => c.Id)
+                .ValueGeneratedNever();
+
+            modelBuilder.Entity<CarePackage>()
+                .HasMany(r => r.Elements)
+                .WithMany(e => e.CarePackages)
+                .UsingEntity<ReferralElement>(
+                    j => j
+                        .HasOne(re => re.Element)
+                        .WithMany(e => e.ReferralElements)
+                        .HasForeignKey(re => re.ElementId),
+                    j => j
+                        .HasOne(re => re.CarePackage)
+                        .WithMany(e => e.ReferralElements)
+                        .HasForeignKey(re => re.ReferralId),
+                    j =>
+                    {
+                        j.HasKey(re => new { re.ElementId, re.ReferralId });
+                    });
 
             modelBuilder.Entity<Element>()
                 .HasOne(e => e.RelatedElement)
