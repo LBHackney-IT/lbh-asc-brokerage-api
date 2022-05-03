@@ -258,6 +258,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             // Act
             var (code, response) = await Post<ElementResponse>($"/api/v1/referrals/{referral.Id}/care-package/elements", request);
+            var (referralCode, referralResponse) = await Get<ReferralResponse>($"/api/v1/referrals/{referral.Id}");
 
             // Assert
             Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
@@ -271,6 +272,9 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response.Cost, Is.EqualTo(300));
             Assert.That(response.Status, Is.EqualTo(ElementStatus.InProgress));
             Assert.That(response.UpdatedAt, Is.EqualTo(CurrentInstant));
+
+            Assert.That(referralCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(referralResponse.UpdatedAt, Is.EqualTo(CurrentInstant));
         }
     }
 }
