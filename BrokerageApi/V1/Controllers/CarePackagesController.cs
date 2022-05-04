@@ -22,14 +22,15 @@ namespace BrokerageApi.V1.Controllers
     {
         private readonly IStartCarePackageUseCase _startCarePackageUseCase;
         private readonly ICreateElementUseCase _createElementUseCase;
+        private readonly IDeleteElementUseCase _deleteElementUseCase;
 
-        public CarePackagesController(
-          IStartCarePackageUseCase startCarePackageUseCase,
-          ICreateElementUseCase createElementUseCase
-        )
+        public CarePackagesController(IStartCarePackageUseCase startCarePackageUseCase,
+            ICreateElementUseCase createElementUseCase,
+            IDeleteElementUseCase deleteElementUseCase)
         {
             _startCarePackageUseCase = startCarePackageUseCase;
             _createElementUseCase = createElementUseCase;
+            _deleteElementUseCase = deleteElementUseCase;
         }
 
         [Authorize(Roles = "Broker")]
@@ -110,7 +111,7 @@ namespace BrokerageApi.V1.Controllers
                 return Problem(
                     "The requested referral was in an invalid state to add elements",
                     $"/api/v1/referrals/{referralId}/care-package/elements",
-                    StatusCodes.Status400BadRequest, "Bad Request"
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }
             catch (UnauthorizedAccessException)
@@ -121,6 +122,48 @@ namespace BrokerageApi.V1.Controllers
                     StatusCodes.Status403Forbidden, "Forbidden"
                 );
             }
+        }
+
+        [Authorize(Roles = "Broker")]
+        [HttpDelete]
+        [Route("elements/{elementId}")]
+        [ProducesResponseType(typeof(ElementResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteElement([FromRoute] int referralId, [FromRoute]int elementId)
+        {
+            try
+            {
+                await _deleteElementUseCase.ExecuteAsync(referralId, elementId);
+            }
+            catch (ArgumentNullException)
+            {
+                return Problem(
+                    "The requested referral was not found",
+                    $"/api/v1/referrals/{referralId}/care-package/elements{elementId}",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (InvalidOperationException)
+            {
+                return Problem(
+                    "The requested referral was in an invalid state to add elements",
+                    $"/api/v1/referrals/{referralId}/care-package/elements{elementId}",
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
+                );
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Problem(
+                    "The requested referral is not assigned to the user",
+                    $"/api/v1/referrals/{referralId}/care-package/elements{elementId}",
+                    StatusCodes.Status403Forbidden, "Forbidden"
+                );
+            }
+            return Ok();
         }
     }
 }
