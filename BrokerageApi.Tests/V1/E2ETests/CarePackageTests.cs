@@ -234,12 +234,14 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.SaveChangesAsync();
 
             Context.ChangeTracker.Clear();
+            var elementId = element.Id;
 
             // Act
-            var code = await Delete($"/api/v1/referrals/{referral.Id}/care-package/elements/{element.Id}");
+            var code = await Delete($"/api/v1/referrals/{referral.Id}/care-package/elements/{elementId}");
 
             // Assert
             code.Should().Be(HttpStatusCode.OK);
+            Context.ReferralElements.Should().NotContain(re => re.ReferralId == referral.Id && re.ElementId == elementId);
         }
     }
 }

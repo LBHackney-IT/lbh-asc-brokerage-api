@@ -143,15 +143,15 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     "The requested referral was not found",
-                    $"/api/v1/referrals/{referralId}/care-package/elements{elementId}",
+                    $"/api/v1/referrals/{referralId}/care-package/elements/{elementId}",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
             catch (InvalidOperationException)
             {
                 return Problem(
-                    "The requested referral was in an invalid state to add elements",
-                    $"/api/v1/referrals/{referralId}/care-package/elements{elementId}",
+                    "The requested referral was in an invalid state to remove elements",
+                    $"/api/v1/referrals/{referralId}/care-package/elements/{elementId}",
                     StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }
@@ -159,7 +159,7 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     "The requested referral is not assigned to the user",
-                    $"/api/v1/referrals/{referralId}/care-package/elements{elementId}",
+                    $"/api/v1/referrals/{referralId}/care-package/elements/{elementId}",
                     StatusCodes.Status403Forbidden, "Forbidden"
                 );
             }

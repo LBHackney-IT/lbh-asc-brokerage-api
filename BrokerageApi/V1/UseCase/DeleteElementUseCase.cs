@@ -11,15 +11,21 @@ namespace BrokerageApi.V1.UseCase.Interfaces
     {
         private readonly IReferralGateway _referralGateway;
         private readonly IUserService _userService;
-        public DeleteElementUseCase(IReferralGateway referralGateway, IUserService userService)
+        private readonly IDbSaver _dbSaver;
+        public DeleteElementUseCase(
+            IReferralGateway referralGateway,
+            IUserService userService,
+            IDbSaver dbSaver
+            )
         {
             _referralGateway = referralGateway;
             _userService = userService;
+            _dbSaver = dbSaver;
         }
 
         public async Task ExecuteAsync(int referralId, int elementId)
         {
-            var referral = await _referralGateway.GetByIdAsync(referralId);
+            var referral = await _referralGateway.GetByIdWithElementsAsync(referralId);
 
             if (referral is null)
             {
@@ -44,6 +50,8 @@ namespace BrokerageApi.V1.UseCase.Interfaces
             }
 
             referral.Elements.Remove(element);
+
+            await _dbSaver.SaveChangesAsync();
         }
     }
 }

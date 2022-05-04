@@ -20,6 +20,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         private Mock<IReferralGateway> _mockReferralGateway;
         private Fixture _fixture;
         private Mock<IUserService> _mockUserService;
+        private MockDbSaver _mockDbSaver;
 
         [SetUp]
         public void Setup()
@@ -27,10 +28,12 @@ namespace BrokerageApi.Tests.V1.UseCase
             _fixture = FixtureHelpers.Fixture;
             _mockReferralGateway = new Mock<IReferralGateway>();
             _mockUserService = new Mock<IUserService>();
+            _mockDbSaver = new MockDbSaver();
 
             _classUnderTest = new DeleteElementUseCase(
                 _mockReferralGateway.Object,
-                _mockUserService.Object
+                _mockUserService.Object,
+                _mockDbSaver.Object
             );
         }
 
@@ -50,7 +53,7 @@ namespace BrokerageApi.Tests.V1.UseCase
             await _classUnderTest.ExecuteAsync(referral.Id, elementId);
 
             referral.Elements.Should().NotContain(e => e.Id == elementId);
-
+            _mockDbSaver.VerifyChangesSaved();
         }
 
         [Test]
@@ -151,7 +154,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         private void ReturnsReferral(Referral referral)
         {
             _mockReferralGateway
-                .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
+                .Setup(x => x.GetByIdWithElementsAsync(It.IsAny<int>()))
                 .ReturnsAsync(referral);
         }
 
@@ -170,4 +173,5 @@ namespace BrokerageApi.Tests.V1.UseCase
             return element;
         }
     }
+
 }
