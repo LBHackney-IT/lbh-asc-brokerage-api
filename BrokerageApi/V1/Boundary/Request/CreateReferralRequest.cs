@@ -24,6 +24,8 @@ namespace BrokerageApi.V1.Boundary.Request
 
         public string PrimarySupportReason { get; set; }
 
+        public string DirectPayments { get; set; }
+
         public Instant? UrgentSince { get; set; }
 
         public string Note { get; set; }

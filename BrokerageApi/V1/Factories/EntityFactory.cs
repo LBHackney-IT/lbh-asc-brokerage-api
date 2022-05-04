@@ -15,6 +15,7 @@ namespace BrokerageApi.V1.Factories
                 SocialCareId = request.SocialCareId,
                 ResidentName = request.ResidentName,
                 PrimarySupportReason = request.PrimarySupportReason,
+                DirectPayments = request.DirectPayments,
                 UrgentSince = request.UrgentSince,
                 Status = ReferralStatus.Unassigned,
                 Note = request.Note
