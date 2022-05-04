@@ -99,6 +99,7 @@ namespace BrokerageApi.V1.Factories
                 SocialCareId = referral.SocialCareId,
                 ResidentName = referral.ResidentName,
                 PrimarySupportReason = referral.PrimarySupportReason,
+                DirectPayments = referral.DirectPayments,
                 UrgentSince = referral.UrgentSince,
                 Status = referral.Status,
                 AssignedTo = referral.AssignedTo,

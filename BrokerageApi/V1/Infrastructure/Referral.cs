@@ -26,6 +26,8 @@ namespace BrokerageApi.V1.Infrastructure
 
         public string PrimarySupportReason { get; set; }
 
+        public string DirectPayments { get; set; }
+
         public Instant? UrgentSince { get; set; }
 
         public string AssignedTo { get; set; }
