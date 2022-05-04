@@ -22,6 +22,7 @@ namespace BrokerageApi.Tests.V1.Controllers
     public class CarePackagesControllerTests : ControllerTests
     {
         private Fixture _fixture;
+        private Mock<IGetCarePackageByIdUseCase> _mockGetCarePackageByIdUseCase;
         private Mock<IStartCarePackageUseCase> _mockStartCarePackageUseCase;
         private Mock<ICreateElementUseCase> _mockCreateElementUseCase;
         private MockProblemDetailsFactory _mockProblemDetailsFactory;
@@ -32,11 +33,13 @@ namespace BrokerageApi.Tests.V1.Controllers
         public void SetUp()
         {
             _fixture = FixtureHelpers.Fixture;
+            _mockGetCarePackageByIdUseCase = new Mock<IGetCarePackageByIdUseCase>();
             _mockStartCarePackageUseCase = new Mock<IStartCarePackageUseCase>();
             _mockCreateElementUseCase = new Mock<ICreateElementUseCase>();
             _mockProblemDetailsFactory = new MockProblemDetailsFactory();
 
             _classUnderTest = new CarePackagesController(
+                _mockGetCarePackageByIdUseCase.Object,
                 _mockStartCarePackageUseCase.Object,
                 _mockCreateElementUseCase.Object
             );
@@ -45,6 +48,43 @@ namespace BrokerageApi.Tests.V1.Controllers
             _classUnderTest.ProblemDetailsFactory = _mockProblemDetailsFactory.Object;
 
             SetupAuthentication(_classUnderTest);
+        }
+
+        [Test]
+        public async Task GetCarePackage()
+        {
+            // Arrange
+            var carePackage = _fixture.Create<CarePackage>();
+            _mockGetCarePackageByIdUseCase
+                .Setup(x => x.ExecuteAsync(carePackage.Id))
+                .ReturnsAsync(carePackage);
+
+            // Act
+            var objectResult = await _classUnderTest.GetCarePackage(carePackage.Id);
+            var statusCode = GetStatusCode(objectResult);
+            var result = GetResultData<CarePackageResponse>(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            result.Should().BeEquivalentTo(carePackage.ToResponse());
+        }
+
+        [Test]
+        public async Task GetCarePackageWhenDoesNotExist()
+        {
+            // Arrange
+            _mockGetCarePackageByIdUseCase
+                .Setup(x => x.ExecuteAsync(123456))
+                .Callback((int id) => throw new ArgumentNullException(nameof(id), "Care package not found for: 123456"))
+                .Returns(Task.FromResult(new CarePackage()));
+
+            // Act
+            var objectResult = await _classUnderTest.GetCarePackage(123456);
+            var statusCode = GetStatusCode(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.NotFound);
+            _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.NotFound);
         }
 
         [Test, Property("AsUser", "Broker")]
