@@ -127,13 +127,13 @@ namespace BrokerageApi.V1.Controllers
         [Authorize(Roles = "Broker")]
         [HttpDelete]
         [Route("elements/{elementId}")]
-        [ProducesResponseType(typeof(ElementResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> DeleteElement([FromRoute] int referralId, [FromRoute]int elementId)
+        public async Task<IActionResult> DeleteElement([FromRoute] int referralId, [FromRoute] int elementId)
         {
             try
             {

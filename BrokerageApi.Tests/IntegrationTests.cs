@@ -102,6 +102,20 @@ namespace BrokerageApi.Tests
             return result.StatusCode;
         }
 
+        public async Task<(HttpStatusCode statusCode, TResponse response)> Delete<TResponse>(string address)
+        {
+            HttpResponseMessage result = await InternalDelete(address);
+
+            TResponse response = await ProcessResponse<TResponse>(result);
+            return (result.StatusCode, response);
+        }
+
+        public async Task<HttpStatusCode> Delete(string address)
+        {
+            HttpResponseMessage result = await InternalDelete(address);
+            return result.StatusCode;
+        }
+
         private async Task<HttpResponseMessage> InternalGet(string uri)
         {
             var result = await Client.GetAsync(new Uri(uri, UriKind.Relative));
@@ -115,6 +129,12 @@ namespace BrokerageApi.Tests
 
             var result = await Client.PostAsync(new Uri(uri, UriKind.Relative), content);
             content.Dispose();
+            return result;
+        }
+
+        private async Task<HttpResponseMessage> InternalDelete(string uri)
+        {
+            var result = await Client.DeleteAsync(new Uri(uri, UriKind.Relative));
             return result;
         }
 
