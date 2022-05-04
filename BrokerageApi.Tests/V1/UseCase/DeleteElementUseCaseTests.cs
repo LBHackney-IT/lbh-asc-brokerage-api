@@ -10,6 +10,7 @@ using BrokerageApi.V1.Services.Interfaces;
 using BrokerageApi.V1.UseCase.Interfaces;
 using FluentAssertions;
 using Moq;
+using NodaTime;
 using NUnit.Framework;
 
 namespace BrokerageApi.Tests.V1.UseCase
@@ -21,6 +22,8 @@ namespace BrokerageApi.Tests.V1.UseCase
         private Fixture _fixture;
         private Mock<IUserService> _mockUserService;
         private MockDbSaver _mockDbSaver;
+        private Mock<IClockService> _mockClock;
+        private Instant _currentInstant;
 
         [SetUp]
         public void Setup()
@@ -29,11 +32,16 @@ namespace BrokerageApi.Tests.V1.UseCase
             _mockReferralGateway = new Mock<IReferralGateway>();
             _mockUserService = new Mock<IUserService>();
             _mockDbSaver = new MockDbSaver();
+            _mockClock = new Mock<IClockService>();
+            _currentInstant = SystemClock.Instance.GetCurrentInstant();
+            _mockClock.SetupGet(x => x.Now)
+                .Returns(_currentInstant);
 
             _classUnderTest = new DeleteElementUseCase(
                 _mockReferralGateway.Object,
                 _mockUserService.Object,
-                _mockDbSaver.Object
+                _mockDbSaver.Object,
+                _mockClock.Object
             );
         }
 
@@ -53,6 +61,7 @@ namespace BrokerageApi.Tests.V1.UseCase
             await _classUnderTest.ExecuteAsync(referral.Id, elementId);
 
             referral.Elements.Should().NotContain(e => e.Id == elementId);
+            referral.UpdatedAt.Should().Be(_currentInstant);
             _mockDbSaver.VerifyChangesSaved();
         }
 
@@ -144,7 +153,8 @@ namespace BrokerageApi.Tests.V1.UseCase
         {
             var referralBuilder = _fixture.Build<Referral>()
                 .With(r => r.Status, referralStatus)
-                .With(r => r.Elements, elements);
+                .With(r => r.Elements, elements)
+                .With(r => r.UpdatedAt, _currentInstant.Minus(Duration.FromDays(1)));
 
             if (!(assignedToCom is null)) referralBuilder = referralBuilder.With(r => r.AssignedTo, assignedToCom);
 

@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
@@ -12,15 +11,16 @@ namespace BrokerageApi.V1.UseCase.Interfaces
         private readonly IReferralGateway _referralGateway;
         private readonly IUserService _userService;
         private readonly IDbSaver _dbSaver;
-        public DeleteElementUseCase(
-            IReferralGateway referralGateway,
+        private readonly IClockService _clockService;
+        public DeleteElementUseCase(IReferralGateway referralGateway,
             IUserService userService,
-            IDbSaver dbSaver
-            )
+            IDbSaver dbSaver,
+            IClockService clockService)
         {
             _referralGateway = referralGateway;
             _userService = userService;
             _dbSaver = dbSaver;
+            _clockService = clockService;
         }
 
         public async Task ExecuteAsync(int referralId, int elementId)
@@ -50,6 +50,7 @@ namespace BrokerageApi.V1.UseCase.Interfaces
             }
 
             referral.Elements.Remove(element);
+            referral.UpdatedAt = _clockService.Now;
 
             await _dbSaver.SaveChangesAsync();
         }
