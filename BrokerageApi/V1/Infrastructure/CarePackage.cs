@@ -1,11 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using NodaTime;
 
 namespace BrokerageApi.V1.Infrastructure
 {
-    public class Referral : BaseEntity
+    public class CarePackage
     {
         [Key]
         public int Id { get; set; }
@@ -26,8 +25,6 @@ namespace BrokerageApi.V1.Infrastructure
 
         public string PrimarySupportReason { get; set; }
 
-        public string DirectPayments { get; set; }
-
         public Instant? UrgentSince { get; set; }
 
         public string AssignedTo { get; set; }
@@ -37,6 +34,16 @@ namespace BrokerageApi.V1.Infrastructure
         public string Note { get; set; }
 
         public Instant? StartedAt { get; set; }
+
+        public Instant CreatedAt { get; set; }
+
+        public Instant UpdatedAt { get; set; }
+
+        public LocalDate? StartDate { get; set; }
+
+        public decimal? WeeklyCost { get; set; }
+
+        public decimal? WeeklyPayment { get; set; }
 
         public List<ReferralElement> ReferralElements { get; set; }
 

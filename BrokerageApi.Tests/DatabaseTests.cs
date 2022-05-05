@@ -16,6 +16,8 @@ namespace BrokerageApi.Tests
         private IClockService _clock;
         protected BrokerageContext BrokerageContext { get; private set; }
         protected Instant CurrentInstant => _clock.Now;
+        protected Instant PreviousInstant => _clock.Now - Duration.FromHours(2);
+        protected LocalDate CurrentDate => _clock.Today;
 
         [SetUp]
         public void RunBeforeAnyTests()

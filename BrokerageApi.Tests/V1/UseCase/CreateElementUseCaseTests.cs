@@ -1,6 +1,7 @@
 using AutoFixture;
 using System;
 using System.Threading.Tasks;
+using NodaTime;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Factories;
@@ -22,6 +23,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         private Mock<IElementTypeGateway> _mockElementTypeGateway;
         private Mock<IProviderGateway> _mockProviderGateway;
         private Mock<IUserService> _mockUserService;
+        private Mock<IClockService> _mockClock;
         private MockDbSaver _mockDbSaver;
 
         [SetUp]
@@ -32,6 +34,7 @@ namespace BrokerageApi.Tests.V1.UseCase
             _mockElementTypeGateway = new Mock<IElementTypeGateway>();
             _mockProviderGateway = new Mock<IProviderGateway>();
             _mockUserService = new Mock<IUserService>();
+            _mockClock = new Mock<IClockService>();
             _mockDbSaver = new MockDbSaver();
 
             _classUnderTest = new CreateElementUseCase(
@@ -39,6 +42,7 @@ namespace BrokerageApi.Tests.V1.UseCase
                 _mockElementTypeGateway.Object,
                 _mockProviderGateway.Object,
                 _mockUserService.Object,
+                _mockClock.Object,
                 _mockDbSaver.Object
             );
         }
@@ -47,6 +51,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         public async Task CreatesElementFromRequest()
         {
             // Arrange
+            var currentInstant = SystemClock.Instance.GetCurrentInstant();
             var elementType = _fixture.Create<ElementType>();
             var provider = _fixture.Create<Provider>();
 
@@ -76,6 +81,10 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .SetupGet(x => x.Name)
                 .Returns("a.broker@hackney.gov.uk");
 
+            _mockClock
+                .SetupGet(x => x.Now)
+                .Returns(currentInstant);
+
             // Act
             var result = await _classUnderTest.ExecuteAsync(referral.Id, request);
 
@@ -87,6 +96,7 @@ namespace BrokerageApi.Tests.V1.UseCase
             _mockReferralGateway.Verify(m => m.GetByIdAsync(referral.Id));
             _mockElementTypeGateway.Verify(m => m.GetByIdAsync(elementType.Id));
             _mockProviderGateway.Verify(m => m.GetByIdAsync(provider.Id));
+            _mockClock.VerifyGet(x => x.Now, Times.Once());
             _mockDbSaver.VerifyChangesSaved();
         }
 

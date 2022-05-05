@@ -205,6 +205,7 @@ namespace BrokerageApi
 
         private static void RegisterGateways(IServiceCollection services)
         {
+            services.AddScoped<ICarePackageGateway, CarePackageGateway>();
             services.AddScoped<IElementTypeGateway, ElementTypeGateway>();
             services.AddScoped<IProviderGateway, ProviderGateway>();
             services.AddScoped<IReferralGateway, ReferralGateway>();
@@ -226,6 +227,7 @@ namespace BrokerageApi
             services.AddTransient<IAssignBrokerToReferralUseCase, AssignBrokerToReferralUseCase>();
             services.AddTransient<IReassignBrokerToReferralUseCase, ReassignBrokerToReferralUseCase>();
             services.AddTransient<IStartCarePackageUseCase, StartCarePackageUseCase>();
+            services.AddTransient<IGetCarePackageByIdUseCase, GetCarePackageByIdUseCase>();
             services.AddTransient<IDeleteElementUseCase, DeleteElementUseCase>();
         }
 

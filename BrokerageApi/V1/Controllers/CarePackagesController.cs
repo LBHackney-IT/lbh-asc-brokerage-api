@@ -20,17 +20,45 @@ namespace BrokerageApi.V1.Controllers
     [ApiVersion("1.0")]
     public class CarePackagesController : BaseController
     {
+        private readonly IGetCarePackageByIdUseCase _getCarePackageByIdUseCase;
         private readonly IStartCarePackageUseCase _startCarePackageUseCase;
         private readonly ICreateElementUseCase _createElementUseCase;
         private readonly IDeleteElementUseCase _deleteElementUseCase;
 
-        public CarePackagesController(IStartCarePackageUseCase startCarePackageUseCase,
-            ICreateElementUseCase createElementUseCase,
-            IDeleteElementUseCase deleteElementUseCase)
+
+        public CarePackagesController(
+          IGetCarePackageByIdUseCase getCarePackageByIdUseCase,
+          IStartCarePackageUseCase startCarePackageUseCase,
+          ICreateElementUseCase createElementUseCase,
+          IDeleteElementUseCase deleteElementUseCase
+        )
         {
+            _getCarePackageByIdUseCase = getCarePackageByIdUseCase;
             _startCarePackageUseCase = startCarePackageUseCase;
             _createElementUseCase = createElementUseCase;
             _deleteElementUseCase = deleteElementUseCase;
+        }
+
+        [Authorize]
+        [HttpGet]
+        [ProducesResponseType(typeof(ReferralResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetCarePackage([FromRoute] int referralId)
+        {
+            try
+            {
+                var carePackage = await _getCarePackageByIdUseCase.ExecuteAsync(referralId);
+                return Ok(carePackage.ToResponse());
+            }
+            catch (ArgumentNullException)
+            {
+                return Problem(
+                    "The requested care package was not found",
+                    $"/api/v1/referrals/{referralId}/care-package",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
         }
 
         [Authorize(Roles = "Broker")]

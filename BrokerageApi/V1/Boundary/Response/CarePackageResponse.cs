@@ -1,32 +1,31 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 using NodaTime;
+using BrokerageApi.V1.Infrastructure;
 
-namespace BrokerageApi.V1.Infrastructure
+namespace BrokerageApi.V1.Boundary.Response
 {
-    public class Referral : BaseEntity
+    public class CarePackageResponse
     {
-        [Key]
         public int Id { get; set; }
 
-        [Required]
+        [JsonProperty(Required = Required.DisallowNull)]
         public string WorkflowId { get; set; }
 
         public WorkflowType WorkflowType { get; set; }
 
-        [Required]
+        [JsonProperty(Required = Required.DisallowNull)]
         public string FormName { get; set; }
 
-        [Required]
+        [JsonProperty(Required = Required.DisallowNull)]
         public string SocialCareId { get; set; }
 
-        [Required]
+        [JsonProperty(Required = Required.DisallowNull)]
         public string ResidentName { get; set; }
 
         public string PrimarySupportReason { get; set; }
-
-        public string DirectPayments { get; set; }
 
         public Instant? UrgentSince { get; set; }
 
@@ -38,8 +37,16 @@ namespace BrokerageApi.V1.Infrastructure
 
         public Instant? StartedAt { get; set; }
 
-        public List<ReferralElement> ReferralElements { get; set; }
+        public Instant CreatedAt { get; set; }
 
-        public List<Element> Elements { get; set; }
+        public Instant UpdatedAt { get; set; }
+
+        public LocalDate? StartDate { get; set; }
+
+        public decimal? WeeklyCost { get; set; }
+
+        public decimal? WeeklyPayment { get; set; }
+
+        public List<ElementResponse> Elements { get; set; }
     }
 }

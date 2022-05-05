@@ -62,6 +62,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
                 Status = ReferralStatus.Unassigned
             };
 
@@ -73,6 +74,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
                 Status = ReferralStatus.InReview
             };
 
@@ -84,6 +86,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
                 AssignedTo = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.Assigned
             };
@@ -96,6 +99,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
                 Status = ReferralStatus.OnHold
             };
 
@@ -107,6 +111,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
                 Status = ReferralStatus.Archived
             };
 
@@ -118,6 +123,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
                 AssignedTo = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant
@@ -131,6 +137,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
                 AssignedTo = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.AwaitingApproval
             };
@@ -143,6 +150,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
                 AssignedTo = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.Approved
             };
@@ -183,6 +191,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
                 Status = ReferralStatus.Unassigned
             };
 
@@ -194,6 +203,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
                 Status = ReferralStatus.InReview
             };
 
@@ -220,6 +230,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
                 Status = ReferralStatus.Unassigned
             };
 
@@ -231,6 +242,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
                 Status = ReferralStatus.InReview
             };
 
@@ -242,6 +254,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
                 AssignedTo = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.Assigned
             };
@@ -254,6 +267,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
                 AssignedTo = "other.broker@hackney.gov.uk",
                 Status = ReferralStatus.Assigned
             };
@@ -266,6 +280,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
                 Status = ReferralStatus.OnHold
             };
 
@@ -277,6 +292,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
                 Status = ReferralStatus.Archived
             };
 
@@ -288,6 +304,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
                 AssignedTo = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant
@@ -301,6 +318,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
                 AssignedTo = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.AwaitingApproval
             };
@@ -313,6 +331,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
                 AssignedTo = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.Approved
             };
@@ -355,6 +374,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
                 AssignedTo = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.Assigned
             };
@@ -367,6 +387,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
                 AssignedTo = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant
@@ -444,7 +465,8 @@ namespace BrokerageApi.Tests.V1.Gateways
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
-                PrimarySupportReason = "Physical Support"
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No"
             };
         }
     }
