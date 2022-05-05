@@ -278,5 +278,98 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(referralCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(referralResponse.UpdatedAt, Is.EqualTo(CurrentInstant));
         }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanDeleteElement()
+        {
+            var referral = new Referral()
+            {
+                WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                Status = ReferralStatus.InProgress,
+                AssignedTo = "api.user@hackney.gov.uk",
+                StartedAt = PreviousInstant,
+                CreatedAt = PreviousInstant,
+                UpdatedAt = PreviousInstant
+            };
+
+            var service = new Service()
+            {
+                Id = 1,
+                Name = "Residential Care",
+                IsArchived = false,
+                Position = 1
+            };
+
+            var provider = new Provider()
+            {
+                Id = 1,
+                Name = "Acme Homes",
+                Address = "1 Knowhere Road",
+                Type = ProviderType.Framework
+            };
+
+            var providerService = new ProviderService()
+            {
+                ProviderId = 1,
+                ServiceId = 1,
+                SubjectiveCode = "599999"
+            };
+
+            var elementType = new ElementType
+            {
+                Id = 1,
+                ServiceId = 1,
+                Name = "Day Opportunities (hourly)",
+                CostType = ElementCostType.Hourly,
+                NonPersonalBudget = false,
+                IsArchived = false
+            };
+
+            var element = new Element
+            {
+                ElementTypeId = 1,
+                NonPersonalBudget = true,
+                ProviderId = 1,
+                Details = "Some notes",
+                StartDate = CurrentDate,
+                EndDate = null,
+                Monday = null,
+                Tuesday = new ElementCost(3, 150),
+                Wednesday = null,
+                Thursday = new ElementCost(3, 150),
+                Friday = null,
+                Saturday = null,
+                Sunday = null,
+                Quantity = 6,
+                Cost = 300,
+                SocialCareId = "socialCareId"
+            };
+            referral.Elements = new List<Element>
+            {
+                element
+            };
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.Services.AddAsync(service);
+            await Context.Providers.AddAsync(provider);
+            await Context.ProviderServices.AddAsync(providerService);
+            await Context.ElementTypes.AddAsync(elementType);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+            var elementId = element.Id;
+
+            // Act
+            var code = await Delete($"/api/v1/referrals/{referral.Id}/care-package/elements/{elementId}");
+
+            // Assert
+            code.Should().Be(HttpStatusCode.OK);
+            Context.ReferralElements.Should().NotContain(re => re.ReferralId == referral.Id && re.ElementId == elementId);
+        }
     }
 }

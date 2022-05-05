@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using BrokerageApi.V1.Gateways;
 using BrokerageApi.V1.Infrastructure;
@@ -426,6 +427,20 @@ namespace BrokerageApi.Tests.V1.Gateways
 
             // Act
             var result = await _classUnderTest.GetByIdAsync(referral.Id);
+
+            // Assert
+            result.Should().BeEquivalentTo(referral);
+        }
+
+        [Test]
+        public async Task GetsReferralByIdWithElements()
+        {
+            // Arrange
+            var workflowId = "88114daf-788b-48af-917b-996420afbf61";
+            var referral = await AddReferral(workflowId);
+
+            // Act
+            var result = await _classUnderTest.GetByIdWithElementsAsync(referral.Id);
 
             // Assert
             result.Should().BeEquivalentTo(referral);

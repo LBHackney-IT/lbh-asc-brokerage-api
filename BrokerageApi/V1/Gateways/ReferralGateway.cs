@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -73,6 +74,14 @@ namespace BrokerageApi.V1.Gateways
         {
             return await _context.Referrals
                 .Where(r => r.Id == id)
+                .SingleOrDefaultAsync();
+        }
+
+        public async Task<Referral> GetByIdWithElementsAsync(int id)
+        {
+            return await _context.Referrals
+                .Where(r => r.Id == id)
+                .Include(r => r.Elements)
                 .SingleOrDefaultAsync();
         }
     }

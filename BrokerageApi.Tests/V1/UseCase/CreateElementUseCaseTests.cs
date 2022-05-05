@@ -24,7 +24,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         private Mock<IProviderGateway> _mockProviderGateway;
         private Mock<IUserService> _mockUserService;
         private Mock<IClockService> _mockClock;
-        private Mock<IDbSaver> _mockDbSaver;
+        private MockDbSaver _mockDbSaver;
 
         [SetUp]
         public void Setup()
@@ -35,7 +35,7 @@ namespace BrokerageApi.Tests.V1.UseCase
             _mockProviderGateway = new Mock<IProviderGateway>();
             _mockUserService = new Mock<IUserService>();
             _mockClock = new Mock<IClockService>();
-            _mockDbSaver = new Mock<IDbSaver>();
+            _mockDbSaver = new MockDbSaver();
 
             _classUnderTest = new CreateElementUseCase(
                 _mockReferralGateway.Object,
@@ -97,7 +97,7 @@ namespace BrokerageApi.Tests.V1.UseCase
             _mockElementTypeGateway.Verify(m => m.GetByIdAsync(elementType.Id));
             _mockProviderGateway.Verify(m => m.GetByIdAsync(provider.Id));
             _mockClock.VerifyGet(x => x.Now, Times.Once());
-            _mockDbSaver.Verify(x => x.SaveChangesAsync(), Times.Once());
+            _mockDbSaver.VerifyChangesSaved();
         }
 
         [Test]
@@ -120,6 +120,7 @@ namespace BrokerageApi.Tests.V1.UseCase
 
             // Assert
             Assert.That(exception.Message, Is.EqualTo("Referral not found for: 123456 (Parameter 'referralId')"));
+            _mockDbSaver.VerifyChangesNotSaved();
         }
 
         [Test]
@@ -147,6 +148,7 @@ namespace BrokerageApi.Tests.V1.UseCase
 
             // Assert
             Assert.That(exception.Message, Is.EqualTo("Referral is not in a valid state for editing"));
+            _mockDbSaver.VerifyChangesNotSaved();
         }
 
         [Test]
@@ -174,6 +176,7 @@ namespace BrokerageApi.Tests.V1.UseCase
 
             // Assert
             Assert.That(exception.Message, Is.EqualTo("Referral is not assigned to a.broker@hackney.gov.uk"));
+            _mockDbSaver.VerifyChangesNotSaved();
         }
 
         [Test]
@@ -207,6 +210,7 @@ namespace BrokerageApi.Tests.V1.UseCase
 
             // Assert
             Assert.That(exception.Message, Is.EqualTo("Element type not found for: 123456"));
+            _mockDbSaver.VerifyChangesNotSaved();
         }
 
         [Test]
@@ -247,6 +251,7 @@ namespace BrokerageApi.Tests.V1.UseCase
 
             // Assert
             Assert.That(exception.Message, Is.EqualTo("Provider not found for: 123456"));
+            _mockDbSaver.VerifyChangesNotSaved();
         }
     }
 }
