@@ -208,6 +208,7 @@ namespace BrokerageApi
             services.AddScoped<IElementTypeGateway, ElementTypeGateway>();
             services.AddScoped<IProviderGateway, ProviderGateway>();
             services.AddScoped<IReferralGateway, ReferralGateway>();
+            services.AddScoped<IElementGateway, ElementGateway>();
             services.AddScoped<IServiceGateway, ServiceGateway>();
             services.AddScoped<IUserGateway, UserGateway>();
         }
@@ -219,7 +220,9 @@ namespace BrokerageApi
             services.AddTransient<IFindProvidersByServiceIdUseCase, FindProvidersByServiceIdUseCase>();
             services.AddTransient<IGetAssignedReferralsUseCase, GetAssignedReferralsUseCase>();
             services.AddTransient<IGetCurrentReferralsUseCase, GetCurrentReferralsUseCase>();
+            services.AddTransient<IGetCurrentElementsUseCase, GetCurrentElementsUseCase>();
             services.AddTransient<IGetReferralByIdUseCase, GetReferralByIdUseCase>();
+            services.AddTransient<IGetElementByIdUseCase, GetElementByIdUseCase>();
             services.AddTransient<IGetServiceByIdUseCase, GetServiceByIdUseCase>();
             services.AddTransient<IGetAllServicesUseCase, GetAllServicesUseCase>();
             services.AddTransient<IGetAllUsersUseCase, GetAllUsersUseCase>();
