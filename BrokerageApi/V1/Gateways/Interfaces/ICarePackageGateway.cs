@@ -7,5 +7,8 @@ namespace BrokerageApi.V1.Gateways.Interfaces
     public interface ICarePackageGateway
     {
         public Task<CarePackage> GetByIdAsync(int id);
+
+        public Task<CarePackage> GetByServiceUserIdAsync(int serviceUserId);
+
     }
 }
