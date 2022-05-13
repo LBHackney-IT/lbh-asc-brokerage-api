@@ -19,6 +19,6 @@ namespace BrokerageApi.V1.Services
 
         public string Name => Current.Identity.Name;
 
-        public int UserId => int.Parse(Current.Claims.SingleOrDefault(c => c.Type == ClaimTypes.PrimarySid).Value);
+        public int UserId => int.Parse(Current.FindFirst(ClaimTypes.PrimarySid).Value);
     }
 }
