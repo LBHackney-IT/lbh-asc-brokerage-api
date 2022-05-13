@@ -211,6 +211,7 @@ namespace BrokerageApi
             services.AddScoped<IReferralGateway, ReferralGateway>();
             services.AddScoped<IServiceGateway, ServiceGateway>();
             services.AddScoped<IUserGateway, UserGateway>();
+            services.AddScoped<IAuditGateway, AuditGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
