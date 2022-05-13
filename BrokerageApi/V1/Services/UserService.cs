@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using NodaTime;
@@ -14,14 +15,10 @@ namespace BrokerageApi.V1.Services
             _context = context;
         }
 
-        public ClaimsPrincipal Current
-        {
-            get => _context.HttpContext.User;
-        }
+        public ClaimsPrincipal Current => _context.HttpContext.User;
 
-        public string Name
-        {
-            get => Current.Identity.Name;
-        }
+        public string Name => Current.Identity.Name;
+
+        public int UserId => int.Parse(Current.Claims.SingleOrDefault(c => c.Type == ClaimTypes.PrimarySid).Value);
     }
 }

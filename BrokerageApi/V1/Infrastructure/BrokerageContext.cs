@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using Npgsql;
@@ -22,6 +23,7 @@ namespace BrokerageApi.V1.Infrastructure
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ReferralStatus>("referral_status");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<WorkflowType>("workflow_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<UserRole>("user_role");
+            NpgsqlConnection.GlobalTypeMapper.MapEnum<AuditEventType>("audit_event_type");
         }
 
         public BrokerageContext(DbContextOptions options, IClockService clock) : base(options)
@@ -43,6 +45,7 @@ namespace BrokerageApi.V1.Infrastructure
         public DbSet<ReferralElement> ReferralElements { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<AuditEvent> AuditEvents { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -60,6 +63,7 @@ namespace BrokerageApi.V1.Infrastructure
             modelBuilder.HasPostgresEnum<ReferralStatus>();
             modelBuilder.HasPostgresEnum<WorkflowType>();
             modelBuilder.HasPostgresEnum<UserRole>();
+            modelBuilder.HasPostgresEnum<AuditEventType>();
 
             modelBuilder
                 .Entity<CarePackage>()
