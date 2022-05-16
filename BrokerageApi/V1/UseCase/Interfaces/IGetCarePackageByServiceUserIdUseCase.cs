@@ -3,7 +3,7 @@ using BrokerageApi.V1.Infrastructure;
 
 namespace BrokerageApi.V1.UseCase.Interfaces
 {
-    public interface IgetCarePackagesByServiceUserIdUseCase
+    public interface IGetCarePackagesByServiceUserIdUseCase
     {
         public Task<CarePackage> ExecuteAsync(int serviceUserId);
     }

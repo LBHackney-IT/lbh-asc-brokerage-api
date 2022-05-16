@@ -27,7 +27,7 @@ namespace BrokerageApi.V1.Gateways
                 .SingleOrDefaultAsync(cp => cp.Id == id);
         }
 
-         public async Task<CarePackage> GetByServiceUserIdAsync(int serviceUserId)
+        public async Task<CarePackage> GetByServiceUserIdAsync(int serviceUserId)
         {
             return await _context.CarePackages
                 .Include(cp => cp.Elements.OrderBy(e => e.CreatedAt))
@@ -36,6 +36,6 @@ namespace BrokerageApi.V1.Gateways
                 .ThenInclude(e => e.ElementType)
                 .ThenInclude(et => et.Service)
                 .SingleOrDefaultAsync(cp => cp.SocialCareId == serviceUserId.ToString());
-        }           
+        }
     }
 }

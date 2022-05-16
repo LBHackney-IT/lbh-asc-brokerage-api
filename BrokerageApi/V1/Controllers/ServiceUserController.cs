@@ -20,17 +20,17 @@ namespace BrokerageApi.V1.Controllers
     [ApiVersion("1.0")]
     public class ServiceUserController : BaseController
     {
-        private readonly IgetCarePackagesByServiceUserIdUseCase _getCarePackagesByServiceUserIdUseCase;
+        private readonly IGetCarePackagesByServiceUserIdUseCase _getCarePackagesByServiceUserIdUseCase;
 
         public ServiceUserController(
-          IgetCarePackagesByServiceUserIdUseCase getCarePackagesByServiceUserIdUseCase
+          IGetCarePackagesByServiceUserIdUseCase getCarePackagesByServiceUserIdUseCase
 
         )
         {
             _getCarePackagesByServiceUserIdUseCase = getCarePackagesByServiceUserIdUseCase;
 
-        }          
-        
+        }
+
         [HttpGet]
         [ProducesResponseType(typeof(ReferralResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -57,4 +57,4 @@ namespace BrokerageApi.V1.Controllers
 
     }
 
-}    
+}

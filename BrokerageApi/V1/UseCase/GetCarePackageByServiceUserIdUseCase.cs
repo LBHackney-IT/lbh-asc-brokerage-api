@@ -6,7 +6,7 @@ using BrokerageApi.V1.UseCase.Interfaces;
 
 namespace BrokerageApi.V1.UseCase
 {
-    public class getCarePackagesByServiceUserIdUseCase : IgetCarePackagesByServiceUserIdUseCase
+    public class getCarePackagesByServiceUserIdUseCase : IGetCarePackagesByServiceUserIdUseCase
     {
         private readonly ICarePackageGateway _carePackageGateway;
 
