@@ -8,7 +8,7 @@ namespace BrokerageApi.V1.Gateways.Interfaces
     {
         public Task<CarePackage> GetByIdAsync(int id);
 
-        public Task<CarePackage> GetByServiceUserIdAsync(int serviceUserId);
+        public Task<IEnumerable<CarePackage>> GetByServiceUserIdAsync(int serviceUserId);
 
     }
 }

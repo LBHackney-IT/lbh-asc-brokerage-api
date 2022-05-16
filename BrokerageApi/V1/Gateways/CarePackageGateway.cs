@@ -27,15 +27,16 @@ namespace BrokerageApi.V1.Gateways
                 .SingleOrDefaultAsync(cp => cp.Id == id);
         }
 
-        public async Task<CarePackage> GetByServiceUserIdAsync(int serviceUserId)
+        public async Task<IEnumerable<CarePackage>> GetByServiceUserIdAsync(int serviceUserId)
         {
             return await _context.CarePackages
+                .Where(cp => cp.SocialCareId == serviceUserId.ToString())
                 .Include(cp => cp.Elements.OrderBy(e => e.CreatedAt))
                 .ThenInclude(e => e.Provider)
                 .Include(cp => cp.Elements.OrderBy(e => e.CreatedAt))
                 .ThenInclude(e => e.ElementType)
                 .ThenInclude(et => et.Service)
-                .SingleOrDefaultAsync(cp => cp.SocialCareId == serviceUserId.ToString());
+                .ToListAsync();
         }
     }
 }
