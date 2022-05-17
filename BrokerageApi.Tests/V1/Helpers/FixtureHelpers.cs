@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoFixture.Dsl;

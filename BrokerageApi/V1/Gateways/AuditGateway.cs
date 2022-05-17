@@ -1,10 +1,11 @@
 using System;
-using System.Text.Json.Serialization;
+using System.Linq;
 using System.Threading.Tasks;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Newtonsoft.Json;
+using X.PagedList;
 
 namespace BrokerageApi.V1.Gateways
 {
@@ -29,6 +30,15 @@ namespace BrokerageApi.V1.Gateways
 
             await _context.AuditEvents.AddAsync(auditEvent);
             await _context.SaveChangesAsync();
+        }
+        public IPagedList<AuditEvent> GetServiceUserAuditEvents(string socialCareId, int pageNumber, int pageCount)
+        {
+            var auditEvents = _context.AuditEvents
+                .Where(ae => ae.SocialCareId == socialCareId)
+                .OrderBy(e => e.CreatedAt)
+                .ToPagedList(pageNumber, pageCount);
+
+            return auditEvents;
         }
 
         private static string GetMessage(AuditEventType auditEventType)

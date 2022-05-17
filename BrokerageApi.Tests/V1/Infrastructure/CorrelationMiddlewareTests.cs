@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using BrokerageApi.V1.Controllers;
-using BrokerageApi.V1.Infrastructure;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using NUnit.Framework;

@@ -1,6 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Newtonsoft.Json.Linq;
 using NodaTime;
 
 namespace BrokerageApi.V1.Infrastructure.AuditEvents

@@ -1,6 +1,4 @@
-using System;
 using System.ComponentModel.DataAnnotations;
-using BrokerageApi.V1.Infrastructure;
 
 namespace BrokerageApi.V1.Boundary.Request
 {
