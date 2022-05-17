@@ -1,7 +1,5 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
-using PagedList.Core;
+using X.PagedList;
 
 namespace BrokerageApi.V1.UseCase.Interfaces
 {

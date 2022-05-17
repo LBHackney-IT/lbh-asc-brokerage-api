@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Newtonsoft.Json.Linq;
 using NodaTime;

@@ -1,15 +1,11 @@
 using AutoFixture;
-using AutoFixture.AutoMoq;
-using AutoFixture.Dsl;
-using AutoFixture.Kernel;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using FluentAssertions;
-using Microsoft.VisualBasic;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
-using PagedList.Core;
+using X.PagedList;
 
 namespace BrokerageApi.Tests.V1.Factories
 {

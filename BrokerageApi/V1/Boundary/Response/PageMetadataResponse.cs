@@ -1,5 +1,3 @@
-using PagedList.Core;
-
 namespace BrokerageApi.V1.Boundary.Response
 {
     public class PageMetadataResponse

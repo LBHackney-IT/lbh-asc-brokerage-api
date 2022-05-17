@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using AutoFixture.Dsl;
-using BrokerageApi.V1.Infrastructure;
 using MicroElements.AutoFixture.NodaTime;
 
 namespace BrokerageApi.Tests.V1.Helpers

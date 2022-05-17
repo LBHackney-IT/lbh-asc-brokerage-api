@@ -4,16 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using BrokerageApi.Tests.V1.Helpers;
-using BrokerageApi.Tests.V1.UseCase;
 using BrokerageApi.V1.Gateways;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using NodaTime;
 using NUnit.Framework;
-using PagedList.Core;
 
 namespace BrokerageApi.Tests.V1.Gateways
 {

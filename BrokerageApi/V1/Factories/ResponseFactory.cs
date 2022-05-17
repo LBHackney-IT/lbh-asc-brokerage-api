@@ -1,11 +1,9 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Newtonsoft.Json.Linq;
-using PagedList.Core;
+using X.PagedList;
 
 namespace BrokerageApi.V1.Factories
 {

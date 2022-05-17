@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using AutoFixture;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Gateways.Interfaces;
@@ -9,7 +7,7 @@ using BrokerageApi.V1.UseCase;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using PagedList.Core;
+using X.PagedList;
 
 namespace BrokerageApi.Tests.V1.UseCase
 {

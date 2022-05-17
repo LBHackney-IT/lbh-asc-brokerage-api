@@ -9,7 +9,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using FluentAssertions;
 using NUnit.Framework;
-using PagedList.Core;
+using X.PagedList;
 
 namespace BrokerageApi.Tests.V1.E2ETests
 {

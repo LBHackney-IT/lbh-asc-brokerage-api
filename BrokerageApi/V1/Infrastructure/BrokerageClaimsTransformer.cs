@@ -3,7 +3,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using BrokerageApi.V1.Gateways.Interfaces;
-using BrokerageApi.V1.Gateways;
 
 namespace BrokerageApi.V1.Infrastructure
 {

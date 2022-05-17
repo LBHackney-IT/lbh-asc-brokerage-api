@@ -10,7 +10,7 @@ using BrokerageApi.V1.UseCase.Interfaces;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using PagedList.Core;
+using X.PagedList;
 
 namespace BrokerageApi.Tests.V1.Controllers
 {

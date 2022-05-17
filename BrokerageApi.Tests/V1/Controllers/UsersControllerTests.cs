@@ -1,7 +1,6 @@
 using AutoFixture;
 using BrokerageApi.Tests.V1.Controllers.Mocks;
 using BrokerageApi.Tests.V1.Helpers;
-using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Controllers;
 using BrokerageApi.V1.Factories;
@@ -10,7 +9,6 @@ using BrokerageApi.V1.UseCase.Interfaces;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
