@@ -18,4 +18,5 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public bool ShouldSerializeElementTypes() => ElementTypes != null;
     }
+
 }
