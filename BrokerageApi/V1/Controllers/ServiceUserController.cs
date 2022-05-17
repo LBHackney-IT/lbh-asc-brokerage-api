@@ -36,7 +36,7 @@ namespace BrokerageApi.V1.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetServiceUserCarePackages([FromRoute] int ServiceUserId)
+        public async Task<IActionResult> GetServiceUserCarePackages([FromRoute] string ServiceUserId)
         {
             var carePackages = await _getCarePackagesByServiceUserIdUseCase.ExecuteAsync(ServiceUserId);
             return Ok(carePackages.Select(r => r.ToResponse()).ToList());

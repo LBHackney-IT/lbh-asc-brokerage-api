@@ -8,16 +8,16 @@ namespace BrokerageApi.V1.UseCase
 {
     public class getCarePackagesByServiceUserIdUseCase : IGetCarePackagesByServiceUserIdUseCase
     {
-        private readonly ICarePackageGateway _carePackageGateway;
+        private readonly IServiceUserGateway _serviceUserGateway;
 
-        public getCarePackagesByServiceUserIdUseCase(ICarePackageGateway carePackageGateway)
+        public getCarePackagesByServiceUserIdUseCase(IServiceUserGateway serviceUserGateway)
         {
-            _carePackageGateway = carePackageGateway;
+            _serviceUserGateway = serviceUserGateway;
         }
 
-        public async Task<IEnumerable<CarePackage>> ExecuteAsync(int serviceUserId)
+        public async Task<IEnumerable<CarePackage>> ExecuteAsync(string serviceUserId)
         {
-            return await _carePackageGateway.GetByServiceUserIdAsync(serviceUserId);
+            return await _serviceUserGateway.GetByServiceUserIdAsync(serviceUserId);
 
 
         }

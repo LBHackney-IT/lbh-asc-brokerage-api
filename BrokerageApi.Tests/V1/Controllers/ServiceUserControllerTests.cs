@@ -46,14 +46,16 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             SetupAuthentication(_classUnderTest);
         }
-
+        //this test is not working
         [Test]
         public async Task GetCarePackages()
         {
             // Arrange
-            var carePackage = _fixture.Create<CarePackage>();
-            var serviceUserId = Int32.Parse(carePackage.SocialCareId);
-
+            var carePackages = _fixture.CreateMany<CarePackage>();
+            _mockGetCarePackagesByServiceUserIdUseCase
+                .Setup(x => x.ExecuteAsync(null))
+                .ReturnsAsync(carePackages);
+            var serviceUserId = carePackages.ElementAt(0).SocialCareId;
             // Act
             var objectResult = await _classUnderTest.GetServiceUserCarePackages(serviceUserId);
             var statusCode = GetStatusCode(objectResult);
@@ -61,7 +63,7 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
-            result.Should().BeEquivalentTo(carePackage.ToResponse());
+            result.Should().BeEquivalentTo(carePackages.Select(r => r.ToResponse()).ToList());
         }
 
         // [Test]

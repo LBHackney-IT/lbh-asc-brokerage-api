@@ -4,10 +4,8 @@ using BrokerageApi.V1.Infrastructure;
 
 namespace BrokerageApi.V1.Gateways.Interfaces
 {
-    public interface ICarePackageGateway
+    public interface IServiceUserGateway
     {
-        public Task<CarePackage> GetByIdAsync(int id);
-
-
+        public Task<IEnumerable<CarePackage>> GetByServiceUserIdAsync(string serviceUserId);
     }
 }

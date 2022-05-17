@@ -6,6 +6,6 @@ namespace BrokerageApi.V1.UseCase.Interfaces
 {
     public interface IGetCarePackagesByServiceUserIdUseCase
     {
-        public Task<IEnumerable<CarePackage>> ExecuteAsync(int serviceUserId);
+        public Task<IEnumerable<CarePackage>> ExecuteAsync(string serviceUserId);
     }
 }
