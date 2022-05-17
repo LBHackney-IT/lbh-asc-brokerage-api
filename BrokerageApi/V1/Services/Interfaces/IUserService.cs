@@ -7,5 +7,6 @@ namespace BrokerageApi.V1.Services.Interfaces
     {
         public ClaimsPrincipal Current { get; }
         public string Name { get; }
+        public int UserId { get; }
     }
 }
