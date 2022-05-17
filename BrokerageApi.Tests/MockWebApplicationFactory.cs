@@ -1,15 +1,9 @@
-using System;
-using System.Data.Common;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Services.Interfaces;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Npgsql;
-using NodaTime;
-using NodaTime.Testing;
 
 namespace BrokerageApi.Tests
 {

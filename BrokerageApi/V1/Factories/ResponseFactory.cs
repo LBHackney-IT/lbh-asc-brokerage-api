@@ -1,7 +1,9 @@
-using System.Collections.Generic;
 using System.Linq;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Infrastructure;
+using BrokerageApi.V1.Infrastructure.AuditEvents;
+using Newtonsoft.Json.Linq;
+using X.PagedList;
 
 namespace BrokerageApi.V1.Factories
 {
@@ -136,5 +138,37 @@ namespace BrokerageApi.V1.Factories
                 UpdatedAt = user.UpdatedAt
             };
         }
+
+        public static AuditEventResponse ToResponse(this AuditEvent auditEvent)
+        {
+            return new AuditEventResponse
+            {
+                Id = auditEvent.Id,
+                Message = auditEvent.Message,
+                CreatedAt = auditEvent.CreatedAt,
+                EventType = auditEvent.EventType,
+                UserId = auditEvent.UserId,
+                SocialCareId = auditEvent.SocialCareId,
+                Metadata = JObject.Parse(auditEvent.Metadata)
+            };
+        }
+
+        public static PageMetadataResponse ToResponse(this IPagedList pagedListMetaData)
+        {
+            return new PageMetadataResponse
+            {
+                PageCount = pagedListMetaData.PageCount,
+                TotalItemCount = pagedListMetaData.TotalItemCount,
+                PageNumber = pagedListMetaData.PageNumber,
+                PageSize = pagedListMetaData.PageSize,
+                HasPreviousPage = pagedListMetaData.HasPreviousPage,
+                HasNextPage = pagedListMetaData.HasNextPage,
+                IsFirstPage = pagedListMetaData.IsFirstPage,
+                IsLastPage = pagedListMetaData.IsLastPage,
+                FirstItemOnPage = pagedListMetaData.FirstItemOnPage,
+                LastItemOnPage = pagedListMetaData.LastItemOnPage
+            };
+        }
+
     }
 }

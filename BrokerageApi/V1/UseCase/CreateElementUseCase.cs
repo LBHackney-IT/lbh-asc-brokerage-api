@@ -7,7 +7,6 @@ using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Services.Interfaces;
 using BrokerageApi.V1.UseCase.Interfaces;
-using Npgsql;
 
 namespace BrokerageApi.V1.UseCase
 {

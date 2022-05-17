@@ -1,5 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using BrokerageApi.Tests.V1.UseCase;
+using AutoFixture;
+using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Gateways;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
@@ -13,11 +17,13 @@ namespace BrokerageApi.Tests.V1.Gateways
     [TestFixture]
     public class AuditGatewayTests : DatabaseTests
     {
+        private Fixture _fixture;
         private AuditGateway _classUnderTest;
 
         [SetUp]
         public void Setup()
         {
+            _fixture = FixtureHelpers.Fixture;
             _classUnderTest = new AuditGateway(BrokerageContext);
         }
 
@@ -56,6 +62,7 @@ namespace BrokerageApi.Tests.V1.Gateways
             },
         };
 
+
         [TestCaseSource(nameof(_metadataTests))]
         public async Task ReferralBrokerAssignmentHasCorrectMetadata(AuditEventType eventType, string expectedMessage, AuditMetadataBase metadata)
         {
@@ -70,6 +77,60 @@ namespace BrokerageApi.Tests.V1.Gateways
             auditEvent.SocialCareId.Should().Be(expectedSocialCareId);
             auditEvent.UserId.Should().Be(expectedUser.Id);
             auditEvent.Message.Should().Be(expectedMessage);
+        }
+
+        [Test]
+        public async Task CanGetFilteredAuditEvents()
+        {
+            var expectedUser = await SeedUser();
+            const string expectedSocialCareId = "socialCareId";
+
+            var expectedEvents = await SeedEvents(expectedUser.Id, expectedSocialCareId);
+            var unexpectedEvents = await SeedEvents(expectedUser.Id, _fixture.Create<string>());
+
+            var events = _classUnderTest.GetServiceUserAuditEvents(expectedSocialCareId, 1, 100);
+
+            events.Should().HaveCount(expectedEvents.Count());
+            events.Should().Contain(expectedEvents);
+            events.Should().NotContain(unexpectedEvents);
+        }
+
+        [Test]
+        public async Task CanGetPagedResults([Range(1, 10)] int pageNumber)
+        {
+            var expectedUser = await SeedUser();
+            const string expectedSocialCareId = "socialCareId";
+            const int pageSize = 10;
+
+            var allEvents = await SeedEvents(expectedUser.Id, expectedSocialCareId, 100);
+            var expectedEvents = allEvents
+                .OrderBy(e => e.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize);
+
+            var events = _classUnderTest.GetServiceUserAuditEvents(expectedSocialCareId, pageNumber, pageSize);
+
+            events.Should().HaveCount(pageSize);
+            events.Should().Contain(expectedEvents);
+
+            var pageMetadata = events.GetMetaData();
+            pageMetadata.PageNumber.Should().Be(pageNumber);
+            pageMetadata.PageSize.Should().Be(pageSize);
+            pageMetadata.PageCount.Should().Be((int) Math.Ceiling((float) allEvents.Count() / pageSize));
+        }
+
+        private async Task<IEnumerable<AuditEvent>> SeedEvents(int expectedUserId, string expectedSocialCareId, int count = 5)
+        {
+            var auditEvents = _fixture.Build<AuditEvent>()
+                .With(ae => ae.UserId, expectedUserId)
+                .With(ae => ae.SocialCareId, expectedSocialCareId)
+                .Without(ae => ae.User)
+                .CreateMany(count);
+
+            await BrokerageContext.AuditEvents.AddRangeAsync(auditEvents);
+            await BrokerageContext.SaveChangesAsync();
+
+            return auditEvents;
         }
 
         private async Task<User> SeedUser()

@@ -1,7 +1,5 @@
-using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using NodaTime;
 using BrokerageApi.V1.Services.Interfaces;
 
 namespace BrokerageApi.V1.Services
