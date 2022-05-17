@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
+using AutoFixture.Dsl;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Gateways;
 using BrokerageApi.V1.Infrastructure;
@@ -27,18 +28,18 @@ namespace BrokerageApi.Tests.V1.Gateways
         [Test]
         public async Task CanGetCurrentElements()
         {
-            var elements = _fixture.CreateMany<Element>();
+            var elements = (await CreateElementBuilder()).CreateMany();
             await SeedElements(elements.ToArray());
 
             var resultElements = await _classUnderTest.GetCurrentAsync();
 
-            resultElements.Should().BeEquivalentTo(elements);
+            resultElements.Should().BeEquivalentTo(elements.OrderBy(e => e.Id));
         }
 
         [Test]
         public async Task CanGetById()
         {
-            var expectedElement = _fixture.Create<Element>();
+            var expectedElement = (await CreateElementBuilder()).Create();
             await SeedElements(expectedElement);
 
             var resultElement = await _classUnderTest.GetByIdAsync(expectedElement.Id);
@@ -50,6 +51,13 @@ namespace BrokerageApi.Tests.V1.Gateways
         {
             await BrokerageContext.Elements.AddRangeAsync(elements);
             await BrokerageContext.SaveChangesAsync();
+        }
+
+        private async Task<IPostprocessComposer<Element>> CreateElementBuilder()
+        {
+            var (provider, service) = await SeedProviderAndService();
+            var elementType = await SeedElementType(service.Id);
+            return _fixture.BuildElement(provider.Id, elementType.Id);
         }
     }
 }

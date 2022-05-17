@@ -21,7 +21,7 @@ namespace BrokerageApi.V1.UseCase
 
             if (element is null)
             {
-                throw new ArgumentNullException(nameof(id), $"Element not found for: {id}");
+                throw new ArgumentException($"Element not found for: {id}");
             }
 
             return element;

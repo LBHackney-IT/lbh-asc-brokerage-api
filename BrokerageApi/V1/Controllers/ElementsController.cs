@@ -56,7 +56,7 @@ namespace BrokerageApi.V1.Controllers
                 var element = await _getElementByIdUseCase.ExecuteAsync(id);
                 return Ok(element.ToResponse());
             }
-            catch (ArgumentNullException)
+            catch (ArgumentException)
             {
                 return Problem(
                     "The requested element was not found",
