@@ -8,4 +8,5 @@ namespace BrokerageApi.V1.UseCase.Interfaces
     {
         public Task<IEnumerable<Element>> ExecuteAsync(string socialCareId);
     }
+
 }

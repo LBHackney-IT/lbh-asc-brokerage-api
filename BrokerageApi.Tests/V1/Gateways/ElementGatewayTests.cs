@@ -47,6 +47,19 @@ namespace BrokerageApi.Tests.V1.Gateways
             resultElement.Should().BeEquivalentTo(expectedElement);
         }
 
+        [Test]
+        public async Task CanGetBySocialCareId()
+        {
+            const string socialCareId = "expectedId";
+            var expectedElements = (await CreateElementBuilder()).With(e => e.SocialCareId, socialCareId).CreateMany();
+            var unexpectedElements = (await CreateElementBuilder()).With(e => e.SocialCareId, $"different{socialCareId}").CreateMany();
+            await SeedElements(expectedElements.Concat(unexpectedElements).ToArray());
+
+            var resultElements = await _classUnderTest.GetBySocialCareId(socialCareId);
+
+            resultElements.Should().BeEquivalentTo(expectedElements.OrderBy(e => e.Id));
+        }
+
         private async Task SeedElements(params Element[] elements)
         {
             await BrokerageContext.Elements.AddRangeAsync(elements);

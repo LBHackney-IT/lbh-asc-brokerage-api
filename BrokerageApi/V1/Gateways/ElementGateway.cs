@@ -25,6 +25,13 @@ namespace BrokerageApi.V1.Gateways
             return await _currentElements.ToListAsync();
         }
 
+        public async Task<IEnumerable<Element>> GetBySocialCareId(string socialCareId)
+        {
+            return await _currentElements
+                .Where(e => e.SocialCareId == socialCareId)
+                .ToListAsync();
+        }
+
         public async Task<Element> GetByIdAsync(int id)
         {
             return await _context.Elements

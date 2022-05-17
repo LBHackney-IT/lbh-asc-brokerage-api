@@ -169,6 +169,5 @@ namespace BrokerageApi.V1.Factories
                 LastItemOnPage = pagedListMetaData.LastItemOnPage
             };
         }
-
     }
 }
