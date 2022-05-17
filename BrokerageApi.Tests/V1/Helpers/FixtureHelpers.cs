@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using AutoFixture;
+using AutoFixture.AutoMoq;
 using AutoFixture.Dsl;
 using BrokerageApi.V1.Infrastructure;
+using MicroElements.AutoFixture.NodaTime;
 
 namespace BrokerageApi.Tests.V1.Helpers
 {
@@ -13,7 +15,9 @@ namespace BrokerageApi.Tests.V1.Helpers
         {
             var fixture = new Fixture();
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+            fixture.Customize(new NodaTimeCustomization());
             fixture.Customizations.Add(new LocalDateGenerator());
+            fixture.Customize(new AutoMoqCustomization());
 
             return fixture;
         }

@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Security.Claims;
 using BrokerageApi.V1.Controllers;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
+using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Gateways;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Services;
@@ -229,6 +230,7 @@ namespace BrokerageApi
             services.AddTransient<IStartCarePackageUseCase, StartCarePackageUseCase>();
             services.AddTransient<IGetCarePackageByIdUseCase, GetCarePackageByIdUseCase>();
             services.AddTransient<IDeleteElementUseCase, DeleteElementUseCase>();
+            services.AddTransient<IGetServiceUserAuditEventsUseCase, GetServiceUserAuditEventsUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
