@@ -1,14 +1,11 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using AutoFixture;
-using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Infrastructure;
+using BrokerageApi.V1.Infrastructure.AuditEvents;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
@@ -602,6 +599,50 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(response.Status, Is.EqualTo(ReferralStatus.InProgress));
             Assert.That(response.AssignedTo, Is.EqualTo("a.broker@hackney.gov.uk"));
+        }
+
+        [Test, Property("AsUser", "BrokerageAssistant")]
+        public async Task AssignAddsAuditEvent()
+        {
+            var request = new AssignBrokerRequest()
+            {
+                Broker = "a.broker@hackney.gov.uk"
+            };
+
+            var referral = new Referral()
+            {
+                WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                Status = ReferralStatus.Unassigned
+            };
+
+            var broker = new User()
+            {
+                Name = "A Broker",
+                Email = "a.broker@hackney.gov.uk",
+                IsActive = true,
+                Roles = new List<UserRole>() {
+                    UserRole.Broker
+                }
+            };
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.Users.AddAsync(broker);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            // Act
+            var (code, response) = await Post<ReferralResponse>($"/api/v1/referrals/{referral.Id}/assign", request);
+
+            // Assert
+            var auditEvent = await Context.AuditEvents.SingleOrDefaultAsync(ae => ae.EventType == AuditEventType.ReferralBrokerAssignment && ae.CreatedAt == Context.Clock.Now);
+            auditEvent.Should().NotBeNull();
         }
     }
 }

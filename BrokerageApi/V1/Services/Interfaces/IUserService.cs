@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using NodaTime;
 
 namespace BrokerageApi.V1.Services.Interfaces
 {
@@ -7,5 +6,6 @@ namespace BrokerageApi.V1.Services.Interfaces
     {
         public ClaimsPrincipal Current { get; }
         public string Name { get; }
+        public int UserId { get; }
     }
 }

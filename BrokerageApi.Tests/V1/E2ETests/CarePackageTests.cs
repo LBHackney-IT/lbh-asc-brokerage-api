@@ -1,16 +1,10 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using AutoFixture;
-using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Boundary.Response;
-using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Infrastructure;
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
 namespace BrokerageApi.Tests.V1.E2ETests
@@ -69,6 +63,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 SubjectiveCode = "599999"
             };
 
+            var previousStartDate = CurrentDate.PlusDays(-100);
             var startDate = CurrentDate.PlusDays(1);
 
             var referral = new Referral()
@@ -93,9 +88,9 @@ namespace BrokerageApi.Tests.V1.E2ETests
                         NonPersonalBudget = false,
                         ProviderId = 1,
                         Details = "Some notes",
-                        InternalStatus = ElementStatus.InProgress,
+                        InternalStatus = ElementStatus.Approved,
                         RelatedElementId = null,
-                        StartDate = startDate,
+                        StartDate = previousStartDate,
                         EndDate = null,
                         Monday = new ElementCost(3, 75),
                         Tuesday = new ElementCost(3, 75),
@@ -140,6 +135,24 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             // Assert
             Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
+
+            Assert.That(response.Id, Is.EqualTo(referral.Id));
+            Assert.That(response.StartDate, Is.EqualTo(previousStartDate));
+            Assert.That(response.WeeklyCost, Is.EqualTo(225));
+            Assert.That(response.WeeklyPayment, Is.EqualTo(125));
+            Assert.That(response.Elements.Count, Is.EqualTo(2));
+
+            Assert.That(response.Elements[0].Status, Is.EqualTo(ElementStatus.Active));
+            Assert.That(response.Elements[0].Details, Is.EqualTo("Some notes"));
+            Assert.That(response.Elements[0].ElementType.Name, Is.EqualTo("Day Opportunities (hourly)"));
+            Assert.That(response.Elements[0].ElementType.Service.Name, Is.EqualTo("Supported Living"));
+            Assert.That(response.Elements[0].Provider.Name, Is.EqualTo("Acme Homes"));
+
+            Assert.That(response.Elements[1].Status, Is.EqualTo(ElementStatus.InProgress));
+            Assert.That(response.Elements[1].Details, Is.EqualTo("Some other notes"));
+            Assert.That(response.Elements[1].ElementType.Name, Is.EqualTo("Day Opportunities (daily)"));
+            Assert.That(response.Elements[1].ElementType.Service.Name, Is.EqualTo("Supported Living"));
+            Assert.That(response.Elements[1].Provider.Name, Is.EqualTo("Acme Homes"));
         }
 
         [Test, Property("AsUser", "Broker")]

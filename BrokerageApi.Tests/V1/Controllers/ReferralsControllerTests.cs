@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 
 namespace BrokerageApi.Tests.V1.Controllers
 {
+
     [TestFixture]
     public class ReferralsControllerTests : ControllerTests
     {
