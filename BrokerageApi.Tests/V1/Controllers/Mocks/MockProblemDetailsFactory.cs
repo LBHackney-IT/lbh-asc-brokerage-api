@@ -1,4 +1,5 @@
 using System.Net;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -23,14 +24,14 @@ namespace BrokerageApi.Tests.V1.Controllers.Mocks
                 });
         }
 
-        public void VerifyStatusCode(HttpStatusCode statusCode)
+        public void VerifyProblem(HttpStatusCode statusCode, [CanBeNull] string message = null)
         {
             Verify(x => x.CreateProblemDetails(
                 It.IsAny<HttpContext>(),
                 (int) statusCode,
                 It.IsAny<string>(),
                 It.IsAny<string>(),
-                It.IsAny<string>(),
+                It.Is<string>(s => message == null || s == message),
                 It.IsAny<string>()));
         }
     }

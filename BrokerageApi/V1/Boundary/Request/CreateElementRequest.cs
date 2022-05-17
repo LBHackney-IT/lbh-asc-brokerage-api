@@ -15,7 +15,7 @@ namespace BrokerageApi.V1.Boundary.Request
         [Required]
         public string Details { get; set; }
 
-        public int? RelatedElementId { get; set; }
+        public int? ParentElementId { get; set; }
 
         public ElementCost? Monday { get; set; }
 

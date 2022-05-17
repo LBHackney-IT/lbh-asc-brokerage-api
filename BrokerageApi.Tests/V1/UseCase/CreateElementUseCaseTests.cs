@@ -1,5 +1,6 @@
 using AutoFixture;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NodaTime;
 using BrokerageApi.Tests.V1.Helpers;
@@ -8,6 +9,7 @@ using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Services.Interfaces;
 using BrokerageApi.V1.UseCase;
+using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 
@@ -56,6 +58,7 @@ namespace BrokerageApi.Tests.V1.UseCase
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.InProgress)
                 .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
+                .Without(x => x.Elements)
                 .Create();
 
             var request = _fixture.Build<CreateElementRequest>()
@@ -249,6 +252,60 @@ namespace BrokerageApi.Tests.V1.UseCase
 
             // Assert
             Assert.That(exception.Message, Is.EqualTo("Provider not found for: 123456"));
+            _mockDbSaver.VerifyChangesNotSaved();
+        }
+
+        [Test]
+        public async Task ThrowsArgumentExceptionWhenPArentElementAlreadyHasChild()
+        {
+            // Arrange
+            var currentInstant = SystemClock.Instance.GetCurrentInstant();
+            var elementType = _fixture.Create<ElementType>();
+            var provider = _fixture.Create<Provider>();
+
+            var parentElement = _fixture.BuildElement(provider.Id, elementType.Id).Create();
+            var existingChildElement = _fixture.BuildElement(provider.Id, elementType.Id)
+                .With(e => e.ParentElementId, parentElement.Id)
+                .Create();
+
+            var referral = _fixture.Build<Referral>()
+                .With(x => x.Status, ReferralStatus.InProgress)
+                .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
+                .With(x => x.Elements, new List<Element> { parentElement, existingChildElement })
+                .Create();
+
+            var request = _fixture.Build<CreateElementRequest>()
+                .With(x => x.ElementTypeId, elementType.Id)
+                .With(x => x.ProviderId, provider.Id)
+                .With(x => x.ParentElementId, parentElement.Id)
+                .Create();
+
+            _mockReferralGateway
+                .Setup(m => m.GetByIdAsync(referral.Id))
+                .ReturnsAsync(referral);
+
+            _mockElementTypeGateway
+                .Setup(m => m.GetByIdAsync(elementType.Id))
+                .ReturnsAsync(elementType);
+
+            _mockProviderGateway
+                .Setup(m => m.GetByIdAsync(provider.Id))
+                .ReturnsAsync(provider);
+
+            _mockUserService
+                .SetupGet(x => x.Name)
+                .Returns("a.broker@hackney.gov.uk");
+
+            _mockClock
+                .SetupGet(x => x.Now)
+                .Returns(currentInstant);
+
+            // Act
+            Func<Task<Element>> act = () => _classUnderTest.ExecuteAsync(referral.Id, request);
+
+            // Assert
+            await act.Should().ThrowAsync<ArgumentException>()
+                .WithMessage("Parent element already ahs a child");
             _mockDbSaver.VerifyChangesNotSaved();
         }
     }

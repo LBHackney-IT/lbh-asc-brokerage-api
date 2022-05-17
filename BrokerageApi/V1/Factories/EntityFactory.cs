@@ -30,7 +30,7 @@ namespace BrokerageApi.V1.Factories
                 NonPersonalBudget = request.NonPersonalBudget,
                 ProviderId = request.ProviderId,
                 Details = request.Details,
-                RelatedElementId = request.RelatedElementId,
+                ParentElementId = request.ParentElementId,
                 StartDate = request.StartDate,
                 EndDate = request.EndDate,
                 Monday = request.Monday,

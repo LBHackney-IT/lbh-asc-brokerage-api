@@ -34,7 +34,7 @@ namespace BrokerageApi.V1.Factories
             };
         }
 
-        public static ElementResponse ToResponse(this Element element)
+        public static ElementResponse ToResponse(this Element element, bool includeParent = true)
         {
             return new ElementResponse
             {
@@ -56,7 +56,8 @@ namespace BrokerageApi.V1.Factories
                 Quantity = element.Quantity,
                 Cost = element.Cost,
                 CreatedAt = element.CreatedAt,
-                UpdatedAt = element.UpdatedAt
+                UpdatedAt = element.UpdatedAt,
+                ParentElement = includeParent ? element.ParentElement?.ToResponse(false) : null
             };
         }
 

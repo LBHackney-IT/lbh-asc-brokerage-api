@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Factories;
@@ -67,6 +68,11 @@ namespace BrokerageApi.V1.UseCase
             if (provider is null)
             {
                 throw new ArgumentException($"Provider not found for: {request.ProviderId}");
+            }
+
+            if (referral.Elements != null && referral.Elements.Any(e => e.ParentElementId == request.ParentElementId))
+            {
+                throw new ArgumentException("Parent element already ahs a child");
             }
 
             var element = request.ToDatabase();

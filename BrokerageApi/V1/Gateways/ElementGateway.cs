@@ -17,6 +17,10 @@ namespace BrokerageApi.V1.Gateways
             _context = context;
 
             _currentElements = _context.Elements
+                .Include(e => e.ElementType)
+                    .ThenInclude(et => et.Service)
+                .Include(e => e.Provider)
+                .Include(e => e.ParentElement)
                 .OrderBy(e => e.Id);
         }
 
@@ -27,7 +31,7 @@ namespace BrokerageApi.V1.Gateways
 
         public async Task<Element> GetByIdAsync(int id)
         {
-            return await _context.Elements
+            return await _currentElements
                 .Where(e => e.Id == id)
                 .SingleOrDefaultAsync();
         }

@@ -115,34 +115,34 @@ namespace BrokerageApi.V1.Controllers
                 var element = await _createElementUseCase.ExecuteAsync(referralId, request);
                 return Ok(element.ToResponse());
             }
-            catch (ArgumentNullException)
+            catch (ArgumentNullException e)
             {
                 return Problem(
-                    "The requested referral was not found",
+                    e.Message,
                     $"/api/v1/referrals/{referralId}/care-package/elements",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
-            catch (ArgumentException)
+            catch (ArgumentException e)
             {
                 return Problem(
-                    "The request was invalid",
+                    e.Message,
                     $"/api/v1/referrals/{referralId}/care-package/elements",
                     StatusCodes.Status400BadRequest, "Bad Request"
                 );
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException e)
             {
                 return Problem(
-                    "The requested referral was in an invalid state to add elements",
+                    e.Message,
                     $"/api/v1/referrals/{referralId}/care-package/elements",
                     StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException e)
             {
                 return Problem(
-                    "The requested referral is not assigned to the user",
+                    e.Message,
                     $"/api/v1/referrals/{referralId}/care-package/elements",
                     StatusCodes.Status403Forbidden, "Forbidden"
                 );
