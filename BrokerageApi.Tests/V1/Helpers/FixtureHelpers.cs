@@ -68,7 +68,8 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(e => e.Provider)
                 .Without(e => e.ElementType)
                 .With(e => e.ProviderId, providerId)
-                .With(e => e.ElementTypeId, elementTypeId);
+                .With(e => e.ElementTypeId, elementTypeId)
+                .With(e => e.InternalStatus, ElementStatus.InProgress);
         }
     }
 }
