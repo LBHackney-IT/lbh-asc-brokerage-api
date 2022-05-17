@@ -17,6 +17,7 @@ namespace BrokerageApi.V1.UseCase
         private readonly IElementTypeGateway _elementTypeGateway;
         private readonly IProviderGateway _providerGateway;
         private readonly IUserService _userService;
+        private readonly IClockService _clock;
         private readonly IDbSaver _dbSaver;
 
         public CreateElementUseCase(
@@ -24,6 +25,7 @@ namespace BrokerageApi.V1.UseCase
             IElementTypeGateway elementTypeGateway,
             IProviderGateway providerGateway,
             IUserService userService,
+            IClockService clock,
             IDbSaver dbSaver
         )
         {
@@ -31,6 +33,7 @@ namespace BrokerageApi.V1.UseCase
             _elementTypeGateway = elementTypeGateway;
             _providerGateway = providerGateway;
             _userService = userService;
+            _clock = clock;
             _dbSaver = dbSaver;
         }
 
@@ -74,6 +77,7 @@ namespace BrokerageApi.V1.UseCase
 
             referral.Elements ??= new List<Element>();
             referral.Elements.Add(element);
+            referral.UpdatedAt = _clock.Now;
 
             await _dbSaver.SaveChangesAsync();
 

@@ -16,5 +16,9 @@ namespace BrokerageApi.V1.Boundary.Response
         public ElementCostType CostType { get; set; }
 
         public bool NonPersonalBudget { get; set; }
+
+        public ServiceResponse Service { get; set; }
+
+        public bool ShouldSerializeService() => Service != null;
     }
 }

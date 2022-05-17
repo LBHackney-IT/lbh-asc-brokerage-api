@@ -205,12 +205,14 @@ namespace BrokerageApi
 
         private static void RegisterGateways(IServiceCollection services)
         {
+            services.AddScoped<ICarePackageGateway, CarePackageGateway>();
             services.AddScoped<IElementTypeGateway, ElementTypeGateway>();
             services.AddScoped<IProviderGateway, ProviderGateway>();
             services.AddScoped<IReferralGateway, ReferralGateway>();
             services.AddScoped<IElementGateway, ElementGateway>();
             services.AddScoped<IServiceGateway, ServiceGateway>();
             services.AddScoped<IUserGateway, UserGateway>();
+            services.AddScoped<IAuditGateway, AuditGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
@@ -229,6 +231,8 @@ namespace BrokerageApi
             services.AddTransient<IAssignBrokerToReferralUseCase, AssignBrokerToReferralUseCase>();
             services.AddTransient<IReassignBrokerToReferralUseCase, ReassignBrokerToReferralUseCase>();
             services.AddTransient<IStartCarePackageUseCase, StartCarePackageUseCase>();
+            services.AddTransient<IGetCarePackageByIdUseCase, GetCarePackageByIdUseCase>();
+            services.AddTransient<IDeleteElementUseCase, DeleteElementUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
