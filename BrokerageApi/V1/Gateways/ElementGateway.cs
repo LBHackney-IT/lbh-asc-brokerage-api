@@ -17,7 +17,6 @@ namespace BrokerageApi.V1.Gateways
             _context = context;
 
             _currentElements = _context.Elements
-                // .Where(e => r.Status != ReferralStatus.Approved)
                 .OrderBy(e => e.Id);
         }
 
