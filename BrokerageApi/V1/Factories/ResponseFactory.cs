@@ -41,6 +41,7 @@ namespace BrokerageApi.V1.Factories
                 NonPersonalBudget = element.NonPersonalBudget,
                 Provider = element.Provider?.ToResponse(),
                 Details = element.Details,
+                Status = element.Status,
                 StartDate = element.StartDate,
                 EndDate = element.EndDate,
                 Monday = element.Monday,
