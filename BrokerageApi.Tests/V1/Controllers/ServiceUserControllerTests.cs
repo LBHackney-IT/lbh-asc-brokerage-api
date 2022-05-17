@@ -1,11 +1,9 @@
 using AutoFixture;
 using BrokerageApi.Tests.V1.Controllers.Mocks;
 using BrokerageApi.Tests.V1.Helpers;
-using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Controllers;
 using BrokerageApi.V1.Factories;
-using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.UseCase.Interfaces;
 using FluentAssertions;
 using Moq;
@@ -15,7 +13,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 
 namespace BrokerageApi.Tests.V1.Controllers
 {
@@ -51,13 +48,16 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task GetCarePackages()
         {
             // Arrange
-            var carePackages = _fixture.CreateMany<CarePackage>();
+            const string socialCareId = "expectedId";
+            var carePackages = _fixture.BuildCarePackage(socialCareId)
+                .CreateMany();
+
+            //_fixture.CreateMany<CarePackage>();
             _mockGetCarePackagesByServiceUserIdUseCase
                 .Setup(x => x.ExecuteAsync(null))
                 .ReturnsAsync(carePackages);
-            var serviceUserId = carePackages.ElementAt(0).SocialCareId;
             // Act
-            var objectResult = await _classUnderTest.GetServiceUserCarePackages(serviceUserId);
+            var objectResult = await _classUnderTest.GetServiceUserCarePackages(socialCareId);
             var statusCode = GetStatusCode(objectResult);
             var result = GetResultData<List<CarePackageResponse>>(objectResult);
 

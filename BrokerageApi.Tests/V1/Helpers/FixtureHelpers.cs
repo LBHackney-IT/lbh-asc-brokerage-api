@@ -22,5 +22,10 @@ namespace BrokerageApi.Tests.V1.Helpers
         {
             return fixture.Create<int>() % (max - min + 1) + min;
         }
+        public static IPostprocessComposer<CarePackage> BuildCarePackage(this IFixture fixture, string socialCareId)
+        {
+            return fixture.Build<CarePackage>()
+                .With(cp => cp.SocialCareId, socialCareId);
+        }
     }
 }
