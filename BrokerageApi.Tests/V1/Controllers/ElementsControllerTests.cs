@@ -134,7 +134,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             var statusCode = GetStatusCode(response);
 
             statusCode.Should().Be((int) expectedStatusCode);
-            _mockProblemDetailsFactory.VerifyStatusCode(expectedStatusCode);
+            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode);
         }
     }
 }
