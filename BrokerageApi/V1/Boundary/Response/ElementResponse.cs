@@ -20,7 +20,7 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public ElementStatus Status { get; set; }
 
-        public List<ElementResponse> RelatedElements { get; set; }
+        public ElementResponse ParentElement { get; set; }
 
         public LocalDate StartDate { get; set; }
 

@@ -1,6 +1,7 @@
 using AutoFixture;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Factories;
+using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
@@ -55,6 +56,48 @@ namespace BrokerageApi.Tests.V1.Factories
             response.IsLastPage.Should().Be(pageMetadata.IsLastPage);
             response.FirstItemOnPage.Should().Be(pageMetadata.FirstItemOnPage);
             response.LastItemOnPage.Should().Be(pageMetadata.LastItemOnPage);
+        }
+
+        [Test]
+        public void ElementMapsCorrectly()
+        {
+            var grandParentElement = _fixture.Build<Element>()
+                .With(e => e.InternalStatus, ElementStatus.InProgress)
+                .Create();
+            var parentElement = _fixture.Build<Element>()
+                .With(e => e.InternalStatus, ElementStatus.InProgress)
+                .With(e => e.ParentElement, grandParentElement)
+                .With(e => e.ParentElementId, grandParentElement.Id)
+                .Create();
+            var element = _fixture.Build<Element>()
+                .With(e => e.InternalStatus, ElementStatus.InProgress)
+                .With(e => e.ParentElement, parentElement)
+                .With(e => e.ParentElementId, parentElement.Id)
+                .Create();
+
+            var response = element.ToResponse();
+
+            response.Id.Should().Be(element.Id);
+            response.ElementType.Should().BeEquivalentTo(element.ElementType?.ToResponse());
+            response.NonPersonalBudget.Should().Be(element.NonPersonalBudget);
+            response.Provider.Should().BeEquivalentTo(element.Provider?.ToResponse());
+            response.Details.Should().Be(element.Details);
+            response.Status.Should().Be(element.Status);
+            response.StartDate.Should().Be(element.StartDate);
+            response.EndDate.Should().Be(element.EndDate);
+            response.Monday.Should().Be(element.Monday);
+            response.Tuesday.Should().Be(element.Tuesday);
+            response.Wednesday.Should().Be(element.Wednesday);
+            response.Thursday.Should().Be(element.Thursday);
+            response.Friday.Should().Be(element.Friday);
+            response.Saturday.Should().Be(element.Saturday);
+            response.Sunday.Should().Be(element.Sunday);
+            response.Quantity.Should().Be(element.Quantity);
+            response.Cost.Should().Be(element.Cost);
+            response.CreatedAt.Should().Be(element.CreatedAt);
+            response.UpdatedAt.Should().Be(element.UpdatedAt);
+            response.ParentElement.Should().BeEquivalentTo(element.ParentElement.ToResponse(false));
+            response.ParentElement.ParentElement.Should().BeNull();
         }
     }
 }
