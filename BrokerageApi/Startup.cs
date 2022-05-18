@@ -210,6 +210,7 @@ namespace BrokerageApi
             services.AddScoped<IProviderGateway, ProviderGateway>();
             services.AddScoped<IReferralGateway, ReferralGateway>();
             services.AddScoped<IServiceGateway, ServiceGateway>();
+            services.AddScoped<IServiceUserGateway, ServiceUserGateway>();
             services.AddScoped<IUserGateway, UserGateway>();
         }
 
