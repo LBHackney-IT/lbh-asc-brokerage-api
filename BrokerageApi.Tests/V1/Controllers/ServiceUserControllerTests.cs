@@ -44,7 +44,6 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             SetupAuthentication(_classUnderTest);
         }
-        //this test is not working
         [Test]
         public async Task GetCarePackagesByServiceUserId()
         {
