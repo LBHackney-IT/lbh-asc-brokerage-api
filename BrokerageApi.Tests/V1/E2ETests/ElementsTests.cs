@@ -12,6 +12,7 @@ using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Infrastructure;
 using FluentAssertions;
 using FluentAssertions.Equivalency;
+using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using NUnit.Framework;
 
@@ -123,6 +124,41 @@ namespace BrokerageApi.Tests.V1.E2ETests
             code.Should().Be(HttpStatusCode.OK);
             AssertionOptions.EquivalencySteps.Insert<InstantComparer>();
             response.ParentElement.Should().BeEquivalentTo(parentElement.ToResponse());
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanEndElement()
+        {
+            var provider = _fixture.BuildProvider().Create();
+            var service = _fixture.BuildService().Create();
+            var providerService = _fixture.BuildProviderService(provider.Id, service.Id).Create();
+            var elementType = _fixture.BuildElementType(service.Id).Create();
+            var element = _fixture.BuildElement(provider.Id, elementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .Without(e => e.EndDate)
+                .Create();
+
+            await Context.Services.AddAsync(service);
+            await Context.ElementTypes.AddAsync(elementType);
+            await Context.Providers.AddAsync(provider);
+            await Context.ProviderServices.AddAsync(providerService);
+            await Context.Elements.AddRangeAsync(element);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            var request = new EndElementRequest
+            {
+                EndDate = CurrentDate
+            };
+
+            var code = await Post($"/api/v1/elements/{element.Id}/end", request);
+
+            code.Should().Be(HttpStatusCode.OK);
+
+            var resultElement = await Context.Elements.SingleAsync(e => e.Id == element.Id);
+            resultElement.EndDate.Should().Be(request.EndDate);
+            resultElement.UpdatedAt.Should().Be(CurrentInstant);
         }
     }
 }
