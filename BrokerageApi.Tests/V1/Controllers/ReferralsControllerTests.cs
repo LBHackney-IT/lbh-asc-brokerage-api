@@ -191,7 +191,7 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.NotFound);
+            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound);
         }
 
         [Test]
@@ -239,7 +239,7 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.NotFound);
+            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound);
         }
 
         [Test]
@@ -264,7 +264,7 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.UnprocessableEntity);
-            _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.UnprocessableEntity);
+            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.UnprocessableEntity);
         }
 
         [Test]
@@ -312,7 +312,7 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.NotFound);
+            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound);
         }
 
         [Test]
@@ -337,7 +337,7 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.UnprocessableEntity);
-            _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.UnprocessableEntity);
+            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.UnprocessableEntity);
         }
     }
 }

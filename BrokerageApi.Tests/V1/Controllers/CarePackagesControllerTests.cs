@@ -87,7 +87,7 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.NotFound);
+            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound);
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -128,7 +128,7 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.NotFound);
+            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound);
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -149,7 +149,7 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.UnprocessableEntity);
-            _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.UnprocessableEntity);
+            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.UnprocessableEntity);
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -171,7 +171,7 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.Forbidden);
-            _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.Forbidden);
+            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.Forbidden);
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -220,7 +220,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         };
 
         [TestCaseSource(nameof(_createElementErrors)), Property("AsUser", "Broker")]
-        public async Task CreateElementMapsErrors(Exception exception, int expectedStatusCode)
+        public async Task CreateElementMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
         {
             // Arrange
             var referral = _fixture.Build<Referral>()
@@ -239,7 +239,8 @@ namespace BrokerageApi.Tests.V1.Controllers
             var statusCode = GetStatusCode(objectResult);
 
             // Assert
-            statusCode.Should().Be(expectedStatusCode);
+            statusCode.Should().Be((int) expectedStatusCode);
+            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
         }
 
         [Test, Property("AsUser", "Broker")]

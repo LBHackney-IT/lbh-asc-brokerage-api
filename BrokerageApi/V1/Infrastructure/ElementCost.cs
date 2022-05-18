@@ -10,9 +10,9 @@ namespace BrokerageApi.V1.Infrastructure
             Cost = cost;
         }
 
-        public decimal Quantity { get; }
+        public decimal Quantity { get; set; }
 
-        public decimal Cost { get; }
+        public decimal Cost { get; set; }
 
         public override int GetHashCode()
         {
