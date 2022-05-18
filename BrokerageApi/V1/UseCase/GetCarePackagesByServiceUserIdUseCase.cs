@@ -6,11 +6,11 @@ using BrokerageApi.V1.UseCase.Interfaces;
 
 namespace BrokerageApi.V1.UseCase
 {
-    public class getCarePackagesByServiceUserIdUseCase : IGetCarePackagesByServiceUserIdUseCase
+    public class GetCarePackagesByServiceUserIdUseCase : IGetCarePackagesByServiceUserIdUseCase
     {
         private readonly IServiceUserGateway _serviceUserGateway;
 
-        public getCarePackagesByServiceUserIdUseCase(IServiceUserGateway serviceUserGateway)
+        public GetCarePackagesByServiceUserIdUseCase(IServiceUserGateway serviceUserGateway)
         {
             _serviceUserGateway = serviceUserGateway;
         }

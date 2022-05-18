@@ -228,6 +228,7 @@ namespace BrokerageApi
             services.AddTransient<IReassignBrokerToReferralUseCase, ReassignBrokerToReferralUseCase>();
             services.AddTransient<IStartCarePackageUseCase, StartCarePackageUseCase>();
             services.AddTransient<IGetCarePackageByIdUseCase, GetCarePackageByIdUseCase>();
+            services.AddTransient<IGetCarePackagesByServiceUserIdUseCase, GetCarePackagesByServiceUserIdUseCase>();
             services.AddTransient<IDeleteElementUseCase, DeleteElementUseCase>();
         }
 
