@@ -92,8 +92,8 @@ namespace BrokerageApi.V1.Infrastructure
 
             modelBuilder.Entity<Element>()
                 .HasOne(e => e.ParentElement)
-                .WithOne(e => e.ChildElement)
-                .HasForeignKey(typeof(Element), "ParentElementId");
+                .WithMany(e => e.ChildElements)
+                .HasForeignKey("ParentElementId");
 
             modelBuilder.Entity<Element>()
                 .Property(e => e.InternalStatus)

@@ -40,7 +40,7 @@ namespace BrokerageApi.V1.Infrastructure
 
         public int? ParentElementId { get; set; }
         public Element ParentElement { get; set; }
-        public Element ChildElement { get; set; }
+        public List<Element> ChildElements { get; set; }
 
         public LocalDate StartDate { get; set; }
 

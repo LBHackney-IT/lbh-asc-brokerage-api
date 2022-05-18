@@ -252,7 +252,6 @@ namespace V1.Infrastructure.Migrations
                         .HasDatabaseName("ix_elements_element_type_id");
 
                     b.HasIndex("ParentElementId")
-                        .IsUnique()
                         .HasDatabaseName("ix_elements_parent_element_id");
 
                     b.HasIndex("ProviderId")
@@ -584,8 +583,8 @@ namespace V1.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("BrokerageApi.V1.Infrastructure.Element", "ParentElement")
-                        .WithOne("ChildElement")
-                        .HasForeignKey("BrokerageApi.V1.Infrastructure.Element", "ParentElementId")
+                        .WithMany("ChildElements")
+                        .HasForeignKey("ParentElementId")
                         .HasConstraintName("fk_elements_elements_parent_element_id");
 
                     b.HasOne("BrokerageApi.V1.Infrastructure.Provider", "Provider")
@@ -682,7 +681,7 @@ namespace V1.Infrastructure.Migrations
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Element", b =>
                 {
-                    b.Navigation("ChildElement");
+                    b.Navigation("ChildElements");
 
                     b.Navigation("ReferralElements");
                 });

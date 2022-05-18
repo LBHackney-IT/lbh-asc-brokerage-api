@@ -70,11 +70,6 @@ namespace BrokerageApi.V1.UseCase
                 throw new ArgumentException($"Provider not found for: {request.ProviderId}");
             }
 
-            if (referral.Elements != null && referral.Elements.Any(e => e.ParentElementId == request.ParentElementId))
-            {
-                throw new ArgumentException("Parent element already ahs a child");
-            }
-
             var element = request.ToDatabase();
             element.ElementType = elementType;
             element.Provider = provider;
