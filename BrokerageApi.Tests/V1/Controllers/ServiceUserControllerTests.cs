@@ -4,6 +4,7 @@ using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Controllers;
 using BrokerageApi.V1.Factories;
+using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.UseCase.Interfaces;
 using FluentAssertions;
 using Moq;
@@ -45,16 +46,15 @@ namespace BrokerageApi.Tests.V1.Controllers
         }
         //this test is not working
         [Test]
-        public async Task GetCarePackages()
+        public async Task GetCarePackagesByServiceUserId()
         {
             // Arrange
             const string socialCareId = "expectedId";
             var carePackages = _fixture.BuildCarePackage(socialCareId)
                 .CreateMany();
 
-            //_fixture.CreateMany<CarePackage>();
             _mockGetCarePackagesByServiceUserIdUseCase
-                .Setup(x => x.ExecuteAsync(null))
+                .Setup(x => x.ExecuteAsync(socialCareId))
                 .ReturnsAsync(carePackages);
             // Act
             var objectResult = await _classUnderTest.GetServiceUserCarePackages(socialCareId);
@@ -66,23 +66,24 @@ namespace BrokerageApi.Tests.V1.Controllers
             result.Should().BeEquivalentTo(carePackages.Select(r => r.ToResponse()).ToList());
         }
 
-        // [Test]
-        // public async Task GetCarePackageWhenDoesNotExist()
-        // {
-        //     // Arrange
-        //      _mockGetCarePackagesByServiceUserIdUseCase
-        //         .Setup(x => x.ExecuteAsync(0000))
-        //         .Callback((int id) => throw new ArgumentNullException(nameof(id), "Care package not found for: 00000"))
-        //         .Returns(Task.FromResult(new CarePackage()));
+        [Test]
+        public async Task GetNoCarePackagesWhenServiceUserDoesNotExist()
+        {
+            // Arrange
+            _mockGetCarePackagesByServiceUserIdUseCase
+                .Setup(x => x.ExecuteAsync("unexpectedId"))
+                .Callback((String socialCareId) => throw new ArgumentNullException(nameof(socialCareId), "No care packages found for this service user"))
+                .Returns(Task.FromResult(new List<CarePackage>() as IEnumerable<CarePackage>));
 
-        //     // Act
-        //     var objectResult = await _classUnderTest.GetServiceUserCarePackages(serviceUserId);
-        //     var statusCode = GetStatusCode(objectResult);
 
-        //     // Assert
-        //     statusCode.Should().Be((int) HttpStatusCode.NotFound);
-        //     _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.NotFound);
-        // }
+            // Act
+            var objectResult = await _classUnderTest.GetServiceUserCarePackages("unexpectedId");
+            var statusCode = GetStatusCode(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.NotFound);
+            _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.NotFound);
+        }
 
 
     }
