@@ -27,6 +27,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Mock<ICreateElementUseCase> _mockCreateElementUseCase;
         private MockProblemDetailsFactory _mockProblemDetailsFactory;
         private Mock<IDeleteElementUseCase> _mockDeleteElementUseCase;
+        private Mock<IEndElementUseCase> _mockEndElementUseCase;
 
         private CarePackagesController _classUnderTest;
 
@@ -39,12 +40,14 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockCreateElementUseCase = new Mock<ICreateElementUseCase>();
             _mockProblemDetailsFactory = new MockProblemDetailsFactory();
             _mockDeleteElementUseCase = new Mock<IDeleteElementUseCase>();
+            _mockEndElementUseCase = new Mock<IEndElementUseCase>();
 
             _classUnderTest = new CarePackagesController(
                 _mockGetCarePackageByIdUseCase.Object,
                 _mockStartCarePackageUseCase.Object,
                 _mockCreateElementUseCase.Object,
-                _mockDeleteElementUseCase.Object
+                _mockDeleteElementUseCase.Object,
+                _mockEndElementUseCase.Object
             );
 
             // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
@@ -297,6 +300,53 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be(expectedStatusCode);
+        }
+
+        [Test]
+        public async Task CanEndElement()
+        {
+            const int referralId = 1234;
+            const int elementId = 1234;
+            var request = _fixture.Create<EndElementRequest>();
+
+            var response = await _classUnderTest.EndElement(referralId, elementId, request);
+            var statusCode = GetStatusCode(response);
+
+            _mockEndElementUseCase.Verify(x => x.ExecuteAsync(referralId, elementId, request.EndDate));
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+        }
+
+        private static readonly object[] _endElementErrors =
+        {
+            new object[]
+            {
+                new ArgumentNullException(null, "message"), HttpStatusCode.NotFound
+            },
+            new object[]
+            {
+                new ArgumentException("message"), HttpStatusCode.BadRequest
+            },
+            new object[]
+            {
+                new InvalidOperationException("message"), HttpStatusCode.UnprocessableEntity
+            }
+        };
+
+
+        [TestCaseSource(nameof(_endElementErrors)), Property("AsUser", "Broker")]
+        public async Task EndElementMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            const int referralId = 1234;
+            const int elementId = 1234;
+            var request = _fixture.Create<EndElementRequest>();
+            _mockEndElementUseCase.Setup(x => x.ExecuteAsync(referralId, elementId, request.EndDate))
+                .ThrowsAsync(exception);
+
+            var response = await _classUnderTest.EndElement(referralId, elementId, request);
+            var statusCode = GetStatusCode(response);
+
+            statusCode.Should().Be((int) expectedStatusCode);
+            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
         }
     }
 }

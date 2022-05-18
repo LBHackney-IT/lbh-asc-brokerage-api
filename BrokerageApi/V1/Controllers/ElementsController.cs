@@ -22,18 +22,15 @@ namespace BrokerageApi.V1.Controllers
     {
         private readonly IGetCurrentElementsUseCase _getCurrentElementsUseCase;
         private readonly IGetElementByIdUseCase _getElementByIdUseCase;
-        private readonly IEndElementUseCase _endElementUseCase;
 
 
         public ElementsController(
             IGetCurrentElementsUseCase getCurrentElementsUseCase,
-            IGetElementByIdUseCase getElementByIdUseCase,
-            IEndElementUseCase endElementUseCase
+            IGetElementByIdUseCase getElementByIdUseCase
         )
         {
             _getCurrentElementsUseCase = getCurrentElementsUseCase;
             _getElementByIdUseCase = getElementByIdUseCase;
-            _endElementUseCase = endElementUseCase;
         }
 
         [HttpGet]
@@ -67,47 +64,6 @@ namespace BrokerageApi.V1.Controllers
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
-        }
-
-        [HttpPost]
-        [Route("{id}/end")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> EndElement([FromRoute] int id, [FromBody] EndElementRequest request)
-        {
-            try
-            {
-                await _endElementUseCase.ExecuteAsync(id, request.EndDate);
-            }
-            catch (ArgumentNullException)
-            {
-                return Problem(
-                    "The requested element was not found",
-                    $"api/v1/elements/{id}/end",
-                    StatusCodes.Status404NotFound, "Not Found"
-                );
-            }
-            catch (InvalidOperationException)
-            {
-                return Problem(
-                    "The requested element is in an invalid state to end",
-                    $"api/v1/elements/{id}/end",
-                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
-                );
-            }
-            catch (ArgumentException)
-            {
-                return Problem(
-                    "The requested element has an end date before the requested end date",
-                    $"api/v1/elements/{id}/end",
-                    StatusCodes.Status400BadRequest, "Bad Request"
-                );
-            }
-
-
-            return Ok();
         }
     }
 

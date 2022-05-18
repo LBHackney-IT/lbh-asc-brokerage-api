@@ -33,6 +33,12 @@ namespace BrokerageApi.V1.Infrastructure.AuditEvents
     public enum AuditEventType
     {
         ReferralBrokerAssignment,
-        ReferralBrokerReassignment
+        ReferralBrokerReassignment,
+        ElementEnded,
+        ElementCancelled,
+        ElementSuspended,
+        CarePackageEnded,
+        CarePackageCancelled,
+        CarePackageSuspended
     }
 }
