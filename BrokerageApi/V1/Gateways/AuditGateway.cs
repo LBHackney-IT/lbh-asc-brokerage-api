@@ -47,6 +47,12 @@ namespace BrokerageApi.V1.Gateways
             {
                 AuditEventType.ReferralBrokerAssignment => "Assigned to broker",
                 AuditEventType.ReferralBrokerReassignment => "Reassigned to broker",
+                AuditEventType.ElementEnded => "Element Ended",
+                AuditEventType.ElementCancelled => "Element Cancelled",
+                AuditEventType.ElementSuspended => "Element Suspended",
+                AuditEventType.CarePackageEnded => "Care Package Ended",
+                AuditEventType.CarePackageCancelled => "Care Package Cancelled",
+                AuditEventType.CarePackageSuspended => "Care Package Suspended",
                 _ => throw new ArgumentOutOfRangeException(nameof(auditEventType), auditEventType, null)
             };
         }

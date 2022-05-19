@@ -5,7 +5,7 @@ namespace BrokerageApi.V1.UseCase.Interfaces
 {
     public interface IEndElementUseCase
     {
-        public Task ExecuteAsync(int id, LocalDate endDate);
+        public Task ExecuteAsync(int referralId, int elementId, LocalDate endDate);
     }
 
 }

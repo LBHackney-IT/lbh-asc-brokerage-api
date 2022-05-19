@@ -21,19 +21,22 @@ namespace BrokerageApi.V1.Controllers
         private readonly IStartCarePackageUseCase _startCarePackageUseCase;
         private readonly ICreateElementUseCase _createElementUseCase;
         private readonly IDeleteElementUseCase _deleteElementUseCase;
+        private readonly IEndElementUseCase _endElementUseCase;
 
 
         public CarePackagesController(
           IGetCarePackageByIdUseCase getCarePackageByIdUseCase,
           IStartCarePackageUseCase startCarePackageUseCase,
           ICreateElementUseCase createElementUseCase,
-          IDeleteElementUseCase deleteElementUseCase
+          IDeleteElementUseCase deleteElementUseCase,
+          IEndElementUseCase endElementUseCase
         )
         {
             _getCarePackageByIdUseCase = getCarePackageByIdUseCase;
             _startCarePackageUseCase = startCarePackageUseCase;
             _createElementUseCase = createElementUseCase;
             _deleteElementUseCase = deleteElementUseCase;
+            _endElementUseCase = endElementUseCase;
         }
 
         [Authorize]
@@ -186,6 +189,45 @@ namespace BrokerageApi.V1.Controllers
                     "The requested referral is not assigned to the user",
                     $"/api/v1/referrals/{referralId}/care-package/elements/{elementId}",
                     StatusCodes.Status403Forbidden, "Forbidden"
+                );
+            }
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("elements/{elementId}/end")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> EndElement([FromRoute] int referralId, [FromRoute] int elementId, [FromBody] EndElementRequest request)
+        {
+            try
+            {
+                await _endElementUseCase.ExecuteAsync(referralId, elementId, request.EndDate);
+            }
+            catch (ArgumentNullException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/elements/{elementId}/end",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (InvalidOperationException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/elements/{elementId}/end",
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
+                );
+            }
+            catch (ArgumentException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/elements/{elementId}/end",
+                    StatusCodes.Status400BadRequest, "Bad Request"
                 );
             }
             return Ok();

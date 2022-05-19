@@ -56,6 +56,13 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(et => et.Elements)
                 .With(et => et.ServiceId, serviceId);
         }
+        public static IPostprocessComposer<Referral> BuildReferral(this IFixture fixture, ReferralStatus status)
+        {
+            return fixture.Build<Referral>()
+                .Without(r => r.Elements)
+                .Without(r => r.ReferralElements)
+                .With(r => r.Status, status);
+        }
         public static IPostprocessComposer<Element> BuildElement(this IFixture fixture, int providerId, int elementTypeId)
         {
             return fixture.Build<Element>()
@@ -70,6 +77,15 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .With(e => e.ProviderId, providerId)
                 .With(e => e.ElementTypeId, elementTypeId)
                 .With(e => e.InternalStatus, ElementStatus.InProgress);
+        }
+        public static IPostprocessComposer<ReferralElement> BuildReferralElement(this IFixture fixture, int referralId, int elementId)
+        {
+            return fixture.Build<ReferralElement>()
+                .Without(re => re.Element)
+                .Without(re => re.Referral)
+                .Without(re => re.CarePackage)
+                .With(re => re.ReferralId, referralId)
+                .With(re => re.ElementId, elementId);
         }
     }
 }
