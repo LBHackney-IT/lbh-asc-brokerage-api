@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 using NodaTime;
 using BrokerageApi.V1.Infrastructure;
@@ -22,7 +20,7 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public ElementStatus Status { get; set; }
 
-        public List<ElementResponse> RelatedElements { get; set; }
+        public ElementResponse ParentElement { get; set; }
 
         public LocalDate StartDate { get; set; }
 

@@ -1,10 +1,10 @@
 using AutoFixture;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NodaTime;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Boundary.Request;
-using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Services.Interfaces;
@@ -58,6 +58,7 @@ namespace BrokerageApi.Tests.V1.UseCase
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.InProgress)
                 .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
+                .Without(x => x.Elements)
                 .Create();
 
             var request = _fixture.Build<CreateElementRequest>()

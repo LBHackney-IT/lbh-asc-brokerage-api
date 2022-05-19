@@ -1,7 +1,6 @@
 using AutoFixture;
 using BrokerageApi.Tests.V1.Controllers.Mocks;
 using BrokerageApi.Tests.V1.Helpers;
-using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Controllers;
 using BrokerageApi.V1.Factories;
@@ -101,7 +100,7 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.NotFound);
+            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound);
         }
 
         [Test]
@@ -139,7 +138,7 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.NotFound);
+            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound);
         }
     }
 }

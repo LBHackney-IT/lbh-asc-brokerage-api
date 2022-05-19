@@ -1,7 +1,9 @@
-using System.Collections.Generic;
 using System.Linq;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Infrastructure;
+using BrokerageApi.V1.Infrastructure.AuditEvents;
+using Newtonsoft.Json.Linq;
+using X.PagedList;
 
 namespace BrokerageApi.V1.Factories
 {
@@ -32,7 +34,7 @@ namespace BrokerageApi.V1.Factories
             };
         }
 
-        public static ElementResponse ToResponse(this Element element)
+        public static ElementResponse ToResponse(this Element element, bool includeParent = true)
         {
             return new ElementResponse
             {
@@ -41,6 +43,7 @@ namespace BrokerageApi.V1.Factories
                 NonPersonalBudget = element.NonPersonalBudget,
                 Provider = element.Provider?.ToResponse(),
                 Details = element.Details,
+                Status = element.Status,
                 StartDate = element.StartDate,
                 EndDate = element.EndDate,
                 Monday = element.Monday,
@@ -53,7 +56,8 @@ namespace BrokerageApi.V1.Factories
                 Quantity = element.Quantity,
                 Cost = element.Cost,
                 CreatedAt = element.CreatedAt,
-                UpdatedAt = element.UpdatedAt
+                UpdatedAt = element.UpdatedAt,
+                ParentElement = includeParent ? element.ParentElement?.ToResponse(false) : null
             };
         }
 
@@ -133,6 +137,37 @@ namespace BrokerageApi.V1.Factories
                 IsActive = user.IsActive,
                 CreatedAt = user.CreatedAt,
                 UpdatedAt = user.UpdatedAt
+            };
+        }
+
+        public static AuditEventResponse ToResponse(this AuditEvent auditEvent)
+        {
+            return new AuditEventResponse
+            {
+                Id = auditEvent.Id,
+                Message = auditEvent.Message,
+                CreatedAt = auditEvent.CreatedAt,
+                EventType = auditEvent.EventType,
+                UserId = auditEvent.UserId,
+                SocialCareId = auditEvent.SocialCareId,
+                Metadata = JObject.Parse(auditEvent.Metadata)
+            };
+        }
+
+        public static PageMetadataResponse ToResponse(this IPagedList pagedListMetaData)
+        {
+            return new PageMetadataResponse
+            {
+                PageCount = pagedListMetaData.PageCount,
+                TotalItemCount = pagedListMetaData.TotalItemCount,
+                PageNumber = pagedListMetaData.PageNumber,
+                PageSize = pagedListMetaData.PageSize,
+                HasPreviousPage = pagedListMetaData.HasPreviousPage,
+                HasNextPage = pagedListMetaData.HasNextPage,
+                IsFirstPage = pagedListMetaData.IsFirstPage,
+                IsLastPage = pagedListMetaData.IsLastPage,
+                FirstItemOnPage = pagedListMetaData.FirstItemOnPage,
+                LastItemOnPage = pagedListMetaData.LastItemOnPage
             };
         }
     }

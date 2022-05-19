@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using BrokerageApi.V1.Infrastructure;
+using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -18,6 +19,7 @@ namespace V1.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasPostgresEnum(null, "audit_event_type", new[] { "referral_broker_assignment", "referral_broker_reassignment", "element_ended", "element_cancelled", "element_suspended", "care_package_ended", "care_package_cancelled", "care_package_suspended" })
                 .HasPostgresEnum(null, "element_cost_type", new[] { "hourly", "daily", "weekly", "transport", "one_off" })
                 .HasPostgresEnum(null, "element_status", new[] { "in_progress", "awaiting_approval", "approved", "inactive", "active", "ended", "suspended" })
                 .HasPostgresEnum(null, "provider_type", new[] { "framework", "spot" })
@@ -27,6 +29,49 @@ namespace V1.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
                 .HasAnnotation("ProductVersion", "5.0.10")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.AuditEvents.AuditEvent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<Instant>("CreatedAt")
+                        .HasColumnType("timestamp")
+                        .HasColumnName("created_at");
+
+                    b.Property<AuditEventType>("EventType")
+                        .HasColumnType("audit_event_type")
+                        .HasColumnName("event_type");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("message");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("text")
+                        .HasColumnName("metadata");
+
+                    b.Property<string>("SocialCareId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("social_care_id");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_audit_events");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_audit_events_user_id");
+
+                    b.ToTable("audit_events");
+                });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.CarePackage", b =>
                 {
@@ -155,6 +200,10 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("non_personal_budget");
 
+                    b.Property<int?>("ParentElementId")
+                        .HasColumnType("integer")
+                        .HasColumnName("parent_element_id");
+
                     b.Property<int>("ProviderId")
                         .HasColumnType("integer")
                         .HasColumnName("provider_id");
@@ -162,10 +211,6 @@ namespace V1.Infrastructure.Migrations
                     b.Property<decimal?>("Quantity")
                         .HasColumnType("numeric")
                         .HasColumnName("quantity");
-
-                    b.Property<int?>("RelatedElementId")
-                        .HasColumnType("integer")
-                        .HasColumnName("related_element_id");
 
                     b.Property<ElementCost?>("Saturday")
                         .HasColumnType("jsonb")
@@ -206,11 +251,11 @@ namespace V1.Infrastructure.Migrations
                     b.HasIndex("ElementTypeId")
                         .HasDatabaseName("ix_elements_element_type_id");
 
+                    b.HasIndex("ParentElementId")
+                        .HasDatabaseName("ix_elements_parent_element_id");
+
                     b.HasIndex("ProviderId")
                         .HasDatabaseName("ix_elements_provider_id");
-
-                    b.HasIndex("RelatedElementId")
-                        .HasDatabaseName("ix_elements_related_element_id");
 
                     b.ToTable("elements");
                 });
@@ -516,6 +561,18 @@ namespace V1.Infrastructure.Migrations
                     b.ToTable("users");
                 });
 
+            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.AuditEvents.AuditEvent", b =>
+                {
+                    b.HasOne("BrokerageApi.V1.Infrastructure.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .HasConstraintName("fk_audit_events_users_user_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Element", b =>
                 {
                     b.HasOne("BrokerageApi.V1.Infrastructure.ElementType", "ElementType")
@@ -525,6 +582,11 @@ namespace V1.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("BrokerageApi.V1.Infrastructure.Element", "ParentElement")
+                        .WithMany("ChildElements")
+                        .HasForeignKey("ParentElementId")
+                        .HasConstraintName("fk_elements_elements_parent_element_id");
+
                     b.HasOne("BrokerageApi.V1.Infrastructure.Provider", "Provider")
                         .WithMany("Elements")
                         .HasForeignKey("ProviderId")
@@ -532,16 +594,11 @@ namespace V1.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BrokerageApi.V1.Infrastructure.Element", "RelatedElement")
-                        .WithMany("RelatedElements")
-                        .HasForeignKey("RelatedElementId")
-                        .HasConstraintName("fk_elements_elements_related_element_id");
-
                     b.Navigation("ElementType");
 
-                    b.Navigation("Provider");
+                    b.Navigation("ParentElement");
 
-                    b.Navigation("RelatedElement");
+                    b.Navigation("Provider");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ElementType", b =>
@@ -624,9 +681,9 @@ namespace V1.Infrastructure.Migrations
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Element", b =>
                 {
-                    b.Navigation("ReferralElements");
+                    b.Navigation("ChildElements");
 
-                    b.Navigation("RelatedElements");
+                    b.Navigation("ReferralElements");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ElementType", b =>

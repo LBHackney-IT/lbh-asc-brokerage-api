@@ -3,7 +3,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using BrokerageApi.V1.Gateways.Interfaces;
-using BrokerageApi.V1.Gateways;
 
 namespace BrokerageApi.V1.Infrastructure
 {
@@ -36,6 +35,9 @@ namespace BrokerageApi.V1.Infrastructure
                     var claim = new Claim(identity.RoleClaimType, Enum.GetName(typeof(UserRole), role));
                     identity.AddClaim(claim);
                 }
+
+                var idClaim = new Claim(ClaimTypes.PrimarySid, user.Id.ToString());
+                identity.AddClaim(idClaim);
             }
 
             return principal;

@@ -29,7 +29,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
 using NodaTime;
 using NodaTime.Serialization.JsonNet;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -209,8 +208,10 @@ namespace BrokerageApi
             services.AddScoped<IElementTypeGateway, ElementTypeGateway>();
             services.AddScoped<IProviderGateway, ProviderGateway>();
             services.AddScoped<IReferralGateway, ReferralGateway>();
+            services.AddScoped<IElementGateway, ElementGateway>();
             services.AddScoped<IServiceGateway, ServiceGateway>();
             services.AddScoped<IUserGateway, UserGateway>();
+            services.AddScoped<IAuditGateway, AuditGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
@@ -220,7 +221,9 @@ namespace BrokerageApi
             services.AddTransient<IFindProvidersByServiceIdUseCase, FindProvidersByServiceIdUseCase>();
             services.AddTransient<IGetAssignedReferralsUseCase, GetAssignedReferralsUseCase>();
             services.AddTransient<IGetCurrentReferralsUseCase, GetCurrentReferralsUseCase>();
+            services.AddTransient<IGetCurrentElementsUseCase, GetCurrentElementsUseCase>();
             services.AddTransient<IGetReferralByIdUseCase, GetReferralByIdUseCase>();
+            services.AddTransient<IGetElementByIdUseCase, GetElementByIdUseCase>();
             services.AddTransient<IGetServiceByIdUseCase, GetServiceByIdUseCase>();
             services.AddTransient<IGetAllServicesUseCase, GetAllServicesUseCase>();
             services.AddTransient<IGetAllUsersUseCase, GetAllUsersUseCase>();
@@ -229,6 +232,9 @@ namespace BrokerageApi
             services.AddTransient<IStartCarePackageUseCase, StartCarePackageUseCase>();
             services.AddTransient<IGetCarePackageByIdUseCase, GetCarePackageByIdUseCase>();
             services.AddTransient<IDeleteElementUseCase, DeleteElementUseCase>();
+            services.AddTransient<IGetServiceUserAuditEventsUseCase, GetServiceUserAuditEventsUseCase>();
+            services.AddTransient<IEndElementUseCase, EndElementUseCase>();
+            services.AddTransient<IGetCarePackagesByServiceUserIdUseCase, GetCarePackagesByServiceUserIdUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,10 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BrokerageApi.V1.Gateways;
 using BrokerageApi.V1.Infrastructure;
-using FluentAssertions;
-using FluentAssertions.Extensions;
 using NUnit.Framework;
 
 namespace BrokerageApi.Tests.V1.Gateways
@@ -92,7 +89,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                         ProviderId = 1,
                         Details = "Some notes",
                         InternalStatus = ElementStatus.InProgress,
-                        RelatedElementId = null,
+                        ParentElementId = null,
                         StartDate = startDate,
                         EndDate = null,
                         Monday = new ElementCost(3, 75),
@@ -111,7 +108,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                         ProviderId = 1,
                         Details = "Some other notes",
                         InternalStatus = ElementStatus.InProgress,
-                        RelatedElementId = null,
+                        ParentElementId = null,
                         StartDate = startDate,
                         EndDate = null,
                         Wednesday = new ElementCost(1, -100),

@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 using AutoFixture;
 using BrokerageApi.Tests.V1.Controllers.Mocks;
 using BrokerageApi.Tests.V1.Helpers;
@@ -9,40 +14,62 @@ using BrokerageApi.V1.UseCase.Interfaces;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 
 namespace BrokerageApi.Tests.V1.Controllers
 {
-    [TestFixture]
     public class ServiceUserControllerTests : ControllerTests
     {
-        private Fixture _fixture;
-        private Mock<IGetCarePackagesByServiceUserIdUseCase> _mockGetCarePackagesByServiceUserIdUseCase;
-        private MockProblemDetailsFactory _mockProblemDetailsFactory;
-
-
+        private Mock<IGetServiceOverviewUseCase> _mockGetServiceOverviewUseCase;
         private ServiceUserController _classUnderTest;
+        private Fixture _fixture;
+        private MockProblemDetailsFactory _mockProblemDetailsFactory;
+        private Mock<IGetCarePackagesByServiceUserIdUseCase> _mockGetCarePackagesByServiceUserIdUseCase;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = FixtureHelpers.Fixture;
+            _mockGetServiceOverviewUseCase = new Mock<IGetServiceOverviewUseCase>();
             _mockGetCarePackagesByServiceUserIdUseCase = new Mock<IGetCarePackagesByServiceUserIdUseCase>();
             _mockProblemDetailsFactory = new MockProblemDetailsFactory();
 
-
             _classUnderTest = new ServiceUserController(
+                _mockGetServiceOverviewUseCase.Object,
                 _mockGetCarePackagesByServiceUserIdUseCase.Object
-            );
-
-            // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
+                );
             _classUnderTest.ProblemDetailsFactory = _mockProblemDetailsFactory.Object;
+        }
 
-            SetupAuthentication(_classUnderTest);
+        [Test]
+        public async Task CanGetServiceOverview()
+        {
+            const string socialCareId = "expectedId";
+            var elements = _fixture.BuildElement(1, 1)
+                .With(e => e.SocialCareId, socialCareId)
+                .CreateMany();
+            _mockGetServiceOverviewUseCase.Setup(x => x.ExecuteAsync(socialCareId))
+                .ReturnsAsync(elements);
+
+            var objectResult = await _classUnderTest.GetServiceOverview(socialCareId);
+            var statusCode = GetStatusCode(objectResult);
+            var result = GetResultData<List<ElementResponse>>(objectResult);
+
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            result.Should().BeEquivalentTo(elements.Select(e => e.ToResponse()));
+        }
+
+        [Test]
+        public async Task Returns404WhenOverviewNotFound()
+        {
+            const string socialCareId = "expectedId";
+            _mockGetServiceOverviewUseCase.Setup(x => x.ExecuteAsync(socialCareId))
+                .ThrowsAsync(new ArgumentException("test"));
+
+            var objectResult = await _classUnderTest.GetServiceOverview(socialCareId);
+            var statusCode = GetStatusCode(objectResult);
+
+            statusCode.Should().Be((int) HttpStatusCode.NotFound);
+            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound);
         }
         [Test]
         public async Task GetCarePackagesByServiceUserId()
@@ -81,9 +108,7 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _mockProblemDetailsFactory.VerifyStatusCode(HttpStatusCode.NotFound);
+            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound);
         }
-
-
     }
 }

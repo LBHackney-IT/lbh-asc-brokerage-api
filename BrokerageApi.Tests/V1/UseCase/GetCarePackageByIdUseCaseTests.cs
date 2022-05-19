@@ -2,7 +2,6 @@ using AutoFixture;
 using System;
 using System.Threading.Tasks;
 using BrokerageApi.Tests.V1.Helpers;
-using BrokerageApi.V1.Gateways;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.UseCase;
@@ -12,6 +11,7 @@ using NUnit.Framework;
 
 namespace BrokerageApi.Tests.V1.UseCase
 {
+
     public class GetCarePackageByIdUseCaseTests
     {
         private Mock<ICarePackageGateway> _mockCarePackageGateway;

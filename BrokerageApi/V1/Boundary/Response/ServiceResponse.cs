@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
-using BrokerageApi.V1.Infrastructure;
 
 namespace BrokerageApi.V1.Boundary.Response
 {
@@ -21,4 +18,5 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public bool ShouldSerializeElementTypes() => ElementTypes != null;
     }
+
 }

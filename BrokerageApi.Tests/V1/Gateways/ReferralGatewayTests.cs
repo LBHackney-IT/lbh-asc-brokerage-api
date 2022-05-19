@@ -1,14 +1,12 @@
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using BrokerageApi.V1.Gateways;
 using BrokerageApi.V1.Infrastructure;
 using FluentAssertions;
-using FluentAssertions.Extensions;
 using NUnit.Framework;
 
 namespace BrokerageApi.Tests.V1.Gateways
 {
+
     [TestFixture]
     public class ReferralGatewayTests : DatabaseTests
     {

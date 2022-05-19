@@ -1,16 +1,9 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using AutoFixture;
-using BrokerageApi.Tests.V1.Helpers;
-using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Infrastructure;
-using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
 namespace BrokerageApi.Tests.V1.E2ETests

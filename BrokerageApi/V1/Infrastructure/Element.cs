@@ -38,8 +38,9 @@ namespace BrokerageApi.V1.Infrastructure
 
         public ElementStatus InternalStatus { get; set; }
 
-        public int? RelatedElementId { get; set; }
-        public Element RelatedElement { get; set; }
+        public int? ParentElementId { get; set; }
+        public Element ParentElement { get; set; }
+        public List<Element> ChildElements { get; set; }
 
         public LocalDate StartDate { get; set; }
 
@@ -75,8 +76,6 @@ namespace BrokerageApi.V1.Infrastructure
         public List<Referral> Referrals { get; set; }
 
         public List<CarePackage> CarePackages { get; set; }
-
-        public List<Element> RelatedElements { get; set; }
 
         public ElementStatus Status
         {
