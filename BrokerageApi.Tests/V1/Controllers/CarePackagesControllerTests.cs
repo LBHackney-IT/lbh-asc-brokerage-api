@@ -99,7 +99,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Arrange
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.Assigned)
-                .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
+                .With(x => x.AssignedBroker, "a.broker@hackney.gov.uk")
                 .Create();
 
             _mockStartCarePackageUseCase
@@ -161,7 +161,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Arrange
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.Assigned)
-                .With(x => x.AssignedTo, "other.broker@hackney.gov.uk")
+                .With(x => x.AssignedBroker, "other.broker@hackney.gov.uk")
                 .Create();
 
             _mockStartCarePackageUseCase
@@ -183,7 +183,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Arrange
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.Assigned)
-                .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
+                .With(x => x.AssignedBroker, "a.broker@hackney.gov.uk")
                 .Create();
 
             var request = _fixture.Create<CreateElementRequest>();
@@ -228,7 +228,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Arrange
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.Assigned)
-                .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
+                .With(x => x.AssignedBroker, "a.broker@hackney.gov.uk")
                 .Create();
 
             var request = _fixture.Create<CreateElementRequest>();
@@ -252,7 +252,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Arrange
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.Assigned)
-                .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
+                .With(x => x.AssignedBroker, "a.broker@hackney.gov.uk")
                 .Create();
             var elementId = referral.Elements.First().Id;
 
@@ -287,7 +287,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Arrange
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.Assigned)
-                .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
+                .With(x => x.AssignedBroker, "a.broker@hackney.gov.uk")
                 .Create();
 
             _mockDeleteElementUseCase

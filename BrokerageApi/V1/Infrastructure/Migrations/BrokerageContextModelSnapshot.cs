@@ -394,9 +394,13 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnName("id")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<string>("AssignedTo")
+                    b.Property<string>("AssignedApprover")
                         .HasColumnType("text")
-                        .HasColumnName("assigned_to");
+                        .HasColumnName("assigned_approver");
+
+                    b.Property<string>("AssignedBroker")
+                        .HasColumnType("text")
+                        .HasColumnName("assigned_broker");
 
                     b.Property<Instant>("CreatedAt")
                         .HasColumnType("timestamp")

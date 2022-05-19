@@ -32,7 +32,7 @@ namespace BrokerageApi.V1.UseCase.Interfaces
                 throw new ArgumentNullException(nameof(referralId), $"Referral not found for: {referralId}");
             }
 
-            if (referral.AssignedTo != _userService.Name)
+            if (referral.AssignedBroker != _userService.Name)
             {
                 throw new UnauthorizedAccessException($"Referral is not assigned to {_userService.Name}");
             }

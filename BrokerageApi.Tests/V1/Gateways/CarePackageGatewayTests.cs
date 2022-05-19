@@ -74,7 +74,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
-                AssignedTo = "a.broker@hackney.gov.uk",
+                AssignedBroker = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant,
                 CreatedAt = PreviousInstant,

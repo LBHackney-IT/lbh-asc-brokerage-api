@@ -43,7 +43,7 @@ namespace BrokerageApi.V1.UseCase
                 throw new InvalidOperationException($"Referral is not in a valid state for reassignment");
             }
 
-            referral.AssignedTo = request.Broker;
+            referral.AssignedBroker = request.Broker;
             await _dbSaver.SaveChangesAsync();
 
             await _auditGateway.AddAuditEvent(AuditEventType.ReferralBrokerReassignment, referral.SocialCareId, _userService.UserId, new ReferralReassignmentAuditEventMetadata

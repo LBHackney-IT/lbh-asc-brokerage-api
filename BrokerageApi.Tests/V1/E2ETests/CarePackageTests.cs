@@ -74,7 +74,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
-                AssignedTo = "a.broker@hackney.gov.uk",
+                AssignedBroker = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant,
                 CreatedAt = PreviousInstant,
@@ -169,7 +169,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
                 Status = ReferralStatus.Assigned,
-                AssignedTo = "api.user@hackney.gov.uk",
+                AssignedBroker = "api.user@hackney.gov.uk",
                 StartedAt = null,
                 CreatedAt = PreviousInstant,
                 UpdatedAt = PreviousInstant
@@ -204,7 +204,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
                 Status = ReferralStatus.InProgress,
-                AssignedTo = "api.user@hackney.gov.uk",
+                AssignedBroker = "api.user@hackney.gov.uk",
                 StartedAt = PreviousInstant,
                 CreatedAt = PreviousInstant,
                 UpdatedAt = PreviousInstant
@@ -304,7 +304,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 Status = ReferralStatus.InProgress,
-                AssignedTo = "api.user@hackney.gov.uk",
+                AssignedBroker = "api.user@hackney.gov.uk",
                 StartedAt = PreviousInstant,
                 CreatedAt = PreviousInstant,
                 UpdatedAt = PreviousInstant

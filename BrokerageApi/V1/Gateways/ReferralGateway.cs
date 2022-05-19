@@ -50,13 +50,13 @@ namespace BrokerageApi.V1.Gateways
             if (status == null)
             {
                 return await _currentReferrals
-                    .Where(r => r.AssignedTo == email)
+                    .Where(r => r.AssignedBroker == email)
                     .ToListAsync();
             }
             else
             {
                 return await _currentReferrals
-                    .Where(r => r.AssignedTo == email)
+                    .Where(r => r.AssignedBroker == email)
                     .Where(r => r.Status == status)
                     .ToListAsync();
             }

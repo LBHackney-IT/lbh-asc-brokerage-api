@@ -46,7 +46,7 @@ namespace BrokerageApi.Tests.V1.UseCase
 
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.Assigned)
-                .With(x => x.AssignedTo, "other.broker@hackney.gov.uk")
+                .With(x => x.AssignedBroker, "other.broker@hackney.gov.uk")
                 .Create();
 
             _mockReferralGateway
@@ -62,7 +62,7 @@ namespace BrokerageApi.Tests.V1.UseCase
 
             // Assert
             result.Status.Should().Be(ReferralStatus.Assigned);
-            result.AssignedTo.Should().Be("a.broker@hackney.gov.uk");
+            result.AssignedBroker.Should().Be("a.broker@hackney.gov.uk");
             _mockDbSaver.VerifyChangesSaved();
         }
 
@@ -121,7 +121,7 @@ namespace BrokerageApi.Tests.V1.UseCase
 
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.Assigned)
-                .With(x => x.AssignedTo, "other.broker@hackney.gov.uk")
+                .With(x => x.AssignedBroker, "other.broker@hackney.gov.uk")
                 .Create();
 
             _mockReferralGateway

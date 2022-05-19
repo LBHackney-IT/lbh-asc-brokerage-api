@@ -51,7 +51,7 @@ namespace BrokerageApi.V1.UseCase
                 throw new InvalidOperationException($"Referral is not in a valid state for editing");
             }
 
-            if (referral.AssignedTo != _userService.Name)
+            if (referral.AssignedBroker != _userService.Name)
             {
                 throw new UnauthorizedAccessException($"Referral is not assigned to {_userService.Name}");
             }
