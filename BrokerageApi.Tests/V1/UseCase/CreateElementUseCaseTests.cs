@@ -64,10 +64,11 @@ namespace BrokerageApi.Tests.V1.UseCase
             var request = _fixture.Build<CreateElementRequest>()
                 .With(x => x.ElementTypeId, elementType.Id)
                 .With(x => x.ProviderId, provider.Id)
+                .Without(x => x.ParentElementId)
                 .Create();
 
             _mockReferralGateway
-                .Setup(m => m.GetByIdAsync(referral.Id))
+                .Setup(m => m.GetByIdWithElementsAsync(referral.Id))
                 .ReturnsAsync(referral);
 
             _mockElementTypeGateway
@@ -94,7 +95,7 @@ namespace BrokerageApi.Tests.V1.UseCase
             Assert.That(result.ElementType, Is.EqualTo(elementType));
             Assert.That(result.Provider, Is.EqualTo(provider));
 
-            _mockReferralGateway.Verify(m => m.GetByIdAsync(referral.Id));
+            _mockReferralGateway.Verify(m => m.GetByIdWithElementsAsync(referral.Id));
             _mockElementTypeGateway.Verify(m => m.GetByIdAsync(elementType.Id));
             _mockProviderGateway.Verify(m => m.GetByIdAsync(provider.Id));
             _mockClock.VerifyGet(x => x.Now, Times.Once());
@@ -136,7 +137,7 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .Create();
 
             _mockReferralGateway
-                .Setup(x => x.GetByIdAsync(referral.Id))
+                .Setup(x => x.GetByIdWithElementsAsync(referral.Id))
                 .ReturnsAsync(referral);
 
             _mockUserService
@@ -164,7 +165,7 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .Create();
 
             _mockReferralGateway
-                .Setup(x => x.GetByIdAsync(referral.Id))
+                .Setup(x => x.GetByIdWithElementsAsync(referral.Id))
                 .ReturnsAsync(referral);
 
             _mockUserService
@@ -194,7 +195,7 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .Create();
 
             _mockReferralGateway
-                .Setup(x => x.GetByIdAsync(referral.Id))
+                .Setup(x => x.GetByIdWithElementsAsync(referral.Id))
                 .ReturnsAsync(referral);
 
             _mockUserService
@@ -231,7 +232,7 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .Create();
 
             _mockReferralGateway
-                .Setup(x => x.GetByIdAsync(referral.Id))
+                .Setup(x => x.GetByIdWithElementsAsync(referral.Id))
                 .ReturnsAsync(referral);
 
             _mockUserService
@@ -253,6 +254,61 @@ namespace BrokerageApi.Tests.V1.UseCase
             // Assert
             Assert.That(exception.Message, Is.EqualTo("Provider not found for: 123456"));
             _mockDbSaver.VerifyChangesNotSaved();
+        }
+
+        [Test]
+        public async Task UnlinksParentElement()
+        {
+            // Arrange
+            var currentInstant = SystemClock.Instance.GetCurrentInstant();
+            var elementType = _fixture.Create<ElementType>();
+            var provider = _fixture.Create<Provider>();
+
+            var parentElement = _fixture.BuildElement(provider.Id, elementType.Id).Create();
+
+            var referral = _fixture.Build<Referral>()
+                .With(x => x.Status, ReferralStatus.InProgress)
+                .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
+                .With(x => x.Elements, new List<Element> { parentElement })
+                .Create();
+
+
+            var request = _fixture.Build<CreateElementRequest>()
+                .With(x => x.ElementTypeId, elementType.Id)
+                .With(x => x.ProviderId, provider.Id)
+                .With(x => x.ParentElementId, parentElement.Id)
+                .Create();
+
+            _mockReferralGateway
+                .Setup(m => m.GetByIdWithElementsAsync(referral.Id))
+                .ReturnsAsync(referral);
+
+            _mockElementTypeGateway
+                .Setup(m => m.GetByIdAsync(elementType.Id))
+                .ReturnsAsync(elementType);
+
+            _mockProviderGateway
+                .Setup(m => m.GetByIdAsync(provider.Id))
+                .ReturnsAsync(provider);
+
+            _mockUserService
+                .SetupGet(x => x.Name)
+                .Returns("a.broker@hackney.gov.uk");
+
+            _mockClock
+                .SetupGet(x => x.Now)
+                .Returns(currentInstant);
+
+            // Act
+            var result = await _classUnderTest.ExecuteAsync(referral.Id, request);
+
+            // Assert
+            Assert.That(result, Is.InstanceOf(typeof(Element)));
+            Assert.That(result.ElementType, Is.EqualTo(elementType));
+            Assert.That(result.Provider, Is.EqualTo(provider));
+
+            referral.Elements.Should().NotContain(e => e.Id == parentElement.Id);
+            _mockDbSaver.VerifyChangesSaved();
         }
     }
 }

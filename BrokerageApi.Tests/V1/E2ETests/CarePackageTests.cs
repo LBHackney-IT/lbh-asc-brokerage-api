@@ -1,19 +1,26 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using AutoFixture;
+using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Infrastructure;
 using FluentAssertions;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
 namespace BrokerageApi.Tests.V1.E2ETests
 {
     public class CarePackageTests : IntegrationTests<Startup>
     {
+        private Fixture _fixture;
         [SetUp]
         public void Setup()
         {
+            _fixture = FixtureHelpers.Fixture;
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -383,6 +390,82 @@ namespace BrokerageApi.Tests.V1.E2ETests
             // Assert
             code.Should().Be(HttpStatusCode.OK);
             Context.ReferralElements.Should().NotContain(re => re.ReferralId == referral.Id && re.ElementId == elementId);
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanReplaceElement()
+        {
+            // Arrange
+            var service = _fixture.BuildService()
+                .With(s => s.IsArchived, false)
+                .Create();
+
+            var provider = _fixture.BuildProvider()
+                .With(p => p.Type, ProviderType.Framework)
+                .Create();
+
+            var providerService = _fixture.BuildProviderService(provider.Id, service.Id)
+                .Create();
+
+            var elementType = _fixture.BuildElementType(service.Id)
+                .With(et => et.IsArchived, false)
+                .Create();
+
+            var parentElement = _fixture.BuildElement(provider.Id, elementType.Id)
+                .Create();
+
+            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
+                .With(r => r.StartedAt, PreviousInstant)
+                .With(r => r.CreatedAt, PreviousInstant)
+                .With(r => r.UpdatedAt, PreviousInstant)
+                .With(r => r.Elements, new List<Element> { parentElement })
+                .With(r => r.AssignedTo, "api.user@hackney.gov.uk")
+                .Create();
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.Services.AddAsync(service);
+            await Context.Providers.AddAsync(provider);
+            await Context.ProviderServices.AddAsync(providerService);
+            await Context.ElementTypes.AddAsync(elementType);
+            await Context.Elements.AddAsync(parentElement);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            var request = new CreateElementRequest()
+            {
+                ElementTypeId = elementType.Id,
+                NonPersonalBudget = true,
+                ProviderId = provider.Id,
+                Details = "Some notes",
+                StartDate = CurrentDate,
+                EndDate = null,
+                Monday = null,
+                Tuesday = new ElementCost(3, 150),
+                Wednesday = null,
+                Thursday = new ElementCost(3, 150),
+                Friday = null,
+                Saturday = null,
+                Sunday = null,
+                Quantity = 6,
+                Cost = 300,
+                ParentElementId = parentElement.Id
+            };
+
+            // Act
+            var (code, response) = await Post<ElementResponse>($"/api/v1/referrals/{referral.Id}/care-package/elements", request);
+            var (referralCode, referralResponse) = await Get<ReferralResponse>($"/api/v1/referrals/{referral.Id}");
+
+            // Assert
+            code.Should().Be(HttpStatusCode.OK);
+            var resultParentElement = await Context.Elements.SingleAsync(e => e.Id == parentElement.Id);
+            resultParentElement.Referrals.Should().NotContain(r => r.Id == referral.Id);
+
+            var resultReferral = await Context.Referrals.SingleAsync(r => r.Id == referral.Id);
+            resultReferral.Elements.Should().NotContain(e => e.Id == parentElement.Id);
+
+            var resultReferralElement = await Context.ReferralElements.SingleOrDefaultAsync(re => re.ElementId == parentElement.Id && re.ReferralId == referral.Id);
+            resultReferralElement.Should().BeNull();
         }
     }
 }
