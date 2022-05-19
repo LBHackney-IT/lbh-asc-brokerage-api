@@ -49,6 +49,11 @@ namespace BrokerageApi.V1.UseCase.Interfaces
                 throw new ArgumentNullException(nameof(elementId), $"Element not found for: {elementId}");
             }
 
+            if (element.ParentElement != null)
+            {
+                referral.Elements.Add(element.ParentElement);
+            }
+
             referral.Elements.Remove(element);
             referral.UpdatedAt = _clockService.Now;
 
