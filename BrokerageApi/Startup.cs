@@ -210,6 +210,7 @@ namespace BrokerageApi
             services.AddScoped<IReferralGateway, ReferralGateway>();
             services.AddScoped<IElementGateway, ElementGateway>();
             services.AddScoped<IServiceGateway, ServiceGateway>();
+            services.AddScoped<IServiceUserGateway, ServiceUserGateway>();
             services.AddScoped<IUserGateway, UserGateway>();
             services.AddScoped<IAuditGateway, AuditGateway>();
         }
@@ -231,6 +232,7 @@ namespace BrokerageApi
             services.AddTransient<IReassignBrokerToReferralUseCase, ReassignBrokerToReferralUseCase>();
             services.AddTransient<IStartCarePackageUseCase, StartCarePackageUseCase>();
             services.AddTransient<IGetCarePackageByIdUseCase, GetCarePackageByIdUseCase>();
+            services.AddTransient<IGetCarePackagesByServiceUserIdUseCase, GetCarePackagesByServiceUserIdUseCase>();
             services.AddTransient<IDeleteElementUseCase, DeleteElementUseCase>();
             services.AddTransient<IGetServiceUserAuditEventsUseCase, GetServiceUserAuditEventsUseCase>();
             services.AddTransient<IEndElementUseCase, EndElementUseCase>();

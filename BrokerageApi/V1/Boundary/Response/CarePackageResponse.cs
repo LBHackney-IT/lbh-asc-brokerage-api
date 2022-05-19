@@ -27,7 +27,9 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public Instant? UrgentSince { get; set; }
 
-        public string AssignedTo { get; set; }
+        public string AssignedBroker { get; set; }
+
+        public string AssignedApprover { get; set; }
 
         public ReferralStatus Status { get; set; }
 
