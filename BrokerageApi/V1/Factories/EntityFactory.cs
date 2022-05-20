@@ -44,5 +44,26 @@ namespace BrokerageApi.V1.Factories
                 Cost = request.Cost
             };
         }
+
+        public static Element ToDatabase(this EditElementRequest request, Element existingElement)
+        {
+            existingElement.ElementTypeId = request.ElementTypeId;
+            existingElement.NonPersonalBudget = request.NonPersonalBudget;
+            existingElement.ProviderId = request.ProviderId;
+            existingElement.Details = request.Details;
+            existingElement.StartDate = request.StartDate;
+            existingElement.EndDate = request.EndDate;
+            existingElement.Monday = request.Monday;
+            existingElement.Tuesday = request.Tuesday;
+            existingElement.Wednesday = request.Wednesday;
+            existingElement.Thursday = request.Thursday;
+            existingElement.Friday = request.Friday;
+            existingElement.Saturday = request.Saturday;
+            existingElement.Sunday = request.Sunday;
+            existingElement.Quantity = request.Quantity;
+            existingElement.Cost = request.Cost;
+
+            return existingElement;
+        }
     }
 }

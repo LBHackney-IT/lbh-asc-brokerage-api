@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Boundary.Request;
+using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Services.Interfaces;
@@ -60,7 +61,7 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .Create();
 
             _mockReferralGateway
-                .Setup(m => m.GetByIdAsync(referral.Id))
+                .Setup(m => m.GetByIdWithElementsAsync(referral.Id))
                 .ReturnsAsync(referral);
 
             _mockElementTypeGateway
@@ -83,14 +84,14 @@ namespace BrokerageApi.Tests.V1.UseCase
             var result = await _classUnderTest.ExecuteAsync(referral.Id, element.Id, request);
 
             // Assert
-            result.Should().BeOfType<Element>();
-            result.ElementType.Should().Be(elementType);
-            result.Provider.Should().Be(provider);
+            result.Should().BeEquivalentTo(request.ToDatabase(element));
+            result.UpdatedAt.Should().Be(currentInstant);
+            referral.UpdatedAt.Should().Be(currentInstant);
 
-            _mockReferralGateway.Verify(m => m.GetByIdAsync(referral.Id));
+            _mockReferralGateway.Verify(m => m.GetByIdWithElementsAsync(referral.Id));
             _mockElementTypeGateway.Verify(m => m.GetByIdAsync(elementType.Id));
             _mockProviderGateway.Verify(m => m.GetByIdAsync(provider.Id));
-            _mockClock.VerifyGet(x => x.Now, Times.Once());
+            _mockClock.VerifyGet(x => x.Now);
             _mockDbSaver.VerifyChangesSaved();
         }
 
@@ -101,8 +102,9 @@ namespace BrokerageApi.Tests.V1.UseCase
             var request = _fixture
                 .Create<EditElementRequest>();
 
+            var referralId = 123456;
             _mockReferralGateway
-                .Setup(x => x.GetByIdAsync(123456))
+                .Setup(x => x.GetByIdWithElementsAsync(referralId))
                 .ReturnsAsync(null as Referral);
 
             _mockUserService
@@ -110,11 +112,41 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .Returns("a.broker@hackney.gov.uk");
 
             // Act
-            Func<Task<Element>> act = () => _classUnderTest.ExecuteAsync(123456, 78910, request));
+            Func<Task<Element>> act = () => _classUnderTest.ExecuteAsync(referralId, 78910, request);
 
             // Assert
             await act.Should().ThrowAsync<ArgumentNullException>()
-                .WithMessage("Referral not found for: 123456 (Parameter 'referralId')");
+                .WithMessage($"Referral not found for: {referralId} (Parameter 'referralId')");
+            _mockDbSaver.VerifyChangesNotSaved();
+        }
+
+        [Test]
+        public async Task ThrowsArgumentNullExceptionWhenElementDoesntExist()
+        {
+            // Arrange
+            var currentInstant = SystemClock.Instance.GetCurrentInstant();
+            var (provider, elementType, element, referral) = CreateReferralWithElement();
+
+            var elementId = 123456;
+            var request = _fixture.Build<EditElementRequest>()
+                .With(x => x.ElementTypeId, elementType.Id)
+                .With(x => x.ProviderId, provider.Id)
+                .Create();
+
+            _mockReferralGateway
+                .Setup(m => m.GetByIdWithElementsAsync(referral.Id))
+                .ReturnsAsync(referral);
+
+            _mockUserService
+                .SetupGet(x => x.Name)
+                .Returns(referral.AssignedTo);
+
+            // Act
+            Func<Task<Element>> act = () => _classUnderTest.ExecuteAsync(referral.Id, elementId, request);
+
+            // Assert
+            await act.Should().ThrowAsync<ArgumentNullException>()
+                .WithMessage($"Element not found for: {elementId} (Parameter 'elementId')");
             _mockDbSaver.VerifyChangesNotSaved();
         }
 
@@ -125,10 +157,10 @@ namespace BrokerageApi.Tests.V1.UseCase
             var request = _fixture
                 .Create<EditElementRequest>();
 
-            var (provider, elementType, element, referral) = CreateReferralWithElement();
+            var (provider, elementType, element, referral) = CreateReferralWithElement(ReferralStatus.Approved);
 
             _mockReferralGateway
-                .Setup(x => x.GetByIdAsync(referral.Id))
+                .Setup(x => x.GetByIdWithElementsAsync(referral.Id))
                 .ReturnsAsync(referral);
 
             _mockUserService
@@ -145,108 +177,100 @@ namespace BrokerageApi.Tests.V1.UseCase
         }
 
         [Test]
-        public void ThrowsUnauthorizedAccessExceptionWhenReferralIsAssignedToSomeoneElse()
+        public async Task ThrowsUnauthorizedAccessExceptionWhenReferralIsAssignedToSomeoneElse()
         {
             // Arrange
+            var userEmail = "someone@else.com";
             var request = _fixture.Create<EditElementRequest>();
 
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.InProgress)
-                .With(x => x.AssignedTo, "other.broker@hackney.gov.uk")
-                .Create();
+            var (provider, elementType, element, referral) = CreateReferralWithElement();
 
             _mockReferralGateway
-                .Setup(x => x.GetByIdAsync(referral.Id))
+                .Setup(x => x.GetByIdWithElementsAsync(referral.Id))
                 .ReturnsAsync(referral);
 
             _mockUserService
                 .SetupGet(x => x.Name)
-                .Returns("a.broker@hackney.gov.uk");
+                .Returns(userEmail);
 
             // Act
-            var exception = Assert.ThrowsAsync<UnauthorizedAccessException>(
-                async () => await _classUnderTest.ExecuteAsync(referral.Id, request));
+            Func<Task<Element>> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, request);
 
             // Assert
-            Assert.That(exception.Message, Is.EqualTo("Referral is not assigned to a.broker@hackney.gov.uk"));
+            await act.Should().ThrowAsync<UnauthorizedAccessException>()
+                .WithMessage($"Referral is not assigned to {userEmail}");
             _mockDbSaver.VerifyChangesNotSaved();
         }
 
         [Test]
-        public void ThrowsArgumentExceptionWhenElementTypeDoesNotExist()
+        public async Task ThrowsArgumentExceptionWhenElementTypeDoesNotExist()
         {
             // Arrange
+            var elementTypeId = 123456;
             var request = _fixture.Build<EditElementRequest>()
-                .With(x => x.ElementTypeId, 123456)
+                .With(x => x.ElementTypeId, elementTypeId)
                 .Create();
 
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.InProgress)
-                .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
-                .Create();
+            var (provider, elementType, element, referral) = CreateReferralWithElement();
 
             _mockReferralGateway
-                .Setup(x => x.GetByIdAsync(referral.Id))
+                .Setup(x => x.GetByIdWithElementsAsync(referral.Id))
                 .ReturnsAsync(referral);
 
             _mockUserService
                 .SetupGet(x => x.Name)
-                .Returns("a.broker@hackney.gov.uk");
+                .Returns(referral.AssignedTo);
 
             _mockElementTypeGateway
-                .Setup(x => x.GetByIdAsync(123456))
+                .Setup(x => x.GetByIdAsync(elementTypeId))
                 .ReturnsAsync(null as ElementType);
 
             // Act
-            var exception = Assert.ThrowsAsync<ArgumentException>(
-                async () => await _classUnderTest.ExecuteAsync(referral.Id, request));
+            Func<Task<Element>> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, request);
 
             // Assert
-            Assert.That(exception.Message, Is.EqualTo("Element type not found for: 123456"));
+            await act.Should().ThrowAsync<ArgumentException>()
+                .WithMessage($"Element type not found for: {elementTypeId}");
             _mockDbSaver.VerifyChangesNotSaved();
         }
 
         [Test]
-        public void ThrowsArgumentExceptionWhenProviderDoesNotExist()
+        public async Task ThrowsArgumentExceptionWhenProviderDoesNotExist()
         {
             // Arrange
-            var elementType = _fixture.Create<ElementType>();
+            var (provider, elementType, element, referral) = CreateReferralWithElement();
 
+            var providerId = 123456;
             var request = _fixture.Build<EditElementRequest>()
                 .With(x => x.ElementTypeId, elementType.Id)
-                .With(x => x.ProviderId, 123456)
-                .Create();
-
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.InProgress)
-                .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
+                .With(x => x.ProviderId, providerId)
                 .Create();
 
             _mockReferralGateway
-                .Setup(x => x.GetByIdAsync(referral.Id))
+                .Setup(x => x.GetByIdWithElementsAsync(referral.Id))
                 .ReturnsAsync(referral);
 
             _mockUserService
                 .SetupGet(x => x.Name)
-                .Returns("a.broker@hackney.gov.uk");
+                .Returns(referral.AssignedTo);
 
             _mockElementTypeGateway
                 .Setup(x => x.GetByIdAsync(elementType.Id))
                 .ReturnsAsync(elementType);
 
             _mockProviderGateway
-                .Setup(x => x.GetByIdAsync(123456))
+                .Setup(x => x.GetByIdAsync(providerId))
                 .ReturnsAsync(null as Provider);
 
             // Act
-            var exception = Assert.ThrowsAsync<ArgumentException>(
-                async () => await _classUnderTest.ExecuteAsync(referral.Id, request));
+            Func<Task<Element>> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, request);
 
             // Assert
-            Assert.That(exception.Message, Is.EqualTo("Provider not found for: 123456"));
+            await act.Should().ThrowAsync<ArgumentException>()
+                .WithMessage($"Provider not found for: {providerId}");
             _mockDbSaver.VerifyChangesNotSaved();
         }
-        private (Provider provider, ElementType elementType, Element element, Referral referral) CreateReferralWithElement()
+        private (Provider provider, ElementType elementType, Element element, Referral referral) CreateReferralWithElement(ReferralStatus referralStatus = ReferralStatus.InProgress)
         {
 
             var elementType = _fixture
@@ -259,7 +283,7 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .Create();
 
             var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.InProgress)
+                .With(x => x.Status, referralStatus)
                 .With(x => x.Elements, new List<Element> { element })
                 .Create();
 
