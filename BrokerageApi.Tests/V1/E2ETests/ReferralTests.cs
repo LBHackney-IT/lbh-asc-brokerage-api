@@ -61,7 +61,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response.PrimarySupportReason, Is.EqualTo("Physical Support"));
             Assert.That(response.DirectPayments, Is.EqualTo("No"));
             Assert.That(response.UrgentSince, Is.Null);
-            Assert.That(response.AssignedTo, Is.Null);
+            Assert.That(response.AssignedBroker, Is.Null);
             Assert.That(response.Status, Is.EqualTo(ReferralStatus.Unassigned));
             Assert.That(response.Note, Is.EqualTo("Some notes"));
             Assert.That(response.CreatedAt, Is.EqualTo(CurrentInstant));
@@ -98,7 +98,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response.PrimarySupportReason, Is.EqualTo("Physical Support"));
             Assert.That(response.DirectPayments, Is.EqualTo("No"));
             Assert.That(response.UrgentSince, Is.EqualTo(urgentSince));
-            Assert.That(response.AssignedTo, Is.Null);
+            Assert.That(response.AssignedBroker, Is.Null);
             Assert.That(response.Status, Is.EqualTo(ReferralStatus.Unassigned));
             Assert.That(response.Note, Is.EqualTo("Some notes"));
             Assert.That(response.CreatedAt, Is.EqualTo(CurrentInstant));
@@ -551,7 +551,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             // Assert
             Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(response.Status, Is.EqualTo(ReferralStatus.Assigned));
-            Assert.That(response.AssignedTo, Is.EqualTo("a.broker@hackney.gov.uk"));
+            Assert.That(response.AssignedBroker, Is.EqualTo("a.broker@hackney.gov.uk"));
         }
 
         [Test, Property("AsUser", "BrokerageAssistant")]
@@ -598,7 +598,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             // Assert
             Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(response.Status, Is.EqualTo(ReferralStatus.InProgress));
-            Assert.That(response.AssignedTo, Is.EqualTo("a.broker@hackney.gov.uk"));
+            Assert.That(response.AssignedBroker, Is.EqualTo("a.broker@hackney.gov.uk"));
         }
 
         [Test, Property("AsUser", "BrokerageAssistant")]

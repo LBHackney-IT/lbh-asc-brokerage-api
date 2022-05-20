@@ -14,8 +14,8 @@ using NpgsqlTypes;
 namespace V1.Infrastructure.Migrations
 {
     [DbContext(typeof(BrokerageContext))]
-    [Migration("20220519122138_AddAssignedApproverRenameAssignedToToAssignedBroker")]
-    partial class AddAssignedApproverRenameAssignedToToAssignedBroker
+    [Migration("20220520094101_AddAssignedApproverRenameAssignedBroker")]
+    partial class AddAssignedApproverRenameAssignedBroker
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
