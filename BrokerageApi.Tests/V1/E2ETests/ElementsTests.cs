@@ -168,5 +168,47 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var auditEvent = await Context.AuditEvents.SingleOrDefaultAsync(ae => ae.EventType == AuditEventType.ElementEnded);
             auditEvent.Should().NotBeNull();
         }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanCancelElement()
+        {
+            var provider = _fixture.BuildProvider().Create();
+            var service = _fixture.BuildService().Create();
+            var providerService = _fixture.BuildProviderService(provider.Id, service.Id).Create();
+            var elementType = _fixture.BuildElementType(service.Id).Create();
+            var referral = _fixture.BuildReferral(ReferralStatus.InProgress).Create();
+            var element = _fixture.BuildElement(provider.Id, elementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .Without(e => e.EndDate)
+                .Create();
+            var referralElement = _fixture.BuildReferralElement(referral.Id, element.Id).Create();
+
+            await Context.Services.AddAsync(service);
+            await Context.ElementTypes.AddAsync(elementType);
+            await Context.Providers.AddAsync(provider);
+            await Context.ProviderServices.AddAsync(providerService);
+            await Context.Referrals.AddAsync(referral);
+            await Context.Elements.AddRangeAsync(element);
+            await Context.ReferralElements.AddAsync(referralElement);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            var request = new EndElementRequest
+            {
+                EndDate = CurrentDate
+            };
+
+            var code = await Post($"/api/v1/referrals/{referral.Id}/care-package/elements/{element.Id}/cancel", request);
+
+            code.Should().Be(HttpStatusCode.OK);
+
+            var resultElement = await Context.Elements.SingleAsync(e => e.Id == element.Id);
+            resultElement.InternalStatus.Should().Be(ElementStatus.Cancelled);
+            resultElement.UpdatedAt.Should().Be(CurrentInstant);
+
+            var auditEvent = await Context.AuditEvents.SingleOrDefaultAsync(ae => ae.EventType == AuditEventType.ElementCancelled);
+            auditEvent.Should().NotBeNull();
+        }
     }
 }

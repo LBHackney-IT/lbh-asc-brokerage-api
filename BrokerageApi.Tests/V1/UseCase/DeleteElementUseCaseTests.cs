@@ -141,6 +141,31 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .WithMessage($"Referral is not assigned to {userName}");
         }
 
+        [Test]
+        public async Task DeletesElementReLinksParent()
+        {
+            const string userName = "a.broker@hackney.gov.uk";
+
+            ReturnsUser(userName);
+
+            var parentElement = _fixture.BuildElement(1, 1)
+                .Create();
+            var childElement = _fixture.BuildElement(1, 1)
+                .With(e => e.ParentElementId, parentElement.Id)
+                .With(e => e.ParentElement, parentElement)
+                .Create();
+            var elements = new List<Element> { childElement };
+            var referral = CreateReferral(ReferralStatus.InProgress, elements, userName);
+            ReturnsReferral(referral);
+
+            await _classUnderTest.ExecuteAsync(referral.Id, childElement.Id);
+
+            referral.Elements.Should().NotContain(e => e.Id == childElement.Id);
+            referral.Elements.Should().Contain(parentElement);
+            referral.UpdatedAt.Should().Be(_currentInstant);
+            _mockDbSaver.VerifyChangesSaved();
+        }
+
         private void ReturnsUser(string userName)
         {
 

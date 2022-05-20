@@ -19,6 +19,8 @@ namespace BrokerageApi.V1.Gateways
         {
             return await _context.CarePackages
                 .Include(cp => cp.Elements.OrderBy(e => e.CreatedAt))
+                .ThenInclude(e => e.ParentElement)
+                .Include(cp => cp.Elements.OrderBy(e => e.CreatedAt))
                 .ThenInclude(e => e.Provider)
                 .Include(cp => cp.Elements.OrderBy(e => e.CreatedAt))
                 .ThenInclude(e => e.ElementType)
