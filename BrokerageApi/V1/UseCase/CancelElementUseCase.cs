@@ -35,7 +35,7 @@ namespace BrokerageApi.V1.UseCase
             _clockService = clockService;
         }
 
-        public async Task ExecuteAsync(int referralId, int elementId, LocalDate endDate)
+        public async Task ExecuteAsync(int referralId, int elementId)
         {
             var referral = await _referralGateway.GetByIdAsync(referralId);
 

@@ -56,12 +56,11 @@ namespace BrokerageApi.Tests.V1.UseCase
         [Test]
         public async Task CanCancelElement()
         {
-            var endDate = LocalDate.FromDateTime(DateTime.Today);
             var (referral, element) = CreateReferralAndElement();
             _mockElementGateway.Setup(x => x.GetByIdAsync(element.Id))
                 .ReturnsAsync(element);
 
-            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate);
+            await _classUnderTest.ExecuteAsync(referral.Id, element.Id);
 
             element.InternalStatus.Should().Be(ElementStatus.Cancelled);
             element.UpdatedAt.Should().Be(_clock.Now);
@@ -71,7 +70,6 @@ namespace BrokerageApi.Tests.V1.UseCase
         [Test]
         public async Task ThrowsArgumentNullExceptionWhenReferralNotFound()
         {
-            var endDate = LocalDate.FromDateTime(DateTime.Today);
             var unknownReferralId = 1234;
             var unknownElementId = 1234;
             _mockReferralGateway.Setup(x => x.GetByIdAsync(unknownReferralId))
@@ -79,7 +77,7 @@ namespace BrokerageApi.Tests.V1.UseCase
             _mockElementGateway.Setup(x => x.GetByIdAsync(unknownElementId))
                 .ReturnsAsync((Element) null);
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(unknownReferralId, unknownElementId, endDate);
+            Func<Task> act = () => _classUnderTest.ExecuteAsync(unknownReferralId, unknownElementId);
 
             await act.Should().ThrowAsync<ArgumentNullException>()
                 .WithMessage($"Referral not found {unknownReferralId} (Parameter 'referralId')");
@@ -89,13 +87,12 @@ namespace BrokerageApi.Tests.V1.UseCase
         [Test]
         public async Task ThrowsArgumentNullExceptionWhenElementNotFound()
         {
-            var endDate = LocalDate.FromDateTime(DateTime.Today);
             var (referral, _) = CreateReferralAndElement();
             var unknownElementId = 1234;
             _mockElementGateway.Setup(x => x.GetByIdAsync(unknownElementId))
                 .ReturnsAsync((Element) null);
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, unknownElementId, endDate);
+            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, unknownElementId);
 
             await act.Should().ThrowAsync<ArgumentNullException>()
                 .WithMessage($"Element not found {unknownElementId} (Parameter 'elementId')");
@@ -105,10 +102,9 @@ namespace BrokerageApi.Tests.V1.UseCase
         [Test]
         public async Task ThrowsInvalidOperationWhenElementNotApproved([Values] ElementStatus status)
         {
-            var endDate = LocalDate.FromDateTime(DateTime.Today);
             var (referral, element) = CreateReferralAndElement(status);
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate);
+            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id);
 
             if (status != ElementStatus.Approved)
             {
@@ -121,7 +117,6 @@ namespace BrokerageApi.Tests.V1.UseCase
         [Test]
         public async Task AddsAuditTrail()
         {
-            var endDate = LocalDate.FromDateTime(DateTime.Today);
             var (referral, element) = CreateReferralAndElement();
             const int expectedUserId = 1234;
             _mockElementGateway.Setup(x => x.GetByIdAsync(element.Id))
@@ -130,7 +125,7 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .Setup(x => x.UserId)
                 .Returns(expectedUserId);
 
-            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate);
+            await _classUnderTest.ExecuteAsync(referral.Id, element.Id);
 
             _mockAuditGateway.VerifyAuditEventAdded(AuditEventType.ElementCancelled);
             _mockAuditGateway.LastUserId.Should().Be(expectedUserId);

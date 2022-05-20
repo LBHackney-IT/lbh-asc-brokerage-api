@@ -15,6 +15,7 @@ using NUnit.Framework;
 
 namespace BrokerageApi.Tests.V1.UseCase
 {
+
     public class CreateElementUseCaseTests
     {
         private CreateElementUseCase _classUnderTest;

@@ -11,6 +11,7 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -29,6 +30,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Mock<IDeleteElementUseCase> _mockDeleteElementUseCase;
         private Mock<IEndElementUseCase> _mockEndElementUseCase;
         private Mock<ICancelElementUseCase> _mockCancelElementUseCase;
+        private Mock<IEditElementUseCase> _mockEditElementUseCase;
 
         private CarePackagesController _classUnderTest;
 
@@ -43,6 +45,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockDeleteElementUseCase = new Mock<IDeleteElementUseCase>();
             _mockEndElementUseCase = new Mock<IEndElementUseCase>();
             _mockCancelElementUseCase = new Mock<ICancelElementUseCase>();
+            _mockEditElementUseCase = new Mock<IEditElementUseCase>();
 
             _classUnderTest = new CarePackagesController(
                 _mockGetCarePackageByIdUseCase.Object,
@@ -50,7 +53,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 _mockCreateElementUseCase.Object,
                 _mockDeleteElementUseCase.Object,
                 _mockEndElementUseCase.Object,
-                _mockCancelElementUseCase.Object
+                _mockCancelElementUseCase.Object,
+                _mockEditElementUseCase.Object
             );
 
             // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
@@ -205,7 +209,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             result.Should().BeEquivalentTo(request.ToDatabase().ToResponse());
         }
 
-        private static readonly object[] _createElementErrors =
+        private static readonly object[] _createOrEditElementErrors =
         {
             new object[]
             {
@@ -225,7 +229,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             }
         };
 
-        [TestCaseSource(nameof(_createElementErrors)), Property("AsUser", "Broker")]
+        [TestCaseSource(nameof(_createOrEditElementErrors)), Property("AsUser", "Broker")]
         public async Task CreateElementMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
         {
             // Arrange
@@ -356,12 +360,11 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             const int referralId = 1234;
             const int elementId = 1234;
-            var request = _fixture.Create<EndElementRequest>();
 
-            var response = await _classUnderTest.CancelElement(referralId, elementId, request);
+            var response = await _classUnderTest.CancelElement(referralId, elementId);
             var statusCode = GetStatusCode(response);
 
-            _mockCancelElementUseCase.Verify(x => x.ExecuteAsync(referralId, elementId, request.EndDate));
+            _mockCancelElementUseCase.Verify(x => x.ExecuteAsync(referralId, elementId));
             statusCode.Should().Be((int) HttpStatusCode.OK);
         }
 
@@ -377,18 +380,75 @@ namespace BrokerageApi.Tests.V1.Controllers
             }
         };
 
+
         [TestCaseSource(nameof(_cancelElementErrors)), Property("AsUser", "Broker")]
         public async Task CancelElementMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
         {
             const int referralId = 1234;
             const int elementId = 1234;
-            var request = _fixture.Create<EndElementRequest>();
-            _mockCancelElementUseCase.Setup(x => x.ExecuteAsync(referralId, elementId, request.EndDate))
+            _mockCancelElementUseCase.Setup(x => x.ExecuteAsync(referralId, elementId))
                 .ThrowsAsync(exception);
 
-            var response = await _classUnderTest.CancelElement(referralId, elementId, request);
+            var response = await _classUnderTest.CancelElement(referralId, elementId);
             var statusCode = GetStatusCode(response);
 
+            statusCode.Should().Be((int) expectedStatusCode);
+            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task EditsElement()
+        {
+            // Arrange
+            var element = _fixture.BuildElement(1, 1)
+                .Create();
+
+            var referral = _fixture.Build<Referral>()
+                .With(x => x.Status, ReferralStatus.Assigned)
+                .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
+                .With(x => x.Elements, new List<Element> { element })
+                .Create();
+
+            var request = _fixture.Create<EditElementRequest>();
+
+            _mockEditElementUseCase
+                .Setup(x => x.ExecuteAsync(referral.Id, element.Id, request))
+                .ReturnsAsync(request.ToDatabase(element));
+
+            // Act
+            var objectResult = await _classUnderTest.EditElement(referral.Id, element.Id, request);
+            var statusCode = GetStatusCode(objectResult);
+            var result = GetResultData<ElementResponse>(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            result.Should().BeEquivalentTo(request.ToDatabase(element).ToResponse());
+        }
+
+        [TestCaseSource(nameof(_createOrEditElementErrors)), Property("AsUser", "Broker")]
+        public async Task EditElementMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            // Arrange
+            var element = _fixture.BuildElement(1, 1)
+                .Create();
+
+            var referral = _fixture.Build<Referral>()
+                .With(x => x.Status, ReferralStatus.Assigned)
+                .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
+                .With(x => x.Elements, new List<Element> { element })
+                .Create();
+
+            var request = _fixture.Create<EditElementRequest>();
+
+            _mockEditElementUseCase
+                .Setup(x => x.ExecuteAsync(referral.Id, element.Id, request))
+                .Throws(exception);
+
+            // Act
+            var objectResult = await _classUnderTest.EditElement(referral.Id, element.Id, request);
+            var statusCode = GetStatusCode(objectResult);
+
+            // Assert
             statusCode.Should().Be((int) expectedStatusCode);
             _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
         }
