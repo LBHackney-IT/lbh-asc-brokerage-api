@@ -28,6 +28,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         private MockProblemDetailsFactory _mockProblemDetailsFactory;
         private Mock<IDeleteElementUseCase> _mockDeleteElementUseCase;
         private Mock<IEndElementUseCase> _mockEndElementUseCase;
+        private Mock<ICancelElementUseCase> _mockCancelElementUseCase;
 
         private CarePackagesController _classUnderTest;
 
@@ -41,13 +42,15 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockProblemDetailsFactory = new MockProblemDetailsFactory();
             _mockDeleteElementUseCase = new Mock<IDeleteElementUseCase>();
             _mockEndElementUseCase = new Mock<IEndElementUseCase>();
+            _mockCancelElementUseCase = new Mock<ICancelElementUseCase>();
 
             _classUnderTest = new CarePackagesController(
                 _mockGetCarePackageByIdUseCase.Object,
                 _mockStartCarePackageUseCase.Object,
                 _mockCreateElementUseCase.Object,
                 _mockDeleteElementUseCase.Object,
-                _mockEndElementUseCase.Object
+                _mockEndElementUseCase.Object,
+                _mockCancelElementUseCase.Object
             );
 
             // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
@@ -332,7 +335,6 @@ namespace BrokerageApi.Tests.V1.Controllers
             }
         };
 
-
         [TestCaseSource(nameof(_endElementErrors)), Property("AsUser", "Broker")]
         public async Task EndElementMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
         {
@@ -343,6 +345,48 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ThrowsAsync(exception);
 
             var response = await _classUnderTest.EndElement(referralId, elementId, request);
+            var statusCode = GetStatusCode(response);
+
+            statusCode.Should().Be((int) expectedStatusCode);
+            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+        }
+
+        [Test]
+        public async Task CanCancelElement()
+        {
+            const int referralId = 1234;
+            const int elementId = 1234;
+            var request = _fixture.Create<EndElementRequest>();
+
+            var response = await _classUnderTest.CancelElement(referralId, elementId, request);
+            var statusCode = GetStatusCode(response);
+
+            _mockCancelElementUseCase.Verify(x => x.ExecuteAsync(referralId, elementId, request.EndDate));
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+        }
+
+        private static readonly object[] _cancelElementErrors =
+        {
+            new object[]
+            {
+                new ArgumentNullException(null, "message"), HttpStatusCode.NotFound
+            },
+            new object[]
+            {
+                new InvalidOperationException("message"), HttpStatusCode.UnprocessableEntity
+            }
+        };
+
+        [TestCaseSource(nameof(_cancelElementErrors)), Property("AsUser", "Broker")]
+        public async Task CancelElementMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            const int referralId = 1234;
+            const int elementId = 1234;
+            var request = _fixture.Create<EndElementRequest>();
+            _mockCancelElementUseCase.Setup(x => x.ExecuteAsync(referralId, elementId, request.EndDate))
+                .ThrowsAsync(exception);
+
+            var response = await _classUnderTest.CancelElement(referralId, elementId, request);
             var statusCode = GetStatusCode(response);
 
             statusCode.Should().Be((int) expectedStatusCode);
