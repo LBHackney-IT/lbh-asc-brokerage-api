@@ -22,6 +22,7 @@ namespace BrokerageApi.V1.Gateways
                 .Where(s => s.IsArchived == false)
                 .OrderByDescending(s => s.ParentId)
                 .ThenBy(s => s.Position)
+                .Include(s => s.ElementTypes)
                 .ToListAsync();
         }
 
