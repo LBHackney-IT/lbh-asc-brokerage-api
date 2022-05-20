@@ -39,7 +39,7 @@ namespace BrokerageApi.V1.UseCase
 
         public async Task<Element> ExecuteAsync(int referralId, CreateElementRequest request)
         {
-            var referral = await _referralGateway.GetByIdAsync(referralId);
+            var referral = await _referralGateway.GetByIdWithElementsAsync(referralId);
 
             if (referral is null)
             {
@@ -77,6 +77,12 @@ namespace BrokerageApi.V1.UseCase
 
             referral.Elements ??= new List<Element>();
             referral.Elements.Add(element);
+
+            if (request.ParentElementId != null)
+            {
+                referral.Elements.Remove(referral.Elements.Single(e => e.Id == request.ParentElementId));
+            }
+
             referral.UpdatedAt = _clock.Now;
 
             await _dbSaver.SaveChangesAsync();

@@ -30,15 +30,4 @@ namespace BrokerageApi.V1.Infrastructure.AuditEvents
         public User User { get; set; }
     }
 
-    public enum AuditEventType
-    {
-        ReferralBrokerAssignment,
-        ReferralBrokerReassignment,
-        ElementEnded,
-        ElementCancelled,
-        ElementSuspended,
-        CarePackageEnded,
-        CarePackageCancelled,
-        CarePackageSuspended
-    }
 }
