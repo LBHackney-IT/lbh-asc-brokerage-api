@@ -1,8 +1,7 @@
-using AutoFixture;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using NodaTime;
+using AutoFixture;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Gateways.Interfaces;
@@ -11,14 +10,14 @@ using BrokerageApi.V1.Services.Interfaces;
 using BrokerageApi.V1.UseCase;
 using FluentAssertions;
 using Moq;
+using NodaTime;
 using NUnit.Framework;
 
 namespace BrokerageApi.Tests.V1.UseCase
 {
-
-    public class CreateElementUseCaseTests
+    public class EditElementUseCaseTests
     {
-        private CreateElementUseCase _classUnderTest;
+        private EditElementUseCase _classUnderTest;
         private Fixture _fixture;
         private Mock<IReferralGateway> _mockReferralGateway;
         private Mock<IElementTypeGateway> _mockElementTypeGateway;
@@ -38,7 +37,7 @@ namespace BrokerageApi.Tests.V1.UseCase
             _mockClock = new Mock<IClockService>();
             _mockDbSaver = new MockDbSaver();
 
-            _classUnderTest = new CreateElementUseCase(
+            _classUnderTest = new EditElementUseCase(
                 _mockReferralGateway.Object,
                 _mockElementTypeGateway.Object,
                 _mockProviderGateway.Object,
@@ -53,16 +52,9 @@ namespace BrokerageApi.Tests.V1.UseCase
         {
             // Arrange
             var currentInstant = SystemClock.Instance.GetCurrentInstant();
-            var elementType = _fixture.Create<ElementType>();
-            var provider = _fixture.Create<Provider>();
+            var (provider, elementType, element, referral) = CreateReferralWithElement();
 
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.InProgress)
-                .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
-                .Without(x => x.Elements)
-                .Create();
-
-            var request = _fixture.Build<CreateElementRequest>()
+            var request = _fixture.Build<EditElementRequest>()
                 .With(x => x.ElementTypeId, elementType.Id)
                 .With(x => x.ProviderId, provider.Id)
                 .Create();
@@ -81,19 +73,19 @@ namespace BrokerageApi.Tests.V1.UseCase
 
             _mockUserService
                 .SetupGet(x => x.Name)
-                .Returns("a.broker@hackney.gov.uk");
+                .Returns(referral.AssignedTo);
 
             _mockClock
                 .SetupGet(x => x.Now)
                 .Returns(currentInstant);
 
             // Act
-            var result = await _classUnderTest.ExecuteAsync(referral.Id, request);
+            var result = await _classUnderTest.ExecuteAsync(referral.Id, element.Id, request);
 
             // Assert
-            Assert.That(result, Is.InstanceOf(typeof(Element)));
-            Assert.That(result.ElementType, Is.EqualTo(elementType));
-            Assert.That(result.Provider, Is.EqualTo(provider));
+            result.Should().BeOfType<Element>();
+            result.ElementType.Should().Be(elementType);
+            result.Provider.Should().Be(provider);
 
             _mockReferralGateway.Verify(m => m.GetByIdAsync(referral.Id));
             _mockElementTypeGateway.Verify(m => m.GetByIdAsync(elementType.Id));
@@ -103,10 +95,11 @@ namespace BrokerageApi.Tests.V1.UseCase
         }
 
         [Test]
-        public void ThrowsArgumentNullExceptionWhenReferralDoesntExist()
+        public async Task ThrowsArgumentNullExceptionWhenReferralDoesntExist()
         {
             // Arrange
-            var request = _fixture.Create<CreateElementRequest>();
+            var request = _fixture
+                .Create<EditElementRequest>();
 
             _mockReferralGateway
                 .Setup(x => x.GetByIdAsync(123456))
@@ -117,24 +110,22 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .Returns("a.broker@hackney.gov.uk");
 
             // Act
-            var exception = Assert.ThrowsAsync<ArgumentNullException>(
-                async () => await _classUnderTest.ExecuteAsync(123456, request));
+            Func<Task<Element>> act = () => _classUnderTest.ExecuteAsync(123456, 78910, request));
 
             // Assert
-            Assert.That(exception.Message, Is.EqualTo("Referral not found for: 123456 (Parameter 'referralId')"));
+            await act.Should().ThrowAsync<ArgumentNullException>()
+                .WithMessage("Referral not found for: 123456 (Parameter 'referralId')");
             _mockDbSaver.VerifyChangesNotSaved();
         }
 
         [Test]
-        public void ThrowsInvalidOperationExceptionWhenReferralIsNotInProgress()
+        public async Task ThrowsInvalidOperationExceptionWhenReferralIsNotInProgress()
         {
             // Arrange
-            var request = _fixture.Create<CreateElementRequest>();
+            var request = _fixture
+                .Create<EditElementRequest>();
 
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Assigned)
-                .With(x => x.AssignedTo, "a.broker@hackney.go.uk")
-                .Create();
+            var (provider, elementType, element, referral) = CreateReferralWithElement();
 
             _mockReferralGateway
                 .Setup(x => x.GetByIdAsync(referral.Id))
@@ -142,14 +133,14 @@ namespace BrokerageApi.Tests.V1.UseCase
 
             _mockUserService
                 .SetupGet(x => x.Name)
-                .Returns("a.broker@hackney.gov.uk");
+                .Returns(referral.AssignedTo);
 
             // Act
-            var exception = Assert.ThrowsAsync<InvalidOperationException>(
-                async () => await _classUnderTest.ExecuteAsync(referral.Id, request));
+            Func<Task<Element>> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, request);
 
             // Assert
-            Assert.That(exception.Message, Is.EqualTo("Referral is not in a valid state for editing"));
+            await act.Should().ThrowAsync<InvalidOperationException>()
+                .WithMessage("Referral is not in a valid state for editing");
             _mockDbSaver.VerifyChangesNotSaved();
         }
 
@@ -157,7 +148,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         public void ThrowsUnauthorizedAccessExceptionWhenReferralIsAssignedToSomeoneElse()
         {
             // Arrange
-            var request = _fixture.Create<CreateElementRequest>();
+            var request = _fixture.Create<EditElementRequest>();
 
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.InProgress)
@@ -185,7 +176,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         public void ThrowsArgumentExceptionWhenElementTypeDoesNotExist()
         {
             // Arrange
-            var request = _fixture.Build<CreateElementRequest>()
+            var request = _fixture.Build<EditElementRequest>()
                 .With(x => x.ElementTypeId, 123456)
                 .Create();
 
@@ -221,7 +212,7 @@ namespace BrokerageApi.Tests.V1.UseCase
             // Arrange
             var elementType = _fixture.Create<ElementType>();
 
-            var request = _fixture.Build<CreateElementRequest>()
+            var request = _fixture.Build<EditElementRequest>()
                 .With(x => x.ElementTypeId, elementType.Id)
                 .With(x => x.ProviderId, 123456)
                 .Create();
@@ -254,6 +245,25 @@ namespace BrokerageApi.Tests.V1.UseCase
             // Assert
             Assert.That(exception.Message, Is.EqualTo("Provider not found for: 123456"));
             _mockDbSaver.VerifyChangesNotSaved();
+        }
+        private (Provider provider, ElementType elementType, Element element, Referral referral) CreateReferralWithElement()
+        {
+
+            var elementType = _fixture
+                .Create<ElementType>();
+
+            var provider = _fixture
+                .Create<Provider>();
+
+            var element = _fixture.BuildElement(provider.Id, elementType.Id)
+                .Create();
+
+            var referral = _fixture.Build<Referral>()
+                .With(x => x.Status, ReferralStatus.InProgress)
+                .With(x => x.Elements, new List<Element> { element })
+                .Create();
+
+            return (provider, elementType, element, referral);
         }
     }
 }
