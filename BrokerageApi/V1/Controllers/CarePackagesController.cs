@@ -22,21 +22,22 @@ namespace BrokerageApi.V1.Controllers
         private readonly ICreateElementUseCase _createElementUseCase;
         private readonly IDeleteElementUseCase _deleteElementUseCase;
         private readonly IEndElementUseCase _endElementUseCase;
+        private readonly ICancelElementUseCase _cancelElementUseCase;
 
 
-        public CarePackagesController(
-          IGetCarePackageByIdUseCase getCarePackageByIdUseCase,
-          IStartCarePackageUseCase startCarePackageUseCase,
-          ICreateElementUseCase createElementUseCase,
-          IDeleteElementUseCase deleteElementUseCase,
-          IEndElementUseCase endElementUseCase
-        )
+        public CarePackagesController(IGetCarePackageByIdUseCase getCarePackageByIdUseCase,
+            IStartCarePackageUseCase startCarePackageUseCase,
+            ICreateElementUseCase createElementUseCase,
+            IDeleteElementUseCase deleteElementUseCase,
+            IEndElementUseCase endElementUseCase,
+            ICancelElementUseCase cancelElementUseCase)
         {
             _getCarePackageByIdUseCase = getCarePackageByIdUseCase;
             _startCarePackageUseCase = startCarePackageUseCase;
             _createElementUseCase = createElementUseCase;
             _deleteElementUseCase = deleteElementUseCase;
             _endElementUseCase = endElementUseCase;
+            _cancelElementUseCase = cancelElementUseCase;
         }
 
         [Authorize]
@@ -228,6 +229,37 @@ namespace BrokerageApi.V1.Controllers
                     e.Message,
                     $"api/v1/elements/{elementId}/end",
                     StatusCodes.Status400BadRequest, "Bad Request"
+                );
+            }
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("elements/{elementId}/cancel")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> CancelElement([FromRoute] int referralId, [FromRoute] int elementId, [FromBody] EndElementRequest request)
+        {
+            try
+            {
+                await _cancelElementUseCase.ExecuteAsync(referralId, elementId, request.EndDate);
+            }
+            catch (ArgumentNullException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/elements/{elementId}/end",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (InvalidOperationException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/elements/{elementId}/end",
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }
             return Ok();
