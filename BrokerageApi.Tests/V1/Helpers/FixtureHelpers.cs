@@ -74,7 +74,6 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(e => e.Referrals)
                 .Without(e => e.ReferralElements)
                 .Without(e => e.ParentElement)
-                .Without(e => e.ParentElement)
                 .Without(e => e.ParentElementId)
                 .Without(e => e.Provider)
                 .Without(e => e.ElementType)
