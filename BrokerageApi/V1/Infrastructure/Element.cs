@@ -73,6 +73,8 @@ namespace BrokerageApi.V1.Infrastructure
 
         public string CostCentre { get; set; }
 
+        public List<decimal> DailyCosts { get; set; }
+
         public List<ReferralElement> ReferralElements { get; set; }
 
         public List<Referral> Referrals { get; set; }
