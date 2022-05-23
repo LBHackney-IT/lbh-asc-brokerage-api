@@ -236,6 +236,7 @@ namespace BrokerageApi
             services.AddTransient<IEndElementUseCase, EndElementUseCase>();
             services.AddTransient<ICancelElementUseCase, CancelElementUseCase>();
             services.AddTransient<IEditElementUseCase, EditElementUseCase>();
+            services.AddTransient<ISuspendElementUseCase, SuspendElementUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
