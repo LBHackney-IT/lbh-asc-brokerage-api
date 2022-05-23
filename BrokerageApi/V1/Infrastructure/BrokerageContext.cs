@@ -96,6 +96,15 @@ namespace BrokerageApi.V1.Infrastructure
                 .HasForeignKey("ParentElementId");
 
             modelBuilder.Entity<Element>()
+                .HasOne(e => e.SuspendedElement)
+                .WithMany(e => e.SuspensionElements)
+                .HasForeignKey("SuspendedElementId");
+
+            modelBuilder.Entity<Element>()
+                .Property(e => e.IsSuspension)
+                .HasDefaultValue(false);
+
+            modelBuilder.Entity<Element>()
                 .Property(e => e.InternalStatus)
                 .HasDefaultValue(ElementStatus.InProgress);
 

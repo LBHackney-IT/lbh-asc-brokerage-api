@@ -42,6 +42,12 @@ namespace BrokerageApi.V1.Infrastructure
         public Element ParentElement { get; set; }
         public List<Element> ChildElements { get; set; }
 
+        public int? SuspendedElementId { get; set; }
+        public Element SuspendedElement { get; set; }
+        public List<Element> SuspensionElements { get; set; }
+
+        public bool IsSuspension { get; set; }
+
         public LocalDate StartDate { get; set; }
 
         public LocalDate? EndDate { get; set; }
