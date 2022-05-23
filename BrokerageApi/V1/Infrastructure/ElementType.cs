@@ -13,6 +13,8 @@ namespace BrokerageApi.V1.Infrastructure
         [Required]
         public string Name { get; set; }
 
+        public string SubjectiveCode { get; set; }
+
         public ElementCostType CostType { get; set; }
 
         public bool NonPersonalBudget { get; set; }
