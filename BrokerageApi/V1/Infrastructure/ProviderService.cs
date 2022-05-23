@@ -10,7 +10,6 @@ namespace BrokerageApi.V1.Infrastructure
         public int ServiceId { get; set; }
         public Service Service { get; set; }
 
-        [Required]
         public string SubjectiveCode { get; set; }
     }
 }
