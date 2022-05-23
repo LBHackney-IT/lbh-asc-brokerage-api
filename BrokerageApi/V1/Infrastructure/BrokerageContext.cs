@@ -96,8 +96,21 @@ namespace BrokerageApi.V1.Infrastructure
                 .HasForeignKey("ParentElementId");
 
             modelBuilder.Entity<Element>()
+                .HasOne(e => e.SuspendedElement)
+                .WithMany(e => e.SuspensionElements)
+                .HasForeignKey("SuspendedElementId");
+
+            modelBuilder.Entity<Element>()
+                .Property(e => e.IsSuspension)
+                .HasDefaultValue(false);
+
+            modelBuilder.Entity<Element>()
                 .Property(e => e.InternalStatus)
                 .HasDefaultValue(ElementStatus.InProgress);
+
+            modelBuilder.Entity<Element>()
+                .Property(e => e.DailyCosts)
+                .HasComputedColumnSql(@"ARRAY[COALESCE((monday->>'Cost')::numeric, 0), COALESCE((tuesday->>'Cost')::numeric, 0), COALESCE((wednesday->>'Cost')::numeric, 0), COALESCE((thursday->>'Cost')::numeric, 0), COALESCE((friday->>'Cost')::numeric, 0), COALESCE((saturday->>'Cost')::numeric, 0), COALESCE((sunday->>'Cost')::numeric, 0)]", stored: true);
 
             modelBuilder.Entity<ElementType>()
                 .Property(et => et.Id)

@@ -42,6 +42,12 @@ namespace BrokerageApi.V1.Infrastructure
         public Element ParentElement { get; set; }
         public List<Element> ChildElements { get; set; }
 
+        public int? SuspendedElementId { get; set; }
+        public Element SuspendedElement { get; set; }
+        public List<Element> SuspensionElements { get; set; }
+
+        public bool IsSuspension { get; set; }
+
         public LocalDate StartDate { get; set; }
 
         public LocalDate? EndDate { get; set; }
@@ -70,6 +76,10 @@ namespace BrokerageApi.V1.Infrastructure
         public decimal? Quantity { get; set; }
 
         public decimal Cost { get; set; }
+
+        public string CostCentre { get; set; }
+
+        public List<decimal> DailyCosts { get; set; }
 
         public List<ReferralElement> ReferralElements { get; set; }
 

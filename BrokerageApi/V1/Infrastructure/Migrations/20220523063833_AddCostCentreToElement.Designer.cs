@@ -5,6 +5,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -13,9 +14,10 @@ using NpgsqlTypes;
 namespace V1.Infrastructure.Migrations
 {
     [DbContext(typeof(BrokerageContext))]
-    partial class BrokerageContextModelSnapshot : ModelSnapshot
+    [Migration("20220523063833_AddCostCentreToElement")]
+    partial class AddCostCentreToElement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -173,12 +175,6 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("created_at");
 
-                    b.Property<List<decimal>>("DailyCosts")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("numeric[]")
-                        .HasColumnName("daily_costs")
-                        .HasComputedColumnSql("ARRAY[COALESCE((monday->>'Cost')::numeric, 0), COALESCE((tuesday->>'Cost')::numeric, 0), COALESCE((wednesday->>'Cost')::numeric, 0), COALESCE((thursday->>'Cost')::numeric, 0), COALESCE((friday->>'Cost')::numeric, 0), COALESCE((saturday->>'Cost')::numeric, 0), COALESCE((sunday->>'Cost')::numeric, 0)]", true);
-
                     b.Property<string>("Details")
                         .IsRequired()
                         .HasColumnType("text")
@@ -201,12 +197,6 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("element_status")
                         .HasDefaultValue(ElementStatus.InProgress)
                         .HasColumnName("internal_status");
-
-                    b.Property<bool>("IsSuspension")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_suspension");
 
                     b.Property<ElementCost?>("Monday")
                         .HasColumnType("jsonb")
@@ -245,10 +235,6 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("sunday");
 
-                    b.Property<int?>("SuspendedElementId")
-                        .HasColumnType("integer")
-                        .HasColumnName("suspended_element_id");
-
                     b.Property<ElementCost?>("Thursday")
                         .HasColumnType("jsonb")
                         .HasColumnName("thursday");
@@ -276,9 +262,6 @@ namespace V1.Infrastructure.Migrations
 
                     b.HasIndex("ProviderId")
                         .HasDatabaseName("ix_elements_provider_id");
-
-                    b.HasIndex("SuspendedElementId")
-                        .HasDatabaseName("ix_elements_suspended_element_id");
 
                     b.ToTable("elements");
                 });
@@ -317,10 +300,6 @@ namespace V1.Infrastructure.Migrations
                     b.Property<int>("ServiceId")
                         .HasColumnType("integer")
                         .HasColumnName("service_id");
-
-                    b.Property<string>("SubjectiveCode")
-                        .HasColumnType("text")
-                        .HasColumnName("subjective_code");
 
                     b.HasKey("Id")
                         .HasName("pk_element_types");
@@ -400,6 +379,7 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnName("service_id");
 
                     b.Property<string>("SubjectiveCode")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("subjective_code");
 
@@ -624,18 +604,11 @@ namespace V1.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BrokerageApi.V1.Infrastructure.Element", "SuspendedElement")
-                        .WithMany("SuspensionElements")
-                        .HasForeignKey("SuspendedElementId")
-                        .HasConstraintName("fk_elements_elements_suspended_element_id");
-
                     b.Navigation("ElementType");
 
                     b.Navigation("ParentElement");
 
                     b.Navigation("Provider");
-
-                    b.Navigation("SuspendedElement");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ElementType", b =>
@@ -721,8 +694,6 @@ namespace V1.Infrastructure.Migrations
                     b.Navigation("ChildElements");
 
                     b.Navigation("ReferralElements");
-
-                    b.Navigation("SuspensionElements");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ElementType", b =>
