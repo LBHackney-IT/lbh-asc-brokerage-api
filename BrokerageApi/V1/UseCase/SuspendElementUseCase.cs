@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
@@ -9,18 +10,16 @@ using NodaTime;
 
 namespace BrokerageApi.V1.UseCase
 {
-    public class EndElementUseCase : IEndElementUseCase
+    public class SuspendElementUseCase : ISuspendElementUseCase
     {
         private readonly IReferralGateway _referralGateway;
-        private readonly IElementGateway _elementGateway;
         private readonly IAuditGateway _auditGateway;
         private readonly IUserService _userService;
         private readonly IDbSaver _dbSaver;
         private readonly IClockService _clockService;
 
-        public EndElementUseCase(
+        public SuspendElementUseCase(
             IReferralGateway referralGateway,
-            IElementGateway elementGateway,
             IAuditGateway auditGateway,
             IUserService userService,
             IDbSaver dbSaver,
@@ -28,23 +27,22 @@ namespace BrokerageApi.V1.UseCase
         )
         {
             _referralGateway = referralGateway;
-            _elementGateway = elementGateway;
             _auditGateway = auditGateway;
             _userService = userService;
             _dbSaver = dbSaver;
             _clockService = clockService;
         }
 
-        public async Task ExecuteAsync(int referralId, int elementId, LocalDate endDate)
+        public async Task ExecuteAsync(int referralId, int elementId, LocalDate startDate, LocalDate? endDate)
         {
-            var referral = await _referralGateway.GetByIdAsync(referralId);
+            var referral = await _referralGateway.GetByIdWithElementsAsync(referralId);
 
             if (referral is null)
             {
                 throw new ArgumentNullException(nameof(referralId), $"Referral not found {referralId}");
             }
 
-            var element = await _elementGateway.GetByIdAsync(elementId);
+            var element = referral.Elements.SingleOrDefault(e => e.Id == elementId);
 
             if (element is null)
             {
@@ -56,13 +54,22 @@ namespace BrokerageApi.V1.UseCase
                 throw new InvalidOperationException($"Element {element.Id} is not approved");
             }
 
-            if (element.EndDate != null && element.EndDate < endDate)
+            if (startDate < element.StartDate || (element.EndDate != null && endDate > element.EndDate))
             {
-                throw new ArgumentException($"Element {element.Id} has an end date before the requested end date");
+                throw new ArgumentException("Requested dates do not fall in elements dates");
             }
 
-            element.EndDate = endDate;
-            element.UpdatedAt = _clockService.Now;
+            var newElement = new Element(element)
+            {
+                SuspendedElementId = element.Id,
+                CreatedAt = _clockService.Now,
+                UpdatedAt = _clockService.Now,
+                InternalStatus = ElementStatus.InProgress,
+                StartDate = startDate,
+                EndDate = endDate
+            };
+
+            referral.Elements.Add(newElement);
 
             await _dbSaver.SaveChangesAsync();
 
@@ -72,8 +79,7 @@ namespace BrokerageApi.V1.UseCase
                 ElementId = element.Id,
                 ElementDetails = element.Details
             };
-            await _auditGateway.AddAuditEvent(AuditEventType.ElementEnded, referral.SocialCareId, _userService.UserId, metadata);
+            await _auditGateway.AddAuditEvent(AuditEventType.ElementSuspended, referral.SocialCareId, _userService.UserId, metadata);
         }
     }
-
 }

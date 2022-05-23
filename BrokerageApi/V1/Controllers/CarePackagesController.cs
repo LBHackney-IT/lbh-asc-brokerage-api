@@ -23,6 +23,7 @@ namespace BrokerageApi.V1.Controllers
         private readonly IDeleteElementUseCase _deleteElementUseCase;
         private readonly IEndElementUseCase _endElementUseCase;
         private readonly ICancelElementUseCase _cancelElementUseCase;
+        private readonly ISuspendElementUseCase _suspendElementUseCase;
         private readonly IEditElementUseCase _editElementUseCase;
 
 
@@ -32,6 +33,7 @@ namespace BrokerageApi.V1.Controllers
             IDeleteElementUseCase deleteElementUseCase,
             IEndElementUseCase endElementUseCase,
             ICancelElementUseCase cancelElementUseCase,
+            ISuspendElementUseCase suspendElementUseCase,
             IEditElementUseCase editElementUseCase)
         {
             _getCarePackageByIdUseCase = getCarePackageByIdUseCase;
@@ -40,6 +42,7 @@ namespace BrokerageApi.V1.Controllers
             _deleteElementUseCase = deleteElementUseCase;
             _endElementUseCase = endElementUseCase;
             _cancelElementUseCase = cancelElementUseCase;
+            _suspendElementUseCase = suspendElementUseCase;
             _editElementUseCase = editElementUseCase;
         }
 
@@ -214,7 +217,7 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     e.Message,
-                    $"api/v1/elements/{elementId}/end",
+                    $"api/v1/referrals/{referralId}/care-package/elements/{elementId}/end",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
@@ -222,7 +225,7 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     e.Message,
-                    $"api/v1/elements/{elementId}/end",
+                    $"api/v1/referrals/{referralId}/care-package/elements/{elementId}/end",
                     StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }
@@ -230,7 +233,7 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     e.Message,
-                    $"api/v1/elements/{elementId}/end",
+                    $"api/v1/referrals/{referralId}/care-package/elements/{elementId}/end",
                     StatusCodes.Status400BadRequest, "Bad Request"
                 );
             }
@@ -253,7 +256,7 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     e.Message,
-                    $"api/v1/elements/{elementId}/end",
+                    $"api/v1/referrals/{referralId}/care-package/elements/{elementId}/end",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
@@ -261,11 +264,50 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     e.Message,
-                    $"api/v1/elements/{elementId}/end",
+                    $"api/v1/referrals/{referralId}/care-package/elements/{elementId}/end",
                     StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }
             return Ok();
+        }
+
+        [HttpPost]
+        [Route("elements/{elementId}/suspend")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> SuspendElement(int referralId, int elementId, SuspendElementRequest request)
+        {
+            try
+            {
+                await _suspendElementUseCase.ExecuteAsync(referralId, elementId, request.StartDate, request.EndDate);
+                return Ok();
+            }
+            catch (ArgumentNullException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/elements/{elementId}/suspend",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (InvalidOperationException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/elements/{elementId}/suspend",
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
+                );
+            }
+            catch (ArgumentException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/elements/{elementId}/suspend",
+                    StatusCodes.Status400BadRequest, "Bad Request"
+                );
+            }
         }
 
         [Authorize(Roles = "Broker")]
@@ -288,7 +330,7 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     e.Message,
-                    $"/api/v1/referrals/{referralId}/care-package/elements",
+                    $"/api/v1/referrals/{referralId}/care-package/elements/{elementId}/edit",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
@@ -296,7 +338,7 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     e.Message,
-                    $"/api/v1/referrals/{referralId}/care-package/elements",
+                    $"/api/v1/referrals/{referralId}/care-package/elements/{elementId}/edit",
                     StatusCodes.Status400BadRequest, "Bad Request"
                 );
             }
@@ -304,7 +346,7 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     e.Message,
-                    $"/api/v1/referrals/{referralId}/care-package/elements",
+                    $"/api/v1/referrals/{referralId}/care-package/elements/{elementId}/edit",
                     StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }
@@ -312,7 +354,7 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     e.Message,
-                    $"/api/v1/referrals/{referralId}/care-package/elements",
+                    $"/api/v1/referrals/{referralId}/care-package/elements/{elementId}/edit",
                     StatusCodes.Status403Forbidden, "Forbidden"
                 );
             }

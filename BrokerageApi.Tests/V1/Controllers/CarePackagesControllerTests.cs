@@ -29,6 +29,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         private MockProblemDetailsFactory _mockProblemDetailsFactory;
         private Mock<IDeleteElementUseCase> _mockDeleteElementUseCase;
         private Mock<IEndElementUseCase> _mockEndElementUseCase;
+        private Mock<ISuspendElementUseCase> _mockSuspendElementUseCase;
         private Mock<ICancelElementUseCase> _mockCancelElementUseCase;
         private Mock<IEditElementUseCase> _mockEditElementUseCase;
 
@@ -44,6 +45,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockProblemDetailsFactory = new MockProblemDetailsFactory();
             _mockDeleteElementUseCase = new Mock<IDeleteElementUseCase>();
             _mockEndElementUseCase = new Mock<IEndElementUseCase>();
+            _mockSuspendElementUseCase = new Mock<ISuspendElementUseCase>();
             _mockCancelElementUseCase = new Mock<ICancelElementUseCase>();
             _mockEditElementUseCase = new Mock<IEditElementUseCase>();
 
@@ -54,6 +56,7 @@ namespace BrokerageApi.Tests.V1.Controllers
                 _mockDeleteElementUseCase.Object,
                 _mockEndElementUseCase.Object,
                 _mockCancelElementUseCase.Object,
+                _mockSuspendElementUseCase.Object,
                 _mockEditElementUseCase.Object
             );
 
@@ -380,7 +383,6 @@ namespace BrokerageApi.Tests.V1.Controllers
             }
         };
 
-
         [TestCaseSource(nameof(_cancelElementErrors)), Property("AsUser", "Broker")]
         public async Task CancelElementMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
         {
@@ -449,6 +451,36 @@ namespace BrokerageApi.Tests.V1.Controllers
             var statusCode = GetStatusCode(objectResult);
 
             // Assert
+            statusCode.Should().Be((int) expectedStatusCode);
+            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+        }
+
+        [Test]
+        public async Task CanSuspendElement()
+        {
+            const int referralId = 1234;
+            const int elementId = 1234;
+            var request = _fixture.Create<SuspendElementRequest>();
+
+            var response = await _classUnderTest.SuspendElement(referralId, elementId, request);
+            var statusCode = GetStatusCode(response);
+
+            _mockSuspendElementUseCase.Verify(x => x.ExecuteAsync(referralId, elementId, request.StartDate, request.EndDate));
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+        }
+
+        [TestCaseSource(nameof(_endElementErrors)), Property("AsUser", "Broker")]
+        public async Task SuspendElementMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            const int referralId = 1234;
+            const int elementId = 1234;
+            var request = _fixture.Create<SuspendElementRequest>();
+            _mockSuspendElementUseCase.Setup(x => x.ExecuteAsync(referralId, elementId, request.StartDate, request.EndDate))
+                .ThrowsAsync(exception);
+
+            var response = await _classUnderTest.SuspendElement(referralId, elementId, request);
+            var statusCode = GetStatusCode(response);
+
             statusCode.Should().Be((int) expectedStatusCode);
             _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
         }

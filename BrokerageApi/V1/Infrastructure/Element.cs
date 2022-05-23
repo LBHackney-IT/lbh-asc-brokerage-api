@@ -18,6 +18,24 @@ namespace BrokerageApi.V1.Infrastructure
         {
             _clock = db.Clock;
         }
+        public Element(Element element)
+        {
+            SocialCareId = element.SocialCareId;
+            ElementTypeId = element.ElementTypeId;
+            NonPersonalBudget = element.NonPersonalBudget;
+            ProviderId = element.ProviderId;
+            Details = element.Details;
+            Monday = element.Monday;
+            Tuesday = element.Tuesday;
+            Wednesday = element.Wednesday;
+            Thursday = element.Thursday;
+            Friday = element.Friday;
+            Saturday = element.Saturday;
+            Sunday = element.Sunday;
+            Quantity = element.Quantity;
+            Cost = element.Cost;
+            CostCentre = element.CostCentre;
+        }
 
         [Key]
         public int Id { get; set; }
