@@ -1,25 +1,25 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using BrokerageApi.V1.Services.Interfaces;
-using BrokerageApi.V1.UseCase.Interfaces;
-using NodaTime;
+using BrokerageApi.V1.UseCase.Interfaces.CarePackageElements;
 
-namespace BrokerageApi.V1.UseCase
+namespace BrokerageApi.V1.UseCase.CarePackageElements
 {
-    public class SuspendElementUseCase : ISuspendElementUseCase
+    public class CancelElementUseCase : ICancelElementUseCase
     {
         private readonly IReferralGateway _referralGateway;
+        private readonly IElementGateway _elementGateway;
         private readonly IAuditGateway _auditGateway;
         private readonly IUserService _userService;
         private readonly IDbSaver _dbSaver;
         private readonly IClockService _clockService;
 
-        public SuspendElementUseCase(
+        public CancelElementUseCase(
             IReferralGateway referralGateway,
+            IElementGateway elementGateway,
             IAuditGateway auditGateway,
             IUserService userService,
             IDbSaver dbSaver,
@@ -27,22 +27,23 @@ namespace BrokerageApi.V1.UseCase
         )
         {
             _referralGateway = referralGateway;
+            _elementGateway = elementGateway;
             _auditGateway = auditGateway;
             _userService = userService;
             _dbSaver = dbSaver;
             _clockService = clockService;
         }
 
-        public async Task ExecuteAsync(int referralId, int elementId, LocalDate startDate, LocalDate? endDate)
+        public async Task ExecuteAsync(int referralId, int elementId)
         {
-            var referral = await _referralGateway.GetByIdWithElementsAsync(referralId);
+            var referral = await _referralGateway.GetByIdAsync(referralId);
 
             if (referral is null)
             {
                 throw new ArgumentNullException(nameof(referralId), $"Referral not found {referralId}");
             }
 
-            var element = referral.Elements.SingleOrDefault(e => e.Id == elementId);
+            var element = await _elementGateway.GetByIdAsync(elementId);
 
             if (element is null)
             {
@@ -54,23 +55,8 @@ namespace BrokerageApi.V1.UseCase
                 throw new InvalidOperationException($"Element {element.Id} is not approved");
             }
 
-            if (startDate < element.StartDate || (element.EndDate != null && endDate > element.EndDate))
-            {
-                throw new ArgumentException("Requested dates do not fall in elements dates");
-            }
-
-            var newElement = new Element(element)
-            {
-                SuspendedElementId = element.Id,
-                CreatedAt = _clockService.Now,
-                UpdatedAt = _clockService.Now,
-                InternalStatus = ElementStatus.InProgress,
-                StartDate = startDate,
-                EndDate = endDate
-            };
-
-            referral.Elements.Add(newElement);
-
+            element.InternalStatus = ElementStatus.Cancelled;
+            element.UpdatedAt = _clockService.Now;
             await _dbSaver.SaveChangesAsync();
 
             var metadata = new ElementAuditEventMetadata
@@ -79,7 +65,7 @@ namespace BrokerageApi.V1.UseCase
                 ElementId = element.Id,
                 ElementDetails = element.Details
             };
-            await _auditGateway.AddAuditEvent(AuditEventType.ElementSuspended, referral.SocialCareId, _userService.UserId, metadata);
+            await _auditGateway.AddAuditEvent(AuditEventType.ElementCancelled, referral.SocialCareId, _userService.UserId, metadata);
         }
     }
 }

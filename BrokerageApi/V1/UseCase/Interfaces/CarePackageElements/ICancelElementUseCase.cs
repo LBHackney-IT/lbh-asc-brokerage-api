@@ -1,10 +1,9 @@
 using System.Threading.Tasks;
 
-namespace BrokerageApi.V1.UseCase.Interfaces
+namespace BrokerageApi.V1.UseCase.Interfaces.CarePackageElements
 {
-    public interface IDeleteElementUseCase
+    public interface ICancelElementUseCase
     {
         public Task ExecuteAsync(int referralId, int elementId);
     }
-
 }

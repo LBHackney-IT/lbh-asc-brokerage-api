@@ -1,10 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using BrokerageApi.V1.Gateways.Interfaces;
-using BrokerageApi.V1.Infrastructure;
-using BrokerageApi.V1.UseCase.Interfaces;
+using BrokerageApi.V1.UseCase.Interfaces.CarePackages;
 
-namespace BrokerageApi.V1.UseCase
+namespace BrokerageApi.V1.UseCase.CarePackages
 {
     public class GetCarePackageByIdUseCase : IGetCarePackageByIdUseCase
     {
@@ -15,7 +14,7 @@ namespace BrokerageApi.V1.UseCase
             _carePackageGateway = carePackageGateway;
         }
 
-        public async Task<CarePackage> ExecuteAsync(int id)
+        public async Task<Infrastructure.CarePackage> ExecuteAsync(int id)
         {
             var carePackage = await _carePackageGateway.GetByIdAsync(id);
 

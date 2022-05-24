@@ -1,10 +1,10 @@
 using System.Threading.Tasks;
-using NodaTime;
 
-namespace BrokerageApi.V1.UseCase.Interfaces
+namespace BrokerageApi.V1.UseCase.Interfaces.CarePackageElements
 {
-    public interface ICancelElementUseCase
+    public interface IDeleteElementUseCase
     {
         public Task ExecuteAsync(int referralId, int elementId);
     }
+
 }
