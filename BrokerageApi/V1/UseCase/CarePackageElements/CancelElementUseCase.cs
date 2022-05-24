@@ -4,10 +4,9 @@ using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using BrokerageApi.V1.Services.Interfaces;
-using BrokerageApi.V1.UseCase.Interfaces;
-using NodaTime;
+using BrokerageApi.V1.UseCase.Interfaces.CarePackageElements;
 
-namespace BrokerageApi.V1.UseCase
+namespace BrokerageApi.V1.UseCase.CarePackageElements
 {
     public class CancelElementUseCase : ICancelElementUseCase
     {

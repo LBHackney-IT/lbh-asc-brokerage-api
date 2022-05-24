@@ -3,14 +3,12 @@ using System.Threading.Tasks;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
-using BrokerageApi.V1.Services;
 using BrokerageApi.V1.Services.Interfaces;
-using BrokerageApi.V1.UseCase.Interfaces;
+using BrokerageApi.V1.UseCase.Interfaces.CarePackageElements;
 using NodaTime;
 
-namespace BrokerageApi.V1.UseCase
+namespace BrokerageApi.V1.UseCase.CarePackageElements
 {
-
     public class EndElementUseCase : IEndElementUseCase
     {
         private readonly IReferralGateway _referralGateway;
@@ -77,4 +75,5 @@ namespace BrokerageApi.V1.UseCase
             await _auditGateway.AddAuditEvent(AuditEventType.ElementEnded, referral.SocialCareId, _userService.UserId, metadata);
         }
     }
+
 }

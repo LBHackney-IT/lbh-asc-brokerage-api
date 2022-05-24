@@ -10,6 +10,7 @@ using BrokerageApi.V1.Infrastructure.AuditEvents;
 using BrokerageApi.V1.Services;
 using BrokerageApi.V1.Services.Interfaces;
 using BrokerageApi.V1.UseCase;
+using BrokerageApi.V1.UseCase.CarePackageElements;
 using FluentAssertions;
 using Moq;
 using NodaTime;

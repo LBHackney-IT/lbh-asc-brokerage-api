@@ -210,5 +210,57 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var auditEvent = await Context.AuditEvents.SingleOrDefaultAsync(ae => ae.EventType == AuditEventType.ElementCancelled);
             auditEvent.Should().NotBeNull();
         }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanSuspendElement()
+        {
+            var provider = _fixture.BuildProvider().Create();
+            var service = _fixture.BuildService().Create();
+            var providerService = _fixture.BuildProviderService(provider.Id, service.Id).Create();
+            var elementType = _fixture.BuildElementType(service.Id).Create();
+            var referral = _fixture.BuildReferral(ReferralStatus.InProgress).Create();
+            var element = _fixture.BuildElement(provider.Id, elementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .Without(e => e.EndDate)
+                .Create();
+            var referralElement = _fixture.BuildReferralElement(referral.Id, element.Id).Create();
+
+            await Context.Services.AddAsync(service);
+            await Context.ElementTypes.AddAsync(elementType);
+            await Context.Providers.AddAsync(provider);
+            await Context.ProviderServices.AddAsync(providerService);
+            await Context.Referrals.AddAsync(referral);
+            await Context.Elements.AddRangeAsync(element);
+            await Context.ReferralElements.AddAsync(referralElement);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            await RequestSuspension(element, referral);
+            await RequestSuspension(element, referral);
+
+            var auditEvents = Context.AuditEvents.Where(ae => ae.EventType == AuditEventType.ElementSuspended);
+            auditEvents.Should().HaveCount(2);
+        }
+        private async Task RequestSuspension(Element element, Referral referral)
+        {
+            var start = element.StartDate.PlusDays(_fixture.CreateInt(1, 100));
+            var end = start.PlusDays(_fixture.CreateInt(1, 100));
+            var request = new SuspendElementRequest
+            {
+                StartDate = start,
+                EndDate = end
+            };
+
+            var code = await Post($"/api/v1/referrals/{referral.Id}/care-package/elements/{element.Id}/suspend", request);
+
+            code.Should().Be(HttpStatusCode.OK);
+
+            Context.Elements.Should().ContainSingle(e =>
+                e.SuspendedElementId == element.Id &&
+                e.StartDate == request.StartDate &&
+                e.EndDate == request.EndDate
+            ).Which.UpdatedAt.Should().Be(CurrentInstant);
+        }
     }
 }
