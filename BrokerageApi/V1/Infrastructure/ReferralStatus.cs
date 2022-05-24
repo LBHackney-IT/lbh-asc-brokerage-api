@@ -13,6 +13,8 @@ namespace BrokerageApi.V1.Infrastructure
         Archived,
         InProgress,
         AwaitingApproval,
-        Approved
+        Approved,
+        Active,
+        Ended
     }
 }
