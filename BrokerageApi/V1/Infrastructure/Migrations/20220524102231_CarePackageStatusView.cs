@@ -35,7 +35,7 @@ namespace V1.Infrastructure.Migrations
                     r.primary_support_reason,
                     r.urgent_since,
                     r.assigned_to,
-                    s.referral_status,
+                    s.referral_status AS status,
                     r.note,
                     r.started_at,
                     r.created_at,
@@ -58,8 +58,8 @@ namespace V1.Infrastructure.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("DROP VIEW care_package_status");
             migrationBuilder.Sql("DROP VIEW care_packages");
+            migrationBuilder.Sql("DROP VIEW care_package_status");
 
             migrationBuilder.Sql(@"
                 CREATE VIEW care_packages AS
