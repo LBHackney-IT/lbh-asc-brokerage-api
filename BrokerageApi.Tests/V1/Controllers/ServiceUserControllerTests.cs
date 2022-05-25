@@ -38,6 +38,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 _mockGetCarePackagesByServiceUserIdUseCase.Object
                 );
             _classUnderTest.ProblemDetailsFactory = _mockProblemDetailsFactory.Object;
+            SetupAuthentication(_classUnderTest);
+
         }
 
         [Test]
@@ -72,11 +74,14 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound);
         }
         [Test]
-        public async Task GetCarePackagesByServiceUserId()
+        public async Task CanGetCarePackagesByServiceUserId()
         {
             // Arrange
             const string socialCareId = "expectedId";
+            var elements = _fixture.BuildElement(1, 1)
+                          .CreateMany();
             var carePackages = _fixture.BuildCarePackage(socialCareId)
+                .With(c => c.Elements, elements.ToList)
                 .CreateMany();
 
             _mockGetCarePackagesByServiceUserIdUseCase
@@ -85,10 +90,11 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Act
             var objectResult = await _classUnderTest.GetServiceUserCarePackages(socialCareId);
             var statusCode = GetStatusCode(objectResult);
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+
             var result = GetResultData<List<CarePackageResponse>>(objectResult);
 
             // Assert
-            statusCode.Should().Be((int) HttpStatusCode.OK);
             result.Should().BeEquivalentTo(carePackages.Select(r => r.ToResponse()).ToList());
         }
 

@@ -14,7 +14,7 @@ namespace BrokerageApi.Tests.V1.UseCase
 {
     public class GetCarePackagesByServiceUserIdUseCaseTests
     {
-        private Mock<IServiceUserGateway> _mockServiceUserGateway;
+        private Mock<ICarePackageGateway> _mockCarePackageGateway;
         private GetCarePackagesByServiceUserIdUseCase _classUnderTest;
         private Fixture _fixture;
 
@@ -22,8 +22,8 @@ namespace BrokerageApi.Tests.V1.UseCase
         public void Setup()
         {
             _fixture = FixtureHelpers.Fixture;
-            _mockServiceUserGateway = new Mock<IServiceUserGateway>();
-            _classUnderTest = new GetCarePackagesByServiceUserIdUseCase(_mockServiceUserGateway.Object);
+            _mockCarePackageGateway = new Mock<ICarePackageGateway>();
+            _classUnderTest = new GetCarePackagesByServiceUserIdUseCase(_mockCarePackageGateway.Object);
         }
 
         [Test]
@@ -33,7 +33,7 @@ namespace BrokerageApi.Tests.V1.UseCase
             const string socialCareId = "aServiceUserId";
             var expectedCarePackages = _fixture.BuildCarePackage(socialCareId)
                 .CreateMany();
-            _mockServiceUserGateway
+            _mockCarePackageGateway
                 .Setup(x => x.GetByServiceUserIdAsync("aServiceUserId"))
                 .ReturnsAsync(expectedCarePackages);
 

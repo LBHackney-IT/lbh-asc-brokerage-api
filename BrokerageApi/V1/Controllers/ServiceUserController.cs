@@ -69,7 +69,7 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     "No care packages found for this service user",
-                    $"/api/v1/serviceusers/{serviceUserId}",
+                    $"/api/v1/service-user/{serviceUserId}",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
