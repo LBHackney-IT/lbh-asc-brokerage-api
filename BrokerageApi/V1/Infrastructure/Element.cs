@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using NodaTime;
 using BrokerageApi.V1.Services.Interfaces;
+using JetBrains.Annotations;
 
 namespace BrokerageApi.V1.Infrastructure
 {
@@ -62,6 +63,7 @@ namespace BrokerageApi.V1.Infrastructure
 
         public int? SuspendedElementId { get; set; }
         public Element SuspendedElement { get; set; }
+        [CanBeNull]
         public List<Element> SuspensionElements { get; set; }
 
         public bool IsSuspension { get; set; }

@@ -57,7 +57,8 @@ namespace BrokerageApi.V1.Factories
                 Cost = element.Cost,
                 CreatedAt = element.CreatedAt,
                 UpdatedAt = element.UpdatedAt,
-                ParentElement = includeParent ? element.ParentElement?.ToResponse(false) : null
+                ParentElement = includeParent ? element.ParentElement?.ToResponse(false) : null,
+                SuspensionElements = element.SuspensionElements?.Select(e => e.ToResponse()).ToList()
             };
         }
 

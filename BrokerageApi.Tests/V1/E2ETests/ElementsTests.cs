@@ -152,7 +152,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             Context.ChangeTracker.Clear();
 
-            var request = new EndElementRequest
+            var request = new EndRequest
             {
                 EndDate = CurrentDate
             };
@@ -194,7 +194,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             Context.ChangeTracker.Clear();
 
-            var request = new EndElementRequest
+            var request = new EndRequest
             {
                 EndDate = CurrentDate
             };
@@ -246,7 +246,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
         {
             var start = element.StartDate.PlusDays(_fixture.CreateInt(1, 100));
             var end = start.PlusDays(_fixture.CreateInt(1, 100));
-            var request = new SuspendElementRequest
+            var request = new SuspendRequest
             {
                 StartDate = start,
                 EndDate = end

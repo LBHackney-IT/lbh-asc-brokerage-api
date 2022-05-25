@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -9,8 +10,10 @@ using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Infrastructure;
 using FluentAssertions;
+using FluentAssertions.Common;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
 using NUnit.Framework;
 
 namespace BrokerageApi.Tests.V1.E2ETests
@@ -18,6 +21,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
     public class CarePackageTests : IntegrationTests<Startup>
     {
         private Fixture _fixture;
+
         [SetUp]
         public void Setup()
         {
@@ -29,53 +33,91 @@ namespace BrokerageApi.Tests.V1.E2ETests
         public async Task CanGetCarePackage()
         {
             // Arrange
-            var service = new Service
-            {
-                Id = 1,
-                Name = "Supported Living",
-                Position = 1,
-                IsArchived = false,
-            };
+            var service = _fixture.BuildService()
+                .Create();
 
-            var hourlyElementType = new ElementType
-            {
-                Id = 1,
-                ServiceId = 1,
-                Name = "Day Opportunities (hourly)",
-                CostType = ElementCostType.Hourly,
-                NonPersonalBudget = false,
-                IsArchived = false
-            };
+            var hourlyElementType = _fixture.BuildElementType(service.Id)
+                .With(et => et.CostType, ElementCostType.Hourly)
+                .With(et => et.NonPersonalBudget, false)
+                .Create();
 
-            var dailyElementType = new ElementType
-            {
-                Id = 2,
-                ServiceId = 1,
-                Name = "Day Opportunities (daily)",
-                CostType = ElementCostType.Daily,
-                NonPersonalBudget = false,
-                IsArchived = false
-            };
+            var dailyElementType = _fixture.BuildElementType(service.Id)
+                .With(et => et.CostType, ElementCostType.Daily)
+                .With(et => et.NonPersonalBudget, false)
+                .Create();
 
-            var provider = new Provider()
-            {
-                Id = 1,
-                Name = "Acme Homes",
-                Address = "1 Knowhere Road",
-                Type = ProviderType.Framework
-            };
+            var provider = _fixture.BuildProvider()
+                .Create();
 
-            var providerService = new ProviderService()
-            {
-                ProviderId = 1,
-                ServiceId = 1,
-                SubjectiveCode = "599999"
-            };
+            var providerService = _fixture.BuildProviderService(provider.Id, service.Id)
+                .Create();
 
             var previousStartDate = CurrentDate.PlusDays(-100);
             var startDate = CurrentDate.PlusDays(1);
 
-            var parentElement = _fixture.BuildElement(1, 1).Create();
+            var parentElement = _fixture.BuildElement(provider.Id, hourlyElementType.Id)
+                .Create();
+
+            var elementWithSuspensions = _fixture.BuildElement(provider.Id, hourlyElementType.Id)
+                .With(e => e.StartDate, startDate)
+                .WithoutCost()
+                .Create();
+
+            var suspensions = new[]
+            {
+                new Element(elementWithSuspensions)
+                {
+                    StartDate = elementWithSuspensions.StartDate.PlusDays(1),
+                    EndDate = elementWithSuspensions.StartDate.PlusDays(2),
+                    SuspendedElementId = elementWithSuspensions.Id, IsSuspension = true
+                },
+                new Element(elementWithSuspensions)
+                {
+                    StartDate = elementWithSuspensions.StartDate.PlusDays(5),
+                    EndDate = elementWithSuspensions.StartDate.PlusDays(7),
+                    SuspendedElementId = elementWithSuspensions.Id, IsSuspension = true
+                }
+            };
+
+            var element1 = new Element
+            {
+                SocialCareId = "33556688",
+                ElementTypeId = hourlyElementType.Id,
+                NonPersonalBudget = false,
+                ProviderId = provider.Id,
+                Details = "Some notes",
+                InternalStatus = ElementStatus.Approved,
+                ParentElementId = null,
+                StartDate = previousStartDate,
+                EndDate = null,
+                Monday = new ElementCost(3, 75),
+                Tuesday = new ElementCost(3, 75),
+                Thursday = new ElementCost(3, 75),
+                Quantity = 6,
+                Cost = 225,
+                CreatedAt = CurrentInstant,
+                UpdatedAt = CurrentInstant,
+                ParentElement = parentElement
+            };
+
+            var element2 = new Element
+            {
+                SocialCareId = "33556688",
+                ElementTypeId = dailyElementType.Id,
+                NonPersonalBudget = false,
+                ProviderId = provider.Id,
+                Details = "Some other notes",
+                InternalStatus = ElementStatus.InProgress,
+                ParentElementId = null,
+                StartDate = startDate,
+                EndDate = null,
+                Wednesday = new ElementCost(1, -100),
+                Quantity = 1,
+                Cost = -100,
+                CreatedAt = CurrentInstant,
+                UpdatedAt = CurrentInstant,
+                ParentElement = parentElement
+            };
 
             var referral = new Referral()
             {
@@ -92,44 +134,9 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 UpdatedAt = CurrentInstant,
                 Elements = new List<Element>
                 {
-                    new Element
-                    {
-                        SocialCareId = "33556688",
-                        ElementTypeId = 1,
-                        NonPersonalBudget = false,
-                        ProviderId = 1,
-                        Details = "Some notes",
-                        InternalStatus = ElementStatus.Approved,
-                        ParentElementId = null,
-                        StartDate = previousStartDate,
-                        EndDate = null,
-                        Monday = new ElementCost(3, 75),
-                        Tuesday = new ElementCost(3, 75),
-                        Thursday = new ElementCost(3, 75),
-                        Quantity = 6,
-                        Cost = 225,
-                        CreatedAt = CurrentInstant,
-                        UpdatedAt = CurrentInstant,
-                        ParentElement = parentElement
-                    },
-                    new Element
-                    {
-                        SocialCareId = "33556688",
-                        ElementTypeId = 2,
-                        NonPersonalBudget = false,
-                        ProviderId = 1,
-                        Details = "Some other notes",
-                        InternalStatus = ElementStatus.InProgress,
-                        ParentElementId = null,
-                        StartDate = startDate,
-                        EndDate = null,
-                        Wednesday = new ElementCost(1, -100),
-                        Quantity = 1,
-                        Cost = -100,
-                        CreatedAt = CurrentInstant,
-                        UpdatedAt = CurrentInstant,
-                        ParentElement = parentElement
-                    },
+                    element1,
+                    element2,
+                    elementWithSuspensions
                 }
             };
 
@@ -137,6 +144,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.ElementTypes.AddAsync(hourlyElementType);
             await Context.ElementTypes.AddAsync(dailyElementType);
             await Context.Elements.AddAsync(parentElement);
+            await Context.Elements.AddRangeAsync(suspensions);
             await Context.Providers.AddAsync(provider);
             await Context.ProviderServices.AddAsync(providerService);
             await Context.Referrals.AddAsync(referral);
@@ -154,21 +162,30 @@ namespace BrokerageApi.Tests.V1.E2ETests
             response.StartDate.Should().Be(previousStartDate);
             response.WeeklyCost.Should().Be(225);
             response.WeeklyPayment.Should().Be(125);
-            response.Elements.Should().HaveCount(2);
+            response.Elements.Should().HaveCount(3);
 
-            response.Elements[0].Status.Should().Be(ElementStatus.Active);
-            response.Elements[0].Details.Should().Be("Some notes");
-            response.Elements[0].ElementType.Name.Should().Be("Day Opportunities (hourly)");
-            response.Elements[0].ElementType.Service.Name.Should().Be("Supported Living");
-            response.Elements[0].Provider.Name.Should().Be("Acme Homes");
-            response.Elements[0].ParentElement.Should().BeEquivalentTo(parentElement.ToResponse());
+            var responseElement1 = response.Elements.Single(e => e.Id == element1.Id);
+            ValidateElementResponse(responseElement1, element1, hourlyElementType, service, provider, parentElement);
+            responseElement1.Status.Should().Be(ElementStatus.Active);
 
-            response.Elements[1].Status.Should().Be(ElementStatus.InProgress);
-            response.Elements[1].Details.Should().Be("Some other notes");
-            response.Elements[1].ElementType.Name.Should().Be("Day Opportunities (daily)");
-            response.Elements[1].ElementType.Service.Name.Should().Be("Supported Living");
-            response.Elements[1].Provider.Name.Should().Be("Acme Homes");
-            response.Elements[1].ParentElement.Should().BeEquivalentTo(parentElement.ToResponse());
+            var responseElement2 = response.Elements.Single(e => e.Id == element2.Id);
+            ValidateElementResponse(responseElement2, element2, dailyElementType, service, provider, parentElement);
+            responseElement2.Status.Should().Be(ElementStatus.InProgress);
+
+            var responseElement3 = response.Elements.Single(e => e.Id == elementWithSuspensions.Id);
+            ValidateElementResponse(responseElement3, elementWithSuspensions, hourlyElementType, service, provider, null);
+            responseElement3.SuspensionElements.Should().BeEquivalentTo(suspensions.Select(e => e.ToResponse()));
+        }
+        private static void ValidateElementResponse(ElementResponse elementResponse, Element element, ElementType elementType, Service service, Provider provider, Element parentElement)
+        {
+            elementResponse.Details.Should().Be(element.Details);
+            elementResponse.ElementType.Name.Should().Be(elementType.Name);
+            elementResponse.ElementType.Service.Name.Should().Be(service.Name);
+            elementResponse.Provider.Name.Should().Be(provider.Name);
+            if (parentElement != null)
+            {
+                elementResponse.ParentElement.Should().BeEquivalentTo(parentElement.ToResponse());
+            }
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -203,11 +220,68 @@ namespace BrokerageApi.Tests.V1.E2ETests
             code.Should().Be(HttpStatusCode.OK);
             response.Status.Should().Be(ReferralStatus.InProgress);
             response.StartedAt.Should().Be(CurrentInstant);
-            response.UpdatedAt.Should().Be(CurrentInstant);
+            response.UpdatedAt.Should().BeEquivalentTo(CurrentInstant);
         }
 
         [Test, Property("AsUser", "Broker")]
-        public async Task CanCreateElement()
+        public async Task CanEndCarePackage()
+        {
+            // Arrange
+            var endDate = CurrentDate.PlusDays(-1);
+            var service = _fixture.BuildService()
+                .Create();
+
+            var provider = _fixture.BuildProvider()
+                .Create();
+
+            var providerService = _fixture.BuildProviderService(provider.Id, service.Id)
+                .Create();
+
+            var elementType = _fixture.BuildElementType(service.Id)
+                .Create();
+
+            var elements = _fixture.BuildElement(provider.Id, elementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .With(e => e.StartDate, endDate.PlusDays(-5))
+                .With(e => e.EndDate, endDate.PlusDays(5))
+                .CreateMany();
+
+            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
+                .With(r => r.Status, ReferralStatus.Approved)
+                .With(r => r.AssignedTo, ApiUser.Email)
+                .With(r => r.Elements, elements.ToList)
+                .Create();
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.Services.AddAsync(service);
+            await Context.Providers.AddAsync(provider);
+            await Context.ProviderServices.AddAsync(providerService);
+            await Context.ElementTypes.AddAsync(elementType);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            var request = _fixture.Build<EndRequest>()
+                .With(r => r.EndDate, endDate)
+                .Create();
+
+            var code = await Post($"/api/v1/referrals/{referral.Id}/care-package/end", request);
+
+            code.Should().Be(HttpStatusCode.OK);
+
+            var (carePackageCode, response) = await Get<CarePackageResponse>($"/api/v1/referrals/{referral.Id}/care-package");
+
+            carePackageCode.Should().Be(HttpStatusCode.OK);
+            response.Status.Should().Be(ReferralStatus.Ended);
+            response.UpdatedAt.Should().BeEquivalentTo(CurrentInstant);
+
+            response.Elements.Should().OnlyContain(e => e.EndDate <= endDate);
+            response.Elements.Should().OnlyContain(e => e.Status == ElementStatus.Ended);
+            response.Elements.Should().OnlyContain(e => e.UpdatedAt.IsSameOrEqualTo(CurrentInstant));
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanCancelCarePackage()
         {
             // Arrange
             var service = _fixture.BuildService()
@@ -222,16 +296,14 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var elementType = _fixture.BuildElementType(service.Id)
                 .Create();
 
-            var parentElement = _fixture.BuildElement(provider.Id, elementType.Id)
-                .Create();
-
-            var element = _fixture.BuildElement(provider.Id, elementType.Id)
-                .With(e => e.ParentElement, parentElement)
-                .Create();
+            var elements = _fixture.BuildElement(provider.Id, elementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .CreateMany();
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
+                .With(r => r.Status, ReferralStatus.Approved)
                 .With(r => r.AssignedTo, ApiUser.Email)
-                .With(r => r.Elements, new List<Element> { element })
+                .With(r => r.Elements, elements.ToList)
                 .Create();
 
             await Context.Referrals.AddAsync(referral);
@@ -243,90 +315,26 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             Context.ChangeTracker.Clear();
 
-            var request = _fixture.Build<CreateElementRequest>()
-                .With(r => r.ElementTypeId, elementType.Id)
-                .With(r => r.ProviderId, provider.Id)
-                .With(r => r.StartDate, CurrentDate)
-                .Without(r => r.ParentElementId)
-                .Create();
+            var code = await Post($"/api/v1/referrals/{referral.Id}/care-package/cancel", null);
 
-            // Act
-            var (code, response) = await Post<ElementResponse>($"/api/v1/referrals/{referral.Id}/care-package/elements", request);
-            var (referralCode, referralResponse) = await Get<ReferralResponse>($"/api/v1/referrals/{referral.Id}");
-
-            // Assert
             code.Should().Be(HttpStatusCode.OK);
-            response.ElementType.Id.Should().Be(request.ElementTypeId);
-            response.Provider.Id.Should().Be(request.ProviderId);
-            response.Details.Should().Be(request.Details);
-            response.StartDate.Should().Be(request.StartDate);
-            response.Monday.Should().BeEquivalentTo(request.Monday);
-            response.Tuesday.Should().BeEquivalentTo(request.Tuesday);
-            response.Wednesday.Should().BeEquivalentTo(request.Wednesday);
-            response.Thursday.Should().BeEquivalentTo(request.Thursday);
-            response.Friday.Should().BeEquivalentTo(request.Friday);
-            response.Quantity.Should().Be(request.Quantity);
-            response.Cost.Should().Be(request.Cost);
-            response.Status.Should().Be(ElementStatus.InProgress);
-            response.UpdatedAt.Should().Be(CurrentInstant);
 
-            referralCode.Should().Be(HttpStatusCode.OK);
-            referralResponse.UpdatedAt.Should().Be(CurrentInstant);
+            var (carePackageCode, response) = await Get<CarePackageResponse>($"/api/v1/referrals/{referral.Id}/care-package");
+
+            carePackageCode.Should().Be(HttpStatusCode.OK);
+            response.Status.Should().Be(ReferralStatus.Cancelled);
+            response.UpdatedAt.Should().BeEquivalentTo(CurrentInstant);
+
+            response.Elements.Should().OnlyContain(e => e.Status == ElementStatus.Cancelled);
+            response.Elements.Should().OnlyContain(e => e.UpdatedAt.IsSameOrEqualTo(CurrentInstant));
         }
 
         [Test, Property("AsUser", "Broker")]
-        public async Task CanDeleteElement()
-        {
-            var service = _fixture.BuildService()
-                .Create();
-
-            var provider = _fixture.BuildProvider()
-                .Create();
-
-            var providerService = _fixture.BuildProviderService(provider.Id, service.Id)
-                .Create();
-
-            var elementType = _fixture.BuildElementType(service.Id)
-                .Create();
-
-            var parentElement = _fixture.BuildElement(provider.Id, elementType.Id)
-                .Create();
-
-            var element = _fixture.BuildElement(provider.Id, elementType.Id)
-                .With(e => e.ParentElement, parentElement)
-                .Create();
-
-            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
-                .With(r => r.AssignedTo, ApiUser.Email)
-                .With(r => r.Elements, new List<Element> { element })
-                .Create();
-
-            await Context.Referrals.AddAsync(referral);
-            await Context.Services.AddAsync(service);
-            await Context.Providers.AddAsync(provider);
-            await Context.ProviderServices.AddAsync(providerService);
-            await Context.ElementTypes.AddAsync(elementType);
-            await Context.SaveChangesAsync();
-
-            Context.ChangeTracker.Clear();
-
-            // Act
-            var code = await Delete($"/api/v1/referrals/{referral.Id}/care-package/elements/{element.Id}");
-
-            // Assert
-            code.Should().Be(HttpStatusCode.OK);
-            Context.ReferralElements.Should().NotContain(re => re.ReferralId == referral.Id && re.ElementId == element.Id);
-            Context.ReferralElements.Should().Contain(re => re.ReferralId == referral.Id && re.ElementId == parentElement.Id);
-
-            var resultReferral = await Context.Referrals.SingleAsync(r => r.Id == referral.Id);
-            resultReferral.Elements.Should().NotContain(e => e.Id == element.Id);
-            resultReferral.Elements.Should().Contain(e => e.Id == parentElement.Id);
-        }
-
-        [Test, Property("AsUser", "Broker")]
-        public async Task CanReplaceElement()
+        public async Task CanSuspendCarePackage()
         {
             // Arrange
+            var startDate = CurrentDate;
+            var endDate = CurrentDate.PlusDays(2);
             var service = _fixture.BuildService()
                 .Create();
 
@@ -339,12 +347,16 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var elementType = _fixture.BuildElementType(service.Id)
                 .Create();
 
-            var parentElement = _fixture.BuildElement(provider.Id, elementType.Id)
-                .Create();
+            var elements = _fixture.BuildElement(provider.Id, elementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .With(e => e.StartDate, startDate.PlusDays(-5))
+                .With(e => e.EndDate, endDate.PlusDays(5))
+                .CreateMany();
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
-                .With(r => r.Elements, new List<Element> { parentElement })
+                .With(r => r.Status, ReferralStatus.Approved)
                 .With(r => r.AssignedTo, ApiUser.Email)
+                .With(r => r.Elements, elements.ToList)
                 .Create();
 
             await Context.Referrals.AddAsync(referral);
@@ -352,130 +364,30 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Providers.AddAsync(provider);
             await Context.ProviderServices.AddAsync(providerService);
             await Context.ElementTypes.AddAsync(elementType);
-            await Context.Elements.AddAsync(parentElement);
             await Context.SaveChangesAsync();
 
             Context.ChangeTracker.Clear();
 
-            var request = new CreateElementRequest()
+            var request = _fixture.Build<SuspendRequest>()
+                .With(r => r.StartDate, startDate)
+                .With(r => r.EndDate, endDate)
+                .Create();
+
+            var code = await Post($"/api/v1/referrals/{referral.Id}/care-package/suspend", request);
+
+            code.Should().Be(HttpStatusCode.OK);
+
+            var (carePackageCode, response) = await Get<CarePackageResponse>($"/api/v1/referrals/{referral.Id}/care-package");
+
+            carePackageCode.Should().Be(HttpStatusCode.OK);
+            response.UpdatedAt.Should().BeEquivalentTo(CurrentInstant);
+
+            foreach (var element in elements)
             {
-                ElementTypeId = elementType.Id,
-                NonPersonalBudget = true,
-                ProviderId = provider.Id,
-                Details = "Some notes",
-                StartDate = CurrentDate,
-                EndDate = null,
-                Monday = null,
-                Tuesday = new ElementCost(3, 150),
-                Wednesday = null,
-                Thursday = new ElementCost(3, 150),
-                Friday = null,
-                Saturday = null,
-                Sunday = null,
-                Quantity = 6,
-                Cost = 300,
-                ParentElementId = parentElement.Id
-            };
-
-            // Act
-            var (code, response) = await Post<ElementResponse>($"/api/v1/referrals/{referral.Id}/care-package/elements", request);
-
-            // Assert
-            code.Should().Be(HttpStatusCode.OK);
-
-            response.Should().BeEquivalentTo(request.ToDatabase().ToResponse(), options => options
-                .Excluding(e => e.Id)
-                .Excluding(e => e.ElementType)
-                .Excluding(e => e.Provider)
-                .Excluding(e => e.ParentElement)
-                .Excluding(e => e.CreatedAt)
-                .Excluding(e => e.UpdatedAt)
-            );
-
-            response.ParentElement.Should().BeEquivalentTo(parentElement.ToResponse(), options => options
-                .Excluding(e => e.Id)
-                .Excluding(e => e.ElementType)
-                .Excluding(e => e.Provider)
-                .Excluding(e => e.ParentElement)
-                .Excluding(e => e.CreatedAt)
-                .Excluding(e => e.UpdatedAt)
-            );
-
-            var resultParentElement = await Context.Elements.SingleAsync(e => e.Id == parentElement.Id);
-            resultParentElement.Referrals.Should().NotContain(r => r.Id == referral.Id);
-
-            var resultReferral = await Context.Referrals.SingleAsync(r => r.Id == referral.Id);
-            resultReferral.Elements.Should().NotContain(e => e.Id == parentElement.Id);
-
-            var resultReferralElement = await Context.ReferralElements.SingleOrDefaultAsync(re => re.ElementId == parentElement.Id && re.ReferralId == referral.Id);
-            resultReferralElement.Should().BeNull();
-        }
-
-        [Test, Property("AsUser", "Broker")]
-        public async Task CanEditElement()
-        {
-            // Arrange
-            var service = _fixture.BuildService()
-                .Create();
-
-            var provider = _fixture.BuildProvider()
-                .Create();
-
-            var providerService = _fixture.BuildProviderService(provider.Id, service.Id)
-                .Create();
-
-            var elementType = _fixture.BuildElementType(service.Id)
-                .Create();
-
-            var parentElement = _fixture.BuildElement(provider.Id, elementType.Id)
-                .Create();
-
-            var element = _fixture.BuildElement(provider.Id, elementType.Id)
-                .With(e => e.ParentElement, parentElement)
-                .Create();
-
-            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
-                .With(r => r.AssignedTo, ApiUser.Email)
-                .With(r => r.Elements, new List<Element> { element })
-                .Create();
-
-            await Context.Referrals.AddAsync(referral);
-            await Context.Services.AddAsync(service);
-            await Context.Providers.AddAsync(provider);
-            await Context.ProviderServices.AddAsync(providerService);
-            await Context.ElementTypes.AddAsync(elementType);
-            await Context.SaveChangesAsync();
-
-            Context.ChangeTracker.Clear();
-
-            var request = _fixture.Build<EditElementRequest>()
-                .With(r => r.ElementTypeId, elementType.Id)
-                .With(r => r.ProviderId, provider.Id)
-                .With(r => r.StartDate, CurrentDate)
-                .Create();
-
-            // Act
-            var (code, response) = await Post<ElementResponse>($"/api/v1/referrals/{referral.Id}/care-package/elements/{element.Id}/edit", request);
-            var (referralCode, referralResponse) = await Get<ReferralResponse>($"/api/v1/referrals/{referral.Id}");
-
-            // Assert
-            code.Should().Be(HttpStatusCode.OK);
-            response.ElementType.Id.Should().Be(request.ElementTypeId);
-            response.Provider.Id.Should().Be(request.ProviderId);
-            response.Details.Should().Be(request.Details);
-            response.StartDate.Should().Be(request.StartDate);
-            response.Monday.Should().BeEquivalentTo(request.Monday);
-            response.Tuesday.Should().BeEquivalentTo(request.Tuesday);
-            response.Wednesday.Should().BeEquivalentTo(request.Wednesday);
-            response.Thursday.Should().BeEquivalentTo(request.Thursday);
-            response.Friday.Should().BeEquivalentTo(request.Friday);
-            response.Quantity.Should().Be(request.Quantity);
-            response.Cost.Should().Be(request.Cost);
-            response.Status.Should().Be(ElementStatus.InProgress);
-            response.UpdatedAt.Should().Be(CurrentInstant);
-
-            referralCode.Should().Be(HttpStatusCode.OK);
-            referralResponse.UpdatedAt.Should().Be(CurrentInstant);
+                var suspensionElement = await Context.Elements.SingleOrDefaultAsync(e => e.SuspendedElementId == element.Id);
+                suspensionElement.Should().NotBeNull();
+                suspensionElement.IsSuspension.Should().BeTrue();
+            }
         }
     }
 }

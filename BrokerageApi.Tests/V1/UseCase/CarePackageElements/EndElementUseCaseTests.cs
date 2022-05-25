@@ -9,7 +9,6 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using BrokerageApi.V1.Services;
 using BrokerageApi.V1.Services.Interfaces;
-using BrokerageApi.V1.UseCase;
 using BrokerageApi.V1.UseCase.CarePackageElements;
 using FluentAssertions;
 using Moq;
@@ -17,7 +16,7 @@ using NodaTime;
 using NodaTime.Testing;
 using NUnit.Framework;
 
-namespace BrokerageApi.Tests.V1.UseCase
+namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 {
     public class EndElementUseCaseTests
     {
