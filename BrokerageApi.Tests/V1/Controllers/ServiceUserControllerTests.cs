@@ -90,11 +90,9 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Act
             var objectResult = await _classUnderTest.GetServiceUserCarePackages(socialCareId);
             var statusCode = GetStatusCode(objectResult);
-            statusCode.Should().Be((int) HttpStatusCode.OK);
-
             var result = GetResultData<List<CarePackageResponse>>(objectResult);
-
             // Assert
+            statusCode.Should().Be((int) HttpStatusCode.OK);
             result.Should().BeEquivalentTo(carePackages.Select(r => r.ToResponse()).ToList());
         }
 
