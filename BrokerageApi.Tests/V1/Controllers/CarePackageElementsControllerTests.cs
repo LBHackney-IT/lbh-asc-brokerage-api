@@ -195,7 +195,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             var response = await _classUnderTest.EndElement(referralId, elementId, request);
             var statusCode = GetStatusCode(response);
 
-            _mockEndElementUseCase.Verify(x => x.ExecuteAsync(referralId, elementId, request.EndDate));
+            _mockEndElementUseCase.Verify(x => x.ExecuteAsync(referralId, elementId, request.EndDate, request.Comment));
             statusCode.Should().Be((int) HttpStatusCode.OK);
         }
 
@@ -221,7 +221,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             const int referralId = 1234;
             const int elementId = 1234;
             var request = _fixture.Create<EndRequest>();
-            _mockEndElementUseCase.Setup(x => x.ExecuteAsync(referralId, elementId, request.EndDate))
+            _mockEndElementUseCase.Setup(x => x.ExecuteAsync(referralId, elementId, request.EndDate, It.IsAny<string>()))
                 .ThrowsAsync(exception);
 
             var response = await _classUnderTest.EndElement(referralId, elementId, request);
@@ -236,11 +236,12 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             const int referralId = 1234;
             const int elementId = 1234;
+            var request = _fixture.Create<CancelRequest>();
 
-            var response = await _classUnderTest.CancelElement(referralId, elementId);
+            var response = await _classUnderTest.CancelElement(referralId, elementId, request);
             var statusCode = GetStatusCode(response);
 
-            _mockCancelElementUseCase.Verify(x => x.ExecuteAsync(referralId, elementId));
+            _mockCancelElementUseCase.Verify(x => x.ExecuteAsync(referralId, elementId, request.Comment));
             statusCode.Should().Be((int) HttpStatusCode.OK);
         }
 
@@ -261,10 +262,11 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             const int referralId = 1234;
             const int elementId = 1234;
-            _mockCancelElementUseCase.Setup(x => x.ExecuteAsync(referralId, elementId))
+            var request = _fixture.Create<CancelRequest>();
+            _mockCancelElementUseCase.Setup(x => x.ExecuteAsync(referralId, elementId, It.IsAny<string>()))
                 .ThrowsAsync(exception);
 
-            var response = await _classUnderTest.CancelElement(referralId, elementId);
+            var response = await _classUnderTest.CancelElement(referralId, elementId, request);
             var statusCode = GetStatusCode(response);
 
             statusCode.Should().Be((int) expectedStatusCode);
@@ -338,7 +340,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             var response = await _classUnderTest.SuspendElement(referralId, elementId, request);
             var statusCode = GetStatusCode(response);
 
-            _mockSuspendElementUseCase.Verify(x => x.ExecuteAsync(referralId, elementId, request.StartDate, request.EndDate));
+            _mockSuspendElementUseCase.Verify(x => x.ExecuteAsync(referralId, elementId, request.StartDate, request.EndDate, request.Comment));
             statusCode.Should().Be((int) HttpStatusCode.OK);
         }
 
@@ -348,7 +350,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             const int referralId = 1234;
             const int elementId = 1234;
             var request = _fixture.Create<SuspendRequest>();
-            _mockSuspendElementUseCase.Setup(x => x.ExecuteAsync(referralId, elementId, request.StartDate, request.EndDate))
+            _mockSuspendElementUseCase.Setup(x => x.ExecuteAsync(referralId, elementId, request.StartDate, request.EndDate, It.IsAny<string>()))
                 .ThrowsAsync(exception);
 
             var response = await _classUnderTest.SuspendElement(referralId, elementId, request);

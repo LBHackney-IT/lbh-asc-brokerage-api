@@ -53,12 +53,13 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         [Test]
         public async Task CanSuspendElement([Values] bool withEndDate)
         {
+            const string expectedComment = "commentHere";
             var baseDate = LocalDate.FromDateTime(DateTime.Today);
             var startDate = baseDate.PlusDays(1);
             var endDate = withEndDate ? startDate.PlusDays(8) : (LocalDate?) null;
             var (referral, element) = CreateReferralAndElement(ElementStatus.Approved, baseDate, baseDate.PlusDays(10));
 
-            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, startDate, endDate);
+            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, startDate, endDate, expectedComment);
 
             var newElement = referral.Elements.SingleOrDefault(e => e.SuspendedElementId == element.Id);
             newElement.Should().NotBeNull();
@@ -68,6 +69,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             newElement.StartDate.Should().Be(startDate);
             newElement.EndDate.Should().Be(endDate);
             newElement.IsSuspension.Should().BeTrue();
+            newElement.Comment.Should().Be(expectedComment);
             newElement.Should().BeEquivalentTo(element, options => options
                 .Excluding(e => e.Id)
                 .Excluding(e => e.StartDate)
@@ -82,7 +84,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .Excluding(e => e.UpdatedAt)
                 .Excluding(e => e.IsSuspension)
             );
-
+            element.Comment.Should().Be(expectedComment);
             _dbSaver.VerifyChangesSaved();
         }
 
@@ -96,7 +98,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             _mockReferralGateway.Setup(x => x.GetByIdAsync(unknownReferralId))
                 .ReturnsAsync((Referral) null);
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(unknownReferralId, unknownElementId, startDate, endDate);
+            Func<Task> act = () => _classUnderTest.ExecuteAsync(unknownReferralId, unknownElementId, startDate, endDate, null);
 
             await act.Should().ThrowAsync<ArgumentNullException>()
                 .WithMessage($"Referral not found {unknownReferralId} (Parameter 'referralId')");
@@ -111,7 +113,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             var (referral, _) = CreateReferralAndElement();
             var unknownElementId = 1234;
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, unknownElementId, startDate, endDate);
+            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, unknownElementId, startDate, endDate, null);
 
             await act.Should().ThrowAsync<ArgumentNullException>()
                 .WithMessage($"Element not found {unknownElementId} (Parameter 'elementId')");
@@ -125,7 +127,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             var endDate = LocalDate.FromDateTime(DateTime.Today).PlusDays(1);
             var (referral, element) = CreateReferralAndElement(status);
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, startDate, endDate);
+            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, startDate, endDate, null);
 
             if (status != ElementStatus.Approved)
             {
@@ -151,7 +153,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 baseDate.PlusDays(elementStartOffset),
                 elementEndOffset is null ? (LocalDate?) null : baseDate.PlusDays(elementEndOffset.Value));
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, startDate, endDate);
+            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, startDate, endDate, null);
 
             if (shouldThrow)
             {
@@ -169,6 +171,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         [Test]
         public async Task AddsAuditTrail()
         {
+            const string expectedComment = "commentHere";
             var baseDate = LocalDate.FromDateTime(DateTime.Today);
             var startDate = baseDate.PlusDays(1);
             var endDate = startDate.PlusDays(8);
@@ -178,7 +181,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .Setup(x => x.UserId)
                 .Returns(expectedUserId);
 
-            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, startDate, endDate);
+            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, startDate, endDate, expectedComment);
 
             _mockAuditGateway.VerifyAuditEventAdded(AuditEventType.ElementSuspended);
             _mockAuditGateway.LastUserId.Should().Be(expectedUserId);
@@ -187,6 +190,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             eventMetadata.ReferralId.Should().Be(referral.Id);
             eventMetadata.ElementId.Should().Be(element.Id);
             eventMetadata.ElementDetails.Should().Be(element.Details);
+            eventMetadata.Comment.Should().Be(expectedComment);
         }
 
         private (Referral referral, Element element) CreateReferralAndElement(ElementStatus status = ElementStatus.Approved, LocalDate? startDate = null, LocalDate? endDate = null)

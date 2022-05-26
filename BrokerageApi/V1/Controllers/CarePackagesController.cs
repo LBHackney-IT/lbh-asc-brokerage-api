@@ -113,7 +113,7 @@ namespace BrokerageApi.V1.Controllers
         {
             try
             {
-                await _endCarePackageUseCase.ExecuteAsync(referralId, request.EndDate);
+                await _endCarePackageUseCase.ExecuteAsync(referralId, request.EndDate, request.Comment);
             }
             catch (ArgumentNullException e)
             {
@@ -150,11 +150,11 @@ namespace BrokerageApi.V1.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CancelCarePackage([FromRoute] int referralId)
+        public async Task<IActionResult> CancelCarePackage([FromRoute] int referralId, CancelRequest cancelRequest)
         {
             try
             {
-                await _cancelCarePackageUseCase.ExecuteAsync(referralId);
+                await _cancelCarePackageUseCase.ExecuteAsync(referralId, cancelRequest.Comment);
             }
             catch (ArgumentNullException e)
             {
@@ -195,7 +195,7 @@ namespace BrokerageApi.V1.Controllers
         {
             try
             {
-                await _suspendCarePackageUseCase.ExecuteAsync(referralId, request.StartDate, request.EndDate);
+                await _suspendCarePackageUseCase.ExecuteAsync(referralId, request.StartDate, request.EndDate, request.Comment);
             }
             catch (ArgumentNullException e)
             {

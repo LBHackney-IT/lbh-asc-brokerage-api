@@ -30,7 +30,8 @@ namespace BrokerageApi.V1.Factories
                 StartDate = carePackage.StartDate,
                 WeeklyCost = carePackage.WeeklyCost,
                 WeeklyPayment = carePackage.WeeklyPayment,
-                Elements = carePackage.Elements.Select(e => e.ToResponse()).ToList()
+                Elements = carePackage.Elements.Select(e => e.ToResponse()).ToList(),
+                Comment = carePackage.Comment
             };
         }
 
@@ -58,7 +59,8 @@ namespace BrokerageApi.V1.Factories
                 CreatedAt = element.CreatedAt,
                 UpdatedAt = element.UpdatedAt,
                 ParentElement = includeParent ? element.ParentElement?.ToResponse(false) : null,
-                SuspensionElements = element.SuspensionElements?.Select(e => e.ToResponse()).ToList()
+                SuspensionElements = element.SuspensionElements?.Select(e => e.ToResponse()).ToList(),
+                Comment = element.Comment
             };
         }
 

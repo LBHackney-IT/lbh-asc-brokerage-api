@@ -56,28 +56,32 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         [Test]
         public async Task CanEndElementWithoutEndDate()
         {
+            const string expectedComment = "commentHere";
             var endDate = LocalDate.FromDateTime(DateTime.Today);
             var (referral, element) = CreateReferralAndElement();
             _mockElementGateway.Setup(x => x.GetByIdAsync(element.Id))
                 .ReturnsAsync(element);
 
-            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate);
+            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate, expectedComment);
 
             element.EndDate.Should().Be(endDate);
             element.UpdatedAt.Should().Be(_clock.Now);
+            element.Comment.Should().Be(expectedComment);
             _dbSaver.VerifyChangesSaved();
         }
 
         [Test]
         public async Task CanEndElementWithEndDate()
         {
+            const string expectedComment = "commentHere";
             var endDate = LocalDate.FromDateTime(DateTime.Today);
             var (referral, element) = CreateReferralAndElement(ElementStatus.Approved, endDate.PlusDays(5));
 
-            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate);
+            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate, expectedComment);
 
             element.EndDate.Should().Be(endDate);
             element.UpdatedAt.Should().Be(_clock.Now);
+            element.Comment.Should().Be(expectedComment);
             _dbSaver.VerifyChangesSaved();
         }
 
@@ -92,7 +96,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             _mockElementGateway.Setup(x => x.GetByIdAsync(unknownElementId))
                 .ReturnsAsync((Element) null);
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(unknownReferralId, unknownElementId, endDate);
+            Func<Task> act = () => _classUnderTest.ExecuteAsync(unknownReferralId, unknownElementId, endDate, null);
 
             await act.Should().ThrowAsync<ArgumentNullException>()
                 .WithMessage($"Referral not found {unknownReferralId} (Parameter 'referralId')");
@@ -108,7 +112,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             _mockElementGateway.Setup(x => x.GetByIdAsync(unknownElementId))
                 .ReturnsAsync((Element) null);
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, unknownElementId, endDate);
+            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, unknownElementId, endDate, null);
 
             await act.Should().ThrowAsync<ArgumentNullException>()
                 .WithMessage($"Element not found {unknownElementId} (Parameter 'elementId')");
@@ -121,7 +125,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             var endDate = LocalDate.FromDateTime(DateTime.Today);
             var (referral, element) = CreateReferralAndElement(status);
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate);
+            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate, null);
 
             if (status != ElementStatus.Approved)
             {
@@ -137,7 +141,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             var endDate = LocalDate.FromDateTime(DateTime.Today);
             var (referral, element) = CreateReferralAndElement(ElementStatus.Approved, endDate.PlusDays(-5));
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate);
+            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate, null);
 
             await act.Should().ThrowAsync<ArgumentException>()
                 .WithMessage($"Element {element.Id} has an end date before the requested end date");
@@ -147,6 +151,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         [Test]
         public async Task AddsAuditTrail()
         {
+            const string expectedComment = "commentHere";
             var endDate = LocalDate.FromDateTime(DateTime.Today);
             var (referral, element) = CreateReferralAndElement();
             const int expectedUserId = 1234;
@@ -156,7 +161,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .Setup(x => x.UserId)
                 .Returns(expectedUserId);
 
-            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate);
+            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate, expectedComment);
 
             _mockAuditGateway.VerifyAuditEventAdded(AuditEventType.ElementEnded);
             _mockAuditGateway.LastUserId.Should().Be(expectedUserId);
@@ -165,6 +170,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             eventMetadata.ReferralId.Should().Be(referral.Id);
             eventMetadata.ElementId.Should().Be(element.Id);
             eventMetadata.ElementDetails.Should().Be(element.Details);
+            eventMetadata.Comment.Should().Be(expectedComment);
         }
 
         private (Referral referral, Element element) CreateReferralAndElement(ElementStatus status = ElementStatus.Approved, LocalDate? endDate = null)

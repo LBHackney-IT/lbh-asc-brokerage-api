@@ -35,7 +35,7 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
             _clockService = clockService;
         }
 
-        public async Task ExecuteAsync(int referralId, int elementId, LocalDate endDate)
+        public async Task ExecuteAsync(int referralId, int elementId, LocalDate endDate, string comment)
         {
             var referral = await _referralGateway.GetByIdAsync(referralId);
 
@@ -63,14 +63,15 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
 
             element.EndDate = endDate;
             element.UpdatedAt = _clockService.Now;
-
+            element.Comment = comment;
             await _dbSaver.SaveChangesAsync();
 
             var metadata = new ElementAuditEventMetadata
             {
                 ReferralId = referral.Id,
                 ElementId = element.Id,
-                ElementDetails = element.Details
+                ElementDetails = element.Details,
+                Comment = comment
             };
             await _auditGateway.AddAuditEvent(AuditEventType.ElementEnded, referral.SocialCareId, _userService.UserId, metadata);
         }

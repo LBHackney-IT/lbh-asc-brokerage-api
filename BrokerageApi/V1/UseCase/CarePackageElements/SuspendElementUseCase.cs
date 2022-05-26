@@ -33,7 +33,7 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
             _clockService = clockService;
         }
 
-        public async Task ExecuteAsync(int referralId, int elementId, LocalDate startDate, LocalDate? endDate)
+        public async Task ExecuteAsync(int referralId, int elementId, LocalDate startDate, LocalDate? endDate, string comment)
         {
             var referral = await _referralGateway.GetByIdWithElementsAsync(referralId);
 
@@ -67,8 +67,10 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
                 InternalStatus = ElementStatus.InProgress,
                 StartDate = startDate,
                 EndDate = endDate,
-                IsSuspension = true
+                IsSuspension = true,
+                Comment = comment
             };
+            element.Comment = comment;
 
             referral.Elements.Add(newElement);
 
@@ -78,7 +80,8 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
             {
                 ReferralId = referral.Id,
                 ElementId = element.Id,
-                ElementDetails = element.Details
+                ElementDetails = element.Details,
+                Comment = comment
             };
             await _auditGateway.AddAuditEvent(AuditEventType.ElementSuspended, referral.SocialCareId, _userService.UserId, metadata);
         }

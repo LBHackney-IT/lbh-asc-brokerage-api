@@ -9,6 +9,7 @@ using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Infrastructure;
+using BrokerageApi.V1.Infrastructure.AuditEvents;
 using FluentAssertions;
 using FluentAssertions.Common;
 using Microsoft.AspNetCore.Hosting;
@@ -278,6 +279,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             response.Elements.Should().OnlyContain(e => e.EndDate <= endDate);
             response.Elements.Should().OnlyContain(e => e.Status == ElementStatus.Ended);
             response.Elements.Should().OnlyContain(e => e.UpdatedAt.IsSameOrEqualTo(CurrentInstant));
+            Context.AuditEvents.Should().ContainSingle(ae => ae.EventType == AuditEventType.CarePackageEnded);
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -315,7 +317,10 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             Context.ChangeTracker.Clear();
 
-            var code = await Post($"/api/v1/referrals/{referral.Id}/care-package/cancel", null);
+            var request = _fixture.Build<CancelRequest>()
+                .Create();
+
+            var code = await Post($"/api/v1/referrals/{referral.Id}/care-package/cancel", request);
 
             code.Should().Be(HttpStatusCode.OK);
 
@@ -324,9 +329,11 @@ namespace BrokerageApi.Tests.V1.E2ETests
             carePackageCode.Should().Be(HttpStatusCode.OK);
             response.Status.Should().Be(ReferralStatus.Cancelled);
             response.UpdatedAt.Should().BeEquivalentTo(CurrentInstant);
+            response.Comment.Should().Be(request.Comment);
 
             response.Elements.Should().OnlyContain(e => e.Status == ElementStatus.Cancelled);
             response.Elements.Should().OnlyContain(e => e.UpdatedAt.IsSameOrEqualTo(CurrentInstant));
+            Context.AuditEvents.Should().ContainSingle(ae => ae.EventType == AuditEventType.CarePackageCancelled);
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -388,6 +395,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 suspensionElement.Should().NotBeNull();
                 suspensionElement.IsSuspension.Should().BeTrue();
             }
+            Context.AuditEvents.Should().ContainSingle(ae => ae.EventType == AuditEventType.CarePackageSuspended);
         }
     }
 }
