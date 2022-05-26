@@ -142,7 +142,7 @@ namespace BrokerageApi.V1.Controllers
         {
             try
             {
-                await _endElementUseCase.ExecuteAsync(referralId, elementId, request.EndDate);
+                await _endElementUseCase.ExecuteAsync(referralId, elementId, request.EndDate, request.Comment);
             }
             catch (ArgumentNullException e)
             {
@@ -177,11 +177,11 @@ namespace BrokerageApi.V1.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CancelElement([FromRoute] int referralId, [FromRoute] int elementId)
+        public async Task<IActionResult> CancelElement([FromRoute] int referralId, [FromRoute] int elementId, CancelRequest cancelRequest)
         {
             try
             {
-                await _cancelElementUseCase.ExecuteAsync(referralId, elementId);
+                await _cancelElementUseCase.ExecuteAsync(referralId, elementId, cancelRequest.Comment);
             }
             catch (ArgumentNullException e)
             {
@@ -212,7 +212,7 @@ namespace BrokerageApi.V1.Controllers
         {
             try
             {
-                await _suspendElementUseCase.ExecuteAsync(referralId, elementId, request.StartDate, request.EndDate);
+                await _suspendElementUseCase.ExecuteAsync(referralId, elementId, request.StartDate, request.EndDate, request.Comment);
                 return Ok();
             }
             catch (ArgumentNullException e)

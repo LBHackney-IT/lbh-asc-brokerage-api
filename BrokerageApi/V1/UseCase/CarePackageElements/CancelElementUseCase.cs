@@ -34,7 +34,7 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
             _clockService = clockService;
         }
 
-        public async Task ExecuteAsync(int referralId, int elementId)
+        public async Task ExecuteAsync(int referralId, int elementId, string comment)
         {
             var referral = await _referralGateway.GetByIdAsync(referralId);
 
@@ -63,7 +63,8 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
             {
                 ReferralId = referral.Id,
                 ElementId = element.Id,
-                ElementDetails = element.Details
+                ElementDetails = element.Details,
+                Comment = comment
             };
             await _auditGateway.AddAuditEvent(AuditEventType.ElementCancelled, referral.SocialCareId, _userService.UserId, metadata);
         }

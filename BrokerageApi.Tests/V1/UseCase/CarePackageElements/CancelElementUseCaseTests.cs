@@ -60,7 +60,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             _mockElementGateway.Setup(x => x.GetByIdAsync(element.Id))
                 .ReturnsAsync(element);
 
-            await _classUnderTest.ExecuteAsync(referral.Id, element.Id);
+            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, null);
 
             element.InternalStatus.Should().Be(ElementStatus.Cancelled);
             element.UpdatedAt.Should().Be(_clock.Now);
@@ -77,7 +77,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             _mockElementGateway.Setup(x => x.GetByIdAsync(unknownElementId))
                 .ReturnsAsync((Element) null);
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(unknownReferralId, unknownElementId);
+            Func<Task> act = () => _classUnderTest.ExecuteAsync(unknownReferralId, unknownElementId, null);
 
             await act.Should().ThrowAsync<ArgumentNullException>()
                 .WithMessage($"Referral not found {unknownReferralId} (Parameter 'referralId')");
@@ -92,7 +92,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             _mockElementGateway.Setup(x => x.GetByIdAsync(unknownElementId))
                 .ReturnsAsync((Element) null);
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, unknownElementId);
+            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, unknownElementId, null);
 
             await act.Should().ThrowAsync<ArgumentNullException>()
                 .WithMessage($"Element not found {unknownElementId} (Parameter 'elementId')");
@@ -104,7 +104,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         {
             var (referral, element) = CreateReferralAndElement(status);
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id);
+            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, null);
 
             if (status != ElementStatus.Approved)
             {
@@ -117,6 +117,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         [Test]
         public async Task AddsAuditTrail()
         {
+            const string expectedComment = "commentHere";
             var (referral, element) = CreateReferralAndElement();
             const int expectedUserId = 1234;
             _mockElementGateway.Setup(x => x.GetByIdAsync(element.Id))
@@ -125,7 +126,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .Setup(x => x.UserId)
                 .Returns(expectedUserId);
 
-            await _classUnderTest.ExecuteAsync(referral.Id, element.Id);
+            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, expectedComment);
 
             _mockAuditGateway.VerifyAuditEventAdded(AuditEventType.ElementCancelled);
             _mockAuditGateway.LastUserId.Should().Be(expectedUserId);
@@ -134,6 +135,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             eventMetadata.ReferralId.Should().Be(referral.Id);
             eventMetadata.ElementId.Should().Be(element.Id);
             eventMetadata.ElementDetails.Should().Be(element.Details);
+            eventMetadata.Comment.Should().Be(expectedComment);
         }
 
         private (Referral referral, Element element) CreateReferralAndElement(ElementStatus status = ElementStatus.Approved, LocalDate? endDate = null)

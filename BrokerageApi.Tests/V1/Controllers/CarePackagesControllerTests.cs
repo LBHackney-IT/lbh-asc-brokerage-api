@@ -185,19 +185,20 @@ namespace BrokerageApi.Tests.V1.Controllers
             var statusCode = GetStatusCode(response);
 
             statusCode.Should().Be((int) HttpStatusCode.OK);
-            _mockEndCarePackageUseCase.Verify(x => x.ExecuteAsync(referralId, request.EndDate));
+            _mockEndCarePackageUseCase.Verify(x => x.ExecuteAsync(referralId, request.EndDate, request.Comment));
         }
 
         [Test, Property("AsUser", "Broker")]
         public async Task CanCancelCarePackage()
         {
             const int referralId = 1234;
+            var request = _fixture.Create<CancelRequest>();
 
-            var response = await _classUnderTest.CancelCarePackage(referralId);
+            var response = await _classUnderTest.CancelCarePackage(referralId, request);
             var statusCode = GetStatusCode(response);
 
             statusCode.Should().Be((int) HttpStatusCode.OK);
-            _mockCancelCarePackageUseCase.Verify(x => x.ExecuteAsync(referralId));
+            _mockCancelCarePackageUseCase.Verify(x => x.ExecuteAsync(referralId, request.Comment));
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -210,7 +211,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             var statusCode = GetStatusCode(response);
 
             statusCode.Should().Be((int) HttpStatusCode.OK);
-            _mockSuspendCarePackageUseCase.Verify(x => x.ExecuteAsync(referralId, request.StartDate, request.EndDate));
+            _mockSuspendCarePackageUseCase.Verify(x => x.ExecuteAsync(referralId, request.StartDate, request.EndDate, request.Comment));
         }
 
         private static readonly object[] _errorList =
@@ -234,7 +235,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             const int referralId = 1234;
             var request = _fixture.Create<EndRequest>();
-            _mockEndCarePackageUseCase.Setup(x => x.ExecuteAsync(referralId, request.EndDate))
+            _mockEndCarePackageUseCase.Setup(x => x.ExecuteAsync(referralId, request.EndDate, It.IsAny<string>()))
                 .ThrowsAsync(exception);
 
             var response = await _classUnderTest.EndCarePackage(referralId, request);
@@ -248,10 +249,11 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task CancelCarePackageMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
         {
             const int referralId = 1234;
-            _mockCancelCarePackageUseCase.Setup(x => x.ExecuteAsync(referralId))
+            var request = _fixture.Create<CancelRequest>();
+            _mockCancelCarePackageUseCase.Setup(x => x.ExecuteAsync(referralId, It.IsAny<string>()))
                 .ThrowsAsync(exception);
 
-            var response = await _classUnderTest.CancelCarePackage(referralId);
+            var response = await _classUnderTest.CancelCarePackage(referralId, request);
             var statusCode = GetStatusCode(response);
 
             statusCode.Should().Be((int) expectedStatusCode);
@@ -263,7 +265,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             const int referralId = 1234;
             var request = _fixture.Create<SuspendRequest>();
-            _mockSuspendCarePackageUseCase.Setup(x => x.ExecuteAsync(referralId, request.StartDate, request.EndDate))
+            _mockSuspendCarePackageUseCase.Setup(x => x.ExecuteAsync(referralId, request.StartDate, request.EndDate, It.IsAny<string>()))
                 .ThrowsAsync(exception);
 
             var response = await _classUnderTest.SuspendCarePackage(referralId, request);
