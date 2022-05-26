@@ -53,12 +53,13 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         [Test]
         public async Task CanSuspendElement([Values] bool withEndDate)
         {
+            const string expectedComment = "commentHere";
             var baseDate = LocalDate.FromDateTime(DateTime.Today);
             var startDate = baseDate.PlusDays(1);
             var endDate = withEndDate ? startDate.PlusDays(8) : (LocalDate?) null;
             var (referral, element) = CreateReferralAndElement(ElementStatus.Approved, baseDate, baseDate.PlusDays(10));
 
-            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, startDate, endDate, null);
+            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, startDate, endDate, expectedComment);
 
             var newElement = referral.Elements.SingleOrDefault(e => e.SuspendedElementId == element.Id);
             newElement.Should().NotBeNull();
@@ -68,6 +69,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             newElement.StartDate.Should().Be(startDate);
             newElement.EndDate.Should().Be(endDate);
             newElement.IsSuspension.Should().BeTrue();
+            newElement.Comment.Should().Be(expectedComment);
             newElement.Should().BeEquivalentTo(element, options => options
                 .Excluding(e => e.Id)
                 .Excluding(e => e.StartDate)
@@ -82,7 +84,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .Excluding(e => e.UpdatedAt)
                 .Excluding(e => e.IsSuspension)
             );
-
+            element.Comment.Should().Be(expectedComment);
             _dbSaver.VerifyChangesSaved();
         }
 

@@ -56,14 +56,16 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         [Test]
         public async Task CanCancelElement()
         {
+            const string expectedComment = "commentHere";
             var (referral, element) = CreateReferralAndElement();
             _mockElementGateway.Setup(x => x.GetByIdAsync(element.Id))
                 .ReturnsAsync(element);
 
-            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, null);
+            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, expectedComment);
 
             element.InternalStatus.Should().Be(ElementStatus.Cancelled);
             element.UpdatedAt.Should().Be(_clock.Now);
+            element.Comment.Should().Be(expectedComment);
             _dbSaver.VerifyChangesSaved();
         }
 

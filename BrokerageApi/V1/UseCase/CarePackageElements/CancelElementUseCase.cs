@@ -57,6 +57,7 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
 
             element.InternalStatus = ElementStatus.Cancelled;
             element.UpdatedAt = _clockService.Now;
+            element.Comment = comment;
             await _dbSaver.SaveChangesAsync();
 
             var metadata = new ElementAuditEventMetadata

@@ -329,6 +329,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             carePackageCode.Should().Be(HttpStatusCode.OK);
             response.Status.Should().Be(ReferralStatus.Cancelled);
             response.UpdatedAt.Should().BeEquivalentTo(CurrentInstant);
+            response.Comment.Should().Be(request.Comment);
 
             response.Elements.Should().OnlyContain(e => e.Status == ElementStatus.Cancelled);
             response.Elements.Should().OnlyContain(e => e.UpdatedAt.IsSameOrEqualTo(CurrentInstant));

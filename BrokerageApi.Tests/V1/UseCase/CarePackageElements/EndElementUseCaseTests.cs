@@ -56,28 +56,32 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         [Test]
         public async Task CanEndElementWithoutEndDate()
         {
+            const string expectedComment = "commentHere";
             var endDate = LocalDate.FromDateTime(DateTime.Today);
             var (referral, element) = CreateReferralAndElement();
             _mockElementGateway.Setup(x => x.GetByIdAsync(element.Id))
                 .ReturnsAsync(element);
 
-            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate, null);
+            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate, expectedComment);
 
             element.EndDate.Should().Be(endDate);
             element.UpdatedAt.Should().Be(_clock.Now);
+            element.Comment.Should().Be(expectedComment);
             _dbSaver.VerifyChangesSaved();
         }
 
         [Test]
         public async Task CanEndElementWithEndDate()
         {
+            const string expectedComment = "commentHere";
             var endDate = LocalDate.FromDateTime(DateTime.Today);
             var (referral, element) = CreateReferralAndElement(ElementStatus.Approved, endDate.PlusDays(5));
 
-            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate, null);
+            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate, expectedComment);
 
             element.EndDate.Should().Be(endDate);
             element.UpdatedAt.Should().Be(_clock.Now);
+            element.Comment.Should().Be(expectedComment);
             _dbSaver.VerifyChangesSaved();
         }
 

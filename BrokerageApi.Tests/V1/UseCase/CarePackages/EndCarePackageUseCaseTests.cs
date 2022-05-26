@@ -56,6 +56,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
         [Test]
         public async Task CanEndCarePackage()
         {
+            const string expectedComment = "commentHere";
             var baseDate = LocalDate.FromDateTime(DateTime.Today);
             var elements = _fixture.BuildElement(1, 1)
                 .With(e => e.InternalStatus, ElementStatus.Approved)
@@ -70,13 +71,14 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             _mockReferralsGateway.Setup(x => x.GetByIdWithElementsAsync(referral.Id))
                 .ReturnsAsync(referral);
 
-            await _classUnderTest.ExecuteAsync(referral.Id, baseDate, null);
+            await _classUnderTest.ExecuteAsync(referral.Id, baseDate, expectedComment);
 
             foreach (var element in elements)
             {
-                _mockEndElementUseCase.Verify(x => x.ExecuteAsync(referral.Id, element.Id, baseDate, null), Times.Once);
+                _mockEndElementUseCase.Verify(x => x.ExecuteAsync(referral.Id, element.Id, baseDate, It.IsAny<string>()), Times.Once);
             }
             referral.UpdatedAt.Should().Be(_currentInstance);
+            referral.Comment.Should().Be(expectedComment);
             _mockDbSaver.VerifyChangesSaved();
         }
 

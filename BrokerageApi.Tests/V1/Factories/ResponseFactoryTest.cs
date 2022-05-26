@@ -106,6 +106,7 @@ namespace BrokerageApi.Tests.V1.Factories
             response.ParentElement.Should().BeEquivalentTo(parentElement.ToResponse(false));
             response.ParentElement.ParentElement.Should().BeNull();
             response.SuspensionElements.Should().BeEquivalentTo(suspensionElements.Select(e => e.ToResponse()));
+            response.Comment.Should().Be(element.Comment);
         }
     }
 }

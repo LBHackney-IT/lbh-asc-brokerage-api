@@ -48,6 +48,7 @@ namespace BrokerageApi.V1.UseCase.CarePackages
 
             referral.Status = ReferralStatus.Cancelled;
             referral.UpdatedAt = _clockService.Now;
+            referral.Comment = comment;
             await _dbSaver.SaveChangesAsync();
 
             var metadata = new CarePackageAuditEventMetadata
