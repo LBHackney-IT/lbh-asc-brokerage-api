@@ -20,12 +20,22 @@ namespace BrokerageApi.V1.Controllers
     {
         private readonly IGetCarePackageByIdUseCase _getCarePackageByIdUseCase;
         private readonly IStartCarePackageUseCase _startCarePackageUseCase;
+        private readonly IEndCarePackageUseCase _endCarePackageUseCase;
+        private readonly ICancelCarePackageUseCase _cancelCarePackageUseCase;
+        private readonly ISuspendCarePackageUseCase _suspendCarePackageUseCase;
 
-        public CarePackagesController(IGetCarePackageByIdUseCase getCarePackageByIdUseCase,
-            IStartCarePackageUseCase startCarePackageUseCase)
+        public CarePackagesController(
+            IGetCarePackageByIdUseCase getCarePackageByIdUseCase,
+            IStartCarePackageUseCase startCarePackageUseCase,
+            IEndCarePackageUseCase endCarePackageUseCase,
+            ICancelCarePackageUseCase cancelCarePackageUseCase,
+            ISuspendCarePackageUseCase suspendCarePackageUseCase)
         {
             _getCarePackageByIdUseCase = getCarePackageByIdUseCase;
             _startCarePackageUseCase = startCarePackageUseCase;
+            _endCarePackageUseCase = endCarePackageUseCase;
+            _cancelCarePackageUseCase = cancelCarePackageUseCase;
+            _suspendCarePackageUseCase = suspendCarePackageUseCase;
         }
 
         [Authorize]
@@ -89,6 +99,129 @@ namespace BrokerageApi.V1.Controllers
                     StatusCodes.Status403Forbidden, "Forbidden"
                 );
             }
+        }
+
+        [Authorize(Roles = "Broker")]
+        [HttpPost]
+        [Route("end")]
+        [ProducesResponseType(typeof(ReferralResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> EndCarePackage([FromRoute] int referralId, [FromBody] EndRequest request)
+        {
+            try
+            {
+                await _endCarePackageUseCase.ExecuteAsync(referralId, request.EndDate);
+            }
+            catch (ArgumentNullException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/end",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (InvalidOperationException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/end",
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
+                );
+            }
+            catch (ArgumentException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/end",
+                    StatusCodes.Status400BadRequest, "Bad Request"
+                );
+            }
+            return Ok();
+        }
+
+        [Authorize(Roles = "Broker")]
+        [HttpPost]
+        [Route("cancel")]
+        [ProducesResponseType(typeof(ReferralResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> CancelCarePackage([FromRoute] int referralId)
+        {
+            try
+            {
+                await _cancelCarePackageUseCase.ExecuteAsync(referralId);
+            }
+            catch (ArgumentNullException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/cancel",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (InvalidOperationException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/cancel",
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
+                );
+            }
+            catch (ArgumentException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/cancel",
+                    StatusCodes.Status400BadRequest, "Bad Request"
+                );
+            }
+            return Ok();
+        }
+
+        [Authorize(Roles = "Broker")]
+        [HttpPost]
+        [Route("suspend")]
+        [ProducesResponseType(typeof(ReferralResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> SuspendCarePackage([FromRoute] int referralId, [FromBody] SuspendRequest request)
+        {
+            try
+            {
+                await _suspendCarePackageUseCase.ExecuteAsync(referralId, request.StartDate, request.EndDate);
+            }
+            catch (ArgumentNullException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/suspend",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (InvalidOperationException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/suspend",
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
+                );
+            }
+            catch (ArgumentException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/suspend",
+                    StatusCodes.Status400BadRequest, "Bad Request"
+                );
+            }
+            return Ok();
         }
     }
 }

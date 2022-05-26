@@ -138,7 +138,7 @@ namespace BrokerageApi.V1.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> EndElement([FromRoute] int referralId, [FromRoute] int elementId, [FromBody] EndElementRequest request)
+        public async Task<IActionResult> EndElement([FromRoute] int referralId, [FromRoute] int elementId, [FromBody] EndRequest request)
         {
             try
             {
@@ -208,7 +208,7 @@ namespace BrokerageApi.V1.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> SuspendElement(int referralId, int elementId, SuspendElementRequest request)
+        public async Task<IActionResult> SuspendElement(int referralId, int elementId, SuspendRequest request)
         {
             try
             {

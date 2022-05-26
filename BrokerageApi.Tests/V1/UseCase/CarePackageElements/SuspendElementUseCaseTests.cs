@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -10,16 +9,14 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using BrokerageApi.V1.Services;
 using BrokerageApi.V1.Services.Interfaces;
-using BrokerageApi.V1.UseCase;
 using BrokerageApi.V1.UseCase.CarePackageElements;
-using Castle.Core.Internal;
 using FluentAssertions;
 using Moq;
 using NodaTime;
 using NodaTime.Testing;
 using NUnit.Framework;
 
-namespace BrokerageApi.Tests.V1.UseCase
+namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 {
     public class SuspendElementUseCaseTests
     {
@@ -70,6 +67,7 @@ namespace BrokerageApi.Tests.V1.UseCase
             newElement.UpdatedAt.Should().Be(_clock.Now);
             newElement.StartDate.Should().Be(startDate);
             newElement.EndDate.Should().Be(endDate);
+            newElement.IsSuspension.Should().BeTrue();
             newElement.Should().BeEquivalentTo(element, options => options
                 .Excluding(e => e.Id)
                 .Excluding(e => e.StartDate)
@@ -82,6 +80,7 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .Excluding(e => e.Status)
                 .Excluding(e => e.CreatedAt)
                 .Excluding(e => e.UpdatedAt)
+                .Excluding(e => e.IsSuspension)
             );
 
             _dbSaver.VerifyChangesSaved();

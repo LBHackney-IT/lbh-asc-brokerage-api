@@ -8,13 +8,12 @@ using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Services.Interfaces;
 using BrokerageApi.V1.UseCase.CarePackageElements;
-using BrokerageApi.V1.UseCase.Interfaces;
 using FluentAssertions;
 using Moq;
 using NodaTime;
 using NUnit.Framework;
 
-namespace BrokerageApi.Tests.V1.UseCase
+namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 {
     public class DeleteElementUseCaseTests
     {

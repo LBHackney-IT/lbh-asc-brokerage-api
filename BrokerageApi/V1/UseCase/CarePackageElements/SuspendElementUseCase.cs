@@ -66,7 +66,8 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
                 UpdatedAt = _clockService.Now,
                 InternalStatus = ElementStatus.InProgress,
                 StartDate = startDate,
-                EndDate = endDate
+                EndDate = endDate,
+                IsSuspension = true
             };
 
             referral.Elements.Add(newElement);

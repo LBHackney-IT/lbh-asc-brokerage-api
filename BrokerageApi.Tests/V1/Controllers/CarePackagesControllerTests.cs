@@ -6,17 +6,13 @@ using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Controllers;
 using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Infrastructure;
-using BrokerageApi.V1.UseCase.Interfaces;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackages;
-using Microsoft.AspNetCore.Http;
 
 namespace BrokerageApi.Tests.V1.Controllers
 {
@@ -29,6 +25,9 @@ namespace BrokerageApi.Tests.V1.Controllers
         private MockProblemDetailsFactory _mockProblemDetailsFactory;
 
         private CarePackagesController _classUnderTest;
+        private Mock<IEndCarePackageUseCase> _mockEndCarePackageUseCase;
+        private Mock<ISuspendCarePackageUseCase> _mockSuspendCarePackageUseCase;
+        private Mock<ICancelCarePackageUseCase> _mockCancelCarePackageUseCase;
 
         [SetUp]
         public void SetUp()
@@ -37,10 +36,16 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockGetCarePackageByIdUseCase = new Mock<IGetCarePackageByIdUseCase>();
             _mockStartCarePackageUseCase = new Mock<IStartCarePackageUseCase>();
             _mockProblemDetailsFactory = new MockProblemDetailsFactory();
+            _mockEndCarePackageUseCase = new Mock<IEndCarePackageUseCase>();
+            _mockCancelCarePackageUseCase = new Mock<ICancelCarePackageUseCase>();
+            _mockSuspendCarePackageUseCase = new Mock<ISuspendCarePackageUseCase>();
 
             _classUnderTest = new CarePackagesController(
                 _mockGetCarePackageByIdUseCase.Object,
-                _mockStartCarePackageUseCase.Object
+                _mockStartCarePackageUseCase.Object,
+                _mockEndCarePackageUseCase.Object,
+                _mockCancelCarePackageUseCase.Object,
+                _mockSuspendCarePackageUseCase.Object
             );
 
             // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
@@ -168,6 +173,104 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.Forbidden);
             _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.Forbidden);
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanEndCarePackage()
+        {
+            const int referralId = 1234;
+            var request = _fixture.Create<EndRequest>();
+
+            var response = await _classUnderTest.EndCarePackage(referralId, request);
+            var statusCode = GetStatusCode(response);
+
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            _mockEndCarePackageUseCase.Verify(x => x.ExecuteAsync(referralId, request.EndDate));
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanCancelCarePackage()
+        {
+            const int referralId = 1234;
+
+            var response = await _classUnderTest.CancelCarePackage(referralId);
+            var statusCode = GetStatusCode(response);
+
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            _mockCancelCarePackageUseCase.Verify(x => x.ExecuteAsync(referralId));
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanSuspendCarePackage()
+        {
+            const int referralId = 1234;
+            var request = _fixture.Create<SuspendRequest>();
+
+            var response = await _classUnderTest.SuspendCarePackage(referralId, request);
+            var statusCode = GetStatusCode(response);
+
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            _mockSuspendCarePackageUseCase.Verify(x => x.ExecuteAsync(referralId, request.StartDate, request.EndDate));
+        }
+
+        private static readonly object[] _errorList =
+        {
+            new object[]
+            {
+                new ArgumentNullException(null, "message"), HttpStatusCode.NotFound
+            },
+            new object[]
+            {
+                new ArgumentException("message"), HttpStatusCode.BadRequest
+            },
+            new object[]
+            {
+                new InvalidOperationException("message"), HttpStatusCode.UnprocessableEntity
+            }
+        };
+
+        [TestCaseSource(nameof(_errorList)), Property("AsUser", "Broker")]
+        public async Task EndCarePackageMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            const int referralId = 1234;
+            var request = _fixture.Create<EndRequest>();
+            _mockEndCarePackageUseCase.Setup(x => x.ExecuteAsync(referralId, request.EndDate))
+                .ThrowsAsync(exception);
+
+            var response = await _classUnderTest.EndCarePackage(referralId, request);
+            var statusCode = GetStatusCode(response);
+
+            statusCode.Should().Be((int) expectedStatusCode);
+            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+        }
+
+        [TestCaseSource(nameof(_errorList)), Property("AsUser", "Broker")]
+        public async Task CancelCarePackageMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            const int referralId = 1234;
+            _mockCancelCarePackageUseCase.Setup(x => x.ExecuteAsync(referralId))
+                .ThrowsAsync(exception);
+
+            var response = await _classUnderTest.CancelCarePackage(referralId);
+            var statusCode = GetStatusCode(response);
+
+            statusCode.Should().Be((int) expectedStatusCode);
+            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+        }
+
+        [TestCaseSource(nameof(_errorList)), Property("AsUser", "Broker")]
+        public async Task SuspendCarePackageMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            const int referralId = 1234;
+            var request = _fixture.Create<SuspendRequest>();
+            _mockSuspendCarePackageUseCase.Setup(x => x.ExecuteAsync(referralId, request.StartDate, request.EndDate))
+                .ThrowsAsync(exception);
+
+            var response = await _classUnderTest.SuspendCarePackage(referralId, request);
+            var statusCode = GetStatusCode(response);
+
+            statusCode.Should().Be((int) expectedStatusCode);
+            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
         }
     }
 }

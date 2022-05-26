@@ -1,20 +1,19 @@
-using AutoFixture;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using NodaTime;
+using AutoFixture;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Services.Interfaces;
-using BrokerageApi.V1.UseCase;
 using BrokerageApi.V1.UseCase.CarePackageElements;
 using FluentAssertions;
 using Moq;
+using NodaTime;
 using NUnit.Framework;
 
-namespace BrokerageApi.Tests.V1.UseCase
+namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 {
 
     public class CreateElementUseCaseTests

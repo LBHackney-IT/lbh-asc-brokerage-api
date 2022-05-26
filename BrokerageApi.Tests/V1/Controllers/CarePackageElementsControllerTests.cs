@@ -190,7 +190,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             const int referralId = 1234;
             const int elementId = 1234;
-            var request = _fixture.Create<EndElementRequest>();
+            var request = _fixture.Create<EndRequest>();
 
             var response = await _classUnderTest.EndElement(referralId, elementId, request);
             var statusCode = GetStatusCode(response);
@@ -220,7 +220,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             const int referralId = 1234;
             const int elementId = 1234;
-            var request = _fixture.Create<EndElementRequest>();
+            var request = _fixture.Create<EndRequest>();
             _mockEndElementUseCase.Setup(x => x.ExecuteAsync(referralId, elementId, request.EndDate))
                 .ThrowsAsync(exception);
 
@@ -333,7 +333,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             const int referralId = 1234;
             const int elementId = 1234;
-            var request = _fixture.Create<SuspendElementRequest>();
+            var request = _fixture.Create<SuspendRequest>();
 
             var response = await _classUnderTest.SuspendElement(referralId, elementId, request);
             var statusCode = GetStatusCode(response);
@@ -347,7 +347,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             const int referralId = 1234;
             const int elementId = 1234;
-            var request = _fixture.Create<SuspendElementRequest>();
+            var request = _fixture.Create<SuspendRequest>();
             _mockSuspendElementUseCase.Setup(x => x.ExecuteAsync(referralId, elementId, request.StartDate, request.EndDate))
                 .ThrowsAsync(exception);
 
