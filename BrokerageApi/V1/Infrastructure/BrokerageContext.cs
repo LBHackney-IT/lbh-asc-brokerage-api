@@ -182,11 +182,9 @@ namespace BrokerageApi.V1.Infrastructure
                 .Property(s => s.IsArchived)
                 .HasDefaultValue(false);
 
-
-
             modelBuilder.Entity<User>()
-                .HasPrincipalKey(u => u.Email);
-                
+                .HasPrincipalKey(ue => ue.Email);
+
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
