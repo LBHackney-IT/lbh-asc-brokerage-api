@@ -35,6 +35,8 @@ namespace BrokerageApi.V1.Gateways
                 .Include(cp => cp.Elements.OrderBy(e => e.CreatedAt))
                 .ThenInclude(e => e.ElementType)
                 .ThenInclude(et => et.Service)
+                .Include(cp => cp.AssignedBroker)
+                .Include(cp => cp.AssignedApprover)
                 .ToListAsync();
         }
 

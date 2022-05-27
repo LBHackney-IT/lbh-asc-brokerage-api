@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using NodaTime;
 
 namespace BrokerageApi.V1.Infrastructure
@@ -27,9 +28,9 @@ namespace BrokerageApi.V1.Infrastructure
 
         public Instant? UrgentSince { get; set; }
 
-        public string AssignedBroker { get; set; }
+        public User AssignedBroker { get; set; }
 
-        public string AssignedApprover { get; set; }
+        public User AssignedApprover { get; set; }
 
         public ReferralStatus Status { get; set; }
 

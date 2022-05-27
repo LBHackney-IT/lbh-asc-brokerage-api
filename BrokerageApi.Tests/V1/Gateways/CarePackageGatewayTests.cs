@@ -253,12 +253,32 @@ namespace BrokerageApi.Tests.V1.Gateways
                 }
             };
 
+            var assignedBroker = new User(){
+                Name = "UserName",
+                Email = "some.email@hackney.gov.uk",
+                Roles = new List<UserRole>() {
+                    UserRole.BrokerageAssistant
+                },
+                IsActive = true
+            };
+
+            var assignedApprover = new User(){
+                Name = "Another Username",
+                Email = "some.otheremail@hackney.gov.uk",
+                Roles = new List<UserRole>() {
+                    UserRole.BrokerageAssistant
+                },
+                IsActive = true
+            };            
+
             await BrokerageContext.Services.AddAsync(service);
             await BrokerageContext.ElementTypes.AddAsync(hourlyElementType);
             await BrokerageContext.ElementTypes.AddAsync(dailyElementType);
             await BrokerageContext.Providers.AddAsync(provider);
             await BrokerageContext.ProviderServices.AddAsync(providerService);
             await BrokerageContext.Referrals.AddAsync(referral);
+            await BrokerageContext.Users.AddAsync(assignedBroker);
+            await BrokerageContext.Users.AddAsync(assignedApprover);
             await BrokerageContext.SaveChangesAsync();
 
             // Act
@@ -280,6 +300,13 @@ namespace BrokerageApi.Tests.V1.Gateways
             Assert.That(result.ElementAt(0).Elements[1].ElementType.Name, Is.EqualTo("Day Opportunities (daily)"));
             Assert.That(result.ElementAt(0).Elements[1].ElementType.Service.Name, Is.EqualTo("Supported Living"));
             Assert.That(result.ElementAt(0).Elements[1].Provider.Name, Is.EqualTo("Acme Homes"));
+
+            Assert.That(result.ElementAt(0).AssignedBroker.Name, Is.EqualTo("UserName"));
+            Assert.That(result.ElementAt(0).AssignedBroker.Email, Is.EqualTo("some.email@hackney.gov.uk"));
+            Assert.That(result.ElementAt(0).AssignedApprover.Name, Is.EqualTo("Another Username"));
+            Assert.That(result.ElementAt(0).AssignedApprover.Email, Is.EqualTo("some.otheremail@hackney.gov.uk"));
+ 
+
         }
 
     }

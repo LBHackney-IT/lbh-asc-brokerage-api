@@ -17,5 +17,8 @@ namespace BrokerageApi.V1.Infrastructure
         public List<UserRole> Roles { get; set; }
 
         public bool IsActive { get; set; }
+
+        public List<CarePackage> CarePackages { get; set; }
+
     }
 }
