@@ -18,7 +18,9 @@ namespace BrokerageApi.V1.Infrastructure
 
         public bool IsActive { get; set; }
 
-        public List<CarePackage> CarePackages { get; set; }
+        public List<CarePackage> BrokerCarePackages { get; set; }
+
+        public List<CarePackage> ApproverCarePackages { get; set; }
 
     }
 }

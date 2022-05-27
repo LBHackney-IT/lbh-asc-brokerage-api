@@ -253,7 +253,8 @@ namespace BrokerageApi.Tests.V1.Gateways
                 }
             };
 
-            var assignedBroker = new User(){
+            var assignedBroker = new User()
+            {
                 Name = "UserName",
                 Email = "some.email@hackney.gov.uk",
                 Roles = new List<UserRole>() {
@@ -262,14 +263,15 @@ namespace BrokerageApi.Tests.V1.Gateways
                 IsActive = true
             };
 
-            var assignedApprover = new User(){
+            var assignedApprover = new User()
+            {
                 Name = "Another Username",
                 Email = "some.otheremail@hackney.gov.uk",
                 Roles = new List<UserRole>() {
                     UserRole.BrokerageAssistant
                 },
                 IsActive = true
-            };            
+            };
 
             await BrokerageContext.Services.AddAsync(service);
             await BrokerageContext.ElementTypes.AddAsync(hourlyElementType);
@@ -305,7 +307,7 @@ namespace BrokerageApi.Tests.V1.Gateways
             Assert.That(result.ElementAt(0).AssignedBroker.Email, Is.EqualTo("some.email@hackney.gov.uk"));
             Assert.That(result.ElementAt(0).AssignedApprover.Name, Is.EqualTo("Another Username"));
             Assert.That(result.ElementAt(0).AssignedApprover.Email, Is.EqualTo("some.otheremail@hackney.gov.uk"));
- 
+
 
         }
 
