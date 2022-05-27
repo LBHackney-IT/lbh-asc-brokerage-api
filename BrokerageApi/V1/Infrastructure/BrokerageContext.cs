@@ -99,7 +99,7 @@ namespace BrokerageApi.V1.Infrastructure
 
             modelBuilder.Entity<CarePackage>()
                 .HasOne(cp => cp.AssignedApprover)
-                .WithMany(u => u.BrokerCarePackages)
+                .WithMany(u => u.ApproverCarePackages)
                 .HasForeignKey("AssignedApproverId")
                 .HasPrincipalKey("Email");  
 
