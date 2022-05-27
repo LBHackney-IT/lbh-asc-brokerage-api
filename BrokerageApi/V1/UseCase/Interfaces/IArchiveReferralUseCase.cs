@@ -1,9 +1,10 @@
 using System.Threading.Tasks;
 
-namespace BrokerageApi.V1.UseCase.Interfaces.CarePackages
+namespace BrokerageApi.V1.UseCase.Interfaces
 {
-    public interface ICancelCarePackageUseCase
+    public interface IArchiveReferralUseCase
     {
         public Task ExecuteAsync(int referralId, string comment);
     }
+
 }

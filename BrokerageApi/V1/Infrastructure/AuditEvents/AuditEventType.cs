@@ -13,6 +13,7 @@ namespace BrokerageApi.V1.Infrastructure.AuditEvents
         ElementSuspended,
         CarePackageEnded,
         CarePackageCancelled,
-        CarePackageSuspended
+        CarePackageSuspended,
+        ReferralArchived
     }
 }
