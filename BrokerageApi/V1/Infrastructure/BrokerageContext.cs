@@ -90,15 +90,18 @@ namespace BrokerageApi.V1.Infrastructure
                         j.HasKey(re => new { re.ElementId, re.ReferralId });
                     });
 
+
             modelBuilder.Entity<CarePackage>()
                 .HasOne(cp => cp.AssignedBroker)
-                .WithMany(b => b.BrokerCarePackages)
-                .HasForeignKey("AssignedBrokerId");
+                .WithMany(u => u.BrokerCarePackages)
+                .HasForeignKey("AssignedBrokerId")
+                .HasPrincipalKey("Email");     
 
             modelBuilder.Entity<CarePackage>()
                 .HasOne(cp => cp.AssignedApprover)
-                .WithMany(b => b.ApproverCarePackages)
-                .HasForeignKey("AssignedApproverId");
+                .WithMany(u => u.BrokerCarePackages)
+                .HasForeignKey("AssignedApproverId")
+                .HasPrincipalKey("Email");  
 
             modelBuilder.Entity<Element>()
                 .HasOne(e => e.ParentElement)
@@ -182,8 +185,6 @@ namespace BrokerageApi.V1.Infrastructure
                 .Property(s => s.IsArchived)
                 .HasDefaultValue(false);
 
-            modelBuilder.Entity<User>()
-                .HasPrincipalKey(ue => ue.Email);
 
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
