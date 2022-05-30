@@ -30,7 +30,10 @@ namespace BrokerageApi.Tests.V1.E2ETests
             const int pageNumber = 1;
             const int pageSize = 10;
 
-            var user = _fixture.Create<User>();
+            var user = _fixture.Build<User>()
+                .Without(u => u.BrokerCarePackages)
+                .Without(u => u.ApproverCarePackages)
+                .Create();
 
             var auditEvents = _fixture.Build<AuditEvent>()
                 .With(ae => ae.UserId, user.Id)
