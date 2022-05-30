@@ -75,7 +75,8 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
-                AssignedBroker = "a.broker@hackney.gov.uk",
+                AssignedBroker = "some.email@hackney.gov.uk",
+                AssignedApprover = "some.otheremail@hackney.gov.uk",
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant,
                 CreatedAt = PreviousInstant,
@@ -119,6 +120,26 @@ namespace BrokerageApi.Tests.V1.Gateways
                         UpdatedAt = CurrentInstant
                     },
                 }
+            };
+
+            var assignedBroker = new User()
+            {
+                Name = "UserName",
+                Email = "some.email@hackney.gov.uk",
+                Roles = new List<UserRole>() {
+                    UserRole.BrokerageAssistant
+                },
+                IsActive = true
+            };
+
+            var assignedApprover = new User()
+            {
+                Name = "Another Username",
+                Email = "some.otheremail@hackney.gov.uk",
+                Roles = new List<UserRole>() {
+                    UserRole.BrokerageAssistant
+                },
+                IsActive = true
             };
 
             await BrokerageContext.Services.AddAsync(service);
@@ -207,7 +228,8 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
-                AssignedBroker = "a.broker@hackney.gov.uk",
+                AssignedBroker = "some.email@hackney.gov.uk",
+                AssignedApprover = "some.otheremail@hackney.gov.uk",
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant,
                 CreatedAt = PreviousInstant,

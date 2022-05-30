@@ -95,13 +95,13 @@ namespace BrokerageApi.V1.Infrastructure
                 .HasOne(cp => cp.AssignedBroker)
                 .WithMany(u => u.BrokerCarePackages)
                 .HasForeignKey("AssignedBrokerId")
-                .HasPrincipalKey("Email");     
+                .HasPrincipalKey("Email");
 
             modelBuilder.Entity<CarePackage>()
                 .HasOne(cp => cp.AssignedApprover)
                 .WithMany(u => u.ApproverCarePackages)
                 .HasForeignKey("AssignedApproverId")
-                .HasPrincipalKey("Email");  
+                .HasPrincipalKey("Email");
 
             modelBuilder.Entity<Element>()
                 .HasOne(e => e.ParentElement)
