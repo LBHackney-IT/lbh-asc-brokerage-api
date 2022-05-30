@@ -32,10 +32,10 @@ namespace BrokerageApi.V1.Controllers
 
         [Authorize(Roles = "Broker")]
         [HttpGet]
+        [Route("serviceOverview")]
         [ProducesResponseType(typeof(List<ElementResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        [Route("serviceOverview")]
         public async Task<IActionResult> GetServiceOverview([FromRoute] string socialCareId)
         {
             try
@@ -53,11 +53,14 @@ namespace BrokerageApi.V1.Controllers
             }
         }
 
+        [Authorize(Roles = "Broker")]
         [HttpGet]
-        [ProducesResponseType(typeof(ReferralResponse), StatusCodes.Status200OK)]
+        [Route("care-packages")]
+        [ProducesResponseType(typeof(CarePackageResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+
         public async Task<IActionResult> GetServiceUserCarePackages([FromRoute] string serviceUserId)
         {
             try
