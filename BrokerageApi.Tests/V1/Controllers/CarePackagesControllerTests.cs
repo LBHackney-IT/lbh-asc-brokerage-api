@@ -202,10 +202,18 @@ namespace BrokerageApi.Tests.V1.Controllers
         }
 
         [Test, Property("AsUser", "Broker")]
-        public async Task CanSuspendCarePackage()
+        public async Task CanSuspendCarePackage([Values] bool withEndDate)
         {
             const int referralId = 1234;
-            var request = _fixture.Create<SuspendRequest>();
+            var requestBuilder = _fixture.Build<SuspendRequest>()
+                .With(r => r.Comment, "commentHere");
+
+            if (!withEndDate)
+            {
+                requestBuilder = requestBuilder.Without(r => r.EndDate);
+            }
+
+            var request = requestBuilder.Create();
 
             var response = await _classUnderTest.SuspendCarePackage(referralId, request);
             var statusCode = GetStatusCode(response);

@@ -36,7 +36,7 @@ namespace BrokerageApi.V1.UseCase.CarePackages
             _userService = userService;
         }
 
-        public async Task ExecuteAsync(int referralId, LocalDate startDate, LocalDate endDate, string comment)
+        public async Task ExecuteAsync(int referralId, LocalDate startDate, LocalDate? endDate, string comment)
         {
             var referral = await _referralGateway.GetByIdWithElementsAsync(referralId);
 

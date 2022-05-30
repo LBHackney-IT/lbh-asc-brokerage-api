@@ -54,15 +54,15 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
         }
 
         [Test]
-        public async Task CanEndCarePackage()
+        public async Task CanEndCarePackage([Values] bool withEndDate)
         {
             const string expectedComment = "commentHere";
             var startDate = LocalDate.FromDateTime(DateTime.Today);
-            var endDate = startDate.PlusDays(2);
+            var endDate = withEndDate ? startDate.PlusDays(2) : (LocalDate?) null;
             var elements = _fixture.BuildElement(1, 1)
                 .With(e => e.InternalStatus, ElementStatus.Approved)
                 .With(e => e.StartDate, startDate.PlusDays(-5))
-                .With(e => e.EndDate, endDate.PlusDays(5))
+                .With(e => e.EndDate, startDate.PlusDays(15))
                 .CreateMany();
 
             var referral = _fixture.BuildReferral(ReferralStatus.Approved)

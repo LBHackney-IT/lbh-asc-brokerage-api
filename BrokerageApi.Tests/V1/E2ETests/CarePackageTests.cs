@@ -397,5 +397,66 @@ namespace BrokerageApi.Tests.V1.E2ETests
             }
             Context.AuditEvents.Should().ContainSingle(ae => ae.EventType == AuditEventType.CarePackageSuspended);
         }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanSuspendCarePackageWithoutEndDate()
+        {
+            // Arrange
+            var startDate = CurrentDate;
+            var service = _fixture.BuildService()
+                .Create();
+
+            var provider = _fixture.BuildProvider()
+                .Create();
+
+            var providerService = _fixture.BuildProviderService(provider.Id, service.Id)
+                .Create();
+
+            var elementType = _fixture.BuildElementType(service.Id)
+                .Create();
+
+            var elements = _fixture.BuildElement(provider.Id, elementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .With(e => e.StartDate, startDate.PlusDays(-5))
+                .With(e => e.EndDate, startDate.PlusDays(5))
+                .CreateMany();
+
+            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
+                .With(r => r.Status, ReferralStatus.Approved)
+                .With(r => r.AssignedTo, ApiUser.Email)
+                .With(r => r.Elements, elements.ToList)
+                .Create();
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.Services.AddAsync(service);
+            await Context.Providers.AddAsync(provider);
+            await Context.ProviderServices.AddAsync(providerService);
+            await Context.ElementTypes.AddAsync(elementType);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            var request = _fixture.Build<SuspendRequest>()
+                .With(r => r.StartDate, startDate)
+                .Without(r => r.EndDate)
+                .Create();
+
+            var code = await Post($"/api/v1/referrals/{referral.Id}/care-package/suspend", request);
+
+            code.Should().Be(HttpStatusCode.OK);
+
+            var (carePackageCode, response) = await Get<CarePackageResponse>($"/api/v1/referrals/{referral.Id}/care-package");
+
+            carePackageCode.Should().Be(HttpStatusCode.OK);
+            response.UpdatedAt.Should().BeEquivalentTo(CurrentInstant);
+
+            foreach (var element in elements)
+            {
+                var suspensionElement = await Context.Elements.SingleOrDefaultAsync(e => e.SuspendedElementId == element.Id);
+                suspensionElement.Should().NotBeNull();
+                suspensionElement.IsSuspension.Should().BeTrue();
+            }
+            Context.AuditEvents.Should().ContainSingle(ae => ae.EventType == AuditEventType.CarePackageSuspended);
+        }
     }
 }

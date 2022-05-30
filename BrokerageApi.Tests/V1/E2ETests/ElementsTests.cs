@@ -236,8 +236,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             Context.ChangeTracker.Clear();
 
-            await RequestSuspension(element, referral);
-            await RequestSuspension(element, referral);
+            await RequestSuspension(element, referral, true);
+            await RequestSuspension(element, referral, false);
 
             var auditEvents = Context.AuditEvents.Where(ae => ae.EventType == AuditEventType.ElementSuspended);
             auditEvents.Should().HaveCount(2);
@@ -248,10 +248,10 @@ namespace BrokerageApi.Tests.V1.E2ETests
             carePackageResponse.Elements.Should().HaveCount(1);
             carePackageResponse.Elements.Should().ContainSingle(e => e.Id == element.Id);
         }
-        private async Task RequestSuspension(Element element, Referral referral)
+        private async Task RequestSuspension(Element element, Referral referral, bool withEndDate)
         {
             var start = element.StartDate.PlusDays(_fixture.CreateInt(1, 100));
-            var end = start.PlusDays(_fixture.CreateInt(1, 100));
+            var end = withEndDate ? start.PlusDays(_fixture.CreateInt(1, 100)) : (LocalDate?) null;
             var request = new SuspendRequest
             {
                 StartDate = start,
