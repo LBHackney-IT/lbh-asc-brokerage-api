@@ -1,12 +1,15 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using AutoFixture;
+using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using FluentAssertions;
+using FluentAssertions.Common;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
@@ -27,9 +30,12 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
     public class ReferralTests : IntegrationTests<Startup>
     {
+        private Fixture _fixture;
+
         [SetUp]
         public void Setup()
         {
+            _fixture = FixtureHelpers.Fixture;
         }
 
         [Test, Property("AsUser", "Referrer")]
@@ -642,6 +648,31 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             // Assert
             var auditEvent = await Context.AuditEvents.SingleOrDefaultAsync(ae => ae.EventType == AuditEventType.ReferralBrokerAssignment && ae.CreatedAt == Context.Clock.Now);
+            auditEvent.Should().NotBeNull();
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanArchiveReferral()
+        {
+            var request = _fixture.Create<ArchiveReferralRequest>();
+
+            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
+                .Create();
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            // Act
+            var code = await Post($"/api/v1/referrals/{referral.Id}/archive", request);
+
+            // Assert
+            code.Should().Be(HttpStatusCode.OK);
+            var resultReferral = await Context.Referrals.SingleAsync(r => r.Id == referral.Id);
+            resultReferral.Status.Should().Be(ReferralStatus.Archived);
+
+            var auditEvent = await Context.AuditEvents.SingleOrDefaultAsync(ae => ae.EventType == AuditEventType.ReferralArchived && ae.CreatedAt == Context.Clock.Now);
             auditEvent.Should().NotBeNull();
         }
     }

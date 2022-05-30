@@ -17,13 +17,15 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
         private readonly IUserService _userService;
         private readonly IDbSaver _dbSaver;
         private readonly IClockService _clockService;
+        private readonly IElementGateway _elementGateway;
 
         public SuspendElementUseCase(
             IReferralGateway referralGateway,
             IAuditGateway auditGateway,
             IUserService userService,
             IDbSaver dbSaver,
-            IClockService clockService
+            IClockService clockService,
+            IElementGateway elementGateway
         )
         {
             _referralGateway = referralGateway;
@@ -31,6 +33,7 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
             _userService = userService;
             _dbSaver = dbSaver;
             _clockService = clockService;
+            _elementGateway = elementGateway;
         }
 
         public async Task ExecuteAsync(int referralId, int elementId, LocalDate startDate, LocalDate? endDate, string comment)
@@ -72,7 +75,7 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
             };
             element.Comment = comment;
 
-            referral.Elements.Add(newElement);
+            await _elementGateway.AddElementAsync(newElement);
 
             await _dbSaver.SaveChangesAsync();
 

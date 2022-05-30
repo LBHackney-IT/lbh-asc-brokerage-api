@@ -50,6 +50,7 @@ namespace BrokerageApi.Tests.V1.Gateways
             {
                 AuditEventType.ReferralBrokerAssignment, "Assigned to broker", new ReferralAssignmentAuditEventMetadata
                 {
+                    ReferralId = 1234,
                     AssignedBrokerName = "TestBroker"
                 }
             },
@@ -57,6 +58,7 @@ namespace BrokerageApi.Tests.V1.Gateways
             {
                 AuditEventType.ReferralBrokerReassignment, "Reassigned to broker", new ReferralReassignmentAuditEventMetadata
                 {
+                    ReferralId = 1234,
                     AssignedBrokerName = "TestBroker"
                 }
             },

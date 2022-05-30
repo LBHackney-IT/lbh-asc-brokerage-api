@@ -55,7 +55,7 @@ namespace BrokerageApi.V1.UseCase.CarePackages
             referral.Comment = comment;
             await _dbSaver.SaveChangesAsync();
 
-            var metadata = new CarePackageAuditEventMetadata
+            var metadata = new ReferralAuditEventMetadata
             {
                 ReferralId = referral.Id,
                 Comment = comment

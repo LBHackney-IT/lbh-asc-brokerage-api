@@ -15,18 +15,19 @@ namespace BrokerageApi.V1.UseCase
         private readonly IAuditGateway _auditGateway;
         private readonly IUserService _userService;
         private readonly IDbSaver _dbSaver;
+        private readonly IUserGateway _userGateway;
 
-        public AssignBrokerToReferralUseCase(
-            IReferralGateway referralGateway,
+        public AssignBrokerToReferralUseCase(IReferralGateway referralGateway,
             IAuditGateway auditGateway,
             IUserService userService,
-            IDbSaver dbSaver
-        )
+            IDbSaver dbSaver,
+            IUserGateway userGateway)
         {
             _referralGateway = referralGateway;
             _auditGateway = auditGateway;
             _userService = userService;
             _dbSaver = dbSaver;
+            _userGateway = userGateway;
         }
 
         public async Task<Referral> ExecuteAsync(int referralId, AssignBrokerRequest request)
@@ -43,13 +44,21 @@ namespace BrokerageApi.V1.UseCase
                 throw new InvalidOperationException($"Referral is not in a valid state for assignment");
             }
 
+            var brokerUser = await _userGateway.GetByEmailAsync(request.Broker);
+
+            if (brokerUser is null)
+            {
+                throw new ArgumentNullException(nameof(request), $"Broker not found for: {request.Broker}");
+            }
+
             referral.Status = ReferralStatus.Assigned;
             referral.AssignedTo = request.Broker;
             await _dbSaver.SaveChangesAsync();
 
             await _auditGateway.AddAuditEvent(AuditEventType.ReferralBrokerAssignment, referral.SocialCareId, _userService.UserId, new ReferralAssignmentAuditEventMetadata
             {
-                AssignedBrokerName = request.Broker
+                ReferralId = referral.Id,
+                AssignedBrokerName = brokerUser.Name
             });
 
             return referral;

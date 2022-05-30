@@ -241,6 +241,12 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var auditEvents = Context.AuditEvents.Where(ae => ae.EventType == AuditEventType.ElementSuspended);
             auditEvents.Should().HaveCount(2);
+
+            var (carePackageCode, carePackageResponse) = await Get<CarePackageResponse>($"/api/v1/referrals/{referral.Id}/care-package");
+
+            carePackageCode.Should().Be(HttpStatusCode.OK);
+            carePackageResponse.Elements.Should().HaveCount(1);
+            carePackageResponse.Elements.Should().ContainSingle(e => e.Id == element.Id);
         }
         private async Task RequestSuspension(Element element, Referral referral)
         {

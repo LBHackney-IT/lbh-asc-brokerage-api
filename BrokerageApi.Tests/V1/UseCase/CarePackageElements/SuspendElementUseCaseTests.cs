@@ -27,6 +27,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         private Mock<IReferralGateway> _mockReferralGateway;
         private MockAuditGateway _mockAuditGateway;
         private Mock<IUserService> _mockUserService;
+        private MockElementGateway _mockElementGateway;
 
         [SetUp]
         public void Setup()
@@ -36,6 +37,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             _mockAuditGateway = new MockAuditGateway();
             _mockUserService = new Mock<IUserService>();
             _dbSaver = new MockDbSaver();
+            _mockElementGateway = new MockElementGateway();
 
             var currentTime = SystemClock.Instance.GetCurrentInstant();
             var fakeClock = new FakeClock(currentTime);
@@ -46,7 +48,8 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 _mockAuditGateway.Object,
                 _mockUserService.Object,
                 _dbSaver.Object,
-                _clock
+                _clock,
+                _mockElementGateway.Object
             );
         }
 
@@ -61,7 +64,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             await _classUnderTest.ExecuteAsync(referral.Id, element.Id, startDate, endDate, expectedComment);
 
-            var newElement = referral.Elements.SingleOrDefault(e => e.SuspendedElementId == element.Id);
+            var newElement = _mockElementGateway.LastElementAdded;
             newElement.Should().NotBeNull();
             newElement.InternalStatus.Should().Be(ElementStatus.InProgress);
             newElement.CreatedAt.Should().Be(_clock.Now);

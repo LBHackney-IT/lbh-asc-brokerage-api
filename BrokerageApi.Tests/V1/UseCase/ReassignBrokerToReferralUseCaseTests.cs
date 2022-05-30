@@ -24,6 +24,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         private MockDbSaver _mockDbSaver;
         private MockAuditGateway _mockAuditGateway;
         private Mock<IUserService> _mockUserService;
+        private Mock<IUserGateway> _mockUserGateway;
 
         [SetUp]
         public void Setup()
@@ -33,15 +34,82 @@ namespace BrokerageApi.Tests.V1.UseCase
             _mockAuditGateway = new MockAuditGateway();
             _mockUserService = new Mock<IUserService>();
             _mockDbSaver = new MockDbSaver();
-            _classUnderTest = new ReassignBrokerToReferralUseCase(_mockReferralGateway.Object, _mockAuditGateway.Object, _mockUserService.Object, _mockDbSaver.Object);
+            _mockUserGateway = new Mock<IUserGateway>();
+
+            _classUnderTest = new ReassignBrokerToReferralUseCase(
+                _mockReferralGateway.Object,
+                _mockAuditGateway.Object,
+                _mockUserService.Object,
+                _mockDbSaver.Object,
+                _mockUserGateway.Object
+                );
         }
 
         [Test]
         public async Task ReassignsBrokerToReferral()
         {
             // Arrange
+            var expectedBroker = _fixture.Create<User>();
+
+            var request = _fixture.Build<AssignBrokerRequest>()
+                .With(x => x.Broker, expectedBroker.Email)
+                .Create();
+
+            var referral = _fixture.Build<Referral>()
+                .With(x => x.Status, ReferralStatus.Assigned)
+                .With(x => x.AssignedTo, "other.broker@hackney.gov.uk")
+                .Create();
+
+            _mockReferralGateway
+                .Setup(x => x.GetByIdAsync(referral.Id))
+                .ReturnsAsync(referral);
+
+            _mockDbSaver
+                .Setup(x => x.SaveChangesAsync())
+                .Returns(Task.CompletedTask);
+
+            _mockUserGateway
+                .Setup(x => x.GetByEmailAsync(expectedBroker.Email))
+                .ReturnsAsync(expectedBroker);
+
+            // Act
+            var result = await _classUnderTest.ExecuteAsync(referral.Id, request);
+
+            // Assert
+            result.Status.Should().Be(ReferralStatus.Assigned);
+            result.AssignedTo.Should().Be(expectedBroker.Email);
+            _mockDbSaver.VerifyChangesSaved();
+        }
+
+        [Test]
+        public async Task ThrowsArgumentNullExceptionWhenReferralDoesntExist()
+        {
+            // Arrange
+            const int unknownReferral = 1234;
             var request = _fixture.Build<AssignBrokerRequest>()
                 .With(x => x.Broker, "a.broker@hackney.gov.uk")
+                .Create();
+
+            _mockReferralGateway
+                .Setup(x => x.GetByIdAsync(unknownReferral))
+                .ReturnsAsync(null as Referral);
+
+            // Act
+            Func<Task> act = () => _classUnderTest.ExecuteAsync(unknownReferral, request);
+
+            // Assert
+            await act.Should().ThrowAsync<ArgumentNullException>()
+                .WithMessage($"Referral not found for: {unknownReferral} (Parameter 'referralId')");
+        }
+
+        [Test]
+        public async Task ThrowsArgumentNullExceptionWhenBrokerDoesntExist()
+        {
+            // Arrange
+            const string expectedBroker = "a.broker@hackney.gov.uk";
+
+            var request = _fixture.Build<AssignBrokerRequest>()
+                .With(x => x.Broker, expectedBroker)
                 .Create();
 
             var referral = _fixture.Build<Referral>()
@@ -58,32 +126,11 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .Returns(Task.CompletedTask);
 
             // Act
-            var result = await _classUnderTest.ExecuteAsync(referral.Id, request);
+            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, request);
 
             // Assert
-            result.Status.Should().Be(ReferralStatus.Assigned);
-            result.AssignedTo.Should().Be("a.broker@hackney.gov.uk");
-            _mockDbSaver.VerifyChangesSaved();
-        }
-
-        [Test]
-        public void ThrowsArgumentNullExceptionWhenReferralDoesntExist()
-        {
-            // Arrange
-            var request = _fixture.Build<AssignBrokerRequest>()
-                .With(x => x.Broker, "a.broker@hackney.gov.uk")
-                .Create();
-
-            _mockReferralGateway
-                .Setup(x => x.GetByIdAsync(123456))
-                .ReturnsAsync(null as Referral);
-
-            // Act
-            var exception = Assert.ThrowsAsync<ArgumentNullException>(
-                async () => await _classUnderTest.ExecuteAsync(123456, request));
-
-            // Assert
-            exception.Message.Should().Be("Referral not found for: 123456 (Parameter 'referralId')");
+            await act.Should().ThrowAsync<ArgumentNullException>()
+                .WithMessage($"Broker not found for: {request.Broker} (Parameter 'request')");
         }
 
         [Test]
@@ -115,8 +162,9 @@ namespace BrokerageApi.Tests.V1.UseCase
         {
             // Arrange
             const int expectedUserId = 1234;
+            var expectedBroker = _fixture.Create<User>();
             var request = _fixture.Build<AssignBrokerRequest>()
-                .With(x => x.Broker, "a.broker@hackney.gov.uk")
+                .With(x => x.Broker, expectedBroker.Email)
                 .Create();
 
             var referral = _fixture.Build<Referral>()
@@ -136,6 +184,10 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .Setup(x => x.UserId)
                 .Returns(expectedUserId);
 
+            _mockUserGateway
+                .Setup(x => x.GetByEmailAsync(expectedBroker.Email))
+                .ReturnsAsync(expectedBroker);
+
             // Act
             await _classUnderTest.ExecuteAsync(referral.Id, request);
 
@@ -144,7 +196,8 @@ namespace BrokerageApi.Tests.V1.UseCase
             _mockAuditGateway.LastUserId.Should().Be(expectedUserId);
             _mockAuditGateway.LastSocialCareId.Should().Be(referral.SocialCareId);
             var eventMetadata = _mockAuditGateway.LastMetadata.Should().BeOfType<ReferralReassignmentAuditEventMetadata>().Which;
-            eventMetadata.AssignedBrokerName.Should().Be(request.Broker);
+            eventMetadata.ReferralId.Should().Be(referral.Id);
+            eventMetadata.AssignedBrokerName.Should().Be(expectedBroker.Name);
         }
     }
 }

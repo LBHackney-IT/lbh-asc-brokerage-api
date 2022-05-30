@@ -129,7 +129,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             _mockAuditGateway.VerifyAuditEventAdded(AuditEventType.CarePackageSuspended);
             _mockAuditGateway.LastUserId.Should().Be(expectedUserId);
             _mockAuditGateway.LastSocialCareId.Should().Be(referral.SocialCareId);
-            var eventMetadata = _mockAuditGateway.LastMetadata.Should().BeOfType<CarePackageAuditEventMetadata>().Which;
+            var eventMetadata = _mockAuditGateway.LastMetadata.Should().BeOfType<ReferralAuditEventMetadata>().Which;
             eventMetadata.ReferralId.Should().Be(referral.Id);
             eventMetadata.Comment.Should().Be(expectedComment);
         }
