@@ -1,7 +1,12 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using AutoFixture;
+using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Gateways;
 using BrokerageApi.V1.Infrastructure;
+using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
 namespace BrokerageApi.Tests.V1.Gateways
@@ -180,6 +185,37 @@ namespace BrokerageApi.Tests.V1.Gateways
 
             // Assert
             Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public async Task CanCreateUser()
+        {
+            const string expectedName = "Expected Name";
+            const string expectedEmail = "expected@email.com";
+
+            await _classUnderTest.CreateUser(expectedEmail, expectedName);
+
+            var user = await BrokerageContext.Users.SingleOrDefaultAsync(u => u.Email == expectedEmail);
+            user.Name.Should().Be(expectedName);
+            user.Roles.Should().BeNullOrEmpty();
+            user.IsActive.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task CreateUserThrowsWhenUserExists()
+        {
+            const string expectedEmail = "expected@email.com";
+            var user = Fixture.Build<User>()
+                .With(u => u.Email, expectedEmail)
+                .Create();
+
+            await BrokerageContext.Users.AddAsync(user);
+            await BrokerageContext.SaveChangesAsync();
+
+            Func<Task> act = () => _classUnderTest.CreateUser(expectedEmail, "");
+
+            await act.Should().ThrowAsync<InvalidOperationException>()
+                .WithMessage($"User with email address {expectedEmail} already exists");
         }
     }
 }
