@@ -61,18 +61,18 @@ namespace BrokerageApi.V1.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
 
-        public async Task<IActionResult> GetServiceUserCarePackages([FromRoute] string serviceUserId)
+        public async Task<IActionResult> GetServiceUserCarePackages([FromRoute] string socialCareId)
         {
             try
             {
-                var carePackages = await _getCarePackagesByServiceUserIdUseCase.ExecuteAsync(serviceUserId);
+                var carePackages = await _getCarePackagesByServiceUserIdUseCase.ExecuteAsync(socialCareId);
                 return Ok(carePackages.Select(r => r.ToResponse()).ToList());
             }
             catch (ArgumentNullException)
             {
                 return Problem(
                     "No care packages found for this service user",
-                    $"/api/v1/service-user/{serviceUserId}",
+                    $"/api/v1/service-user/{socialCareId}",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
