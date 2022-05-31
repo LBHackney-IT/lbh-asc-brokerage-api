@@ -14,6 +14,8 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public string Description { get; set; }
 
+        public bool HasProvisionalClientContributions { get; set; }
+
         public List<ElementTypeResponse> ElementTypes { get; set; }
 
         public bool ShouldSerializeElementTypes() => ElementTypes != null;

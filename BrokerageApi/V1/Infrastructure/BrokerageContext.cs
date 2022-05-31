@@ -185,6 +185,10 @@ namespace BrokerageApi.V1.Infrastructure
                 .Property(s => s.IsArchived)
                 .HasDefaultValue(false);
 
+            modelBuilder.Entity<Service>()
+                .Property(s => s.HasProvisionalClientContributions)
+                .HasDefaultValue(false);
+
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
