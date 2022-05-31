@@ -30,7 +30,7 @@ namespace BrokerageApi.V1.Controllers
             _getCarePackagesByServiceUserIdUseCase = getCarePackagesByServiceUserIdUseCase;
         }
 
-        [Authorize(Roles = "Broker")]
+        [Authorize]
         [HttpGet]
         [Route("serviceOverview")]
         [ProducesResponseType(typeof(List<ElementResponse>), StatusCodes.Status200OK)]

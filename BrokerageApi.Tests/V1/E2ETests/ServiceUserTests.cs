@@ -139,7 +139,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                     UserRole.BrokerageAssistant
                 },
                 IsActive = true
-            };            
+            };
 
             await Context.Services.AddAsync(service);
             await Context.ElementTypes.AddAsync(hourlyElementType);
@@ -147,8 +147,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Providers.AddAsync(provider);
             await Context.ProviderServices.AddAsync(providerService);
             await Context.Referrals.AddAsync(referral);
-            await Context.Users.AddAsync(assignedBroker);  
-            await Context.Users.AddAsync(assignedApprover);                       
+            await Context.Users.AddAsync(assignedBroker);
+            await Context.Users.AddAsync(assignedApprover);
             await Context.SaveChangesAsync();
 
             Context.ChangeTracker.Clear();
@@ -180,7 +180,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response.AssignedBroker.Name, Is.EqualTo("UserName"));
             Assert.That(response.AssignedBroker.Email, Is.EqualTo("some.email@hackney.gov.uk"));
             Assert.That(response.AssignedApprover.Name, Is.EqualTo("Another Username"));
-            Assert.That(response.AssignedApprover.Email, Is.EqualTo("some.otheremail@hackney.gov.uk"));            
+            Assert.That(response.AssignedApprover.Email, Is.EqualTo("some.otheremail@hackney.gov.uk"));
         }
     }
 }
