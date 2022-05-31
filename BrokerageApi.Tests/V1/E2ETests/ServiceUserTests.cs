@@ -7,8 +7,10 @@ using BrokerageApi.V1.Infrastructure;
 using FluentAssertions;
 using NUnit.Framework;
 
+
 namespace BrokerageApi.Tests.V1.E2ETests
 {
+
     public class ServiceUserTests : IntegrationTests<Startup>
     {
         [SetUp]
@@ -20,6 +22,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
         public async Task CanGetCarePackageByServiceUserId()
         {
             // Arrange
+            var comparer = new UserResponseComparer();
+
             var service = new Service
             {
                 Id = 1,
@@ -154,33 +158,11 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Context.ChangeTracker.Clear();
 
             // Act
-            var (code, response) = await Get<CarePackageResponse>($"/api/v1/service-user/{referral.SocialCareId}/care-packages");
-
+            var (code, response) = await Get<List<CarePackageResponse>>($"/api/v1/service-user/{referral.SocialCareId}/care-packages");
             // Assert
             Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(response, Contains.Item(assignedBroker).Using(comparer));
 
-            Assert.That(response.Id, Is.EqualTo(referral.Id));
-            Assert.That(response.StartDate, Is.EqualTo(previousStartDate));
-            Assert.That(response.WeeklyCost, Is.EqualTo(225));
-            Assert.That(response.WeeklyPayment, Is.EqualTo(125));
-            Assert.That(response.Elements.Count, Is.EqualTo(2));
-
-            Assert.That(response.Elements[0].Status, Is.EqualTo(ElementStatus.Active));
-            Assert.That(response.Elements[0].Details, Is.EqualTo("Some notes"));
-            Assert.That(response.Elements[0].ElementType.Name, Is.EqualTo("Day Opportunities (hourly)"));
-            Assert.That(response.Elements[0].ElementType.Service.Name, Is.EqualTo("Supported Living"));
-            Assert.That(response.Elements[0].Provider.Name, Is.EqualTo("Acme Homes"));
-
-            Assert.That(response.Elements[1].Status, Is.EqualTo(ElementStatus.InProgress));
-            Assert.That(response.Elements[1].Details, Is.EqualTo("Some other notes"));
-            Assert.That(response.Elements[1].ElementType.Name, Is.EqualTo("Day Opportunities (daily)"));
-            Assert.That(response.Elements[1].ElementType.Service.Name, Is.EqualTo("Supported Living"));
-            Assert.That(response.Elements[1].Provider.Name, Is.EqualTo("Acme Homes"));
-
-            Assert.That(response.AssignedBroker.Name, Is.EqualTo("UserName"));
-            Assert.That(response.AssignedBroker.Email, Is.EqualTo("some.email@hackney.gov.uk"));
-            Assert.That(response.AssignedApprover.Name, Is.EqualTo("Another Username"));
-            Assert.That(response.AssignedApprover.Email, Is.EqualTo("some.otheremail@hackney.gov.uk"));
         }
     }
 }

@@ -56,7 +56,7 @@ namespace BrokerageApi.V1.Controllers
         [Authorize(Roles = "Broker")]
         [HttpGet]
         [Route("care-packages")]
-        [ProducesResponseType(typeof(CarePackageResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<CarePackageResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
