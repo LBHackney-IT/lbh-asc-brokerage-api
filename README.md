@@ -25,7 +25,7 @@ The ASB Brokerage API is the backend for the Adult Social Care Broker tool and p
 ### Prerequisites
 
 - [Docker](https://www.docker.com/products/docker-desktop)
-- [.NET Core 3.3](https://dotnet.microsoft.com/download)
+- [.NET Core 3.1](https://dotnet.microsoft.com/download)
 
 ### Dockerised dependencies
 
@@ -111,10 +111,10 @@ We use [SwaggerHub](https://swagger.io/tools/swaggerhub/) to document the API de
 
 We have two environments:
 
-- Staging (StagingAPIs AWS account)
+- Staging (Mosaic-Staging AWS account)
 - Production (Mosaic-Production AWS account)
 
-and one deployment branches:
+and one deployment branch:
 
 - `master` which deploys to Staging and Production
 
