@@ -1,19 +1,19 @@
-"id","parent_id","name","description","position","is_archived"
-1,,"Shared Lives",,1,FALSE
-2,,"Supported Living",,2,FALSE
-3,,"Nursing",,3,FALSE
-4,,"Residential",,4,FALSE
-5,,"Direct Payments",,5,FALSE
-6,,"Day Care",,6,FALSE
-7,,"Home Care",,7,FALSE
-8,,"No Recourse to Public Funds",,8,FALSE
-9,,"Hospital Discharge",,9,FALSE
-10,,"Housing with care",,10,FALSE
-11,,"Carer Support",,11,FALSE
-12,,"Others",,12,FALSE
-13,3,"Long Stay Nursing Care",,1,FALSE
-14,3,"Temporary Nursing Bed","For a period not exceeding 52 weeks",2,FALSE
-15,3,"Short Stay Nursing Home","For a period not exceeding 8 weeks",3,FALSE
-16,4,"Long Stay Residential Care",,1,FALSE
-17,4,"Interim Residential Bed","For a period not exceeding 52 weeks",2,FALSE
-18,4,"Short Stay Residential Home","For a period not exceeding 8 weeks",3,FALSE
+"id","parent_id","name","description","position","is_archived","has_provisional_client_contributions"
+1,,"Shared Lives",,1,FALSE,FALSE
+2,,"Supported Living",,2,FALSE,FALSE
+3,,"Nursing",,3,FALSE,FALSE
+4,,"Residential",,4,FALSE,FALSE
+5,,"Direct Payments",,5,FALSE,FALSE
+6,,"Day Care",,6,FALSE,FALSE
+7,,"Home Care",,7,FALSE,FALSE
+8,,"No Recourse to Public Funds",,8,FALSE,FALSE
+9,,"Hospital Discharge",,9,FALSE,FALSE
+10,,"Housing with care",,10,FALSE,FALSE
+11,,"Carer Support",,11,FALSE,FALSE
+12,,"Others",,12,FALSE,FALSE
+13,3,"Long Stay Nursing Care",,1,FALSE,FALSE
+14,3,"Temporary Nursing Bed","For a period not exceeding 52 weeks",2,FALSE,TRUE
+15,3,"Short Stay Nursing Home","For a period not exceeding 8 weeks",3,FALSE,TRUE
+16,4,"Long Stay Residential Care",,1,FALSE,FALSE
+17,4,"Interim Residential Bed","For a period not exceeding 52 weeks",2,FALSE,TRUE
+18,4,"Short Stay Residential Home","For a period not exceeding 8 weeks",3,FALSE,TRUE

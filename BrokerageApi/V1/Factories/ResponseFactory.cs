@@ -78,7 +78,8 @@ namespace BrokerageApi.V1.Factories
                         Id = elementType.Service.Id,
                         ParentId = elementType.Service.ParentId,
                         Name = elementType.Service.Name,
-                        Description = elementType.Service.Description
+                        Description = elementType.Service.Description,
+                        HasProvisionalClientContributions = elementType.Service.HasProvisionalClientContributions
                     }
                     : null
             };
@@ -125,6 +126,7 @@ namespace BrokerageApi.V1.Factories
                 ParentId = service.ParentId,
                 Name = service.Name,
                 Description = service.Description,
+                HasProvisionalClientContributions = service.HasProvisionalClientContributions,
                 ElementTypes = service.ElementTypes?.Select(et => et.ToResponse()).ToList()
             };
         }
