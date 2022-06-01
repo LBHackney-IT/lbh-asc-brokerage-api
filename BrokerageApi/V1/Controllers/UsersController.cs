@@ -38,12 +38,24 @@ namespace BrokerageApi.V1.Controllers
         }
 
         [HttpGet]
+        [Route("current")]
         [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetCurrentUser()
         {
-            var user = await _getCurrentUserUseCase.ExecuteAsync();
-            return Ok(user.ToResponse());
+            try
+            {
+                var user = await _getCurrentUserUseCase.ExecuteAsync();
+                return Ok(user.ToResponse());
+            }
+            catch (ArgumentException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"/api/v1/users/current",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
         }
     }
 }

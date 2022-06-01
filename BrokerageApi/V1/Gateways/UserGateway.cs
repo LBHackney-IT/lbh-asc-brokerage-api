@@ -44,7 +44,7 @@ namespace BrokerageApi.V1.Gateways
                 .SingleOrDefaultAsync();
         }
 
-        public async Task CreateUser(string email, string name)
+        public async Task<User> CreateUser(string email, string name)
         {
             if (await _context.Users.AnyAsync(u => u.Email == email))
             {
@@ -60,6 +60,8 @@ namespace BrokerageApi.V1.Gateways
 
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
+
+            return user;
         }
     }
 }

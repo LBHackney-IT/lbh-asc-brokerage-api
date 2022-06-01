@@ -38,7 +38,7 @@ namespace BrokerageApi.Tests.V1.UseCase
             var expectedReferrals = _fixture.CreateMany<Referral>();
 
             _mockUserService
-                .SetupGet(x => x.Name)
+                .SetupGet(x => x.Email)
                 .Returns("a.broker@hackney.gov.uk");
 
             _mockReferralGateway
@@ -59,7 +59,7 @@ namespace BrokerageApi.Tests.V1.UseCase
             var expectedReferrals = _fixture.CreateMany<Referral>();
 
             _mockUserService
-                .SetupGet(x => x.Name)
+                .SetupGet(x => x.Email)
                 .Returns("a.broker@hackney.gov.uk");
 
             _mockReferralGateway

@@ -51,9 +51,9 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
                 throw new InvalidOperationException($"Referral is not in a valid state for editing");
             }
 
-            if (referral.AssignedTo != _userService.Name)
+            if (referral.AssignedTo != _userService.Email)
             {
-                throw new UnauthorizedAccessException($"Referral is not assigned to {_userService.Name}");
+                throw new UnauthorizedAccessException($"Referral is not assigned to {_userService.Email}");
             }
 
             var elementType = await _elementTypeGateway.GetByIdAsync(request.ElementTypeId);

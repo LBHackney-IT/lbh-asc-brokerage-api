@@ -1,3 +1,4 @@
+using System;
 using AutoFixture;
 using BrokerageApi.Tests.V1.Controllers.Mocks;
 using BrokerageApi.Tests.V1.Helpers;
@@ -98,6 +99,24 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
             result.Should().BeEquivalentTo(user.ToResponse());
+        }
+
+        [Test]
+        public async Task Rerturns404WhenUserNotFound()
+        {
+            // Arrange
+            const string expectedMessage = "message";
+            _mockCurrentUserUseCase
+                .Setup(x => x.ExecuteAsync())
+                .ThrowsAsync(new ArgumentException(expectedMessage));
+
+            // Act
+            var objectResult = await _classUnderTest.GetCurrentUser();
+            var statusCode = GetStatusCode(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.NotFound);
+            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound, expectedMessage);
         }
     }
 }

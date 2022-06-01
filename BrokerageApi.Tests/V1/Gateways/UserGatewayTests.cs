@@ -193,12 +193,13 @@ namespace BrokerageApi.Tests.V1.Gateways
             const string expectedName = "Expected Name";
             const string expectedEmail = "expected@email.com";
 
-            await _classUnderTest.CreateUser(expectedEmail, expectedName);
+            var result = await _classUnderTest.CreateUser(expectedEmail, expectedName);
 
             var user = await BrokerageContext.Users.SingleOrDefaultAsync(u => u.Email == expectedEmail);
             user.Name.Should().Be(expectedName);
             user.Roles.Should().BeNullOrEmpty();
             user.IsActive.Should().BeTrue();
+            result.Should().Be(user);
         }
 
         [Test]

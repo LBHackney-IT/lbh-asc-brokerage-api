@@ -56,7 +56,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
                 .ReturnsAsync(referral);
 
             _mockUserService
-                .SetupGet(x => x.Name)
+                .SetupGet(x => x.Email)
                 .Returns("a.broker@hackney.gov.uk");
 
             _mockClock
@@ -85,7 +85,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
                 .ReturnsAsync(null as Referral);
 
             _mockUserService
-                .SetupGet(x => x.Name)
+                .SetupGet(x => x.Email)
                 .Returns("a.broker@hackney.gov.uk");
 
             // Act
@@ -109,7 +109,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
                 .ReturnsAsync(referral);
 
             _mockUserService
-                .SetupGet(x => x.Name)
+                .SetupGet(x => x.Email)
                 .Returns("a.broker@hackney.gov.uk");
 
             // Act
@@ -134,7 +134,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
                 .ReturnsAsync(referral);
 
             _mockUserService
-                .SetupGet(x => x.Name)
+                .SetupGet(x => x.Email)
                 .Returns("a.broker@hackney.gov.uk");
 
             // Act
