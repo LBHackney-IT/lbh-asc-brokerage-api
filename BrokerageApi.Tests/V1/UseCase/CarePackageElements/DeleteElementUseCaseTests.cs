@@ -170,7 +170,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         {
 
             _mockUserService
-                .SetupGet(x => x.Name)
+                .SetupGet(x => x.Email)
                 .Returns(userName);
         }
 

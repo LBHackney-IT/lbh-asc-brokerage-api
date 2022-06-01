@@ -15,7 +15,7 @@ namespace BrokerageApi.V1.Services
 
         public ClaimsPrincipal Current => _context.HttpContext.User;
 
-        public string Name => Current.Identity.Name;
+        public string Email => Current.Identity.Name;
 
         public int UserId => int.Parse(Current.FindFirst(ClaimTypes.PrimarySid).Value);
     }

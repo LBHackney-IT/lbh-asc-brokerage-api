@@ -73,7 +73,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .ReturnsAsync(provider);
 
             _mockUserService
-                .SetupGet(x => x.Name)
+                .SetupGet(x => x.Email)
                 .Returns(referral.AssignedTo);
 
             _mockClock
@@ -108,7 +108,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .ReturnsAsync(null as Referral);
 
             _mockUserService
-                .SetupGet(x => x.Name)
+                .SetupGet(x => x.Email)
                 .Returns("a.broker@hackney.gov.uk");
 
             // Act
@@ -138,7 +138,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .ReturnsAsync(referral);
 
             _mockUserService
-                .SetupGet(x => x.Name)
+                .SetupGet(x => x.Email)
                 .Returns(referral.AssignedTo);
 
             // Act
@@ -164,7 +164,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .ReturnsAsync(referral);
 
             _mockUserService
-                .SetupGet(x => x.Name)
+                .SetupGet(x => x.Email)
                 .Returns(referral.AssignedTo);
 
             // Act
@@ -190,7 +190,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .ReturnsAsync(referral);
 
             _mockUserService
-                .SetupGet(x => x.Name)
+                .SetupGet(x => x.Email)
                 .Returns(userEmail);
 
             // Act
@@ -218,7 +218,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .ReturnsAsync(referral);
 
             _mockUserService
-                .SetupGet(x => x.Name)
+                .SetupGet(x => x.Email)
                 .Returns(referral.AssignedTo);
 
             _mockElementTypeGateway
@@ -251,7 +251,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .ReturnsAsync(referral);
 
             _mockUserService
-                .SetupGet(x => x.Name)
+                .SetupGet(x => x.Email)
                 .Returns(referral.AssignedTo);
 
             _mockElementTypeGateway

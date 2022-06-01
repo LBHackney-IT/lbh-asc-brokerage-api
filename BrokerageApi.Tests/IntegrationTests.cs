@@ -154,6 +154,10 @@ namespace BrokerageApi.Tests
                     SetAuthorizationHeader(GenerateToken("saml-socialcarefinance-brokerage"));
                     CreateApiUser(UserRole.BrokerageAssistant);
                     break;
+
+                case "NewUser":
+                    SetAuthorizationHeader(GenerateToken("saml-socialcarefinance-brokerage"));
+                    break;
             }
         }
 
