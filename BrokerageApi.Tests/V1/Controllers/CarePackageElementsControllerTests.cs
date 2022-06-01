@@ -331,11 +331,19 @@ namespace BrokerageApi.Tests.V1.Controllers
         }
 
         [Test]
-        public async Task CanSuspendElement()
+        public async Task CanSuspendElement([Values] bool withEndDate)
         {
             const int referralId = 1234;
             const int elementId = 1234;
-            var request = _fixture.Create<SuspendRequest>();
+            var requestBuilder = _fixture.Build<SuspendRequest>()
+                .With(r => r.Comment, "commentHere");
+
+            if (!withEndDate)
+            {
+                requestBuilder = requestBuilder.Without(r => r.EndDate);
+            }
+
+            var request = requestBuilder.Create();
 
             var response = await _classUnderTest.SuspendElement(referralId, elementId, request);
             var statusCode = GetStatusCode(response);
