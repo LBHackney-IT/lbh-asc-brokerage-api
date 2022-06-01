@@ -14,6 +14,7 @@ namespace BrokerageApi.V1.Infrastructure.AuditEvents
         CarePackageEnded,
         CarePackageCancelled,
         CarePackageSuspended,
-        ReferralArchived
+        ReferralArchived,
+        ImportNote
     }
 }
