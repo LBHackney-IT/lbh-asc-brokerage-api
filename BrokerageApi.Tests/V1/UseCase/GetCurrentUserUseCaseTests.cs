@@ -48,7 +48,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         }
 
         [Test]
-        public void ThrowsArgumentNullExceptionWhenUserDoesntExist()
+        public async Task ThrowsArgumentNullExceptionWhenUserDoesntExist()
         {
             const string expectedEmail = "someone@somwhere.com";
 
@@ -58,10 +58,10 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .ReturnsAsync((User) null);
 
 
-            var exception = Assert.ThrowsAsync<ArgumentException>(
-                async () => await _classUnderTest.ExecuteAsync());
+            Func<Task> act = () => _classUnderTest.ExecuteAsync();
 
-            Assert.That(exception.Message, Is.EqualTo($"User not found for: {expectedEmail}"));
+            await act.Should().ThrowAsync<ArgumentException>()
+                .WithMessage($"User not found for: {expectedEmail}");
         }
     }
 }
