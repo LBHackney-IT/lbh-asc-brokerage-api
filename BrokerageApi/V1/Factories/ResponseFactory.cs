@@ -21,6 +21,7 @@ namespace BrokerageApi.V1.Factories
                 ResidentName = carePackage.ResidentName,
                 PrimarySupportReason = carePackage.PrimarySupportReason,
                 UrgentSince = carePackage.UrgentSince,
+                CarePackageName = carePackage.CarePackageName,
                 Status = carePackage.Status,
                 AssignedBroker = carePackage.AssignedBroker?.ToResponse(),
                 AssignedApprover = carePackage.AssignedApprover?.ToResponse(),
