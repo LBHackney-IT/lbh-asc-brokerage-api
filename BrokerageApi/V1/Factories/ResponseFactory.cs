@@ -70,6 +70,7 @@ namespace BrokerageApi.V1.Factories
             {
                 Id = elementType.Id,
                 Name = elementType.Name,
+                Type = elementType.Type,
                 CostType = elementType.CostType,
                 Billing = elementType.Billing,
                 NonPersonalBudget = elementType.NonPersonalBudget,
