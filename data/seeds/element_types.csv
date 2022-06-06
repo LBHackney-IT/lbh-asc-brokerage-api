@@ -1,85 +1,85 @@
-﻿id,service_id,name,subjective_code,cost_type,non_personal_budget,position,is_archived
-1,1,Holiday Payment Hackney Adult Placement Scheme (Shared Lives),520070,weekly,TRUE,1,FALSE
-2,1,Shared Lives Hackney Adult Placement Scheme,520070,weekly,TRUE,2,FALSE
-3,1,Additional Needs Payment,520070,weekly,TRUE,3,FALSE
-4,2,Additional Needs Payment,520070,weekly,FALSE,1,FALSE
-5,2,Day Opportunities (daily),520070,daily,FALSE,2,FALSE
-6,2,Day Opportunities (hourly),520070,hourly,FALSE,3,FALSE
-7,2,Supported Living Core Costs/Accommodation (Weekly),520070,weekly,FALSE,4,FALSE
-8,2,Extra Hours (hourly),520070,hourly,FALSE,5,FALSE
-9,2,Sleeping Nights (hourly),520070,hourly,FALSE,6,FALSE
-10,2,Waking Nights (per night),520070,daily,FALSE,7,FALSE
-11,13,Additional Needs Payment,520045,hourly,FALSE,1,FALSE
-12,13,Agreed Council Top Up Payment ,520045,weekly,FALSE,2,FALSE
-13,13,FNCC Payment to Home,520215,weekly,FALSE,3,FALSE
-14,13,Long Stay Nursing Care,520045,weekly,FALSE,4,FALSE
-15,13,Personal Allowance Payment,520045,weekly,FALSE,5,FALSE
-16,14,FNCC Payment to Home,520215,weekly,FALSE,1,FALSE
-17,14,Temporary Stay Nursing Care,520045,weekly,FALSE,2,FALSE
-18,15,Additional Needs Payment,520045,weekly,FALSE,1,FALSE
-19,15,FNCC Payment to Home,520215,weekly,FALSE,2,FALSE
-20,15,Short Stay Nursing Care,520045,weekly,FALSE,3,FALSE
-21,16,Additional Needs Payment,520040,weekly,FALSE,1,FALSE
-22,16,Agreed Council Top Up Payment,520040,weekly,FALSE,2,FALSE
-23,16,Day Opportunities (weekly),520040,weekly,FALSE,3,FALSE
-24,16,Long Stay Residential Care,520040,weekly,FALSE,4,FALSE
-25,16,Personal Allowance Payment,520040,weekly,FALSE,5,FALSE
-26,17,Personal Allowance Payment,520040,weekly,FALSE,1,FALSE
-27,17,Short Stay Residential Care,520040,weekly,FALSE,2,FALSE
-28,18,Additional Needs Payment,520040,weekly,FALSE,1,FALSE
-29,18,Short Stay Residential Care,520040,weekly,FALSE,2,FALSE
-30,5,Direct Payment - Day Care (weekly),520085,weekly,FALSE,1,FALSE
-31,5,Direct Payment - Personal Care (hourly),520085,hourly,FALSE,2,FALSE
-32,5,Direct Payment - Personal Care (weekly),520085,weekly,FALSE,3,FALSE
-33,5,Direct Payment - Transport (weekly),520085,transport,FALSE,4,FALSE
-34,5,Direct Payment (One off set up cost),520085,one_off,FALSE,5,FALSE
-35,5,Direct Payment (other one off payment),520085,one_off,FALSE,6,FALSE
-36,5,Direct Payment (Carer Respite one off payment),520085,one_off,FALSE,7,FALSE
-37,5,Direct Payment Clawback (from service user),520085,weekly,FALSE,8,FALSE
-38,5,Direct Payment to third party - Day Care (weekly),520085,weekly,FALSE,9,FALSE
-39,5,Direct Payment to third party - Personal Care (hourly),520085,hourly,FALSE,10,FALSE
-40,5,Direct Payment to third party - Personal Care (weekly),520085,weekly,FALSE,11,FALSE
-41,5,Direct Payment to third party - Transport (weekly),520085,transport,FALSE,12,FALSE
-42,5,Direct Payment to third party (once off set up cost),520085,one_off,FALSE,13,FALSE
-43,5,Direct Payment to third party (other one off payments),520085,one_off,FALSE,14,FALSE
-44,5,Direct Payment to third party (Carer respite one off payment),520085,one_off,FALSE,15,FALSE
-45,6,Day opportunity - external provider (daily),520110,daily,FALSE,1,FALSE
-46,6,Day opportunity - internal provider (daily),520055,daily,FALSE,2,FALSE
-47,6,Day opportunity (hourly),520110,hourly,FALSE,3,FALSE
-48,6,Day opportunity - transport  - external provider,520110,transport,FALSE,4,FALSE
-49,6,Day opportunity - transport  - internal provider,520075,transport,FALSE,5,FALSE
-50,7,Escort (hourly),520050,hourly,FALSE,1,FALSE
-51,7,Live in Carer (hourly),520050,hourly,FALSE,2,FALSE
-52,7,Live in Carer (daily),520050,weekly,FALSE,3,FALSE
-53,7,Personal Home Care - Additional Carer  (hourly),520050,hourly,FALSE,4,FALSE
-54,7,Personal Home Care (hourly),520050,hourly,FALSE,5,FALSE
-55,7,Personal Home Care (weekly),520050,weekly,FALSE,6,FALSE
-56,7,Sleeping Night (hourly),520050,hourly,FALSE,7,FALSE
-57,7,Sleeping Nights (cost per night),520050,daily,FALSE,8,FALSE
-58,7,Waking Night (hourly),520050,hourly,FALSE,9,FALSE
-59,7,Waking Nights (cost per night),520050,daily,FALSE,10,FALSE
-60,8,Subsistence ASC (weekly),520110,weekly,FALSE,1,FALSE
-61,8,Temporary Accommodation (cost per night),520110,daily,TRUE,2,FALSE
-62,9,Temporary Accommodation (cost per night),520110,daily,TRUE,1,FALSE
-63,9,Intense Clean,520110,one_off,TRUE,2,FALSE
-64,12,Intense Clean,520110,one_off,TRUE,1,FALSE
-65,12,Other professional services (hourly),520110,hourly,TRUE,2,FALSE
-66,12,Other professional services (daily),520110,daily,TRUE,3,FALSE
-67,12,Pet Kennelling (daily),520110,daily,TRUE,4,FALSE
-68,12,Pet Kennelling (weekly),520110,weekly,TRUE,5,FALSE
-69,12,Transport (weekly),520110,transport,TRUE,6,FALSE
-70,10,Housing with Care - external provider (hourly),520110,hourly,FALSE,1,FALSE
-71,10,Housing with Care - internal provider (hourly),520110,hourly,FALSE,2,FALSE
-72,10,Additional Needs Payment,520110,hourly,FALSE,3,FALSE
-73,11,Carer Support - Day Sitting Service (hourly),520110,hourly,FALSE,1,FALSE
-74,11,Day Opportunities Respite (daily),520110,daily,FALSE,2,FALSE
-75,11,Day Opportunities Respite (hourly),520110,hourly,FALSE,3,FALSE
-76,11,FNCC Payment to Home,520110,weekly,FALSE,4,FALSE
-77,11,Respite Nursing Care,520110,weekly,FALSE,5,FALSE
-78,11,FNCC Respite Nursing Care (collected by provider),520110,weekly,FALSE,6,FALSE
-79,11,Additional Needs Payment,520110,weekly,FALSE,7,FALSE
-80,11,Provisional Residential respite charge (collected by provider),520110,weekly,FALSE,8,FALSE
-81,11,Provisional Residential respite charge (collected by Hackney),520110,weekly,FALSE,9,FALSE
-82,11,Respite Residential Care,520110,weekly,FALSE,10,FALSE
-83,11,Carer BACS Payment - S2029 (One Off),520110,weekly,FALSE,11,FALSE
-84,11,Carer Cheque Payment - (One Off),520110,weekly,FALSE,12,FALSE
+﻿id,service_id,name,subjective_code,cost_type,billing,non_personal_budget,position,is_archived
+1,1,Holiday Payment Hackney Adult Placement Scheme (Shared Lives),520070,weekly,supplier,TRUE,1,FALSE
+2,1,Shared Lives Hackney Adult Placement Scheme,520070,weekly,supplier,TRUE,2,FALSE
+3,1,Additional Needs Payment,520070,weekly,supplier,TRUE,3,FALSE
+4,2,Additional Needs Payment,520070,weekly,supplier,FALSE,1,FALSE
+5,2,Day Opportunities (daily),520070,daily,supplier,FALSE,2,FALSE
+6,2,Day Opportunities (hourly),520070,hourly,supplier,FALSE,3,FALSE
+7,2,Supported Living Core Costs/Accommodation (Weekly),520070,weekly,supplier,FALSE,4,FALSE
+8,2,Extra Hours (hourly),520070,hourly,supplier,FALSE,5,FALSE
+9,2,Sleeping Nights (hourly),520070,hourly,supplier,FALSE,6,FALSE
+10,2,Waking Nights (per night),520070,daily,supplier,FALSE,7,FALSE
+11,13,Additional Needs Payment,520045,hourly,supplier,FALSE,1,FALSE
+12,13,Agreed Council Top Up Payment ,520045,weekly,supplier,FALSE,2,FALSE
+13,13,FNCC Payment to Home,520215,weekly,supplier,FALSE,3,FALSE
+14,13,Long Stay Nursing Care,520045,weekly,supplier,FALSE,4,FALSE
+15,13,Personal Allowance Payment,520045,weekly,supplier,FALSE,5,FALSE
+16,14,FNCC Payment to Home,520215,weekly,supplier,FALSE,1,FALSE
+17,14,Temporary Stay Nursing Care,520045,weekly,supplier,FALSE,2,FALSE
+18,15,Additional Needs Payment,520045,weekly,supplier,FALSE,1,FALSE
+19,15,FNCC Payment to Home,520215,weekly,supplier,FALSE,2,FALSE
+20,15,Short Stay Nursing Care,520045,weekly,supplier,FALSE,3,FALSE
+21,16,Additional Needs Payment,520040,weekly,supplier,FALSE,1,FALSE
+22,16,Agreed Council Top Up Payment,520040,weekly,supplier,FALSE,2,FALSE
+23,16,Day Opportunities (weekly),520040,weekly,supplier,FALSE,3,FALSE
+24,16,Long Stay Residential Care,520040,weekly,supplier,FALSE,4,FALSE
+25,16,Personal Allowance Payment,520040,weekly,supplier,FALSE,5,FALSE
+26,17,Personal Allowance Payment,520040,weekly,supplier,FALSE,1,FALSE
+27,17,Short Stay Residential Care,520040,weekly,supplier,FALSE,2,FALSE
+28,18,Additional Needs Payment,520040,weekly,supplier,FALSE,1,FALSE
+29,18,Short Stay Residential Care,520040,weekly,supplier,FALSE,2,FALSE
+30,5,Direct Payment - Day Care (weekly),520085,weekly,supplier,FALSE,1,FALSE
+31,5,Direct Payment - Personal Care (hourly),520085,hourly,supplier,FALSE,2,FALSE
+32,5,Direct Payment - Personal Care (weekly),520085,weekly,supplier,FALSE,3,FALSE
+33,5,Direct Payment - Transport (weekly),520085,transport,supplier,FALSE,4,FALSE
+34,5,Direct Payment (One off set up cost),520085,one_off,supplier,FALSE,5,FALSE
+35,5,Direct Payment (other one off payment),520085,one_off,supplier,FALSE,6,FALSE
+36,5,Direct Payment (Carer Respite one off payment),520085,one_off,supplier,FALSE,7,FALSE
+37,5,Direct Payment Clawback (from service user),520085,weekly,supplier,FALSE,8,FALSE
+38,5,Direct Payment to third party - Day Care (weekly),520085,weekly,supplier,FALSE,9,FALSE
+39,5,Direct Payment to third party - Personal Care (hourly),520085,hourly,supplier,FALSE,10,FALSE
+40,5,Direct Payment to third party - Personal Care (weekly),520085,weekly,supplier,FALSE,11,FALSE
+41,5,Direct Payment to third party - Transport (weekly),520085,transport,supplier,FALSE,12,FALSE
+42,5,Direct Payment to third party (once off set up cost),520085,one_off,supplier,FALSE,13,FALSE
+43,5,Direct Payment to third party (other one off payments),520085,one_off,supplier,FALSE,14,FALSE
+44,5,Direct Payment to third party (Carer respite one off payment),520085,one_off,supplier,FALSE,15,FALSE
+45,6,Day opportunity - external provider (daily),520110,daily,supplier,FALSE,1,FALSE
+46,6,Day opportunity - internal provider (daily),520055,daily,none,FALSE,2,FALSE
+47,6,Day opportunity (hourly),520110,hourly,supplier,FALSE,3,FALSE
+48,6,Day opportunity - transport  - external provider,520110,transport,supplier,FALSE,4,FALSE
+49,6,Day opportunity - transport  - internal provider,520075,transport,none,FALSE,5,FALSE
+50,7,Escort (hourly),520050,hourly,supplier,FALSE,1,FALSE
+51,7,Live in Carer (hourly),520050,hourly,supplier,FALSE,2,FALSE
+52,7,Live in Carer (daily),520050,weekly,supplier,FALSE,3,FALSE
+53,7,Personal Home Care - Additional Carer  (hourly),520050,hourly,supplier,FALSE,4,FALSE
+54,7,Personal Home Care (hourly),520050,hourly,supplier,FALSE,5,FALSE
+55,7,Personal Home Care (weekly),520050,weekly,supplier,FALSE,6,FALSE
+56,7,Sleeping Night (hourly),520050,hourly,supplier,FALSE,7,FALSE
+57,7,Sleeping Nights (cost per night),520050,daily,supplier,FALSE,8,FALSE
+58,7,Waking Night (hourly),520050,hourly,supplier,FALSE,9,FALSE
+59,7,Waking Nights (cost per night),520050,daily,supplier,FALSE,10,FALSE
+60,8,Subsistence ASC (weekly),520110,weekly,supplier,FALSE,1,FALSE
+61,8,Temporary Accommodation (cost per night),520110,daily,supplier,TRUE,2,FALSE
+62,9,Temporary Accommodation (cost per night),520110,daily,supplier,TRUE,1,FALSE
+63,9,Intense Clean,520110,one_off,supplier,TRUE,2,FALSE
+64,12,Intense Clean,520110,one_off,supplier,TRUE,1,FALSE
+65,12,Other professional services (hourly),520110,hourly,supplier,TRUE,2,FALSE
+66,12,Other professional services (daily),520110,daily,supplier,TRUE,3,FALSE
+67,12,Pet Kennelling (daily),520110,daily,supplier,TRUE,4,FALSE
+68,12,Pet Kennelling (weekly),520110,weekly,supplier,TRUE,5,FALSE
+69,12,Transport (weekly),520110,transport,supplier,TRUE,6,FALSE
+70,10,Housing with Care - external provider (hourly),520110,hourly,supplier,FALSE,1,FALSE
+71,10,Housing with Care - internal provider (hourly),520110,hourly,supplier,FALSE,2,FALSE
+72,10,Additional Needs Payment,520110,hourly,supplier,FALSE,3,FALSE
+73,11,Carer Support - Day Sitting Service (hourly),520110,hourly,supplier,FALSE,1,FALSE
+74,11,Day Opportunities Respite (daily),520110,daily,supplier,FALSE,2,FALSE
+75,11,Day Opportunities Respite (hourly),520110,hourly,supplier,FALSE,3,FALSE
+76,11,FNCC Payment to Home,520110,weekly,supplier,FALSE,4,FALSE
+77,11,Respite Nursing Care,520110,weekly,supplier,FALSE,5,FALSE
+78,11,FNCC Respite Nursing Care (collected by provider),520110,weekly,none,FALSE,6,FALSE
+79,11,Additional Needs Payment,520110,weekly,supplier,FALSE,7,FALSE
+80,11,Provisional Residential respite charge (collected by provider),520110,weekly,none,FALSE,8,FALSE
+81,11,Provisional Residential respite charge (collected by Hackney),520110,weekly,customer,FALSE,9,FALSE
+82,11,Respite Residential Care,520110,weekly,supplier,FALSE,10,FALSE
+83,11,Carer BACS Payment - S2029 (One Off),520110,weekly,supplier,FALSE,11,FALSE
+84,11,Carer Cheque Payment - (One Off),520110,weekly,supplier,FALSE,12,FALSE

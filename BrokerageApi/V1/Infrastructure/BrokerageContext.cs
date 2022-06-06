@@ -16,6 +16,7 @@ namespace BrokerageApi.V1.Infrastructure
         {
             NpgsqlConnection.GlobalTypeMapper.UseNodaTime();
 
+            NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementBillingType>("element_billing_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementCostType>("element_cost_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementStatus>("element_status");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ProviderType>("provider_type");
@@ -56,6 +57,7 @@ namespace BrokerageApi.V1.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasPostgresEnum<ElementBillingType>();
             modelBuilder.HasPostgresEnum<ElementCostType>();
             modelBuilder.HasPostgresEnum<ElementStatus>();
             modelBuilder.HasPostgresEnum<ProviderType>();
@@ -115,6 +117,10 @@ namespace BrokerageApi.V1.Infrastructure
             modelBuilder.Entity<ElementType>()
                 .Property(et => et.Id)
                 .ValueGeneratedNever();
+
+            modelBuilder.Entity<ElementType>()
+                .Property(et => et.Billing)
+                .HasDefaultValue(ElementBillingType.Supplier);
 
             modelBuilder.Entity<ElementType>()
                 .Property(et => et.NonPersonalBudget)

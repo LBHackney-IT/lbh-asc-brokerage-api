@@ -71,6 +71,7 @@ namespace BrokerageApi.V1.Factories
                 Id = elementType.Id,
                 Name = elementType.Name,
                 CostType = elementType.CostType,
+                Billing = elementType.Billing,
                 NonPersonalBudget = elementType.NonPersonalBudget,
                 Service = elementType.Service != null
                     ? new ServiceResponse
