@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using NodaTime;
 using BrokerageApi.V1.Services.Interfaces;
+using JetBrains.Annotations;
 
 namespace BrokerageApi.V1.Infrastructure
 {
@@ -17,6 +18,24 @@ namespace BrokerageApi.V1.Infrastructure
         private Element(BrokerageContext db)
         {
             _clock = db.Clock;
+        }
+        public Element(Element element)
+        {
+            SocialCareId = element.SocialCareId;
+            ElementTypeId = element.ElementTypeId;
+            NonPersonalBudget = element.NonPersonalBudget;
+            ProviderId = element.ProviderId;
+            Details = element.Details;
+            Monday = element.Monday;
+            Tuesday = element.Tuesday;
+            Wednesday = element.Wednesday;
+            Thursday = element.Thursday;
+            Friday = element.Friday;
+            Saturday = element.Saturday;
+            Sunday = element.Sunday;
+            Quantity = element.Quantity;
+            Cost = element.Cost;
+            CostCentre = element.CostCentre;
         }
 
         [Key]
@@ -41,6 +60,13 @@ namespace BrokerageApi.V1.Infrastructure
         public int? ParentElementId { get; set; }
         public Element ParentElement { get; set; }
         public List<Element> ChildElements { get; set; }
+
+        public int? SuspendedElementId { get; set; }
+        public Element SuspendedElement { get; set; }
+        [CanBeNull]
+        public List<Element> SuspensionElements { get; set; }
+
+        public bool IsSuspension { get; set; }
 
         public LocalDate StartDate { get; set; }
 
@@ -70,6 +96,12 @@ namespace BrokerageApi.V1.Infrastructure
         public decimal? Quantity { get; set; }
 
         public decimal Cost { get; set; }
+
+        public string CostCentre { get; set; }
+
+        public string Comment { get; set; }
+
+        public List<decimal> DailyCosts { get; set; }
 
         public List<ReferralElement> ReferralElements { get; set; }
 

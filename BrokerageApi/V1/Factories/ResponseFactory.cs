@@ -32,7 +32,8 @@ namespace BrokerageApi.V1.Factories
                 StartDate = carePackage.StartDate,
                 WeeklyCost = carePackage.WeeklyCost,
                 WeeklyPayment = carePackage.WeeklyPayment,
-                Elements = carePackage.Elements.Select(e => e.ToResponse()).ToList()
+                Elements = carePackage.Elements.Select(e => e.ToResponse()).ToList(),
+                Comment = carePackage.Comment
             };
         }
 
@@ -59,7 +60,9 @@ namespace BrokerageApi.V1.Factories
                 Cost = element.Cost,
                 CreatedAt = element.CreatedAt,
                 UpdatedAt = element.UpdatedAt,
-                ParentElement = includeParent ? element.ParentElement?.ToResponse(false) : null
+                ParentElement = includeParent ? element.ParentElement?.ToResponse(false) : null,
+                SuspensionElements = element.SuspensionElements?.Select(e => e.ToResponse()).ToList(),
+                Comment = element.Comment
             };
         }
 
@@ -77,7 +80,8 @@ namespace BrokerageApi.V1.Factories
                         Id = elementType.Service.Id,
                         ParentId = elementType.Service.ParentId,
                         Name = elementType.Service.Name,
-                        Description = elementType.Service.Description
+                        Description = elementType.Service.Description,
+                        HasProvisionalClientContributions = elementType.Service.HasProvisionalClientContributions
                     }
                     : null
             };
@@ -124,6 +128,7 @@ namespace BrokerageApi.V1.Factories
                 ParentId = service.ParentId,
                 Name = service.Name,
                 Description = service.Description,
+                HasProvisionalClientContributions = service.HasProvisionalClientContributions,
                 ElementTypes = service.ElementTypes?.Select(et => et.ToResponse()).ToList()
             };
         }

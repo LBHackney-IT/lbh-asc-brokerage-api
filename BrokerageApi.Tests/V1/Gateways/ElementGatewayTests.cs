@@ -7,6 +7,7 @@ using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Gateways;
 using BrokerageApi.V1.Infrastructure;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
 namespace BrokerageApi.Tests.V1.Gateways
@@ -58,6 +59,31 @@ namespace BrokerageApi.Tests.V1.Gateways
             var resultElements = await _classUnderTest.GetBySocialCareId(socialCareId);
 
             resultElements.Should().BeEquivalentTo(expectedElements.OrderBy(e => e.Id));
+        }
+
+        [Test]
+        public async Task CanAddElement()
+        {
+            var service = _fixture.BuildService().Create();
+
+            var elementType = _fixture.BuildElementType(service.Id)
+                .Create();
+
+            var provider = _fixture.BuildProvider().Create();
+
+            var newElement = _fixture.BuildElement(provider.Id, elementType.Id)
+                .Create();
+
+            await BrokerageContext.Services.AddAsync(service);
+            await BrokerageContext.ElementTypes.AddAsync(elementType);
+            await BrokerageContext.Providers.AddAsync(provider);
+            await BrokerageContext.SaveChangesAsync();
+
+            await _classUnderTest.AddElementAsync(newElement);
+
+            var addedElement = await BrokerageContext.Elements.SingleOrDefaultAsync(e => e.Id == newElement.Id);
+            addedElement.Should().NotBeNull();
+            addedElement.Should().BeEquivalentTo(newElement);
         }
 
         private async Task SeedElements(params Element[] elements)

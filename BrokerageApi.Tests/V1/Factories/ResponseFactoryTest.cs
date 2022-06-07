@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using AutoFixture;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Factories;
@@ -69,10 +71,15 @@ namespace BrokerageApi.Tests.V1.Factories
                 .With(e => e.ParentElement, grandParentElement)
                 .With(e => e.ParentElementId, grandParentElement.Id)
                 .Create();
+            var suspensionElements = _fixture.Build<Element>()
+                .With(e => e.InternalStatus, ElementStatus.Suspended)
+                .With(e => e.IsSuspension, true)
+                .CreateMany();
             var element = _fixture.Build<Element>()
                 .With(e => e.InternalStatus, ElementStatus.InProgress)
                 .With(e => e.ParentElement, parentElement)
                 .With(e => e.ParentElementId, parentElement.Id)
+                .With(e => e.SuspensionElements, suspensionElements.ToList)
                 .Create();
 
             var response = element.ToResponse();
@@ -96,8 +103,10 @@ namespace BrokerageApi.Tests.V1.Factories
             response.Cost.Should().Be(element.Cost);
             response.CreatedAt.Should().Be(element.CreatedAt);
             response.UpdatedAt.Should().Be(element.UpdatedAt);
-            response.ParentElement.Should().BeEquivalentTo(element.ParentElement.ToResponse(false));
+            response.ParentElement.Should().BeEquivalentTo(parentElement.ToResponse(false));
             response.ParentElement.ParentElement.Should().BeNull();
+            response.SuspensionElements.Should().BeEquivalentTo(suspensionElements.Select(e => e.ToResponse()));
+            response.Comment.Should().Be(element.Comment);
         }
     }
 }

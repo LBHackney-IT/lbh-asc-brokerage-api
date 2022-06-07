@@ -42,5 +42,11 @@ namespace BrokerageApi.V1.Gateways
                 .Where(e => e.Id == id)
                 .SingleOrDefaultAsync();
         }
+
+        public async Task AddElementAsync(Element element)
+        {
+            await _context.Elements.AddAsync(element);
+            await _context.SaveChangesAsync();
+        }
     }
 }

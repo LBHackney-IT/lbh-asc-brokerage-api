@@ -28,12 +28,22 @@ namespace BrokerageApi.V1.Infrastructure
             {
                 var email = principal.Identity.Name;
                 var user = await _userGateway.GetByEmailAsync(email);
+
+                if (user is null)
+                {
+                    var name = principal.FindFirst("name").Value;
+                    user = await _userGateway.CreateUser(email, name);
+                }
+
                 var identity = (ClaimsIdentity) principal.Identity;
 
-                foreach (var role in user.Roles)
+                if (user.Roles != null)
                 {
-                    var claim = new Claim(identity.RoleClaimType, Enum.GetName(typeof(UserRole), role));
-                    identity.AddClaim(claim);
+                    foreach (var role in user.Roles)
+                    {
+                        var claim = new Claim(identity.RoleClaimType, Enum.GetName(typeof(UserRole), role));
+                        identity.AddClaim(claim);
+                    }
                 }
 
                 var idClaim = new Claim(ClaimTypes.PrimarySid, user.Id.ToString());

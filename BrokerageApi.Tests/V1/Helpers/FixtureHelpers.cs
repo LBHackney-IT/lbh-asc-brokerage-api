@@ -36,7 +36,8 @@ namespace BrokerageApi.Tests.V1.Helpers
             return fixture.Build<Provider>()
                 .Without(p => p.Elements)
                 .Without(p => p.Services)
-                .Without(p => p.ProviderServices);
+                .Without(p => p.ProviderServices)
+                .With(p => p.Type, ProviderType.Framework);
         }
         public static IPostprocessComposer<Service> BuildService(this IFixture fixture)
         {
@@ -46,7 +47,8 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(s => s.ElementTypes)
                 .Without(s => s.ProviderServices)
                 .Without(s => s.Parent)
-                .Without(s => s.ParentId);
+                .Without(s => s.ParentId)
+                .With(s => s.IsArchived, false);
         }
         public static IPostprocessComposer<ProviderService> BuildProviderService(this IFixture fixture, int providerId, int serviceId)
         {
@@ -61,13 +63,15 @@ namespace BrokerageApi.Tests.V1.Helpers
             return fixture.Build<ElementType>()
                 .Without(et => et.Service)
                 .Without(et => et.Elements)
-                .With(et => et.ServiceId, serviceId);
+                .With(et => et.ServiceId, serviceId)
+                .With(et => et.IsArchived, false);
         }
         public static IPostprocessComposer<Referral> BuildReferral(this IFixture fixture, ReferralStatus status)
         {
             return fixture.Build<Referral>()
                 .Without(r => r.Elements)
                 .Without(r => r.ReferralElements)
+                .With(r => r.WorkflowType, WorkflowType.Assessment)
                 .With(r => r.Status, status);
         }
         public static IPostprocessComposer<Element> BuildElement(this IFixture fixture, int providerId, int elementTypeId)
@@ -77,14 +81,29 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(e => e.Referrals)
                 .Without(e => e.ReferralElements)
                 .Without(e => e.ParentElement)
-                .Without(e => e.ParentElement)
                 .Without(e => e.ParentElementId)
+                .Without(e => e.SuspendedElement)
+                .Without(e => e.SuspendedElementId)
+                .Without(e => e.SuspensionElements)
                 .Without(e => e.Provider)
                 .Without(e => e.ElementType)
                 .With(e => e.ProviderId, providerId)
                 .With(e => e.ElementTypeId, elementTypeId)
                 .With(e => e.InternalStatus, ElementStatus.InProgress);
         }
+
+        public static IPostprocessComposer<Element> WithoutCost(this IPostprocessComposer<Element> elementBuilder)
+        {
+            return elementBuilder.Without(e => e.EndDate)
+                .Without(e => e.Monday)
+                .Without(e => e.Tuesday)
+                .Without(e => e.Wednesday)
+                .Without(e => e.Thursday)
+                .Without(e => e.Friday)
+                .Without(e => e.Cost)
+                .Without(e => e.DailyCosts);
+        }
+
         public static IPostprocessComposer<ReferralElement> BuildReferralElement(this IFixture fixture, int referralId, int elementId)
         {
             return fixture.Build<ReferralElement>()

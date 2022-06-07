@@ -20,10 +20,14 @@ namespace BrokerageApi.V1.Gateways
         {
             return await _context.CarePackages
                 .Include(cp => cp.Elements.OrderBy(e => e.CreatedAt))
-                .ThenInclude(e => e.Provider)
+                    .ThenInclude(e => e.ParentElement)
                 .Include(cp => cp.Elements.OrderBy(e => e.CreatedAt))
-                .ThenInclude(e => e.ElementType)
-                .ThenInclude(et => et.Service)
+                    .ThenInclude(e => e.Provider)
+                .Include(cp => cp.Elements.OrderBy(e => e.CreatedAt))
+                    .ThenInclude(e => e.ElementType)
+                        .ThenInclude(et => et.Service)
+                .Include(cp => cp.Elements.OrderBy(e => e.CreatedAt))
+                    .ThenInclude(e => e.SuspensionElements)
                 .SingleOrDefaultAsync(cp => cp.Id == id);
         }
         public async Task<IEnumerable<CarePackage>> GetByServiceUserIdAsync(string serviceUserId)

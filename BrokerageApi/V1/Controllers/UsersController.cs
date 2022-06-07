@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,12 +20,12 @@ namespace BrokerageApi.V1.Controllers
     public class UsersController : BaseController
     {
         private readonly IGetAllUsersUseCase _getAllUsersUseCase;
+        private readonly IGetCurrentUserUseCase _getCurrentUserUseCase;
 
-        public UsersController(
-          IGetAllUsersUseCase getAllUsersUseCase
-        )
+        public UsersController(IGetAllUsersUseCase getAllUsersUseCase, IGetCurrentUserUseCase getCurrentUserUseCase)
         {
             _getAllUsersUseCase = getAllUsersUseCase;
+            _getCurrentUserUseCase = getCurrentUserUseCase;
         }
 
         [HttpGet]
@@ -34,6 +35,27 @@ namespace BrokerageApi.V1.Controllers
         {
             var users = await _getAllUsersUseCase.ExecuteAsync(role);
             return Ok(users.Select(u => u.ToResponse()).ToList());
+        }
+
+        [HttpGet]
+        [Route("current")]
+        [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            try
+            {
+                var user = await _getCurrentUserUseCase.ExecuteAsync();
+                return Ok(user.ToResponse());
+            }
+            catch (ArgumentException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"/api/v1/users/current",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
         }
     }
 }

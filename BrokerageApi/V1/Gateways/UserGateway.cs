@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -41,6 +42,26 @@ namespace BrokerageApi.V1.Gateways
                 .Where(u => u.IsActive == true)
                 .Where(u => u.Email == email)
                 .SingleOrDefaultAsync();
+        }
+
+        public async Task<User> CreateUser(string email, string name)
+        {
+            if (await _context.Users.AnyAsync(u => u.Email == email))
+            {
+                throw new InvalidOperationException($"User with email address {email} already exists");
+            }
+
+            var user = new User
+            {
+                Email = email,
+                Name = name,
+                IsActive = true
+            };
+
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
+
+            return user;
         }
     }
 }

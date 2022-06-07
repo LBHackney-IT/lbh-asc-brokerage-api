@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using NodaTime;
 using BrokerageApi.V1.Infrastructure;
@@ -21,6 +22,7 @@ namespace BrokerageApi.V1.Boundary.Response
         public ElementStatus Status { get; set; }
 
         public ElementResponse ParentElement { get; set; }
+        public List<ElementResponse> SuspensionElements { get; set; }
 
         public LocalDate StartDate { get; set; }
 
@@ -47,5 +49,7 @@ namespace BrokerageApi.V1.Boundary.Response
         public Instant CreatedAt { get; set; }
 
         public Instant UpdatedAt { get; set; }
+
+        public string Comment { get; set; }
     }
 }

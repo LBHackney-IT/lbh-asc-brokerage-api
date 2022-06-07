@@ -57,5 +57,7 @@ namespace BrokerageApi.V1.Infrastructure
         public List<ReferralElement> ReferralElements { get; set; }
 
         public List<Element> Elements { get; set; }
+
+        public string Comment { get; set; }
     }
 }

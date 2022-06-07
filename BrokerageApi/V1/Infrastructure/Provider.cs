@@ -17,6 +17,8 @@ namespace BrokerageApi.V1.Infrastructure
 
         public ProviderType Type { get; set; }
 
+        public string CedarNumber { get; set; }
+
         public bool IsArchived { get; set; }
 
         public NpgsqlTsVector SearchVector { get; set; }
