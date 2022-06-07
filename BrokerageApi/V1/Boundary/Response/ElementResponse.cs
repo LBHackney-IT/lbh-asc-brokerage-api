@@ -23,6 +23,7 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public ElementResponse ParentElement { get; set; }
         public List<ElementResponse> SuspensionElements { get; set; }
+        public string CreatedBy { get; set; }
 
         public LocalDate StartDate { get; set; }
 
