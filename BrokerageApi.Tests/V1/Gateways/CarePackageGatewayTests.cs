@@ -189,7 +189,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 Name = "A Different Service",
                 Position = 1,
                 IsArchived = false,
-            };            
+            };
 
             var hourlyElementType = new ElementType
             {
@@ -211,7 +211,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 IsArchived = false
             };
 
-          
+
 
             var provider = new Provider()
             {
@@ -227,7 +227,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 Name = "Testington Homes",
                 Address = "1 Mystery Place",
                 Type = ProviderType.Framework
-            };            
+            };
 
             var providerService = new ProviderService()
             {

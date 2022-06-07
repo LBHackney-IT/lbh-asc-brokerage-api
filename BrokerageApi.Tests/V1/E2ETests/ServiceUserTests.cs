@@ -26,6 +26,14 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 IsArchived = false,
             };
 
+            var anotherService = new Service
+            {
+                Id = 2,
+                Name = "A Different Service",
+                Position = 1,
+                IsArchived = false,
+            };
+
             var hourlyElementType = new ElementType
             {
                 Id = 1,
@@ -39,7 +47,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var dailyElementType = new ElementType
             {
                 Id = 2,
-                ServiceId = 1,
+                ServiceId = 2,
                 Name = "Day Opportunities (daily)",
                 CostType = ElementCostType.Daily,
                 NonPersonalBudget = false,
@@ -54,11 +62,26 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 Type = ProviderType.Framework
             };
 
+            var anotherProvider = new Provider()
+            {
+                Id = 2,
+                Name = "Testington Homes",
+                Address = "1 Mystery Place",
+                Type = ProviderType.Framework
+            };
+
             var providerService = new ProviderService()
             {
                 ProviderId = 1,
                 ServiceId = 1,
                 SubjectiveCode = "599999"
+            };
+
+            var anotherProviderService = new ProviderService()
+            {
+                ProviderId = 2,
+                ServiceId = 2,
+                SubjectiveCode = "599998"
             };
 
             var previousStartDate = CurrentDate.PlusDays(-100);
@@ -104,7 +127,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                         SocialCareId = "33556688",
                         ElementTypeId = 2,
                         NonPersonalBudget = false,
-                        ProviderId = 1,
+                        ProviderId = 2,
                         Details = "Some other notes",
                         InternalStatus = ElementStatus.InProgress,
                         ParentElementId = null,
@@ -140,10 +163,15 @@ namespace BrokerageApi.Tests.V1.E2ETests
             };
 
             await Context.Services.AddAsync(service);
+            await Context.Services.AddAsync(anotherService);
             await Context.ElementTypes.AddAsync(hourlyElementType);
             await Context.ElementTypes.AddAsync(dailyElementType);
             await Context.Providers.AddAsync(provider);
+            await Context.Providers.AddAsync(anotherProvider);
+
             await Context.ProviderServices.AddAsync(providerService);
+            await Context.ProviderServices.AddAsync(anotherProviderService);
+
             await Context.Referrals.AddAsync(referral);
             await Context.Users.AddAsync(assignedBroker);
             await Context.Users.AddAsync(assignedApprover);
@@ -161,6 +189,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response[0].WeeklyCost, Is.EqualTo(225));
             Assert.That(response[0].WeeklyPayment, Is.EqualTo(125));
             Assert.That(response[0].Elements.Count, Is.EqualTo(2));
+            Assert.That(response[0].CarePackageName, Is.EqualTo("A Different Service, Supported Living"));
+
 
             Assert.That(response[0].Elements[0].Status, Is.EqualTo(ElementStatus.Active));
             Assert.That(response[0].Elements[0].Details, Is.EqualTo("Some notes"));
@@ -171,8 +201,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response[0].Elements[1].Status, Is.EqualTo(ElementStatus.InProgress));
             Assert.That(response[0].Elements[1].Details, Is.EqualTo("Some other notes"));
             Assert.That(response[0].Elements[1].ElementType.Name, Is.EqualTo("Day Opportunities (daily)"));
-            Assert.That(response[0].Elements[1].ElementType.Service.Name, Is.EqualTo("Supported Living"));
-            Assert.That(response[0].Elements[1].Provider.Name, Is.EqualTo("Acme Homes"));
+            Assert.That(response[0].Elements[1].ElementType.Service.Name, Is.EqualTo("A Different Service"));
+            Assert.That(response[0].Elements[1].Provider.Name, Is.EqualTo("Testington Homes"));
 
             Assert.That(response[0].AssignedBroker.Name, Is.EqualTo("UserName"));
             Assert.That(response[0].AssignedBroker.Email, Is.EqualTo("some.email@hackney.gov.uk"));
