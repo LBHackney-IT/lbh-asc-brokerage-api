@@ -61,12 +61,17 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             var startDate = baseDate.PlusDays(1);
             var endDate = withEndDate ? startDate.PlusDays(8) : (LocalDate?) null;
             var (referral, element) = CreateReferralAndElement(ElementStatus.Approved, baseDate, baseDate.PlusDays(10));
+            const string expectedUserEmail = "expected@email.com";
+            _mockUserService
+                .Setup(x => x.Email)
+                .Returns(expectedUserEmail);
 
             await _classUnderTest.ExecuteAsync(referral.Id, element.Id, startDate, endDate, expectedComment);
 
             var newElement = _mockElementGateway.LastElementAdded;
             newElement.Should().NotBeNull();
-            newElement.InternalStatus.Should().Be(ElementStatus.InProgress);
+            newElement.InternalStatus.Should().Be(ElementStatus.Suspended);
+            newElement.CreatedBy.Should().Be(expectedUserEmail);
             newElement.CreatedAt.Should().Be(_clock.Now);
             newElement.UpdatedAt.Should().Be(_clock.Now);
             newElement.StartDate.Should().Be(startDate);
@@ -86,6 +91,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .Excluding(e => e.CreatedAt)
                 .Excluding(e => e.UpdatedAt)
                 .Excluding(e => e.IsSuspension)
+                .Excluding(e => e.CreatedBy)
             );
             element.Comment.Should().Be(expectedComment);
             _dbSaver.VerifyChangesSaved();

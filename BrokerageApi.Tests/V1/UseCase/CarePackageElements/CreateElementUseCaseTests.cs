@@ -55,10 +55,11 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             var currentInstant = SystemClock.Instance.GetCurrentInstant();
             var elementType = _fixture.Create<ElementType>();
             var provider = _fixture.Create<Provider>();
+            const string expectedUserEmail = "expected@email.com";
 
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.InProgress)
-                .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
+                .With(x => x.AssignedTo, expectedUserEmail)
                 .Without(x => x.Elements)
                 .Create();
 
@@ -82,7 +83,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             _mockUserService
                 .SetupGet(x => x.Email)
-                .Returns("a.broker@hackney.gov.uk");
+                .Returns(expectedUserEmail);
 
             _mockClock
                 .SetupGet(x => x.Now)
@@ -92,9 +93,11 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             var result = await _classUnderTest.ExecuteAsync(referral.Id, request);
 
             // Assert
-            Assert.That(result, Is.InstanceOf(typeof(Element)));
-            Assert.That(result.ElementType, Is.EqualTo(elementType));
-            Assert.That(result.Provider, Is.EqualTo(provider));
+            result.Should().BeOfType<Element>();
+            result.ElementType.Should().Be(elementType);
+            result.Provider.Should().Be(provider);
+            result.CreatedBy.Should().Be(expectedUserEmail);
+            result.CreatedAt.Should().Be(currentInstant);
 
             _mockReferralGateway.Verify(m => m.GetByIdWithElementsAsync(referral.Id));
             _mockElementTypeGateway.Verify(m => m.GetByIdAsync(elementType.Id));

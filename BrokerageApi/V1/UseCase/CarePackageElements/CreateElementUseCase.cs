@@ -70,10 +70,13 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
                 throw new ArgumentException($"Provider not found for: {request.ProviderId}");
             }
 
+            var timeNow = _clock.Now;
             var element = request.ToDatabase();
             element.ElementType = elementType;
             element.Provider = provider;
             element.SocialCareId = referral.SocialCareId;
+            element.CreatedAt = timeNow;
+            element.CreatedBy = _userService.Email;
 
             referral.Elements ??= new List<Element>();
             referral.Elements.Add(element);
@@ -83,7 +86,7 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
                 referral.Elements.Remove(referral.Elements.Single(e => e.Id == request.ParentElementId));
             }
 
-            referral.UpdatedAt = _clock.Now;
+            referral.UpdatedAt = timeNow;
 
             await _dbSaver.SaveChangesAsync();
 
