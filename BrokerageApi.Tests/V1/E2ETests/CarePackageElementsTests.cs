@@ -47,7 +47,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 .Create();
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
-                .With(r => r.AssignedTo, ApiUser.Email)
+                .With(r => r.AssignedBroker, ApiUser.Email)
                 .With(r => r.Elements, new List<Element> { element })
                 .Create();
 
@@ -114,7 +114,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 .Create();
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
-                .With(r => r.AssignedTo, ApiUser.Email)
+                .With(r => r.AssignedBroker, ApiUser.Email)
                 .With(r => r.Elements, new List<Element> { element })
                 .Create();
 
@@ -161,7 +161,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
                 .With(r => r.Elements, new List<Element> { parentElement })
-                .With(r => r.AssignedTo, ApiUser.Email)
+                .With(r => r.AssignedBroker, ApiUser.Email)
                 .Create();
 
             await Context.Referrals.AddAsync(referral);
@@ -252,7 +252,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 .Create();
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
-                .With(r => r.AssignedTo, ApiUser.Email)
+                .With(r => r.AssignedBroker, ApiUser.Email)
                 .With(r => r.Elements, new List<Element> { element })
                 .Create();
 

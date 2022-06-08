@@ -269,7 +269,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.InProgress)
-                .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
+                .With(x => x.AssignedBroker, "a.broker@hackney.gov.uk")
                 .With(x => x.Elements, new List<Element> { parentElement })
                 .Create();
 
