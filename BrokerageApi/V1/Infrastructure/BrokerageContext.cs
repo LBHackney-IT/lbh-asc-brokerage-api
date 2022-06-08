@@ -1,9 +1,9 @@
 using System.Threading;
 using System.Threading.Tasks;
-using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using Npgsql;
+using BrokerageApi.V1.Infrastructure.AuditEvents;
 using BrokerageApi.V1.Services.Interfaces;
 
 namespace BrokerageApi.V1.Infrastructure
@@ -68,8 +68,23 @@ namespace BrokerageApi.V1.Infrastructure
             modelBuilder.HasPostgresEnum<UserRole>();
             modelBuilder.HasPostgresEnum<AuditEventType>();
 
-            modelBuilder
-                .Entity<CarePackage>()
+            modelBuilder.Entity<AuditEvent>()
+                .Property(ae => ae.Metadata)
+                .HasColumnType("jsonb");
+
+            modelBuilder.Entity<AuditEvent>()
+                .Property(ae => ae.ReferralId)
+                .HasComputedColumnSql(@"(metadata->>'referralId')::integer", stored: true);
+
+            modelBuilder.Entity<AuditEvent>()
+                .HasIndex(ae => ae.ReferralId);
+
+            modelBuilder.Entity<AuditEvent>()
+                .HasOne(ae => ae.Referral)
+                .WithMany()
+                .HasForeignKey("ReferralId");
+
+            modelBuilder.Entity<CarePackage>()
                 .ToView("care_packages")
                 .HasKey(c => c.Id);
 

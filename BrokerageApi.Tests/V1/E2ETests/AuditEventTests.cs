@@ -33,13 +33,29 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var user = _fixture.BuildUser()
                 .Create();
 
+            var referral = new Referral()
+            {
+                Id = 1234,
+                WorkflowId = "174079ae-75b4-43b4-9d29-363e88e7dd40",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBroker = "a.broker@hackney.gov.uk",
+                Status = ReferralStatus.Approved
+            };
+
             var auditEvents = _fixture.Build<AuditEvent>()
                 .With(ae => ae.UserId, user.Id)
                 .With(ae => ae.SocialCareId, socialCareId)
                 .Without(ae => ae.User)
-                .With(ae => ae.Metadata, "{ \"test\": \"test\" }")
+                .With(ae => ae.Metadata, "{ \"referralId\": 1234 }")
+                .With(ae => ae.Referral, referral)
                 .CreateMany(100);
 
+            await Context.Referrals.AddAsync(referral);
             await Context.Users.AddAsync(user);
             await Context.AuditEvents.AddRangeAsync(auditEvents);
             await Context.SaveChangesAsync();

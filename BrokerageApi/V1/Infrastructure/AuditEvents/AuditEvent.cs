@@ -20,6 +20,10 @@ namespace BrokerageApi.V1.Infrastructure.AuditEvents
 
         public string Metadata { get; set; }
 
+        public int? ReferralId { get; set; }
+
+        public Referral Referral { get; set; }
+
         [Required]
         public Instant CreatedAt { get; set; }
 

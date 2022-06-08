@@ -167,7 +167,9 @@ namespace BrokerageApi.V1.Factories
                 EventType = auditEvent.EventType,
                 UserId = auditEvent.UserId,
                 SocialCareId = auditEvent.SocialCareId,
-                Metadata = JObject.Parse(auditEvent.Metadata)
+                Metadata = JObject.Parse(auditEvent.Metadata),
+                ReferralId = auditEvent.Referral?.Id,
+                FormName = auditEvent.Referral?.FormName
             };
         }
 

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using NodaTime;
+using BrokerageApi.V1.Infrastructure.AuditEvents;
 
 namespace BrokerageApi.V1.Infrastructure
 {

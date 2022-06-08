@@ -26,8 +26,11 @@ namespace BrokerageApi.Tests.V1.Factories
         [Test]
         public void AuditResponseMapsCorrectly()
         {
+            var referral = _fixture.Create<Referral>();
+
             var auditEvent = _fixture.Build<AuditEvent>()
                 .With(ae => ae.Metadata, "{ \"test\": \"test\" }")
+                .With(ae => ae.Referral, referral)
                 .Create();
 
             var response = auditEvent.ToResponse();
@@ -39,6 +42,8 @@ namespace BrokerageApi.Tests.V1.Factories
             response.SocialCareId.Should().Be(auditEvent.SocialCareId);
             response.UserId.Should().Be(auditEvent.UserId);
             response.Metadata.Should().BeEquivalentTo(JObject.Parse(auditEvent.Metadata));
+            response.ReferralId.Should().Be(auditEvent.Referral.Id);
+            response.FormName.Should().Be(auditEvent.Referral.FormName);
         }
 
         [Test]
