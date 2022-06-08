@@ -94,6 +94,8 @@ namespace BrokerageApi.V1.Factories
                 Id = provider.Id,
                 Name = provider.Name,
                 Address = provider.Address,
+                CedarNumber = provider.CedarNumber,
+                CedarSite = provider.CedarSite,
                 Type = provider.Type
             };
         }

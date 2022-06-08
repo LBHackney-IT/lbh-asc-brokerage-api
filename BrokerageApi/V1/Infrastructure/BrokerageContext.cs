@@ -158,6 +158,10 @@ namespace BrokerageApi.V1.Infrastructure
                     });
 
             modelBuilder.Entity<Provider>()
+                .HasIndex(p => new { p.CedarNumber, p.CedarSite })
+                .IsUnique();
+
+            modelBuilder.Entity<Provider>()
                 .Property(p => p.IsArchived)
                 .HasDefaultValue(false);
 
