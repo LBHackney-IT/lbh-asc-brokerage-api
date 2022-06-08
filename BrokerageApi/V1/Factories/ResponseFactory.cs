@@ -56,6 +56,7 @@ namespace BrokerageApi.V1.Factories
                 Sunday = element.Sunday,
                 Quantity = element.Quantity,
                 Cost = element.Cost,
+                CreatedBy = element.CreatedBy,
                 CreatedAt = element.CreatedAt,
                 UpdatedAt = element.UpdatedAt,
                 ParentElement = includeParent ? element.ParentElement?.ToResponse(false) : null,

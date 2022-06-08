@@ -68,6 +68,8 @@ namespace BrokerageApi.V1.Infrastructure
 
         public bool IsSuspension { get; set; }
 
+        public string CreatedBy { get; set; }
+
         public LocalDate StartDate { get; set; }
 
         public LocalDate? EndDate { get; set; }
