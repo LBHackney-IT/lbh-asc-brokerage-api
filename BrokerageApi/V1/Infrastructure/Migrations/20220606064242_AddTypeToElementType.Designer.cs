@@ -5,6 +5,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -13,13 +14,14 @@ using NpgsqlTypes;
 namespace V1.Infrastructure.Migrations
 {
     [DbContext(typeof(BrokerageContext))]
-    partial class BrokerageContextModelSnapshot : ModelSnapshot
+    [Migration("20220606064242_AddTypeToElementType")]
+    partial class AddTypeToElementType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasPostgresEnum(null, "audit_event_type", new[] { "referral_broker_assignment", "referral_broker_reassignment", "element_ended", "element_cancelled", "element_suspended", "care_package_ended", "care_package_cancelled", "care_package_suspended", "referral_archived", "import_note" })
+                .HasPostgresEnum(null, "audit_event_type", new[] { "referral_broker_assignment", "referral_broker_reassignment", "element_ended", "element_cancelled", "element_suspended", "care_package_ended", "care_package_cancelled", "care_package_suspended", "referral_archived" })
                 .HasPostgresEnum(null, "element_billing_type", new[] { "supplier", "customer", "none" })
                 .HasPostgresEnum(null, "element_cost_type", new[] { "hourly", "daily", "weekly", "transport", "one_off" })
                 .HasPostgresEnum(null, "element_status", new[] { "in_progress", "awaiting_approval", "approved", "inactive", "active", "ended", "suspended", "cancelled" })
@@ -182,10 +184,6 @@ namespace V1.Infrastructure.Migrations
                     b.Property<Instant>("CreatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("created_at");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("text")
-                        .HasColumnName("created_by");
 
                     b.Property<List<decimal>>("DailyCosts")
                         .ValueGeneratedOnAddOrUpdate()
@@ -375,10 +373,6 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("cedar_number");
 
-                    b.Property<string>("CedarSite")
-                        .HasColumnType("text")
-                        .HasColumnName("cedar_site");
-
                     b.Property<Instant>("CreatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("created_at");
@@ -415,10 +409,6 @@ namespace V1.Infrastructure.Migrations
                     b.HasIndex("SearchVector")
                         .HasDatabaseName("ix_providers_search_vector")
                         .HasMethod("GIN");
-
-                    b.HasIndex("CedarNumber", "CedarSite")
-                        .IsUnique()
-                        .HasDatabaseName("ix_providers_cedar_number_cedar_site");
 
                     b.ToTable("providers");
                 });

@@ -16,8 +16,10 @@ namespace BrokerageApi.V1.Infrastructure
         {
             NpgsqlConnection.GlobalTypeMapper.UseNodaTime();
 
+            NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementBillingType>("element_billing_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementCostType>("element_cost_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementStatus>("element_status");
+            NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementTypeType>("element_type_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ProviderType>("provider_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ReferralStatus>("referral_status");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<WorkflowType>("workflow_type");
@@ -56,8 +58,10 @@ namespace BrokerageApi.V1.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasPostgresEnum<ElementBillingType>();
             modelBuilder.HasPostgresEnum<ElementCostType>();
             modelBuilder.HasPostgresEnum<ElementStatus>();
+            modelBuilder.HasPostgresEnum<ElementTypeType>();
             modelBuilder.HasPostgresEnum<ProviderType>();
             modelBuilder.HasPostgresEnum<ReferralStatus>();
             modelBuilder.HasPostgresEnum<WorkflowType>();
@@ -117,12 +121,20 @@ namespace BrokerageApi.V1.Infrastructure
                 .ValueGeneratedNever();
 
             modelBuilder.Entity<ElementType>()
+                .Property(et => et.Billing)
+                .HasDefaultValue(ElementBillingType.Supplier);
+
+            modelBuilder.Entity<ElementType>()
                 .Property(et => et.NonPersonalBudget)
                 .HasDefaultValue(false);
 
             modelBuilder.Entity<ElementType>()
                 .Property(et => et.IsArchived)
                 .HasDefaultValue(false);
+
+            modelBuilder.Entity<ElementType>()
+                .Property(et => et.Type)
+                .HasDefaultValue(ElementTypeType.Service);
 
             modelBuilder.Entity<ElementType>()
                 .HasIndex(et => new { et.ServiceId, et.Name })
@@ -144,6 +156,10 @@ namespace BrokerageApi.V1.Infrastructure
                     {
                         j.HasKey(ps => new { ps.ProviderId, ps.ServiceId });
                     });
+
+            modelBuilder.Entity<Provider>()
+                .HasIndex(p => new { p.CedarNumber, p.CedarSite })
+                .IsUnique();
 
             modelBuilder.Entity<Provider>()
                 .Property(p => p.IsArchived)
