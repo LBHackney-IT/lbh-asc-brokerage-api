@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using NodaTime;
 using BrokerageApi.V1.Infrastructure;
+using JetBrains.Annotations;
 
 namespace BrokerageApi.V1.Boundary.Response
 {
@@ -24,6 +25,11 @@ namespace BrokerageApi.V1.Boundary.Response
         public ElementResponse ParentElement { get; set; }
         public List<ElementResponse> SuspensionElements { get; set; }
         public string CreatedBy { get; set; }
+
+        public LocalDate? PendingEndDate { get; set; }
+        public bool? PendingCancellation { get; set; }
+        [CanBeNull]
+        public string PendingComment { get; set; }
 
         public LocalDate StartDate { get; set; }
 

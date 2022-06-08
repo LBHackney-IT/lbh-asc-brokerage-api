@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
@@ -61,9 +62,10 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
                 throw new ArgumentException($"Element {element.Id} has an end date before the requested end date");
             }
 
-            element.EndDate = endDate;
-            element.UpdatedAt = _clockService.Now;
-            element.Comment = comment;
+            var referralElement = element.ReferralElements.Single(re => re.ReferralId == referral.Id);
+            referralElement.PendingEndDate = endDate;
+            referralElement.PendingComment = comment;
+
             await _dbSaver.SaveChangesAsync();
 
             var metadata = new ElementAuditEventMetadata

@@ -161,9 +161,9 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             code.Should().Be(HttpStatusCode.OK);
 
-            var resultElement = await Context.Elements.SingleAsync(e => e.Id == element.Id);
-            resultElement.EndDate.Should().Be(request.EndDate);
-            resultElement.UpdatedAt.Should().Be(CurrentInstant);
+            var resultReferralElement = await Context.ReferralElements.SingleAsync(re => re.ElementId == element.Id && re.ReferralId == referral.Id);
+            resultReferralElement.PendingEndDate.Should().Be(request.EndDate);
+            resultReferralElement.PendingComment.Should().Be(request.Comment);
 
             var auditEvent = await Context.AuditEvents.SingleOrDefaultAsync(ae => ae.EventType == AuditEventType.ElementEnded);
             auditEvent.Should().NotBeNull();
@@ -203,9 +203,9 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             code.Should().Be(HttpStatusCode.OK);
 
-            var resultElement = await Context.Elements.SingleAsync(e => e.Id == element.Id);
-            resultElement.InternalStatus.Should().Be(ElementStatus.Cancelled);
-            resultElement.UpdatedAt.Should().Be(CurrentInstant);
+            var resultReferralElement = await Context.ReferralElements.SingleAsync(re => re.ElementId == element.Id && re.ReferralId == referral.Id);
+            resultReferralElement.PendingCancellation.Should().BeTrue();
+            resultReferralElement.PendingComment.Should().Be(request.Comment);
 
             var auditEvent = await Context.AuditEvents.SingleOrDefaultAsync(ae => ae.EventType == AuditEventType.ElementCancelled);
             auditEvent.Should().NotBeNull();
