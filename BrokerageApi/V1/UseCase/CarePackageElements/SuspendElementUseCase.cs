@@ -67,11 +67,12 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
                 SuspendedElementId = element.Id,
                 CreatedAt = _clockService.Now,
                 UpdatedAt = _clockService.Now,
-                InternalStatus = ElementStatus.InProgress,
+                InternalStatus = ElementStatus.Suspended,
                 StartDate = startDate,
                 EndDate = endDate,
                 IsSuspension = true,
-                Comment = comment
+                Comment = comment,
+                CreatedBy = _userService.Email
             };
             element.Comment = comment;
 

@@ -58,6 +58,7 @@ namespace BrokerageApi.V1.Factories
                 Sunday = element.Sunday,
                 Quantity = element.Quantity,
                 Cost = element.Cost,
+                CreatedBy = element.CreatedBy,
                 CreatedAt = element.CreatedAt,
                 UpdatedAt = element.UpdatedAt,
                 ParentElement = includeParent ? element.ParentElement?.ToResponse(false) : null,
@@ -72,7 +73,9 @@ namespace BrokerageApi.V1.Factories
             {
                 Id = elementType.Id,
                 Name = elementType.Name,
+                Type = elementType.Type,
                 CostType = elementType.CostType,
+                Billing = elementType.Billing,
                 NonPersonalBudget = elementType.NonPersonalBudget,
                 Service = elementType.Service != null
                     ? new ServiceResponse
@@ -94,6 +97,8 @@ namespace BrokerageApi.V1.Factories
                 Id = provider.Id,
                 Name = provider.Name,
                 Address = provider.Address,
+                CedarNumber = provider.CedarNumber,
+                CedarSite = provider.CedarSite,
                 Type = provider.Type
             };
         }

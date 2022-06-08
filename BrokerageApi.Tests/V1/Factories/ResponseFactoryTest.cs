@@ -101,6 +101,7 @@ namespace BrokerageApi.Tests.V1.Factories
             response.Sunday.Should().Be(element.Sunday);
             response.Quantity.Should().Be(element.Quantity);
             response.Cost.Should().Be(element.Cost);
+            response.CreatedBy.Should().Be(element.CreatedBy);
             response.CreatedAt.Should().Be(element.CreatedAt);
             response.UpdatedAt.Should().Be(element.UpdatedAt);
             response.ParentElement.Should().BeEquivalentTo(parentElement.ToResponse(false));

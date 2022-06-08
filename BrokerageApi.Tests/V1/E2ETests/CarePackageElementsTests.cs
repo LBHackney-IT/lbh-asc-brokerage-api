@@ -86,6 +86,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             response.Cost.Should().Be(request.Cost);
             response.Status.Should().Be(ElementStatus.InProgress);
             response.UpdatedAt.Should().Be(CurrentInstant);
+            response.CreatedBy.Should().Be("api.user@hackney.gov.uk");
 
             referralCode.Should().Be(HttpStatusCode.OK);
             referralResponse.UpdatedAt.Should().Be(CurrentInstant);
@@ -207,6 +208,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 .Excluding(e => e.ParentElement)
                 .Excluding(e => e.CreatedAt)
                 .Excluding(e => e.UpdatedAt)
+                .Excluding(e => e.CreatedBy)
             );
 
             response.ParentElement.Should().BeEquivalentTo(parentElement.ToResponse(), options => options
@@ -216,6 +218,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 .Excluding(e => e.ParentElement)
                 .Excluding(e => e.CreatedAt)
                 .Excluding(e => e.UpdatedAt)
+                .Excluding(e => e.CreatedBy)
             );
 
             var resultParentElement = await Context.Elements.SingleAsync(e => e.Id == parentElement.Id);

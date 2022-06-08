@@ -13,6 +13,10 @@ namespace BrokerageApi.V1.Boundary.Response
         [JsonProperty(Required = Required.DisallowNull)]
         public string Address { get; set; }
 
+        public string CedarNumber { get; set; }
+
+        public string CedarSite { get; set; }
+
         public ProviderType Type { get; set; }
     }
 }

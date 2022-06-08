@@ -5,6 +5,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -13,9 +14,10 @@ using NpgsqlTypes;
 namespace V1.Infrastructure.Migrations
 {
     [DbContext(typeof(BrokerageContext))]
-    partial class BrokerageContextModelSnapshot : ModelSnapshot
+    [Migration("20220608055505_AddCedarSiteToProvider")]
+    partial class AddCedarSiteToProvider
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,17 +83,9 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("id");
 
-                    b.Property<string>("AssignedApproverId")
+                    b.Property<string>("AssignedTo")
                         .HasColumnType("text")
-                        .HasColumnName("assigned_approver_id");
-
-                    b.Property<string>("AssignedBrokerId")
-                        .HasColumnType("text")
-                        .HasColumnName("assigned_broker_id");
-
-                    b.Property<string>("CarePackageName")
-                        .HasColumnType("text")
-                        .HasColumnName("care_package_name");
+                        .HasColumnName("assigned_to");
 
                     b.Property<string>("Comment")
                         .HasColumnType("text")
@@ -164,12 +158,6 @@ namespace V1.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_care_packages");
 
-                    b.HasIndex("AssignedApproverId")
-                        .HasDatabaseName("ix_care_packages_assigned_approver_id");
-
-                    b.HasIndex("AssignedBrokerId")
-                        .HasDatabaseName("ix_care_packages_assigned_broker_id");
-
                     b.ToView("care_packages");
                 });
 
@@ -196,10 +184,6 @@ namespace V1.Infrastructure.Migrations
                     b.Property<Instant>("CreatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("created_at");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("text")
-                        .HasColumnName("created_by");
 
                     b.Property<List<decimal>>("DailyCosts")
                         .ValueGeneratedOnAddOrUpdate()
@@ -468,13 +452,9 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnName("id")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<string>("AssignedApprover")
+                    b.Property<string>("AssignedTo")
                         .HasColumnType("text")
-                        .HasColumnName("assigned_approver");
-
-                    b.Property<string>("AssignedBroker")
-                        .HasColumnType("text")
-                        .HasColumnName("assigned_broker");
+                        .HasColumnName("assigned_to");
 
                     b.Property<string>("Comment")
                         .HasColumnType("text")
@@ -646,9 +626,6 @@ namespace V1.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_users");
 
-                    b.HasAlternateKey("Email")
-                        .HasName("ak_users_email");
-
                     b.HasIndex("Email")
                         .IsUnique()
                         .HasDatabaseName("ix_users_email");
@@ -666,25 +643,6 @@ namespace V1.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.CarePackage", b =>
-                {
-                    b.HasOne("BrokerageApi.V1.Infrastructure.User", "AssignedApprover")
-                        .WithMany("ApproverCarePackages")
-                        .HasForeignKey("AssignedApproverId")
-                        .HasConstraintName("fk_care_packages_users_assigned_approver_id1")
-                        .HasPrincipalKey("Email");
-
-                    b.HasOne("BrokerageApi.V1.Infrastructure.User", "AssignedBroker")
-                        .WithMany("BrokerCarePackages")
-                        .HasForeignKey("AssignedBrokerId")
-                        .HasConstraintName("fk_care_packages_users_assigned_broker_id1")
-                        .HasPrincipalKey("Email");
-
-                    b.Navigation("AssignedApprover");
-
-                    b.Navigation("AssignedBroker");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Element", b =>
@@ -833,13 +791,6 @@ namespace V1.Infrastructure.Migrations
                     b.Navigation("ProviderServices");
 
                     b.Navigation("Services");
-                });
-
-            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.User", b =>
-                {
-                    b.Navigation("ApproverCarePackages");
-
-                    b.Navigation("BrokerCarePackages");
                 });
 #pragma warning restore 612, 618
         }
