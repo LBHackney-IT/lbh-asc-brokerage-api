@@ -9,11 +9,11 @@
 8,,"No Recourse to Public Funds",,8,FALSE,FALSE
 9,,"Hospital Discharge",,9,FALSE,FALSE
 10,,"Housing with care",,10,FALSE,FALSE
-11,,"Carer Support",,11,FALSE,FALSE
+11,,"Carer Support",,11,FALSE,TRUE
 12,,"Others",,12,FALSE,FALSE
-13,3,"Long Stay Nursing Care",,1,FALSE,FALSE
+13,3,"Long Stay Nursing Care",,1,FALSE,TRUE
 14,3,"Temporary Nursing Bed","For a period not exceeding 52 weeks",2,FALSE,TRUE
 15,3,"Short Stay Nursing Home","For a period not exceeding 8 weeks",3,FALSE,TRUE
-16,4,"Long Stay Residential Care",,1,FALSE,FALSE
+16,4,"Long Stay Residential Care",,1,FALSE,TRUE
 17,4,"Interim Residential Bed","For a period not exceeding 52 weeks",2,FALSE,TRUE
 18,4,"Short Stay Residential Home","For a period not exceeding 8 weeks",3,FALSE,TRUE
