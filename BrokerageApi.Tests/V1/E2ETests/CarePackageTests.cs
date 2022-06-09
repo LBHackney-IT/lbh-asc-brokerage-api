@@ -509,7 +509,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
                 .With(r => r.Status, ReferralStatus.InProgress)
-                .With(r => r.AssignedTo, ApiUser.Email)
+                .With(r => r.AssignedBroker, ApiUser.Email)
                 .With(r => r.Elements, dailyElements.Concat(oneOffElements).ToList)
                 .Create();
 
