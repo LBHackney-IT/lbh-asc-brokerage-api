@@ -286,7 +286,7 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     e.Message,
-                    $"api/v1/referrals/{referralId}/care-package/suspend",
+                    $"api/v1/referrals/{referralId}/care-package/assign-budget-approver",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
@@ -294,7 +294,7 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     e.Message,
-                    $"api/v1/referrals/{referralId}/care-package/suspend",
+                    $"api/v1/referrals/{referralId}/care-package/assign-budget-approver",
                     StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }
@@ -302,7 +302,7 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     e.Message,
-                    $"api/v1/referrals/{referralId}/care-package/suspend",
+                    $"api/v1/referrals/{referralId}/care-package/assign-budget-approver",
                     StatusCodes.Status403Forbidden, "Forbidden"
                 );
             }
