@@ -5,11 +5,12 @@ namespace BrokerageApi.V1.Infrastructure.AuditEvents
         public int ReferralId { get; set; }
         public string AssignedBrokerName { get; set; }
     }
-    public class ReferralReassignmentAuditEventMetadata : AuditMetadataBase
+    public class BudgetApproverAssignmentAuditEventMetadata : AuditMetadataBase
     {
         public int ReferralId { get; set; }
-        public string AssignedBrokerName { get; set; }
+        public string AssignedApproverName { get; set; }
     }
+
     public class ElementAuditEventMetadata : AuditMetadataBase
     {
         public int ReferralId { get; set; }

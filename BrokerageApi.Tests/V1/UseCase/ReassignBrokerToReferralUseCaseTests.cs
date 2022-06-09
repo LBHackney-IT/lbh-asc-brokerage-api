@@ -195,7 +195,7 @@ namespace BrokerageApi.Tests.V1.UseCase
             _mockAuditGateway.VerifyAuditEventAdded(AuditEventType.ReferralBrokerReassignment);
             _mockAuditGateway.LastUserId.Should().Be(expectedUserId);
             _mockAuditGateway.LastSocialCareId.Should().Be(referral.SocialCareId);
-            var eventMetadata = _mockAuditGateway.LastMetadata.Should().BeOfType<ReferralReassignmentAuditEventMetadata>().Which;
+            var eventMetadata = _mockAuditGateway.LastMetadata.Should().BeOfType<ReferralAssignmentAuditEventMetadata>().Which;
             eventMetadata.ReferralId.Should().Be(referral.Id);
             eventMetadata.AssignedBrokerName.Should().Be(expectedBroker.Name);
         }

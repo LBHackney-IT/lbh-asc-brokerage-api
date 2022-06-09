@@ -54,7 +54,7 @@ namespace BrokerageApi.V1.UseCase
             referral.AssignedBroker = request.Broker;
             await _dbSaver.SaveChangesAsync();
 
-            await _auditGateway.AddAuditEvent(AuditEventType.ReferralBrokerReassignment, referral.SocialCareId, _userService.UserId, new ReferralReassignmentAuditEventMetadata
+            await _auditGateway.AddAuditEvent(AuditEventType.ReferralBrokerReassignment, referral.SocialCareId, _userService.UserId, new ReferralAssignmentAuditEventMetadata
             {
                 ReferralId = referral.Id,
                 AssignedBrokerName = brokerUser.Name

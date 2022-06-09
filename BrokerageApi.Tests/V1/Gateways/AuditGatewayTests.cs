@@ -56,7 +56,7 @@ namespace BrokerageApi.Tests.V1.Gateways
             },
             new object[]
             {
-                AuditEventType.ReferralBrokerReassignment, "Reassigned to broker", new ReferralReassignmentAuditEventMetadata
+                AuditEventType.ReferralBrokerReassignment, "Reassigned to broker", new ReferralAssignmentAuditEventMetadata
                 {
                     ReferralId = 1234,
                     AssignedBrokerName = "TestBroker"
@@ -119,6 +119,18 @@ namespace BrokerageApi.Tests.V1.Gateways
             pageMetadata.PageNumber.Should().Be(pageNumber);
             pageMetadata.PageSize.Should().Be(pageSize);
             pageMetadata.PageCount.Should().Be((int) Math.Ceiling((float) allEvents.Count() / pageSize));
+        }
+
+        [Test]
+        public async Task CanGetMessageString([Values] AuditEventType type)
+        {
+            var expectedUser = await SeedUser();
+            var expectedType = type;
+
+            await _classUnderTest.AddAuditEvent(expectedType, "socialCareId", expectedUser.Id, null);
+
+            var auditEvent = await BrokerageContext.AuditEvents.SingleOrDefaultAsync(ae => ae.EventType == expectedType);
+            auditEvent.Message.Should().NotBeNullOrEmpty();
         }
 
         private async Task<IEnumerable<AuditEvent>> SeedEvents(int expectedUserId, string expectedSocialCareId, int count = 5)
