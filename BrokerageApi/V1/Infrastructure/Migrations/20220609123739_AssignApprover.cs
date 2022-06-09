@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace V1.Infrastructure.Migrations
 {
@@ -108,7 +108,8 @@ namespace V1.Infrastructure.Migrations
                     r.updated_at,
                     d.start_date,
                     c.weekly_cost,
-                    p.weekly_payment
+                    p.weekly_payment,
+                    r.comment
                 FROM
                     referrals AS r
                 LEFT JOIN
