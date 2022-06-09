@@ -230,7 +230,7 @@ namespace BrokerageApi.Tests.V1.Gateways
         public async Task GetApproversWithLimit()
         {
             const decimal approvalLimit = 100;
-            var approversAboveLimit = Fixture.Build<User>()
+            var approversAboveLimit = Fixture.BuildUser()
                 .With(u => u.IsActive, true)
                 .With(u => u.Roles, new List<UserRole>
                 {
@@ -238,7 +238,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 })
                 .With(u => u.ApprovalLimit, Fixture.CreateInt((int) approvalLimit, 100000))
                 .CreateMany();
-            var approversBelowLimit = Fixture.Build<User>()
+            var approversBelowLimit = Fixture.BuildUser()
                 .With(u => u.IsActive, true)
                 .With(u => u.Roles, new List<UserRole>
                 {
@@ -246,7 +246,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 })
                 .With(u => u.ApprovalLimit, Fixture.CreateInt(0, (int) approvalLimit - 1))
                 .CreateMany();
-            var nonApprovers = Fixture.Build<User>()
+            var nonApprovers = Fixture.BuildUser()
                 .With(u => u.IsActive, true)
                 .With(u => u.Roles, new List<UserRole>
                 {

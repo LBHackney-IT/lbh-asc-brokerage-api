@@ -515,7 +515,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var expectedYearlyCost = referral.Elements.Sum(e => e.Cost) * 52;
 
-            var expectedApprovers = _fixture.Build<User>()
+            var expectedApprovers = _fixture.BuildUser()
                 .With(u => u.IsActive, true)
                 .With(u => u.Roles, new List<UserRole>
                 {
@@ -524,7 +524,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 .With(u => u.ApprovalLimit, expectedYearlyCost + 100)
                 .CreateMany();
 
-            var notExpectedApprovers = _fixture.Build<User>()
+            var notExpectedApprovers = _fixture.BuildUser()
                 .With(u => u.IsActive, true)
                 .With(u => u.Roles, new List<UserRole>
                 {
