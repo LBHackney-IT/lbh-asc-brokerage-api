@@ -8,5 +8,7 @@ namespace BrokerageApi.V1.Gateways.Interfaces
     {
         public Task<IEnumerable<User>> GetAllAsync(UserRole? role = null);
         public Task<User> GetByEmailAsync(string email);
+
+        public Task<User> CreateUser(string email, string name);
     }
 }

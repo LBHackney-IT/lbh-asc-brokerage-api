@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using AutoFixture;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Factories;
@@ -61,6 +63,7 @@ namespace BrokerageApi.Tests.V1.Factories
         [Test]
         public void ElementMapsCorrectly()
         {
+            var expectedReferralId = 1234;
             var grandParentElement = _fixture.Build<Element>()
                 .With(e => e.InternalStatus, ElementStatus.InProgress)
                 .Create();
@@ -69,13 +72,24 @@ namespace BrokerageApi.Tests.V1.Factories
                 .With(e => e.ParentElement, grandParentElement)
                 .With(e => e.ParentElementId, grandParentElement.Id)
                 .Create();
+            var suspensionElements = _fixture.Build<Element>()
+                .With(e => e.InternalStatus, ElementStatus.Suspended)
+                .With(e => e.IsSuspension, true)
+                .CreateMany();
             var element = _fixture.Build<Element>()
                 .With(e => e.InternalStatus, ElementStatus.InProgress)
                 .With(e => e.ParentElement, parentElement)
                 .With(e => e.ParentElementId, parentElement.Id)
+                .With(e => e.SuspensionElements, suspensionElements.ToList)
                 .Create();
+            var expectedReferralElement = _fixture.BuildReferralElement(expectedReferralId, element.Id).Create();
+            element.ReferralElements = new List<ReferralElement>
+            {
+                expectedReferralElement,
+                _fixture.BuildReferralElement(expectedReferralId + 1, element.Id).Create()
+            };
 
-            var response = element.ToResponse();
+            var response = element.ToResponse(expectedReferralId);
 
             response.Id.Should().Be(element.Id);
             response.ElementType.Should().BeEquivalentTo(element.ElementType?.ToResponse());
@@ -94,10 +108,17 @@ namespace BrokerageApi.Tests.V1.Factories
             response.Sunday.Should().Be(element.Sunday);
             response.Quantity.Should().Be(element.Quantity);
             response.Cost.Should().Be(element.Cost);
+            response.CreatedBy.Should().Be(element.CreatedBy);
             response.CreatedAt.Should().Be(element.CreatedAt);
             response.UpdatedAt.Should().Be(element.UpdatedAt);
-            response.ParentElement.Should().BeEquivalentTo(element.ParentElement.ToResponse(false));
+            response.ParentElement.Should().BeEquivalentTo(parentElement.ToResponse(expectedReferralId, false));
             response.ParentElement.ParentElement.Should().BeNull();
+            response.SuspensionElements.Should().BeEquivalentTo(suspensionElements.Select(e => e.ToResponse()));
+            response.Comment.Should().Be(element.Comment);
+            response.PendingEndDate.Should().Be(expectedReferralElement.PendingEndDate);
+            response.PendingCancellation.Should().Be(expectedReferralElement.PendingCancellation);
+            response.PendingComment.Should().Be(expectedReferralElement.PendingComment);
+
         }
     }
 }

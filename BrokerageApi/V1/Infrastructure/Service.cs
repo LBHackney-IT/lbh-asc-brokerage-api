@@ -21,6 +21,8 @@ namespace BrokerageApi.V1.Infrastructure
 
         public Service Parent { get; set; }
 
+        public bool HasProvisionalClientContributions { get; set; }
+
         public List<Service> Services { get; set; }
 
         public List<ElementType> ElementTypes { get; set; }

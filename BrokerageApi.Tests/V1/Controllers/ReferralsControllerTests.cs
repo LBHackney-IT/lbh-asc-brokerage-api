@@ -32,6 +32,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         private MockProblemDetailsFactory _mockProblemDetailsFactory;
 
         private ReferralsController _classUnderTest;
+        private Mock<IArchiveReferralUseCase> _mockArchiveReferralUseCase;
 
         [SetUp]
         public void SetUp()
@@ -44,6 +45,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockAssignBrokerToReferralUseCase = new Mock<IAssignBrokerToReferralUseCase>();
             _mockReassignBrokerToReferralUseCase = new Mock<IReassignBrokerToReferralUseCase>();
             _mockProblemDetailsFactory = new MockProblemDetailsFactory();
+            _mockArchiveReferralUseCase = new Mock<IArchiveReferralUseCase>();
 
             _classUnderTest = new ReferralsController(
                 _mockCreateReferralUseCase.Object,
@@ -51,7 +53,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 _mockGetCurrentReferralsUseCase.Object,
                 _mockGetReferralByIdUseCase.Object,
                 _mockAssignBrokerToReferralUseCase.Object,
-                _mockReassignBrokerToReferralUseCase.Object
+                _mockReassignBrokerToReferralUseCase.Object,
+                _mockArchiveReferralUseCase.Object
             );
 
             // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
@@ -338,6 +341,54 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.UnprocessableEntity);
             _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.UnprocessableEntity);
+        }
+
+        [Test]
+        public async Task ArchiveReferral()
+        {
+            // Arrange
+            const int referralId = 1234;
+            var request = _fixture.Build<ArchiveReferralRequest>()
+                .Create();
+
+            // Act
+            var response = await _classUnderTest.ArchiveReferral(referralId, request);
+            var statusCode = GetStatusCode(response);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            _mockArchiveReferralUseCase.Verify(x => x.ExecuteAsync(referralId, request.Comment));
+        }
+
+        private static readonly object[] _archiveErrorList =
+        {
+            new object[]
+            {
+                new ArgumentNullException(null, "message"), HttpStatusCode.NotFound
+            },
+            new object[]
+            {
+                new InvalidOperationException("message"), HttpStatusCode.UnprocessableEntity
+            }
+        };
+
+        [TestCaseSource(nameof(_archiveErrorList))]
+        public async Task ArchiveReferralMapsErrorsCorrectly(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            // Arrange
+            const int referralId = 1234;
+            var request = _fixture.Build<ArchiveReferralRequest>()
+                .Create();
+            _mockArchiveReferralUseCase.Setup(x => x.ExecuteAsync(referralId, It.IsAny<string>()))
+                .ThrowsAsync(exception);
+
+            // Act
+            var response = await _classUnderTest.ArchiveReferral(referralId, request);
+            var statusCode = GetStatusCode(response);
+
+            // Assert
+            statusCode.Should().Be((int) expectedStatusCode);
+            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
         }
     }
 }

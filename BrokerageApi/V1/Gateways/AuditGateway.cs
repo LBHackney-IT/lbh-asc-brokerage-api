@@ -53,6 +53,7 @@ namespace BrokerageApi.V1.Gateways
                 AuditEventType.CarePackageEnded => "Care Package Ended",
                 AuditEventType.CarePackageCancelled => "Care Package Cancelled",
                 AuditEventType.CarePackageSuspended => "Care Package Suspended",
+                AuditEventType.ReferralArchived => "Referral Archived",
                 _ => throw new ArgumentOutOfRangeException(nameof(auditEventType), auditEventType, null)
             };
         }

@@ -17,7 +17,7 @@ namespace BrokerageApi.Tests
     {
         private IDbContextTransaction _transaction;
         private IClockService _clock;
-        private Fixture _fixture;
+        protected Fixture Fixture { get; set; }
         protected BrokerageContext BrokerageContext { get; private set; }
         protected Instant CurrentInstant => _clock.Now;
         protected Instant PreviousInstant => _clock.Now - Duration.FromHours(2);
@@ -26,7 +26,7 @@ namespace BrokerageApi.Tests
         [SetUp]
         public void RunBeforeAnyTests()
         {
-            _fixture = FixtureHelpers.Fixture;
+            Fixture = FixtureHelpers.Fixture;
             var builder = new DbContextOptionsBuilder();
             builder.UseNpgsql(ConnectionString.TestDatabase())
                 .UseSnakeCaseNamingConvention();
@@ -49,9 +49,9 @@ namespace BrokerageApi.Tests
 
         protected async Task<(Provider provider, Service service)> SeedProviderAndService()
         {
-            var provider = _fixture.BuildProvider().Create();
-            var service = _fixture.BuildService().Create();
-            var providerService = _fixture.BuildProviderService(provider.Id, service.Id).Create();
+            var provider = Fixture.BuildProvider().Create();
+            var service = Fixture.BuildService().Create();
+            var providerService = Fixture.BuildProviderService(provider.Id, service.Id).Create();
 
             await BrokerageContext.Services.AddAsync(service);
             await BrokerageContext.Providers.AddAsync(provider);
@@ -63,7 +63,7 @@ namespace BrokerageApi.Tests
 
         protected async Task<ElementType> SeedElementType(int serviceId)
         {
-            var elementType = _fixture.BuildElementType(serviceId).Create();
+            var elementType = Fixture.BuildElementType(serviceId).Create();
 
             await BrokerageContext.ElementTypes.AddAsync(elementType);
             await BrokerageContext.SaveChangesAsync();

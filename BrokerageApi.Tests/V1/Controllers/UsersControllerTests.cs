@@ -1,3 +1,4 @@
+using System;
 using AutoFixture;
 using BrokerageApi.Tests.V1.Controllers.Mocks;
 using BrokerageApi.Tests.V1.Helpers;
@@ -24,16 +25,19 @@ namespace BrokerageApi.Tests.V1.Controllers
         private MockProblemDetailsFactory _mockProblemDetailsFactory;
 
         private UsersController _classUnderTest;
+        private Mock<IGetCurrentUserUseCase> _mockCurrentUserUseCase;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = FixtureHelpers.Fixture;
             _mockGetAllUsersUseCase = new Mock<IGetAllUsersUseCase>();
+            _mockCurrentUserUseCase = new Mock<IGetCurrentUserUseCase>();
             _mockProblemDetailsFactory = new MockProblemDetailsFactory();
 
             _classUnderTest = new UsersController(
-                _mockGetAllUsersUseCase.Object
+                _mockGetAllUsersUseCase.Object,
+                _mockCurrentUserUseCase.Object
             );
 
             // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
@@ -76,6 +80,43 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
             result.Should().BeEquivalentTo(users.Select(u => u.ToResponse()).ToList());
+        }
+
+        [Test]
+        public async Task GetCurrentUser()
+        {
+            // Arrange
+            var user = _fixture.Create<User>();
+            _mockCurrentUserUseCase
+                .Setup(x => x.ExecuteAsync())
+                .ReturnsAsync(user);
+
+            // Act
+            var objectResult = await _classUnderTest.GetCurrentUser();
+            var statusCode = GetStatusCode(objectResult);
+            var result = GetResultData<UserResponse>(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            result.Should().BeEquivalentTo(user.ToResponse());
+        }
+
+        [Test]
+        public async Task Rerturns404WhenUserNotFound()
+        {
+            // Arrange
+            const string expectedMessage = "message";
+            _mockCurrentUserUseCase
+                .Setup(x => x.ExecuteAsync())
+                .ThrowsAsync(new ArgumentException(expectedMessage));
+
+            // Act
+            var objectResult = await _classUnderTest.GetCurrentUser();
+            var statusCode = GetStatusCode(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.NotFound);
+            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound, expectedMessage);
         }
     }
 }

@@ -20,7 +20,7 @@ namespace BrokerageApi.V1.UseCase
 
         public async Task<IEnumerable<Referral>> ExecuteAsync(ReferralStatus? status = null)
         {
-            return await _referralGateway.GetAssignedAsync(_userService.Name, status);
+            return await _referralGateway.GetAssignedAsync(_userService.Email, status);
         }
     }
 }

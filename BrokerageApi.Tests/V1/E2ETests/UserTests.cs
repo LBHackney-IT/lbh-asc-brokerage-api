@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Infrastructure;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace BrokerageApi.Tests.V1.E2ETests
@@ -155,6 +156,19 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response, Contains.Item(brokerageAssistant.ToResponse()).Using(comparer));
             Assert.That(response, Does.Not.Contain(careChargesOfficer.ToResponse()).Using(comparer));
             Assert.That(response, Does.Not.Contain(deactivatedUser.ToResponse()).Using(comparer));
+        }
+
+        [Test, Property("AsUser", "NewUser")]
+        public async Task CanGetCurrentUser()
+        {
+            // Act
+            var (code, response) = await Get<UserResponse>($"/api/v1/users/current");
+
+            // Assert
+            code.Should().Be(HttpStatusCode.OK);
+            response.Email.Should().Be("api.user@hackney.gov.uk");
+            response.Name.Should().Be("Api User");
+
         }
     }
 }

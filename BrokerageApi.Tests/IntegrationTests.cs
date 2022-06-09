@@ -27,11 +27,13 @@ namespace BrokerageApi.Tests
         protected Instant CurrentInstant => _clock.Now;
         protected Instant PreviousInstant => _clock.Now - Duration.FromHours(2);
         protected LocalDate CurrentDate => _clock.Today;
+        protected User ApiUser => _apiUser;
 
         private MockWebApplicationFactory<TStartup> _factory;
         private IDbContextTransaction _transaction;
         private DbContextOptionsBuilder _builder;
         private IClockService _clock;
+        private User _apiUser;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -152,6 +154,10 @@ namespace BrokerageApi.Tests
                     SetAuthorizationHeader(GenerateToken("saml-socialcarefinance-brokerage"));
                     CreateApiUser(UserRole.BrokerageAssistant);
                     break;
+
+                case "NewUser":
+                    SetAuthorizationHeader(GenerateToken("saml-socialcarefinance-brokerage"));
+                    break;
             }
         }
 
@@ -162,7 +168,7 @@ namespace BrokerageApi.Tests
 
         private void CreateApiUser(UserRole role)
         {
-            var user = new User()
+            _apiUser = new User()
             {
                 Name = "Api User",
                 Email = "api.user@hackney.gov.uk",
@@ -170,7 +176,7 @@ namespace BrokerageApi.Tests
                 IsActive = true
             };
 
-            Context.Users.Add(user);
+            Context.Users.Add(_apiUser);
             Context.SaveChanges();
         }
 

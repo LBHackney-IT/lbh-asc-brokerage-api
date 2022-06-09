@@ -1,9 +1,13 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using AutoFixture;
+using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Infrastructure;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace BrokerageApi.Tests.V1.E2ETests
@@ -36,9 +40,12 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
     public class ServiceTests : IntegrationTests<Startup>
     {
+        private Fixture _fixture;
+
         [SetUp]
         public void Setup()
         {
+            _fixture = FixtureHelpers.Fixture;
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -52,7 +59,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 Id = 1,
                 Name = "Shared Lives",
                 Position = 1,
-                IsArchived = false
+                IsArchived = false,
+                ElementTypes = _fixture.BuildElementType(1).CreateMany().ToList()
             };
 
             var parentService = new Service()
@@ -98,6 +106,9 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response, Contains.Item(parentService.ToResponse()).Using(comparer));
             Assert.That(response, Contains.Item(childService.ToResponse()).Using(comparer));
             Assert.That(response, Does.Not.Contain(archivedService.ToResponse()).Using(comparer));
+
+            var resultService = response.Single(s => s.Id == activeService.Id);
+            resultService.ElementTypes.Should().BeEquivalentTo(activeService.ElementTypes.Select(et => et.ToResponse()));
         }
 
         [Test, Property("AsUser", "Broker")]

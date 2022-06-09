@@ -13,7 +13,11 @@ using BrokerageApi.V1.Services;
 using BrokerageApi.V1.Services.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.UseCase;
+using BrokerageApi.V1.UseCase.CarePackageElements;
+using BrokerageApi.V1.UseCase.CarePackages;
 using BrokerageApi.V1.UseCase.Interfaces;
+using BrokerageApi.V1.UseCase.Interfaces.CarePackageElements;
+using BrokerageApi.V1.UseCase.Interfaces.CarePackages;
 using BrokerageApi.Versioning;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -237,6 +241,14 @@ namespace BrokerageApi
             services.AddTransient<IEndElementUseCase, EndElementUseCase>();
             services.AddTransient<IGetServiceOverviewUseCase, GetServiceOverviewUseCase>();
             services.AddTransient<IGetCarePackagesByServiceUserIdUseCase, GetCarePackagesByServiceUserIdUseCase>();
+            services.AddTransient<ICancelElementUseCase, CancelElementUseCase>();
+            services.AddTransient<ISuspendElementUseCase, SuspendElementUseCase>();
+            services.AddTransient<IEndCarePackageUseCase, EndCarePackageUseCase>();
+            services.AddTransient<ICancelCarePackageUseCase, CancelCarePackageUseCase>();
+            services.AddTransient<ISuspendCarePackageUseCase, SuspendCarePackageUseCase>();
+            services.AddTransient<IEditElementUseCase, EditElementUseCase>();
+            services.AddTransient<IArchiveReferralUseCase, ArchiveReferralUseCase>();
+            services.AddTransient<IGetCurrentUserUseCase, GetCurrentUserUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

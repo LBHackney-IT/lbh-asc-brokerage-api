@@ -12,6 +12,7 @@ namespace BrokerageApi.V1.Infrastructure
         Inactive,
         Active,
         Ended,
-        Suspended
+        Suspended,
+        Cancelled
     }
 }

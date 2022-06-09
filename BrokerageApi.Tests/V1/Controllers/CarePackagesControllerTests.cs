@@ -6,15 +6,13 @@ using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Controllers;
 using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Infrastructure;
-using BrokerageApi.V1.UseCase.Interfaces;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using System;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+using BrokerageApi.V1.UseCase.Interfaces.CarePackages;
 
 namespace BrokerageApi.Tests.V1.Controllers
 {
@@ -24,12 +22,12 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Fixture _fixture;
         private Mock<IGetCarePackageByIdUseCase> _mockGetCarePackageByIdUseCase;
         private Mock<IStartCarePackageUseCase> _mockStartCarePackageUseCase;
-        private Mock<ICreateElementUseCase> _mockCreateElementUseCase;
         private MockProblemDetailsFactory _mockProblemDetailsFactory;
-        private Mock<IDeleteElementUseCase> _mockDeleteElementUseCase;
-        private Mock<IEndElementUseCase> _mockEndElementUseCase;
 
         private CarePackagesController _classUnderTest;
+        private Mock<IEndCarePackageUseCase> _mockEndCarePackageUseCase;
+        private Mock<ISuspendCarePackageUseCase> _mockSuspendCarePackageUseCase;
+        private Mock<ICancelCarePackageUseCase> _mockCancelCarePackageUseCase;
 
         [SetUp]
         public void SetUp()
@@ -37,17 +35,17 @@ namespace BrokerageApi.Tests.V1.Controllers
             _fixture = FixtureHelpers.Fixture;
             _mockGetCarePackageByIdUseCase = new Mock<IGetCarePackageByIdUseCase>();
             _mockStartCarePackageUseCase = new Mock<IStartCarePackageUseCase>();
-            _mockCreateElementUseCase = new Mock<ICreateElementUseCase>();
             _mockProblemDetailsFactory = new MockProblemDetailsFactory();
-            _mockDeleteElementUseCase = new Mock<IDeleteElementUseCase>();
-            _mockEndElementUseCase = new Mock<IEndElementUseCase>();
+            _mockEndCarePackageUseCase = new Mock<IEndCarePackageUseCase>();
+            _mockCancelCarePackageUseCase = new Mock<ICancelCarePackageUseCase>();
+            _mockSuspendCarePackageUseCase = new Mock<ISuspendCarePackageUseCase>();
 
             _classUnderTest = new CarePackagesController(
                 _mockGetCarePackageByIdUseCase.Object,
                 _mockStartCarePackageUseCase.Object,
-                _mockCreateElementUseCase.Object,
-                _mockDeleteElementUseCase.Object,
-                _mockEndElementUseCase.Object
+                _mockEndCarePackageUseCase.Object,
+                _mockCancelCarePackageUseCase.Object,
+                _mockSuspendCarePackageUseCase.Object
             );
 
             // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
@@ -178,145 +176,53 @@ namespace BrokerageApi.Tests.V1.Controllers
         }
 
         [Test, Property("AsUser", "Broker")]
-        public async Task CreatesElement()
+        public async Task CanEndCarePackage()
         {
-            // Arrange
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Assigned)
-                .With(x => x.AssignedBroker, "a.broker@hackney.gov.uk")
-                .Create();
+            const int referralId = 1234;
+            var request = _fixture.Create<EndRequest>();
 
-            var request = _fixture.Create<CreateElementRequest>();
+            var response = await _classUnderTest.EndCarePackage(referralId, request);
+            var statusCode = GetStatusCode(response);
 
-            _mockCreateElementUseCase
-                .Setup(x => x.ExecuteAsync(referral.Id, request))
-                .ReturnsAsync(request.ToDatabase());
-
-            // Act
-            var objectResult = await _classUnderTest.CreateElement(referral.Id, request);
-            var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<ElementResponse>(objectResult);
-
-            // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
-            result.Should().BeEquivalentTo(request.ToDatabase().ToResponse());
-        }
-
-        private static readonly object[] _createElementErrors =
-        {
-            new object[]
-            {
-                new ArgumentNullException(null, "message"), StatusCodes.Status404NotFound
-            },
-            new object[]
-            {
-                new ArgumentException("message"), StatusCodes.Status400BadRequest
-            },
-            new object[]
-            {
-                new InvalidOperationException("message"), StatusCodes.Status422UnprocessableEntity
-            },
-            new object[]
-            {
-                new UnauthorizedAccessException("message"), StatusCodes.Status403Forbidden
-            }
-        };
-
-        [TestCaseSource(nameof(_createElementErrors)), Property("AsUser", "Broker")]
-        public async Task CreateElementMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
-        {
-            // Arrange
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Assigned)
-                .With(x => x.AssignedBroker, "a.broker@hackney.gov.uk")
-                .Create();
-
-            var request = _fixture.Create<CreateElementRequest>();
-
-            _mockCreateElementUseCase
-                .Setup(x => x.ExecuteAsync(referral.Id, request))
-                .Throws(exception);
-
-            // Act
-            var objectResult = await _classUnderTest.CreateElement(referral.Id, request);
-            var statusCode = GetStatusCode(objectResult);
-
-            // Assert
-            statusCode.Should().Be((int) expectedStatusCode);
-            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+            _mockEndCarePackageUseCase.Verify(x => x.ExecuteAsync(referralId, request.EndDate, request.Comment));
         }
 
         [Test, Property("AsUser", "Broker")]
-        public async Task DeletesElement()
-        {
-            // Arrange
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Assigned)
-                .With(x => x.AssignedBroker, "a.broker@hackney.gov.uk")
-                .Create();
-            var elementId = referral.Elements.First().Id;
-
-            // Act
-            var objectResult = await _classUnderTest.DeleteElement(referral.Id, elementId);
-            var statusCode = GetStatusCode(objectResult);
-
-            // Assert
-            _mockDeleteElementUseCase.Verify(x => x.ExecuteAsync(referral.Id, elementId));
-            statusCode.Should().Be((int) HttpStatusCode.OK);
-        }
-
-        private static readonly object[] _deleteElementErrors =
-        {
-            new object[]
-            {
-                new ArgumentNullException(null, "message"), StatusCodes.Status404NotFound
-            },
-            new object[]
-            {
-                new InvalidOperationException("message"), StatusCodes.Status422UnprocessableEntity
-            },
-            new object[]
-            {
-                new UnauthorizedAccessException("message"), StatusCodes.Status403Forbidden
-            }
-        };
-
-        [TestCaseSource(nameof(_deleteElementErrors)), Property("AsUser", "Broker")]
-        public async Task DeleteElementMapsErrors(Exception exception, int expectedStatusCode)
-        {
-            // Arrange
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Assigned)
-                .With(x => x.AssignedBroker, "a.broker@hackney.gov.uk")
-                .Create();
-
-            _mockDeleteElementUseCase
-                .Setup(x => x.ExecuteAsync(referral.Id, It.IsAny<int>()))
-                .Throws(exception);
-
-            // Act
-            var objectResult = await _classUnderTest.DeleteElement(referral.Id, referral.Elements.First().Id);
-            var statusCode = GetStatusCode(objectResult);
-
-            // Assert
-            statusCode.Should().Be(expectedStatusCode);
-        }
-
-        [Test]
-        public async Task CanEndElement()
+        public async Task CanCancelCarePackage()
         {
             const int referralId = 1234;
-            const int elementId = 1234;
-            var request = _fixture.Create<EndElementRequest>();
+            var request = _fixture.Create<CancelRequest>();
 
-            var response = await _classUnderTest.EndElement(referralId, elementId, request);
+            var response = await _classUnderTest.CancelCarePackage(referralId, request);
             var statusCode = GetStatusCode(response);
 
-            _mockEndElementUseCase.Verify(x => x.ExecuteAsync(referralId, elementId, request.EndDate));
             statusCode.Should().Be((int) HttpStatusCode.OK);
+            _mockCancelCarePackageUseCase.Verify(x => x.ExecuteAsync(referralId, request.Comment));
         }
 
-        private static readonly object[] _endElementErrors =
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanSuspendCarePackage([Values] bool withEndDate)
+        {
+            const int referralId = 1234;
+            var requestBuilder = _fixture.Build<SuspendRequest>()
+                .With(r => r.Comment, "commentHere");
+
+            if (!withEndDate)
+            {
+                requestBuilder = requestBuilder.Without(r => r.EndDate);
+            }
+
+            var request = requestBuilder.Create();
+
+            var response = await _classUnderTest.SuspendCarePackage(referralId, request);
+            var statusCode = GetStatusCode(response);
+
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            _mockSuspendCarePackageUseCase.Verify(x => x.ExecuteAsync(referralId, request.StartDate, request.EndDate, request.Comment));
+        }
+
+        private static readonly object[] _errorList =
         {
             new object[]
             {
@@ -332,17 +238,45 @@ namespace BrokerageApi.Tests.V1.Controllers
             }
         };
 
-
-        [TestCaseSource(nameof(_endElementErrors)), Property("AsUser", "Broker")]
-        public async Task EndElementMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
+        [TestCaseSource(nameof(_errorList)), Property("AsUser", "Broker")]
+        public async Task EndCarePackageMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
         {
             const int referralId = 1234;
-            const int elementId = 1234;
-            var request = _fixture.Create<EndElementRequest>();
-            _mockEndElementUseCase.Setup(x => x.ExecuteAsync(referralId, elementId, request.EndDate))
+            var request = _fixture.Create<EndRequest>();
+            _mockEndCarePackageUseCase.Setup(x => x.ExecuteAsync(referralId, request.EndDate, It.IsAny<string>()))
                 .ThrowsAsync(exception);
 
-            var response = await _classUnderTest.EndElement(referralId, elementId, request);
+            var response = await _classUnderTest.EndCarePackage(referralId, request);
+            var statusCode = GetStatusCode(response);
+
+            statusCode.Should().Be((int) expectedStatusCode);
+            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+        }
+
+        [TestCaseSource(nameof(_errorList)), Property("AsUser", "Broker")]
+        public async Task CancelCarePackageMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            const int referralId = 1234;
+            var request = _fixture.Create<CancelRequest>();
+            _mockCancelCarePackageUseCase.Setup(x => x.ExecuteAsync(referralId, It.IsAny<string>()))
+                .ThrowsAsync(exception);
+
+            var response = await _classUnderTest.CancelCarePackage(referralId, request);
+            var statusCode = GetStatusCode(response);
+
+            statusCode.Should().Be((int) expectedStatusCode);
+            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+        }
+
+        [TestCaseSource(nameof(_errorList)), Property("AsUser", "Broker")]
+        public async Task SuspendCarePackageMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            const int referralId = 1234;
+            var request = _fixture.Create<SuspendRequest>();
+            _mockSuspendCarePackageUseCase.Setup(x => x.ExecuteAsync(referralId, request.StartDate, request.EndDate, It.IsAny<string>()))
+                .ThrowsAsync(exception);
+
+            var response = await _classUnderTest.SuspendCarePackage(referralId, request);
             var statusCode = GetStatusCode(response);
 
             statusCode.Should().Be((int) expectedStatusCode);

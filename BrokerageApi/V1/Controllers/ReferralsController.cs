@@ -26,14 +26,16 @@ namespace BrokerageApi.V1.Controllers
         private readonly IGetReferralByIdUseCase _getReferralByIdUseCase;
         private readonly IAssignBrokerToReferralUseCase _assignBrokerToReferralUseCase;
         private readonly IReassignBrokerToReferralUseCase _reassignBrokerToReferralUseCase;
+        private readonly IArchiveReferralUseCase _archiveReferralUseCase;
 
         public ReferralsController(
-          ICreateReferralUseCase createReferralUseCase,
-          IGetAssignedReferralsUseCase getAssignedReferralsUseCase,
-          IGetCurrentReferralsUseCase getCurrentReferralsUseCase,
-          IGetReferralByIdUseCase getReferralByIdUseCase,
-          IAssignBrokerToReferralUseCase assignBrokerToReferralUseCase,
-          IReassignBrokerToReferralUseCase reassignBrokerToReferralUseCase
+            ICreateReferralUseCase createReferralUseCase,
+            IGetAssignedReferralsUseCase getAssignedReferralsUseCase,
+            IGetCurrentReferralsUseCase getCurrentReferralsUseCase,
+            IGetReferralByIdUseCase getReferralByIdUseCase,
+            IAssignBrokerToReferralUseCase assignBrokerToReferralUseCase,
+            IReassignBrokerToReferralUseCase reassignBrokerToReferralUseCase,
+            IArchiveReferralUseCase archiveReferralUseCase
         )
         {
             _createReferralUseCase = createReferralUseCase;
@@ -42,6 +44,7 @@ namespace BrokerageApi.V1.Controllers
             _getReferralByIdUseCase = getReferralByIdUseCase;
             _assignBrokerToReferralUseCase = assignBrokerToReferralUseCase;
             _reassignBrokerToReferralUseCase = reassignBrokerToReferralUseCase;
+            _archiveReferralUseCase = archiveReferralUseCase;
         }
 
         [Authorize(Roles = "Referrer")]
@@ -175,6 +178,37 @@ namespace BrokerageApi.V1.Controllers
                 return Problem(
                     "The requested referral was in an invalid state for reassignment",
                     $"/api/v1/referrals/{id}/reassign",
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
+                );
+            }
+        }
+
+        [HttpPost]
+        [Route("{id}/archive")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ArchiveReferral([FromRoute] int id, [FromBody] ArchiveReferralRequest request)
+        {
+            try
+            {
+                await _archiveReferralUseCase.ExecuteAsync(id, request.Comment);
+                return Ok();
+            }
+            catch (ArgumentNullException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"/api/v1/referrals/{id}/archive",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (InvalidOperationException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"/api/v1/referrals/{id}/archive",
                     StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }

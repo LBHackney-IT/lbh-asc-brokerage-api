@@ -32,12 +32,15 @@ namespace BrokerageApi.V1.Factories
                 StartDate = carePackage.StartDate,
                 WeeklyCost = carePackage.WeeklyCost,
                 WeeklyPayment = carePackage.WeeklyPayment,
-                Elements = carePackage.Elements.Select(e => e.ToResponse()).ToList()
+                Elements = carePackage.ReferralElements.Select(re => re.Element.ToResponse(re.ReferralId)).ToList(),
+                Comment = carePackage.Comment
             };
         }
 
-        public static ElementResponse ToResponse(this Element element, bool includeParent = true)
+        public static ElementResponse ToResponse(this Element element, int? referralId = null, bool includeParent = true)
         {
+            var referralElement = referralId.HasValue ? element.ReferralElements?.SingleOrDefault(re => re.ReferralId == referralId) : null;
+
             return new ElementResponse
             {
                 Id = element.Id,
@@ -57,9 +60,15 @@ namespace BrokerageApi.V1.Factories
                 Sunday = element.Sunday,
                 Quantity = element.Quantity,
                 Cost = element.Cost,
+                CreatedBy = element.CreatedBy,
                 CreatedAt = element.CreatedAt,
                 UpdatedAt = element.UpdatedAt,
-                ParentElement = includeParent ? element.ParentElement?.ToResponse(false) : null
+                ParentElement = includeParent ? element.ParentElement?.ToResponse(referralId, false) : null,
+                SuspensionElements = element.SuspensionElements?.Select(e => e.ToResponse()).ToList(),
+                Comment = element.Comment,
+                PendingEndDate = referralElement?.PendingEndDate,
+                PendingCancellation = referralElement?.PendingCancellation,
+                PendingComment = referralElement?.PendingComment
             };
         }
 
@@ -69,7 +78,9 @@ namespace BrokerageApi.V1.Factories
             {
                 Id = elementType.Id,
                 Name = elementType.Name,
+                Type = elementType.Type,
                 CostType = elementType.CostType,
+                Billing = elementType.Billing,
                 NonPersonalBudget = elementType.NonPersonalBudget,
                 Service = elementType.Service != null
                     ? new ServiceResponse
@@ -77,7 +88,8 @@ namespace BrokerageApi.V1.Factories
                         Id = elementType.Service.Id,
                         ParentId = elementType.Service.ParentId,
                         Name = elementType.Service.Name,
-                        Description = elementType.Service.Description
+                        Description = elementType.Service.Description,
+                        HasProvisionalClientContributions = elementType.Service.HasProvisionalClientContributions
                     }
                     : null
             };
@@ -90,6 +102,8 @@ namespace BrokerageApi.V1.Factories
                 Id = provider.Id,
                 Name = provider.Name,
                 Address = provider.Address,
+                CedarNumber = provider.CedarNumber,
+                CedarSite = provider.CedarSite,
                 Type = provider.Type
             };
         }
@@ -124,6 +138,7 @@ namespace BrokerageApi.V1.Factories
                 ParentId = service.ParentId,
                 Name = service.Name,
                 Description = service.Description,
+                HasProvisionalClientContributions = service.HasProvisionalClientContributions,
                 ElementTypes = service.ElementTypes?.Select(et => et.ToResponse()).ToList()
             };
         }

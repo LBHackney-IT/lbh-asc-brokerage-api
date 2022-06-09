@@ -50,5 +50,7 @@ namespace BrokerageApi.V1.Boundary.Response
         public decimal? WeeklyPayment { get; set; }
 
         public List<ElementResponse> Elements { get; set; }
+
+        public string Comment { get; set; }
     }
 }
