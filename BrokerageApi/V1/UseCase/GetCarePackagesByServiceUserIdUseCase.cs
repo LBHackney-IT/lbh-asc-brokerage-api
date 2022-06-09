@@ -28,17 +28,6 @@ namespace BrokerageApi.V1.UseCase
                 throw new ArgumentException($"No care packages found for: {serviceUserId}");
             }
 
-            foreach (var CarePackage in carePackages)
-            {//it's referralelements, element, elementtype, service, name
-                foreach (var Element in CarePackage.ReferralElements)
-                {
-                    if (!CarePackage.CarePackageName.Contains(Element.Element.ElementType.Service.Name))
-                    {
-                        CarePackage.CarePackageName = CarePackage.CarePackageName + ' ' + Element.Element.ElementType.Service.Name;
-                    }
-                }
-            }
-
             return carePackages;
         }
     }

@@ -122,26 +122,6 @@ namespace BrokerageApi.Tests.V1.Gateways
                 }
             };
 
-            var assignedBroker = new User()
-            {
-                Name = "UserName",
-                Email = "some.email@hackney.gov.uk",
-                Roles = new List<UserRole>() {
-                    UserRole.BrokerageAssistant
-                },
-                IsActive = true
-            };
-
-            var assignedApprover = new User()
-            {
-                Name = "Another Username",
-                Email = "some.otheremail@hackney.gov.uk",
-                Roles = new List<UserRole>() {
-                    UserRole.BrokerageAssistant
-                },
-                IsActive = true
-            };
-
             await BrokerageContext.Services.AddAsync(service);
             await BrokerageContext.ElementTypes.AddAsync(hourlyElementType);
             await BrokerageContext.ElementTypes.AddAsync(dailyElementType);
@@ -243,6 +223,25 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SubjectiveCode = "599998"
             };
 
+            var assignedBroker = new User()
+            {
+                Name = "UserName",
+                Email = "some.email@hackney.gov.uk",
+                Roles = new List<UserRole>() {
+                    UserRole.BrokerageAssistant
+                },
+                IsActive = true
+            };
+
+            var assignedApprover = new User()
+            {
+                Name = "Another Username",
+                Email = "some.otheremail@hackney.gov.uk",
+                Roles = new List<UserRole>() {
+                    UserRole.BrokerageAssistant
+                },
+                IsActive = true
+            };
 
             var startDate = CurrentDate.PlusDays(1);
 
@@ -254,8 +253,8 @@ namespace BrokerageApi.Tests.V1.Gateways
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
-                AssignedBroker = "some.email@hackney.gov.uk",
-                AssignedApprover = "some.otheremail@hackney.gov.uk",
+                AssignedBroker = assignedBroker.Email,
+                AssignedApprover = assignedApprover.Email,
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant,
                 CreatedAt = PreviousInstant,
@@ -301,26 +300,6 @@ namespace BrokerageApi.Tests.V1.Gateways
                 }
             };
 
-            var assignedBroker = new User()
-            {
-                Name = "UserName",
-                Email = "some.email@hackney.gov.uk",
-                Roles = new List<UserRole>() {
-                    UserRole.BrokerageAssistant
-                },
-                IsActive = true
-            };
-
-            var assignedApprover = new User()
-            {
-                Name = "Another Username",
-                Email = "some.otheremail@hackney.gov.uk",
-                Roles = new List<UserRole>() {
-                    UserRole.BrokerageAssistant
-                },
-                IsActive = true
-            };
-
             await BrokerageContext.Services.AddAsync(service);
             await BrokerageContext.Services.AddAsync(anotherService);
 
@@ -359,10 +338,10 @@ namespace BrokerageApi.Tests.V1.Gateways
             Assert.That(result.ElementAt(0).Elements[1].ElementType.Service.Name, Is.EqualTo("A Different Service"));
             Assert.That(result.ElementAt(0).Elements[1].Provider.Name, Is.EqualTo("Testington Homes"));
 
-            Assert.That(result.ElementAt(0).AssignedBroker.Name, Is.EqualTo("UserName"));
-            Assert.That(result.ElementAt(0).AssignedBroker.Email, Is.EqualTo("some.email@hackney.gov.uk"));
-            Assert.That(result.ElementAt(0).AssignedApprover.Name, Is.EqualTo("Another Username"));
-            Assert.That(result.ElementAt(0).AssignedApprover.Email, Is.EqualTo("some.otheremail@hackney.gov.uk"));
+            Assert.That(result.ElementAt(0).AssignedBroker.Name, Is.EqualTo(assignedBroker.Name));
+            Assert.That(result.ElementAt(0).AssignedBroker.Email, Is.EqualTo(assignedBroker.Email));
+            Assert.That(result.ElementAt(0).AssignedApprover.Name, Is.EqualTo(assignedApprover.Name));
+            Assert.That(result.ElementAt(0).AssignedApprover.Email, Is.EqualTo(assignedApprover.Email));
 
 
         }
