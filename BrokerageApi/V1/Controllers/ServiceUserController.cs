@@ -8,6 +8,7 @@ using BrokerageApi.V1.UseCase.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using BrokerageApi.V1.Infrastructure;
 
 namespace BrokerageApi.V1.Controllers
 {
@@ -19,19 +20,22 @@ namespace BrokerageApi.V1.Controllers
     public class ServiceUserController : BaseController
     {
         private readonly IGetServiceOverviewUseCase _serviceOverviewUseCase;
+        private readonly IGetCarePackagesByServiceUserIdUseCase _getCarePackagesByServiceUserIdUseCase;
         public ServiceUserController(
-            IGetServiceOverviewUseCase serviceOverviewUseCase
+            IGetServiceOverviewUseCase serviceOverviewUseCase,
+            IGetCarePackagesByServiceUserIdUseCase getCarePackagesByServiceUserIdUseCase
         )
         {
             _serviceOverviewUseCase = serviceOverviewUseCase;
+            _getCarePackagesByServiceUserIdUseCase = getCarePackagesByServiceUserIdUseCase;
         }
 
-        [Authorize(Roles = "Broker")]
+        [Authorize]
         [HttpGet]
+        [Route("serviceOverview")]
         [ProducesResponseType(typeof(List<ElementResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        [Route("serviceOverview")]
         public async Task<IActionResult> GetServiceOverview([FromRoute] string socialCareId)
         {
             try
@@ -48,5 +52,32 @@ namespace BrokerageApi.V1.Controllers
                 );
             }
         }
+
+        [Authorize(Roles = "Broker")]
+        [HttpGet]
+        [Route("care-packages")]
+        [ProducesResponseType(typeof(List<CarePackageResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+
+        public async Task<IActionResult> GetServiceUserCarePackages([FromRoute] string socialCareId)
+        {
+            try
+            {
+                var carePackages = await _getCarePackagesByServiceUserIdUseCase.ExecuteAsync(socialCareId);
+                return Ok(carePackages.Select(r => r.ToResponse()).ToList());
+            }
+            catch (ArgumentNullException)
+            {
+                return Problem(
+                    "No care packages found for this service user",
+                    $"/api/v1/service-user/{socialCareId}",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+        }
+
+
     }
 }

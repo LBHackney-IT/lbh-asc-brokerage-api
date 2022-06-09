@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -29,5 +30,19 @@ namespace BrokerageApi.V1.Gateways
                     .ThenInclude(e => e.SuspensionElements)
                 .SingleOrDefaultAsync(cp => cp.Id == id);
         }
+        public async Task<IEnumerable<CarePackage>> GetByServiceUserIdAsync(string serviceUserId)
+        {
+            return await _context.CarePackages
+                .Where(cp => cp.SocialCareId == serviceUserId)
+                .Include(cp => cp.Elements.OrderBy(e => e.CreatedAt))
+                .ThenInclude(e => e.Provider)
+                .Include(cp => cp.Elements.OrderBy(e => e.CreatedAt))
+                .ThenInclude(e => e.ElementType)
+                .ThenInclude(et => et.Service)
+                .Include(cp => cp.AssignedBroker)
+                .Include(cp => cp.AssignedApprover)
+                .ToListAsync();
+        }
+
     }
 }

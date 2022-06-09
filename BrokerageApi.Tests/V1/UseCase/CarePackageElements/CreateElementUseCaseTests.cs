@@ -59,7 +59,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.InProgress)
-                .With(x => x.AssignedTo, expectedUserEmail)
+                .With(x => x.AssignedBroker, expectedUserEmail)
                 .Without(x => x.Elements)
                 .Create();
 
@@ -137,7 +137,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.Assigned)
-                .With(x => x.AssignedTo, "a.broker@hackney.go.uk")
+                .With(x => x.AssignedBroker, "a.broker@hackney.go.uk")
                 .Create();
 
             _mockReferralGateway
@@ -165,7 +165,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.InProgress)
-                .With(x => x.AssignedTo, "other.broker@hackney.gov.uk")
+                .With(x => x.AssignedBroker, "other.broker@hackney.gov.uk")
                 .Create();
 
             _mockReferralGateway
@@ -195,7 +195,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.InProgress)
-                .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
+                .With(x => x.AssignedBroker, "a.broker@hackney.gov.uk")
                 .Create();
 
             _mockReferralGateway
@@ -232,7 +232,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.InProgress)
-                .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
+                .With(x => x.AssignedBroker, "a.broker@hackney.gov.uk")
                 .Create();
 
             _mockReferralGateway
@@ -272,7 +272,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.InProgress)
-                .With(x => x.AssignedTo, "a.broker@hackney.gov.uk")
+                .With(x => x.AssignedBroker, "a.broker@hackney.gov.uk")
                 .With(x => x.Elements, new List<Element> { parentElement })
                 .Create();
 

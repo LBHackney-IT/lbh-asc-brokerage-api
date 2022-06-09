@@ -52,7 +52,7 @@ namespace BrokerageApi.V1.UseCase
             }
 
             referral.Status = ReferralStatus.Assigned;
-            referral.AssignedTo = request.Broker;
+            referral.AssignedBroker = request.Broker;
             await _dbSaver.SaveChangesAsync();
 
             await _auditGateway.AddAuditEvent(AuditEventType.ReferralBrokerAssignment, referral.SocialCareId, _userService.UserId, new ReferralAssignmentAuditEventMetadata

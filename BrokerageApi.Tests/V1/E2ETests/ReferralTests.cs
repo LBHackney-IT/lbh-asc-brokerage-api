@@ -67,7 +67,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response.PrimarySupportReason, Is.EqualTo("Physical Support"));
             Assert.That(response.DirectPayments, Is.EqualTo("No"));
             Assert.That(response.UrgentSince, Is.Null);
-            Assert.That(response.AssignedTo, Is.Null);
+            Assert.That(response.AssignedBroker, Is.Null);
             Assert.That(response.Status, Is.EqualTo(ReferralStatus.Unassigned));
             Assert.That(response.Note, Is.EqualTo("Some notes"));
             Assert.That(response.CreatedAt, Is.EqualTo(CurrentInstant));
@@ -104,7 +104,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response.PrimarySupportReason, Is.EqualTo("Physical Support"));
             Assert.That(response.DirectPayments, Is.EqualTo("No"));
             Assert.That(response.UrgentSince, Is.EqualTo(urgentSince));
-            Assert.That(response.AssignedTo, Is.Null);
+            Assert.That(response.AssignedBroker, Is.Null);
             Assert.That(response.Status, Is.EqualTo(ReferralStatus.Unassigned));
             Assert.That(response.Note, Is.EqualTo("Some notes"));
             Assert.That(response.CreatedAt, Is.EqualTo(CurrentInstant));
@@ -150,7 +150,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedTo = "a.broker@hackney.gov.uk",
+                AssignedBroker = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.Assigned
             };
 
@@ -187,7 +187,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedTo = "a.broker@hackney.gov.uk",
+                AssignedBroker = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant
             };
@@ -201,7 +201,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedTo = "a.broker@hackney.gov.uk",
+                AssignedBroker = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.AwaitingApproval
             };
 
@@ -214,7 +214,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedTo = "a.broker@hackney.gov.uk",
+                AssignedBroker = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.Approved
             };
 
@@ -327,7 +327,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedTo = "api.user@hackney.gov.uk",
+                AssignedBroker = "api.user@hackney.gov.uk",
                 Status = ReferralStatus.Assigned
             };
 
@@ -340,7 +340,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedTo = "other.user@hackney.gov.uk",
+                AssignedBroker = "other.user@hackney.gov.uk",
                 Status = ReferralStatus.Assigned
             };
 
@@ -376,7 +376,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedTo = "api.user@hackney.gov.uk",
+                AssignedBroker = "api.user@hackney.gov.uk",
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant
             };
@@ -390,7 +390,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedTo = "api.user@hackney.gov.uk",
+                AssignedBroker = "api.user@hackney.gov.uk",
                 Status = ReferralStatus.AwaitingApproval
             };
 
@@ -403,7 +403,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedTo = "api.user@hackney.gov.uk",
+                AssignedBroker = "api.user@hackney.gov.uk",
                 Status = ReferralStatus.Approved
             };
 
@@ -451,7 +451,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedTo = "api.user@hackney.gov.uk",
+                AssignedBroker = "api.user@hackney.gov.uk",
                 Status = ReferralStatus.Assigned
             };
 
@@ -464,7 +464,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedTo = "api.user@hackney.gov.uk",
+                AssignedBroker = "api.user@hackney.gov.uk",
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant
             };
@@ -557,7 +557,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             // Assert
             Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(response.Status, Is.EqualTo(ReferralStatus.Assigned));
-            Assert.That(response.AssignedTo, Is.EqualTo("a.broker@hackney.gov.uk"));
+            Assert.That(response.AssignedBroker, Is.EqualTo("a.broker@hackney.gov.uk"));
         }
 
         [Test, Property("AsUser", "BrokerageAssistant")]
@@ -579,7 +579,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 DirectPayments = "No",
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant,
-                AssignedTo = "other.broker@hackney.gov.uk"
+                AssignedBroker = "other.broker@hackney.gov.uk"
             };
 
             var broker = new User()
@@ -604,7 +604,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             // Assert
             Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(response.Status, Is.EqualTo(ReferralStatus.InProgress));
-            Assert.That(response.AssignedTo, Is.EqualTo("a.broker@hackney.gov.uk"));
+            Assert.That(response.AssignedBroker, Is.EqualTo("a.broker@hackney.gov.uk"));
         }
 
         [Test, Property("AsUser", "BrokerageAssistant")]

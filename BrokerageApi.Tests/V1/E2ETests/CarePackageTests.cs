@@ -131,7 +131,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
-                AssignedTo = "a.broker@hackney.gov.uk",
+                AssignedBroker = "a.broker@hackney.gov.uk",
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant,
                 CreatedAt = PreviousInstant,
@@ -225,7 +225,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
                 Status = ReferralStatus.Assigned,
-                AssignedTo = "api.user@hackney.gov.uk",
+                AssignedBroker = "api.user@hackney.gov.uk",
                 StartedAt = null,
                 CreatedAt = PreviousInstant,
                 UpdatedAt = PreviousInstant
@@ -271,7 +271,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
                 .With(r => r.Status, ReferralStatus.Approved)
-                .With(r => r.AssignedTo, ApiUser.Email)
+                .With(r => r.AssignedBroker, ApiUser.Email)
                 .With(r => r.Elements, elements.ToList)
                 .Create();
 
@@ -324,7 +324,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
                 .With(r => r.Status, ReferralStatus.Approved)
-                .With(r => r.AssignedTo, ApiUser.Email)
+                .With(r => r.AssignedBroker, ApiUser.Email)
                 .With(r => r.Elements, elements.ToList)
                 .Create();
 
@@ -381,7 +381,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
                 .With(r => r.Status, ReferralStatus.Approved)
-                .With(r => r.AssignedTo, ApiUser.Email)
+                .With(r => r.AssignedBroker, ApiUser.Email)
                 .With(r => r.Elements, elements.ToList)
                 .Create();
 
@@ -442,7 +442,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
                 .With(r => r.Status, ReferralStatus.Approved)
-                .With(r => r.AssignedTo, ApiUser.Email)
+                .With(r => r.AssignedBroker, ApiUser.Email)
                 .With(r => r.Elements, elements.ToList)
                 .Create();
 
