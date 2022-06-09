@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using BrokerageApi.Tests.V1.Helpers;
@@ -59,14 +60,21 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             const string expectedComment = "commentHere";
             var endDate = LocalDate.FromDateTime(DateTime.Today);
             var (referral, element) = CreateReferralAndElement();
+            var elementUpdatedAt = element.UpdatedAt;
+            var elementComment = element.Comment;
             _mockElementGateway.Setup(x => x.GetByIdAsync(element.Id))
                 .ReturnsAsync(element);
 
             await _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate, expectedComment);
 
-            element.EndDate.Should().Be(endDate);
-            element.UpdatedAt.Should().Be(_clock.Now);
-            element.Comment.Should().Be(expectedComment);
+            element.EndDate.Should().BeNull();
+            element.UpdatedAt.Should().Be(elementUpdatedAt);
+            element.Comment.Should().Be(elementComment);
+
+            var referralElement = element.ReferralElements.Single(re => re.ElementId == element.Id);
+            referralElement.PendingEndDate.Should().Be(endDate);
+            referralElement.PendingComment.Should().Be(expectedComment);
+
             _dbSaver.VerifyChangesSaved();
         }
 
@@ -76,12 +84,20 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             const string expectedComment = "commentHere";
             var endDate = LocalDate.FromDateTime(DateTime.Today);
             var (referral, element) = CreateReferralAndElement(ElementStatus.Approved, endDate.PlusDays(5));
+            var elementEndDate = element.EndDate;
+            var elementUpdatedAt = element.UpdatedAt;
+            var elementComment = element.Comment;
 
             await _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate, expectedComment);
 
-            element.EndDate.Should().Be(endDate);
-            element.UpdatedAt.Should().Be(_clock.Now);
-            element.Comment.Should().Be(expectedComment);
+            element.EndDate.Should().Be(elementEndDate);
+            element.UpdatedAt.Should().Be(elementUpdatedAt);
+            element.Comment.Should().Be(elementComment);
+
+            var referralElement = element.ReferralElements.Single(re => re.ElementId == element.Id);
+            referralElement.PendingEndDate.Should().Be(endDate);
+            referralElement.PendingComment.Should().Be(expectedComment);
+
             _dbSaver.VerifyChangesSaved();
         }
 
@@ -190,7 +206,16 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .With(r => r.Elements, new List<Element>
                 {
                     element
-                }).Create();
+                })
+                .Create();
+
+            element.ReferralElements = new List<ReferralElement>
+            {
+                new ReferralElement
+                {
+                    ElementId = element.Id, ReferralId = referral.Id
+                }
+            };
 
             _mockReferralGateway.Setup(x => x.GetByIdAsync(referral.Id))
                 .ReturnsAsync(referral);

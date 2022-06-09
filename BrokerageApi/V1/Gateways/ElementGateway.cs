@@ -40,6 +40,7 @@ namespace BrokerageApi.V1.Gateways
         {
             return await _currentElements
                 .Where(e => e.Id == id)
+                .Include(e => e.ReferralElements)
                 .SingleOrDefaultAsync();
         }
 

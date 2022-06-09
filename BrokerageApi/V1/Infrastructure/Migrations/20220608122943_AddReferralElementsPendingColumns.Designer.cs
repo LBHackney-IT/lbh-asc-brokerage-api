@@ -5,6 +5,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -13,17 +14,16 @@ using NpgsqlTypes;
 namespace V1.Infrastructure.Migrations
 {
     [DbContext(typeof(BrokerageContext))]
-    partial class BrokerageContextModelSnapshot : ModelSnapshot
+    [Migration("20220608122943_AddReferralElementsPendingColumns")]
+    partial class AddReferralElementsPendingColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasPostgresEnum(null, "audit_event_type", new[] { "referral_broker_assignment", "referral_broker_reassignment", "element_ended", "element_cancelled", "element_suspended", "care_package_ended", "care_package_cancelled", "care_package_suspended", "referral_archived", "import_note" })
-                .HasPostgresEnum(null, "element_billing_type", new[] { "supplier", "customer", "none" })
                 .HasPostgresEnum(null, "element_cost_type", new[] { "hourly", "daily", "weekly", "transport", "one_off" })
                 .HasPostgresEnum(null, "element_status", new[] { "in_progress", "awaiting_approval", "approved", "inactive", "active", "ended", "suspended", "cancelled" })
-                .HasPostgresEnum(null, "element_type_type", new[] { "service", "provisional_care_charge", "confirmed_care_charge" })
                 .HasPostgresEnum(null, "provider_type", new[] { "framework", "spot" })
                 .HasPostgresEnum(null, "referral_status", new[] { "unassigned", "in_review", "assigned", "on_hold", "archived", "in_progress", "awaiting_approval", "approved", "active", "ended", "cancelled" })
                 .HasPostgresEnum(null, "user_role", new[] { "brokerage_assistant", "broker", "approver", "care_charges_officer", "referrer" })
@@ -303,12 +303,6 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("id");
 
-                    b.Property<ElementBillingType>("Billing")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("element_billing_type")
-                        .HasDefaultValue(ElementBillingType.Supplier)
-                        .HasColumnName("billing");
-
                     b.Property<ElementCostType>("CostType")
                         .HasColumnType("element_cost_type")
                         .HasColumnName("cost_type");
@@ -342,12 +336,6 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("subjective_code");
 
-                    b.Property<ElementTypeType>("Type")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("element_type_type")
-                        .HasDefaultValue(ElementTypeType.Service)
-                        .HasColumnName("type");
-
                     b.HasKey("Id")
                         .HasName("pk_element_types");
 
@@ -374,10 +362,6 @@ namespace V1.Infrastructure.Migrations
                     b.Property<string>("CedarNumber")
                         .HasColumnType("text")
                         .HasColumnName("cedar_number");
-
-                    b.Property<string>("CedarSite")
-                        .HasColumnType("text")
-                        .HasColumnName("cedar_site");
 
                     b.Property<Instant>("CreatedAt")
                         .HasColumnType("timestamp")
@@ -415,10 +399,6 @@ namespace V1.Infrastructure.Migrations
                     b.HasIndex("SearchVector")
                         .HasDatabaseName("ix_providers_search_vector")
                         .HasMethod("GIN");
-
-                    b.HasIndex("CedarNumber", "CedarSite")
-                        .IsUnique()
-                        .HasDatabaseName("ix_providers_cedar_number_cedar_site");
 
                     b.ToTable("providers");
                 });

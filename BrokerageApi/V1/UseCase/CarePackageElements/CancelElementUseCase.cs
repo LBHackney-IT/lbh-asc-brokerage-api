@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
@@ -55,9 +56,10 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
                 throw new InvalidOperationException($"Element {element.Id} is not approved");
             }
 
-            element.InternalStatus = ElementStatus.Cancelled;
-            element.UpdatedAt = _clockService.Now;
-            element.Comment = comment;
+            var referralElement = element.ReferralElements.Single(re => re.ElementId == element.Id);
+            referralElement.PendingCancellation = true;
+            referralElement.PendingComment = comment;
+
             await _dbSaver.SaveChangesAsync();
 
             var metadata = new ElementAuditEventMetadata

@@ -82,6 +82,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var element1 = new Element
             {
+                Id = 111,
                 SocialCareId = "33556688",
                 ElementTypeId = hourlyElementType.Id,
                 NonPersonalBudget = false,
@@ -103,6 +104,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var element2 = new Element
             {
+                Id = 222,
                 SocialCareId = "33556688",
                 ElementTypeId = dailyElementType.Id,
                 NonPersonalBudget = false,
@@ -122,6 +124,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var referral = new Referral()
             {
+                Id = 1234,
                 WorkflowId = "3e48adb1-0ca2-456c-845a-efcd4eca4554",
                 WorkflowType = WorkflowType.Assessment,
                 FormName = "Care act assessment",
@@ -132,13 +135,14 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant,
                 CreatedAt = PreviousInstant,
-                UpdatedAt = CurrentInstant,
-                Elements = new List<Element>
-                {
-                    element1,
-                    element2,
-                    elementWithSuspensions
-                }
+                UpdatedAt = CurrentInstant
+            };
+
+            var referralElements = new List<ReferralElement>
+            {
+                _fixture.BuildReferralElement(referral.Id, element1.Id).Create(),
+                _fixture.BuildReferralElement(referral.Id, element2.Id).Create(),
+                _fixture.BuildReferralElement(referral.Id, elementWithSuspensions.Id).Create()
             };
 
             await Context.Services.AddAsync(service);
@@ -149,6 +153,13 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Providers.AddAsync(provider);
             await Context.ProviderServices.AddAsync(providerService);
             await Context.Referrals.AddAsync(referral);
+            await Context.Elements.AddRangeAsync(new List<Element>
+            {
+                element1,
+                element2,
+                elementWithSuspensions
+            });
+            await Context.ReferralElements.AddRangeAsync(referralElements);
             await Context.SaveChangesAsync();
 
             Context.ChangeTracker.Clear();
@@ -166,18 +177,24 @@ namespace BrokerageApi.Tests.V1.E2ETests
             response.Elements.Should().HaveCount(3);
 
             var responseElement1 = response.Elements.Single(e => e.Id == element1.Id);
-            ValidateElementResponse(responseElement1, element1, hourlyElementType, service, provider, parentElement);
+            ValidateElementResponse(responseElement1, element1, hourlyElementType, service, provider, parentElement, referral.Id);
             responseElement1.Status.Should().Be(ElementStatus.Active);
 
             var responseElement2 = response.Elements.Single(e => e.Id == element2.Id);
-            ValidateElementResponse(responseElement2, element2, dailyElementType, service, provider, parentElement);
+            ValidateElementResponse(responseElement2, element2, dailyElementType, service, provider, parentElement, referral.Id);
             responseElement2.Status.Should().Be(ElementStatus.InProgress);
 
             var responseElement3 = response.Elements.Single(e => e.Id == elementWithSuspensions.Id);
-            ValidateElementResponse(responseElement3, elementWithSuspensions, hourlyElementType, service, provider, null);
+            ValidateElementResponse(responseElement3, elementWithSuspensions, hourlyElementType, service, provider, null, referral.Id);
             responseElement3.SuspensionElements.Should().BeEquivalentTo(suspensions.Select(e => e.ToResponse()));
         }
-        private static void ValidateElementResponse(ElementResponse elementResponse, Element element, ElementType elementType, Service service, Provider provider, Element parentElement)
+        private static void ValidateElementResponse(ElementResponse elementResponse,
+            Element element,
+            ElementType elementType,
+            Service service,
+            Provider provider,
+            Element parentElement,
+            int referralId)
         {
             elementResponse.Details.Should().Be(element.Details);
             elementResponse.ElementType.Name.Should().Be(elementType.Name);
@@ -187,6 +204,11 @@ namespace BrokerageApi.Tests.V1.E2ETests
             {
                 elementResponse.ParentElement.Should().BeEquivalentTo(parentElement.ToResponse());
             }
+
+            var referralElement = element.ReferralElements.Single(re => re.ReferralId == referralId);
+            elementResponse.PendingEndDate.Should().Be(referralElement.PendingEndDate);
+            elementResponse.PendingCancellation.Should().Be(referralElement.PendingCancellation);
+            elementResponse.PendingComment.Should().Be(referralElement.PendingComment);
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -273,12 +295,10 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var (carePackageCode, response) = await Get<CarePackageResponse>($"/api/v1/referrals/{referral.Id}/care-package");
 
             carePackageCode.Should().Be(HttpStatusCode.OK);
-            response.Status.Should().Be(ReferralStatus.Ended);
             response.UpdatedAt.Should().BeEquivalentTo(CurrentInstant);
 
-            response.Elements.Should().OnlyContain(e => e.EndDate <= endDate);
-            response.Elements.Should().OnlyContain(e => e.Status == ElementStatus.Ended);
-            response.Elements.Should().OnlyContain(e => e.UpdatedAt.IsSameOrEqualTo(CurrentInstant));
+            response.Elements.Should().OnlyContain(e => e.PendingEndDate == endDate);
+            response.Elements.Should().OnlyContain(e => e.PendingComment == request.Comment);
             Context.AuditEvents.Should().ContainSingle(ae => ae.EventType == AuditEventType.CarePackageEnded);
         }
 
@@ -331,8 +351,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             response.UpdatedAt.Should().BeEquivalentTo(CurrentInstant);
             response.Comment.Should().Be(request.Comment);
 
-            response.Elements.Should().OnlyContain(e => e.Status == ElementStatus.Cancelled);
-            response.Elements.Should().OnlyContain(e => e.UpdatedAt.IsSameOrEqualTo(CurrentInstant));
+            response.Elements.Should().OnlyContain(e => e.PendingCancellation == true);
             Context.AuditEvents.Should().ContainSingle(ae => ae.EventType == AuditEventType.CarePackageCancelled);
         }
 

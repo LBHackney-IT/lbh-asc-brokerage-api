@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using BrokerageApi.Tests.V1.Helpers;
@@ -58,14 +59,23 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         {
             const string expectedComment = "commentHere";
             var (referral, element) = CreateReferralAndElement();
+            var elementStatus = element.InternalStatus;
+            var elementUpdatedAt = element.UpdatedAt;
+            var elementComment = element.Comment;
+
             _mockElementGateway.Setup(x => x.GetByIdAsync(element.Id))
                 .ReturnsAsync(element);
 
             await _classUnderTest.ExecuteAsync(referral.Id, element.Id, expectedComment);
 
-            element.InternalStatus.Should().Be(ElementStatus.Cancelled);
-            element.UpdatedAt.Should().Be(_clock.Now);
-            element.Comment.Should().Be(expectedComment);
+            element.InternalStatus.Should().Be(elementStatus);
+            element.UpdatedAt.Should().Be(elementUpdatedAt);
+            element.Comment.Should().Be(elementComment);
+
+            var referralElement = element.ReferralElements.Single(re => re.ElementId == element.Id);
+            referralElement.PendingCancellation.Should().BeTrue();
+            referralElement.PendingComment.Should().Be(expectedComment);
+
             _dbSaver.VerifyChangesSaved();
         }
 
@@ -158,6 +168,14 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 {
                     element
                 }).Create();
+
+            element.ReferralElements = new List<ReferralElement>
+            {
+                new ReferralElement
+                {
+                    ElementId = element.Id, ReferralId = referral.Id
+                }
+            };
 
             _mockReferralGateway.Setup(x => x.GetByIdAsync(referral.Id))
                 .ReturnsAsync(referral);

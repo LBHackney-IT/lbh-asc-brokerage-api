@@ -1,3 +1,6 @@
+using JetBrains.Annotations;
+using NodaTime;
+
 namespace BrokerageApi.V1.Infrastructure
 {
     public class ReferralElement
@@ -8,5 +11,9 @@ namespace BrokerageApi.V1.Infrastructure
 
         public int ElementId { get; set; }
         public Element Element { get; set; }
+        public LocalDate? PendingEndDate { get; set; }
+        public bool? PendingCancellation { get; set; }
+        [CanBeNull]
+        public string PendingComment { get; set; }
     }
 }

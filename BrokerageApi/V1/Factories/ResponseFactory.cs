@@ -30,13 +30,15 @@ namespace BrokerageApi.V1.Factories
                 StartDate = carePackage.StartDate,
                 WeeklyCost = carePackage.WeeklyCost,
                 WeeklyPayment = carePackage.WeeklyPayment,
-                Elements = carePackage.Elements.Select(e => e.ToResponse()).ToList(),
+                Elements = carePackage.ReferralElements.Select(re => re.Element.ToResponse(re.ReferralId)).ToList(),
                 Comment = carePackage.Comment
             };
         }
 
-        public static ElementResponse ToResponse(this Element element, bool includeParent = true)
+        public static ElementResponse ToResponse(this Element element, int? referralId = null, bool includeParent = true)
         {
+            var referralElement = referralId.HasValue ? element.ReferralElements?.SingleOrDefault(re => re.ReferralId == referralId) : null;
+
             return new ElementResponse
             {
                 Id = element.Id,
@@ -59,9 +61,12 @@ namespace BrokerageApi.V1.Factories
                 CreatedBy = element.CreatedBy,
                 CreatedAt = element.CreatedAt,
                 UpdatedAt = element.UpdatedAt,
-                ParentElement = includeParent ? element.ParentElement?.ToResponse(false) : null,
+                ParentElement = includeParent ? element.ParentElement?.ToResponse(referralId, false) : null,
                 SuspensionElements = element.SuspensionElements?.Select(e => e.ToResponse()).ToList(),
-                Comment = element.Comment
+                Comment = element.Comment,
+                PendingEndDate = referralElement?.PendingEndDate,
+                PendingCancellation = referralElement?.PendingCancellation,
+                PendingComment = referralElement?.PendingComment
             };
         }
 

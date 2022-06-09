@@ -63,6 +63,7 @@ namespace BrokerageApi.Tests.V1.Factories
         [Test]
         public void ElementMapsCorrectly()
         {
+            var expectedReferralId = 1234;
             var grandParentElement = _fixture.Build<Element>()
                 .With(e => e.InternalStatus, ElementStatus.InProgress)
                 .Create();
@@ -81,8 +82,14 @@ namespace BrokerageApi.Tests.V1.Factories
                 .With(e => e.ParentElementId, parentElement.Id)
                 .With(e => e.SuspensionElements, suspensionElements.ToList)
                 .Create();
+            var expectedReferralElement = _fixture.BuildReferralElement(expectedReferralId, element.Id).Create();
+            element.ReferralElements = new List<ReferralElement>
+            {
+                expectedReferralElement,
+                _fixture.BuildReferralElement(expectedReferralId + 1, element.Id).Create()
+            };
 
-            var response = element.ToResponse();
+            var response = element.ToResponse(expectedReferralId);
 
             response.Id.Should().Be(element.Id);
             response.ElementType.Should().BeEquivalentTo(element.ElementType?.ToResponse());
@@ -104,10 +111,14 @@ namespace BrokerageApi.Tests.V1.Factories
             response.CreatedBy.Should().Be(element.CreatedBy);
             response.CreatedAt.Should().Be(element.CreatedAt);
             response.UpdatedAt.Should().Be(element.UpdatedAt);
-            response.ParentElement.Should().BeEquivalentTo(parentElement.ToResponse(false));
+            response.ParentElement.Should().BeEquivalentTo(parentElement.ToResponse(expectedReferralId, false));
             response.ParentElement.ParentElement.Should().BeNull();
             response.SuspensionElements.Should().BeEquivalentTo(suspensionElements.Select(e => e.ToResponse()));
             response.Comment.Should().Be(element.Comment);
+            response.PendingEndDate.Should().Be(expectedReferralElement.PendingEndDate);
+            response.PendingCancellation.Should().Be(expectedReferralElement.PendingCancellation);
+            response.PendingComment.Should().Be(expectedReferralElement.PendingComment);
+
         }
     }
 }
