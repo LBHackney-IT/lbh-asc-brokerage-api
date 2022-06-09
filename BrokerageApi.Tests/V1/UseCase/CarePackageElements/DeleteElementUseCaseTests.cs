@@ -181,7 +181,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .With(r => r.Elements, elements)
                 .With(r => r.UpdatedAt, _currentInstant.Minus(Duration.FromDays(1)));
 
-            if (!(assignedToCom is null)) referralBuilder = referralBuilder.With(r => r.AssignedTo, assignedToCom);
+            if (!(assignedToCom is null)) referralBuilder = referralBuilder.With(r => r.AssignedBroker, assignedToCom);
 
             return referralBuilder.Create();
         }

@@ -51,7 +51,7 @@ namespace BrokerageApi.V1.UseCase
                 throw new ArgumentNullException(nameof(request), $"Broker not found for: {request.Broker}");
             }
 
-            referral.AssignedTo = request.Broker;
+            referral.AssignedBroker = request.Broker;
             await _dbSaver.SaveChangesAsync();
 
             await _auditGateway.AddAuditEvent(AuditEventType.ReferralBrokerReassignment, referral.SocialCareId, _userService.UserId, new ReferralReassignmentAuditEventMetadata

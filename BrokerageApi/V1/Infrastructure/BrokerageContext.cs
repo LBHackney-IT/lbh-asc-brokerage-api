@@ -94,6 +94,19 @@ namespace BrokerageApi.V1.Infrastructure
                         j.HasKey(re => new { re.ElementId, re.ReferralId });
                     });
 
+
+            modelBuilder.Entity<CarePackage>()
+                .HasOne(cp => cp.AssignedBroker)
+                .WithMany(u => u.BrokerCarePackages)
+                .HasForeignKey("AssignedBrokerId")
+                .HasPrincipalKey("Email");
+
+            modelBuilder.Entity<CarePackage>()
+                .HasOne(cp => cp.AssignedApprover)
+                .WithMany(u => u.ApproverCarePackages)
+                .HasForeignKey("AssignedApproverId")
+                .HasPrincipalKey("Email");
+
             modelBuilder.Entity<Element>()
                 .HasOne(e => e.ParentElement)
                 .WithMany(e => e.ChildElements)
@@ -208,6 +221,7 @@ namespace BrokerageApi.V1.Infrastructure
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
+
         }
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)

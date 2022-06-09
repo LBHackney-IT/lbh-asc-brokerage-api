@@ -24,6 +24,13 @@ namespace BrokerageApi.Tests.V1.Helpers
         {
             return fixture.Create<int>() % (max - min + 1) + min;
         }
+        public static IPostprocessComposer<CarePackage> BuildCarePackage(this IFixture fixture, string socialCareId)
+        {
+            return fixture.Build<CarePackage>()
+                .Without(cp => cp.Elements)
+                .With(cp => cp.SocialCareId, socialCareId);
+        }
+
         public static IPostprocessComposer<Provider> BuildProvider(this IFixture fixture)
         {
             return fixture.Build<Provider>()
@@ -105,6 +112,13 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(re => re.CarePackage)
                 .With(re => re.ReferralId, referralId)
                 .With(re => re.ElementId, elementId);
+        }
+
+        public static IPostprocessComposer<User> BuildUser(this IFixture fixture)
+        {
+            return fixture.Build<User>()
+                .Without(u => u.ApproverCarePackages)
+                .Without(u => u.BrokerCarePackages);
         }
     }
 }
