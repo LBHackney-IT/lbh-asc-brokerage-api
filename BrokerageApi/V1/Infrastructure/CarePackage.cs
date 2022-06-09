@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using NodaTime;
 
 namespace BrokerageApi.V1.Infrastructure
@@ -50,5 +51,6 @@ namespace BrokerageApi.V1.Infrastructure
         public List<Element> Elements { get; set; }
 
         public string Comment { get; set; }
+        public decimal EstimatedYearlyCost => WeeklyPayment is null ? 0 : WeeklyCost.Value * 52;
     }
 }

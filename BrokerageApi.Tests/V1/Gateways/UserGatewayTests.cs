@@ -31,7 +31,8 @@ namespace BrokerageApi.Tests.V1.Gateways
                 Name = "Care Charges Officer",
                 Email = "care.chargesofficer@hackney.gov.uk",
                 IsActive = true,
-                Roles = new List<UserRole>() {
+                Roles = new List<UserRole>()
+                {
                     UserRole.CareChargesOfficer
                 }
             };
@@ -41,7 +42,8 @@ namespace BrokerageApi.Tests.V1.Gateways
                 Name = "Brokerage Assistant",
                 Email = "brokerage.assistant@hackney.gov.uk",
                 IsActive = true,
-                Roles = new List<UserRole>() {
+                Roles = new List<UserRole>()
+                {
                     UserRole.BrokerageAssistant
                 }
             };
@@ -51,7 +53,8 @@ namespace BrokerageApi.Tests.V1.Gateways
                 Name = "An Approver",
                 Email = "an.approver@hackney.gov.uk",
                 IsActive = true,
-                Roles = new List<UserRole>() {
+                Roles = new List<UserRole>()
+                {
                     UserRole.Approver
                 }
             };
@@ -61,7 +64,8 @@ namespace BrokerageApi.Tests.V1.Gateways
                 Name = "A Broker",
                 Email = "a.broker@hackney.gov.uk",
                 IsActive = true,
-                Roles = new List<UserRole>() {
+                Roles = new List<UserRole>()
+                {
                     UserRole.Broker
                 }
             };
@@ -103,7 +107,8 @@ namespace BrokerageApi.Tests.V1.Gateways
                 Name = "Care Charges Officer",
                 Email = "care.chargesofficer@hackney.gov.uk",
                 IsActive = true,
-                Roles = new List<UserRole>() {
+                Roles = new List<UserRole>()
+                {
                     UserRole.CareChargesOfficer
                 }
             };
@@ -113,7 +118,8 @@ namespace BrokerageApi.Tests.V1.Gateways
                 Name = "Brokerage Assistant",
                 Email = "brokerage.assistant@hackney.gov.uk",
                 IsActive = true,
-                Roles = new List<UserRole>() {
+                Roles = new List<UserRole>()
+                {
                     UserRole.BrokerageAssistant
                 }
             };
@@ -150,7 +156,8 @@ namespace BrokerageApi.Tests.V1.Gateways
                 Name = "Brokerage Assistant",
                 Email = "brokerage.assistant@hackney.gov.uk",
                 IsActive = true,
-                Roles = new List<UserRole>() {
+                Roles = new List<UserRole>()
+                {
                     UserRole.BrokerageAssistant
                 }
             };
@@ -217,6 +224,47 @@ namespace BrokerageApi.Tests.V1.Gateways
 
             await act.Should().ThrowAsync<InvalidOperationException>()
                 .WithMessage($"User with email address {expectedEmail} already exists");
+        }
+
+        [Test]
+        public async Task GetApproversWithLimit()
+        {
+            const decimal approvalLimit = 100;
+            var approversAboveLimit = Fixture.Build<User>()
+                .With(u => u.IsActive, true)
+                .With(u => u.Roles, new List<UserRole>
+                {
+                    UserRole.Approver
+                })
+                .With(u => u.ApprovalLimit, Fixture.CreateInt((int) approvalLimit, 100000))
+                .CreateMany();
+            var approversBelowLimit = Fixture.Build<User>()
+                .With(u => u.IsActive, true)
+                .With(u => u.Roles, new List<UserRole>
+                {
+                    UserRole.Approver
+                })
+                .With(u => u.ApprovalLimit, Fixture.CreateInt(0, (int) approvalLimit - 1))
+                .CreateMany();
+            var nonApprovers = Fixture.Build<User>()
+                .With(u => u.IsActive, true)
+                .With(u => u.Roles, new List<UserRole>
+                {
+                    UserRole.Broker
+                })
+                .Without(u => u.ApprovalLimit)
+                .CreateMany();
+
+            await BrokerageContext.Users.AddRangeAsync(approversAboveLimit);
+            await BrokerageContext.Users.AddRangeAsync(approversBelowLimit);
+            await BrokerageContext.Users.AddRangeAsync(nonApprovers);
+            await BrokerageContext.SaveChangesAsync();
+
+            var result = await _classUnderTest.GetBudgetApproversAsync(approvalLimit);
+
+            result.Should().Contain(approversAboveLimit);
+            result.Should().NotContain(approversBelowLimit);
+            result.Should().NotContain(nonApprovers);
         }
     }
 }

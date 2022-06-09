@@ -477,5 +477,79 @@ namespace BrokerageApi.Tests.V1.E2ETests
             }
             Context.AuditEvents.Should().ContainSingle(ae => ae.EventType == AuditEventType.CarePackageSuspended);
         }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanGetBudgetApprovers()
+        {
+            // Arrange
+            var service = _fixture.BuildService()
+                .Create();
+
+            var provider = _fixture.BuildProvider()
+                .Create();
+
+            var providerService = _fixture.BuildProviderService(provider.Id, service.Id)
+                .Create();
+
+            var dailyElementType = _fixture.BuildElementType(service.Id)
+                .With(et => et.CostType, ElementCostType.Daily)
+                .Create();
+
+            var oneOffElementType = _fixture.BuildElementType(service.Id)
+                .With(et => et.CostType, ElementCostType.OneOff)
+                .Create();
+
+            var dailyElements = _fixture.BuildElement(provider.Id, dailyElementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .CreateMany();
+
+            var oneOffElements = _fixture.BuildElement(provider.Id, oneOffElementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .CreateMany();
+
+            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
+                .With(r => r.Status, ReferralStatus.InProgress)
+                .With(r => r.AssignedTo, ApiUser.Email)
+                .With(r => r.Elements, dailyElements.Concat(oneOffElements).ToList)
+                .Create();
+
+            var expectedYearlyCost = referral.Elements.Sum(e => e.Cost) * 52;
+
+            var expectedApprovers = _fixture.Build<User>()
+                .With(u => u.IsActive, true)
+                .With(u => u.Roles, new List<UserRole>
+                {
+                    UserRole.Approver
+                })
+                .With(u => u.ApprovalLimit, expectedYearlyCost + 100)
+                .CreateMany();
+
+            var notExpectedApprovers = _fixture.Build<User>()
+                .With(u => u.IsActive, true)
+                .With(u => u.Roles, new List<UserRole>
+                {
+                    UserRole.Approver
+                })
+                .With(u => u.ApprovalLimit, expectedYearlyCost - 100)
+                .CreateMany();
+
+            await Context.Users.AddRangeAsync(expectedApprovers);
+            await Context.Users.AddRangeAsync(notExpectedApprovers);
+            await Context.Referrals.AddAsync(referral);
+            await Context.Services.AddAsync(service);
+            await Context.Providers.AddAsync(provider);
+            await Context.ProviderServices.AddAsync(providerService);
+            await Context.ElementTypes.AddAsync(dailyElementType);
+            await Context.ElementTypes.AddAsync(oneOffElementType);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            var (code, response) = await Get<GetApproversResponse>($"/api/v1/referrals/{referral.Id}/care-package/budget-approvers");
+
+            code.Should().Be(HttpStatusCode.OK);
+            response.EstimatedYearlyCost.Should().Be(expectedYearlyCost);
+            response.Approvers.Should().BeEquivalentTo(expectedApprovers.Select(u => u.ToResponse()));
+        }
     }
 }

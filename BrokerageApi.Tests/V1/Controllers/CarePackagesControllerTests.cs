@@ -10,6 +10,7 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackages;
@@ -28,6 +29,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Mock<IEndCarePackageUseCase> _mockEndCarePackageUseCase;
         private Mock<ISuspendCarePackageUseCase> _mockSuspendCarePackageUseCase;
         private Mock<ICancelCarePackageUseCase> _mockCancelCarePackageUseCase;
+        private Mock<IGetBudgetApproversUseCase> _mockGetBudgetApproversUseCase;
 
         [SetUp]
         public void SetUp()
@@ -39,13 +41,15 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockEndCarePackageUseCase = new Mock<IEndCarePackageUseCase>();
             _mockCancelCarePackageUseCase = new Mock<ICancelCarePackageUseCase>();
             _mockSuspendCarePackageUseCase = new Mock<ISuspendCarePackageUseCase>();
+            _mockGetBudgetApproversUseCase = new Mock<IGetBudgetApproversUseCase>();
 
             _classUnderTest = new CarePackagesController(
                 _mockGetCarePackageByIdUseCase.Object,
                 _mockStartCarePackageUseCase.Object,
                 _mockEndCarePackageUseCase.Object,
                 _mockCancelCarePackageUseCase.Object,
-                _mockSuspendCarePackageUseCase.Object
+                _mockSuspendCarePackageUseCase.Object,
+                _mockGetBudgetApproversUseCase.Object
             );
 
             // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
@@ -278,6 +282,53 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             var response = await _classUnderTest.SuspendCarePackage(referralId, request);
             var statusCode = GetStatusCode(response);
+
+            statusCode.Should().Be((int) expectedStatusCode);
+            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+        }
+
+        [Test]
+        public async Task CanGetBudgetApprovers()
+        {
+            const int referralId = 1234;
+            var expectedApprovers = _fixture.CreateMany<User>();
+            const decimal expectedEstimatedYearlyCost = 12345678;
+
+            _mockGetBudgetApproversUseCase
+                .Setup(x => x.ExecuteAsync(referralId))
+                .ReturnsAsync((expectedApprovers, expectedEstimatedYearlyCost));
+
+            var objectResult = await _classUnderTest.GetBudgetApprovers(referralId);
+            var statusCode = GetStatusCode(objectResult);
+            var result = GetResultData<GetApproversResponse>(objectResult);
+
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            result.EstimatedYearlyCost.Should().Be(expectedEstimatedYearlyCost);
+            result.Approvers.Should().BeEquivalentTo(expectedApprovers.Select(u => u.ToResponse()));
+        }
+
+        private static readonly object[] _getBudgetApproversErrorList =
+        {
+            new object[]
+            {
+                new ArgumentNullException(null, "message"), HttpStatusCode.NotFound
+            },
+            new object[]
+            {
+                new InvalidOperationException("message"), HttpStatusCode.UnprocessableEntity
+            }
+        };
+
+        [TestCaseSource(nameof(_getBudgetApproversErrorList)), Property("AsUser", "Broker")]
+        public async Task GetBudgetApproversMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            const int referralId = 1234;
+            _mockGetBudgetApproversUseCase
+                .Setup(x => x.ExecuteAsync(referralId))
+                .ThrowsAsync(exception);
+
+            var objectResult = await _classUnderTest.GetBudgetApprovers(referralId);
+            var statusCode = GetStatusCode(objectResult);
 
             statusCode.Should().Be((int) expectedStatusCode);
             _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
