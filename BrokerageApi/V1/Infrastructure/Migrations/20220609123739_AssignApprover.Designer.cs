@@ -14,18 +14,20 @@ using NpgsqlTypes;
 namespace V1.Infrastructure.Migrations
 {
     [DbContext(typeof(BrokerageContext))]
-    [Migration("20220607095607_CreateCarePackageNameViewAddUserAltKey")]
-    partial class CreateCarePackageNameViewAddUserAltKey
+    [Migration("20220609123739_AssignApprover")]
+    partial class AssignApprover
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasPostgresEnum(null, "audit_event_type", new[] { "referral_broker_assignment", "referral_broker_reassignment", "element_ended", "element_cancelled", "element_suspended", "care_package_ended", "care_package_cancelled", "care_package_suspended" })
+                .HasPostgresEnum(null, "audit_event_type", new[] { "referral_broker_assignment", "referral_broker_reassignment", "element_ended", "element_cancelled", "element_suspended", "care_package_ended", "care_package_cancelled", "care_package_suspended", "referral_archived", "import_note" })
+                .HasPostgresEnum(null, "element_billing_type", new[] { "supplier", "customer", "none" })
                 .HasPostgresEnum(null, "element_cost_type", new[] { "hourly", "daily", "weekly", "transport", "one_off" })
-                .HasPostgresEnum(null, "element_status", new[] { "in_progress", "awaiting_approval", "approved", "inactive", "active", "ended", "suspended" })
+                .HasPostgresEnum(null, "element_status", new[] { "in_progress", "awaiting_approval", "approved", "inactive", "active", "ended", "suspended", "cancelled" })
+                .HasPostgresEnum(null, "element_type_type", new[] { "service", "provisional_care_charge", "confirmed_care_charge" })
                 .HasPostgresEnum(null, "provider_type", new[] { "framework", "spot" })
-                .HasPostgresEnum(null, "referral_status", new[] { "unassigned", "in_review", "assigned", "on_hold", "archived", "in_progress", "awaiting_approval", "approved" })
+                .HasPostgresEnum(null, "referral_status", new[] { "unassigned", "in_review", "assigned", "on_hold", "archived", "in_progress", "awaiting_approval", "approved", "active", "ended", "cancelled" })
                 .HasPostgresEnum(null, "user_role", new[] { "brokerage_assistant", "broker", "approver", "care_charges_officer", "referrer" })
                 .HasPostgresEnum(null, "workflow_type", new[] { "assessment", "review", "reassessment", "historic" })
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
@@ -92,6 +94,10 @@ namespace V1.Infrastructure.Migrations
                     b.Property<string>("CarePackageName")
                         .HasColumnType("text")
                         .HasColumnName("care_package_name");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("text")
+                        .HasColumnName("comment");
 
                     b.Property<Instant>("CreatedAt")
                         .HasColumnType("timestamp")
@@ -177,13 +183,31 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnName("id")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
+                    b.Property<string>("Comment")
+                        .HasColumnType("text")
+                        .HasColumnName("comment");
+
                     b.Property<decimal>("Cost")
                         .HasColumnType("numeric")
                         .HasColumnName("cost");
 
+                    b.Property<string>("CostCentre")
+                        .HasColumnType("text")
+                        .HasColumnName("cost_centre");
+
                     b.Property<Instant>("CreatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("created_by");
+
+                    b.Property<List<decimal>>("DailyCosts")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("numeric[]")
+                        .HasColumnName("daily_costs")
+                        .HasComputedColumnSql("ARRAY[COALESCE((monday->>'Cost')::numeric, 0), COALESCE((tuesday->>'Cost')::numeric, 0), COALESCE((wednesday->>'Cost')::numeric, 0), COALESCE((thursday->>'Cost')::numeric, 0), COALESCE((friday->>'Cost')::numeric, 0), COALESCE((saturday->>'Cost')::numeric, 0), COALESCE((sunday->>'Cost')::numeric, 0)]", true);
 
                     b.Property<string>("Details")
                         .IsRequired()
@@ -207,6 +231,12 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("element_status")
                         .HasDefaultValue(ElementStatus.InProgress)
                         .HasColumnName("internal_status");
+
+                    b.Property<bool>("IsSuspension")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_suspension");
 
                     b.Property<ElementCost?>("Monday")
                         .HasColumnType("jsonb")
@@ -245,6 +275,10 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("sunday");
 
+                    b.Property<int?>("SuspendedElementId")
+                        .HasColumnType("integer")
+                        .HasColumnName("suspended_element_id");
+
                     b.Property<ElementCost?>("Thursday")
                         .HasColumnType("jsonb")
                         .HasColumnName("thursday");
@@ -273,6 +307,9 @@ namespace V1.Infrastructure.Migrations
                     b.HasIndex("ProviderId")
                         .HasDatabaseName("ix_elements_provider_id");
 
+                    b.HasIndex("SuspendedElementId")
+                        .HasDatabaseName("ix_elements_suspended_element_id");
+
                     b.ToTable("elements");
                 });
 
@@ -281,6 +318,12 @@ namespace V1.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    b.Property<ElementBillingType>("Billing")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("element_billing_type")
+                        .HasDefaultValue(ElementBillingType.Supplier)
+                        .HasColumnName("billing");
 
                     b.Property<ElementCostType>("CostType")
                         .HasColumnType("element_cost_type")
@@ -311,6 +354,16 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("service_id");
 
+                    b.Property<string>("SubjectiveCode")
+                        .HasColumnType("text")
+                        .HasColumnName("subjective_code");
+
+                    b.Property<ElementTypeType>("Type")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("element_type_type")
+                        .HasDefaultValue(ElementTypeType.Service)
+                        .HasColumnName("type");
+
                     b.HasKey("Id")
                         .HasName("pk_element_types");
 
@@ -333,6 +386,14 @@ namespace V1.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("address");
+
+                    b.Property<string>("CedarNumber")
+                        .HasColumnType("text")
+                        .HasColumnName("cedar_number");
+
+                    b.Property<string>("CedarSite")
+                        .HasColumnType("text")
+                        .HasColumnName("cedar_site");
 
                     b.Property<Instant>("CreatedAt")
                         .HasColumnType("timestamp")
@@ -371,6 +432,10 @@ namespace V1.Infrastructure.Migrations
                         .HasDatabaseName("ix_providers_search_vector")
                         .HasMethod("GIN");
 
+                    b.HasIndex("CedarNumber", "CedarSite")
+                        .IsUnique()
+                        .HasDatabaseName("ix_providers_cedar_number_cedar_site");
+
                     b.ToTable("providers");
                 });
 
@@ -385,7 +450,6 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnName("service_id");
 
                     b.Property<string>("SubjectiveCode")
-                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("subjective_code");
 
@@ -413,6 +477,10 @@ namespace V1.Infrastructure.Migrations
                     b.Property<string>("AssignedBroker")
                         .HasColumnType("text")
                         .HasColumnName("assigned_broker");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("text")
+                        .HasColumnName("comment");
 
                     b.Property<Instant>("CreatedAt")
                         .HasColumnType("timestamp")
@@ -490,6 +558,18 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("referral_id");
 
+                    b.Property<bool?>("PendingCancellation")
+                        .HasColumnType("boolean")
+                        .HasColumnName("pending_cancellation");
+
+                    b.Property<string>("PendingComment")
+                        .HasColumnType("text")
+                        .HasColumnName("pending_comment");
+
+                    b.Property<LocalDate?>("PendingEndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("pending_end_date");
+
                     b.HasKey("ElementId", "ReferralId")
                         .HasName("pk_referral_elements");
 
@@ -508,6 +588,12 @@ namespace V1.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text")
                         .HasColumnName("description");
+
+                    b.Property<bool>("HasProvisionalClientContributions")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("has_provisional_client_contributions");
 
                     b.Property<bool>("IsArchived")
                         .ValueGeneratedOnAdd()
@@ -636,11 +722,18 @@ namespace V1.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("BrokerageApi.V1.Infrastructure.Element", "SuspendedElement")
+                        .WithMany("SuspensionElements")
+                        .HasForeignKey("SuspendedElementId")
+                        .HasConstraintName("fk_elements_elements_suspended_element_id");
+
                     b.Navigation("ElementType");
 
                     b.Navigation("ParentElement");
 
                     b.Navigation("Provider");
+
+                    b.Navigation("SuspendedElement");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ElementType", b =>
@@ -726,6 +819,8 @@ namespace V1.Infrastructure.Migrations
                     b.Navigation("ChildElements");
 
                     b.Navigation("ReferralElements");
+
+                    b.Navigation("SuspensionElements");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ElementType", b =>

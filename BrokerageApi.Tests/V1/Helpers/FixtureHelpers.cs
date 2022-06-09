@@ -113,5 +113,12 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .With(re => re.ReferralId, referralId)
                 .With(re => re.ElementId, elementId);
         }
+
+        public static IPostprocessComposer<User> BuildUser(this IFixture fixture)
+        {
+            return fixture.Build<User>()
+                .Without(u => u.ApproverCarePackages)
+                .Without(u => u.BrokerCarePackages);
+        }
     }
 }

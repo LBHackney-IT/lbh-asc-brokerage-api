@@ -206,7 +206,7 @@ namespace BrokerageApi.Tests.V1.Gateways
         public async Task CreateUserThrowsWhenUserExists()
         {
             const string expectedEmail = "expected@email.com";
-            var user = Fixture.Build<User>()
+            var user = Fixture.BuildUser()
                 .With(u => u.Email, expectedEmail)
                 .Create();
 
