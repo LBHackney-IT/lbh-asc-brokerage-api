@@ -22,5 +22,7 @@ namespace BrokerageApi.V1.Boundary.Response
         public Instant CreatedAt { get; set; }
 
         public Instant UpdatedAt { get; set; }
+
+        public decimal? ApprovalLimit { get; set; }
     }
 }

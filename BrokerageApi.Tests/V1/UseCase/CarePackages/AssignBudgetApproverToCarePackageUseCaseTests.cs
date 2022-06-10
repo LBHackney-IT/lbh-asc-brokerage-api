@@ -204,7 +204,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
         {
             const string brokerEmail = "broker@email.com";
             const string approverEmail = "approver@email.com";
-            const decimal estimatedYearlyCost = 1000;
+            const decimal estimatedYearlyCost = 52000;
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
                 .With(r => r.AssignedBrokerEmail, brokerEmail)
@@ -214,7 +214,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
                 .With(c => c.Id, referral.Id)
                 .With(c => c.Status, ReferralStatus.InProgress)
                 .With(c => c.AssignedBrokerId, brokerEmail)
-                .With(c => c.WeeklyCost, estimatedYearlyCost / 52)
+                .With(c => c.WeeklyPayment, estimatedYearlyCost / 52)
                 .Create();
 
             var approver = _fixture.BuildUser()

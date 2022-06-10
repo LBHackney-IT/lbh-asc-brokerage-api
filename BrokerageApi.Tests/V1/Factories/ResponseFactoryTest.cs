@@ -193,5 +193,22 @@ namespace BrokerageApi.Tests.V1.Factories
             response.AssignedApprover.Should().BeEquivalentTo(carePackage.AssignedApprover?.ToResponse());
             response.AssignedTo.Should().Be(status == ReferralStatus.AwaitingApproval ? carePackage.AssignedApprover.Email : carePackage.AssignedBroker.Email);
         }
+
+        [Test]
+        public void UserMapsCorrectly()
+        {
+            var user = _fixture.BuildUser().Create();
+
+            var response = user.ToResponse();
+
+            response.Id.Should().Be(user.Id);
+            response.Name.Should().Be(user.Name);
+            response.Email.Should().Be(user.Email);
+            response.Roles.Should().BeEquivalentTo(user.Roles);
+            response.IsActive.Should().Be(user.IsActive);
+            response.CreatedAt.Should().Be(user.CreatedAt);
+            response.UpdatedAt.Should().Be(user.UpdatedAt);
+            response.ApprovalLimit.Should().Be(user.ApprovalLimit);
+        }
     }
 }
