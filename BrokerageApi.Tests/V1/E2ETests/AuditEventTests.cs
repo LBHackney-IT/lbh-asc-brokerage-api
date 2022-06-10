@@ -43,7 +43,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBrokerEmail = "a.broker@hackney.gov.uk",
+                AssignedBrokerEmail = ApiUser.Email,
                 Status = ReferralStatus.Approved
             };
 
