@@ -35,6 +35,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
         [SetUp]
         public void Setup()
         {
+            AssertionOptions.EquivalencySteps.Insert<InstantComparer>();
             _fixture = FixtureHelpers.Fixture;
         }
 
@@ -115,6 +116,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
         public async Task CanGetCurrentReferrals()
         {
             // Arrange
+            var brokerUser = _fixture.BuildUser().Create();
             var comparer = new ReferralResponseComparer();
 
             var unassignedReferral = new Referral()
@@ -150,7 +152,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBroker = "a.broker@hackney.gov.uk",
+                AssignedBrokerEmail = brokerUser.Email,
                 Status = ReferralStatus.Assigned
             };
 
@@ -187,7 +189,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBroker = "a.broker@hackney.gov.uk",
+                AssignedBrokerEmail = brokerUser.Email,
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant
             };
@@ -201,7 +203,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBroker = "a.broker@hackney.gov.uk",
+                AssignedBrokerEmail = brokerUser.Email,
                 Status = ReferralStatus.AwaitingApproval
             };
 
@@ -214,7 +216,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBroker = "a.broker@hackney.gov.uk",
+                AssignedBrokerEmail = brokerUser.Email,
                 Status = ReferralStatus.Approved
             };
 
@@ -226,6 +228,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Referrals.AddAsync(inProgressReferral);
             await Context.Referrals.AddAsync(awaitingApprovalReferral);
             await Context.Referrals.AddAsync(approvedReferral);
+            await Context.Users.AddAsync(brokerUser);
             await Context.SaveChangesAsync();
 
             // Act
@@ -293,6 +296,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
         {
             // Arrange
             var comparer = new ReferralResponseComparer();
+            var otherUser = _fixture.BuildUser().Create();
 
             var unassignedReferral = new Referral()
             {
@@ -327,7 +331,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBroker = "api.user@hackney.gov.uk",
+                AssignedBrokerEmail = ApiUser.Email,
                 Status = ReferralStatus.Assigned
             };
 
@@ -340,7 +344,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBroker = "other.user@hackney.gov.uk",
+                AssignedBrokerEmail = otherUser.Email,
                 Status = ReferralStatus.Assigned
             };
 
@@ -376,7 +380,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBroker = "api.user@hackney.gov.uk",
+                AssignedBrokerEmail = ApiUser.Email,
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant
             };
@@ -390,7 +394,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBroker = "api.user@hackney.gov.uk",
+                AssignedBrokerEmail = ApiUser.Email,
                 Status = ReferralStatus.AwaitingApproval
             };
 
@@ -403,7 +407,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBroker = "api.user@hackney.gov.uk",
+                AssignedBrokerEmail = ApiUser.Email,
                 Status = ReferralStatus.Approved
             };
 
@@ -416,6 +420,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Referrals.AddAsync(inProgressReferral);
             await Context.Referrals.AddAsync(awaitingApprovalReferral);
             await Context.Referrals.AddAsync(approvedReferral);
+            await Context.Users.AddAsync(otherUser);
             await Context.SaveChangesAsync();
 
             Context.ChangeTracker.Clear();
@@ -451,7 +456,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBroker = "api.user@hackney.gov.uk",
+                AssignedBrokerEmail = "api.user@hackney.gov.uk",
                 Status = ReferralStatus.Assigned
             };
 
@@ -464,7 +469,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBroker = "api.user@hackney.gov.uk",
+                AssignedBrokerEmail = "api.user@hackney.gov.uk",
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant
             };
@@ -488,7 +493,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
         public async Task CanGetReferralById()
         {
             // Arrange
-            var comparer = new ReferralResponseComparer();
+            var user = _fixture.BuildUser().Create();
 
             var referral = new Referral()
             {
@@ -499,10 +504,12 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                Status = ReferralStatus.Unassigned
+                Status = ReferralStatus.Unassigned,
+                AssignedBrokerEmail = user.Email
             };
 
             await Context.Referrals.AddAsync(referral);
+            await Context.Users.AddAsync(user);
             await Context.SaveChangesAsync();
 
             Context.ChangeTracker.Clear();
@@ -511,8 +518,9 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var (code, response) = await Get<ReferralResponse>($"/api/v1/referrals/{referral.Id}");
 
             // Assert
-            Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
-            Assert.That(response, Is.EqualTo(referral.ToResponse()).Using(comparer));
+            code.Should().Be(HttpStatusCode.OK);
+            response.Should().BeEquivalentTo(referral.ToResponse());
+            response.AssignedBroker.Should().BeEquivalentTo(user.ToResponse());
         }
 
         [Test, Property("AsUser", "BrokerageAssistant")]
@@ -557,15 +565,28 @@ namespace BrokerageApi.Tests.V1.E2ETests
             // Assert
             Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(response.Status, Is.EqualTo(ReferralStatus.Assigned));
-            Assert.That(response.AssignedBroker, Is.EqualTo("a.broker@hackney.gov.uk"));
+            Assert.That(response.AssignedBroker.Email, Is.EqualTo("a.broker@hackney.gov.uk"));
         }
 
         [Test, Property("AsUser", "BrokerageAssistant")]
         public async Task CanReassignReferral()
         {
+            var broker = _fixture.BuildUser()
+                .With(u => u.Roles, new List<UserRole>
+                {
+                    UserRole.Broker
+                })
+                .Create();
+            var anotherBroker = _fixture.BuildUser()
+                .With(u => u.Roles, new List<UserRole>
+                {
+                    UserRole.Broker
+                })
+                .Create();
+
             var request = new AssignBrokerRequest()
             {
-                Broker = "a.broker@hackney.gov.uk"
+                Broker = broker.Email
             };
 
             var referral = new Referral()
@@ -579,21 +600,12 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 DirectPayments = "No",
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant,
-                AssignedBroker = "other.broker@hackney.gov.uk"
-            };
-
-            var broker = new User()
-            {
-                Name = "A Broker",
-                Email = "a.broker@hackney.gov.uk",
-                IsActive = true,
-                Roles = new List<UserRole>() {
-                    UserRole.Broker
-                }
+                AssignedBrokerEmail = anotherBroker.Email
             };
 
             await Context.Referrals.AddAsync(referral);
             await Context.Users.AddAsync(broker);
+            await Context.Users.AddAsync(anotherBroker);
             await Context.SaveChangesAsync();
 
             Context.ChangeTracker.Clear();
@@ -604,7 +616,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             // Assert
             Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(response.Status, Is.EqualTo(ReferralStatus.InProgress));
-            Assert.That(response.AssignedBroker, Is.EqualTo("a.broker@hackney.gov.uk"));
+            Assert.That(response.AssignedBroker.Email, Is.EqualTo(broker.Email));
         }
 
         [Test, Property("AsUser", "BrokerageAssistant")]

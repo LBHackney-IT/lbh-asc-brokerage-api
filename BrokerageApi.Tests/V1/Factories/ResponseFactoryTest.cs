@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AutoFixture;
+using BrokerageApi.Tests.V1.E2ETests;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Infrastructure;
@@ -20,6 +21,7 @@ namespace BrokerageApi.Tests.V1.Factories
         [SetUp]
         public void Setup()
         {
+            AssertionOptions.EquivalencySteps.Insert<InstantComparer>();
             _fixture = FixtureHelpers.Fixture;
         }
 
@@ -85,8 +87,7 @@ namespace BrokerageApi.Tests.V1.Factories
             var expectedReferralElement = _fixture.BuildReferralElement(expectedReferralId, element.Id).Create();
             element.ReferralElements = new List<ReferralElement>
             {
-                expectedReferralElement,
-                _fixture.BuildReferralElement(expectedReferralId + 1, element.Id).Create()
+                expectedReferralElement, _fixture.BuildReferralElement(expectedReferralId + 1, element.Id).Create()
             };
 
             var response = element.ToResponse(expectedReferralId);
@@ -118,7 +119,74 @@ namespace BrokerageApi.Tests.V1.Factories
             response.PendingEndDate.Should().Be(expectedReferralElement.PendingEndDate);
             response.PendingCancellation.Should().Be(expectedReferralElement.PendingCancellation);
             response.PendingComment.Should().Be(expectedReferralElement.PendingComment);
+        }
 
+        [Test]
+        public void ReferralMapsCorrectly([Values] ReferralStatus status)
+        {
+            var broker = _fixture.BuildUser().Create();
+            var approver = _fixture.BuildUser().Create();
+            var referral = _fixture.BuildReferral(status)
+                .With(r => r.AssignedBroker, broker)
+                .With(r => r.AssignedApprover, approver)
+                .Create();
+
+            var response = referral.ToResponse();
+
+            response.Id.Should().Be(referral.Id);
+            response.WorkflowId.Should().Be(referral.WorkflowId);
+            response.WorkflowType.Should().Be(referral.WorkflowType);
+            response.FormName.Should().Be(referral.FormName);
+            response.SocialCareId.Should().Be(referral.SocialCareId);
+            response.ResidentName.Should().Be(referral.ResidentName);
+            response.PrimarySupportReason.Should().Be(referral.PrimarySupportReason);
+            response.DirectPayments.Should().Be(referral.DirectPayments);
+            response.UrgentSince.Should().Be(referral.UrgentSince);
+            response.Status.Should().Be(referral.Status);
+            response.Note.Should().Be(referral.Note);
+            response.StartedAt.Should().Be(referral.StartedAt);
+            response.CreatedAt.Should().Be(referral.CreatedAt);
+            response.UpdatedAt.Should().Be(referral.UpdatedAt);
+            response.AssignedBroker.Should().BeEquivalentTo(referral.AssignedBroker?.ToResponse());
+            response.AssignedApprover.Should().BeEquivalentTo(referral.AssignedApprover?.ToResponse());
+            response.AssignedTo.Should().Be(status == ReferralStatus.AwaitingApproval ? referral.AssignedApprover.Email : referral.AssignedBroker.Email);
+        }
+
+        [Test]
+        public void CarePackageMapsCorrectly([Values] ReferralStatus status)
+        {
+            var broker = _fixture.BuildUser().Create();
+            var approver = _fixture.BuildUser().Create();
+            var carePackage = _fixture.BuildCarePackage()
+                .With(c => c.Status, status)
+                .With(c => c.AssignedBroker, broker)
+                .With(c => c.AssignedApprover, approver)
+                .Create();
+
+            var response = carePackage.ToResponse();
+
+            response.Id.Should().Be(carePackage.Id);
+            response.WorkflowId.Should().Be(carePackage.WorkflowId);
+            response.WorkflowType.Should().Be(carePackage.WorkflowType);
+            response.FormName.Should().Be(carePackage.FormName);
+            response.SocialCareId.Should().Be(carePackage.SocialCareId);
+            response.ResidentName.Should().Be(carePackage.ResidentName);
+            response.PrimarySupportReason.Should().Be(carePackage.PrimarySupportReason);
+            response.UrgentSince.Should().Be(carePackage.UrgentSince);
+            response.CarePackageName.Should().Be(carePackage.CarePackageName);
+            response.Status.Should().Be(carePackage.Status);
+            response.Note.Should().Be(carePackage.Note);
+            response.StartedAt.Should().Be(carePackage.StartedAt);
+            response.CreatedAt.Should().Be(carePackage.CreatedAt);
+            response.UpdatedAt.Should().Be(carePackage.UpdatedAt);
+            response.StartDate.Should().Be(carePackage.StartDate);
+            response.WeeklyCost.Should().Be(carePackage.WeeklyCost);
+            response.WeeklyPayment.Should().Be(carePackage.WeeklyPayment);
+            response.Elements.Should().BeEquivalentTo(carePackage.ReferralElements.Select(re => re.Element.ToResponse(re.ReferralId)).ToList());
+            response.Comment.Should().Be(carePackage.Comment);
+            response.AssignedBroker.Should().BeEquivalentTo(carePackage.AssignedBroker?.ToResponse());
+            response.AssignedApprover.Should().BeEquivalentTo(carePackage.AssignedApprover?.ToResponse());
+            response.AssignedTo.Should().Be(status == ReferralStatus.AwaitingApproval ? carePackage.AssignedApprover.Email : carePackage.AssignedBroker.Email);
         }
     }
 }

@@ -29,9 +29,11 @@ namespace BrokerageApi.V1.Infrastructure
 
         public Instant? UrgentSince { get; set; }
 
-        public string AssignedBroker { get; set; }
+        public string AssignedBrokerEmail { get; set; }
+        public User AssignedBroker { get; set; }
 
-        public string AssignedApprover { get; set; }
+        public string AssignedApproverEmail { get; set; }
+        public User AssignedApprover { get; set; }
 
         public ReferralStatus Status { get; set; }
 

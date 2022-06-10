@@ -57,7 +57,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             const decimal estimatedYearlyCost = 1000;
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
-                .With(r => r.AssignedBroker, brokerEmail)
+                .With(r => r.AssignedBrokerEmail, brokerEmail)
                 .Create();
 
             var carePackage = _fixture.BuildCarePackage()
@@ -94,7 +94,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             await _classUnderTest.ExecuteAsync(referral.Id, approverEmail);
 
             referral.Status.Should().Be(ReferralStatus.AwaitingApproval);
-            referral.AssignedBroker.Should().BeEquivalentTo(approver.Email);
+            referral.AssignedBrokerEmail.Should().BeEquivalentTo(approver.Email);
             _mockDbSaver.VerifyChangesSaved();
         }
 
@@ -120,11 +120,11 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
         public async Task ThrowsUnauthorizedAccessExceptionWhenCarePackageNotAssignedToUser()
         {
             const string brokerEmail = "broker@email.com";
-            const string assignedBrokerEmail = "another.broker@email.com";
+            const string AssignedBrokerEmailEmail = "another.broker@email.com";
             const string approverEmail = "approver@email.com";
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
-                .With(r => r.AssignedBroker, assignedBrokerEmail)
+                .With(r => r.AssignedBrokerEmail, AssignedBrokerEmailEmail)
                 .Create();
 
             _mockReferralGateway
@@ -149,7 +149,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             const string approverEmail = "approver@email.com";
 
             var referral = _fixture.BuildReferral(status)
-                .With(r => r.AssignedBroker, brokerEmail)
+                .With(r => r.AssignedBrokerEmail, brokerEmail)
                 .Create();
 
             _mockReferralGateway
@@ -177,7 +177,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             const string approverEmail = "approver@email.com";
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
-                .With(r => r.AssignedBroker, brokerEmail)
+                .With(r => r.AssignedBrokerEmail, brokerEmail)
                 .Create();
 
             _mockReferralGateway
@@ -207,7 +207,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             const decimal estimatedYearlyCost = 1000;
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
-                .With(r => r.AssignedBroker, brokerEmail)
+                .With(r => r.AssignedBrokerEmail, brokerEmail)
                 .Create();
 
             var carePackage = _fixture.BuildCarePackage()
@@ -253,7 +253,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             const decimal estimatedYearlyCost = 1000;
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
-                .With(r => r.AssignedBroker, brokerEmail)
+                .With(r => r.AssignedBrokerEmail, brokerEmail)
                 .Create();
 
             var carePackage = _fixture.BuildCarePackage()

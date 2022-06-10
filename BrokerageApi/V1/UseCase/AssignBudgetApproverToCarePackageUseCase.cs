@@ -41,7 +41,7 @@ namespace BrokerageApi.V1.UseCase
             }
 
             var userEmail = _userService.Email;
-            if (referral.AssignedBroker != userEmail)
+            if (referral.AssignedBrokerEmail != userEmail)
             {
                 throw new UnauthorizedAccessException($"Referral is not assigned to {userEmail}");
             }
@@ -66,7 +66,7 @@ namespace BrokerageApi.V1.UseCase
             }
 
             referral.Status = ReferralStatus.AwaitingApproval;
-            referral.AssignedBroker = approver.Email;
+            referral.AssignedBrokerEmail = approver.Email;
 
             await _dbSaver.SaveChangesAsync();
 

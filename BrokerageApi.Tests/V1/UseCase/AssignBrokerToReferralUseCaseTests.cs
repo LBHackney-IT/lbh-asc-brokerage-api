@@ -76,7 +76,7 @@ namespace BrokerageApi.Tests.V1.UseCase
 
             // Assert
             result.Status.Should().Be(ReferralStatus.Assigned);
-            result.AssignedBroker.Should().Be(expectedBroker.Email);
+            result.AssignedBrokerEmail.Should().Be(expectedBroker.Email);
             _mockDbSaver.VerifyChangesSaved();
         }
 

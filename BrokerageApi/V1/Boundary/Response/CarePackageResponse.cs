@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using BrokerageApi.V1.Boundary.Response.Interfaces;
 using Newtonsoft.Json;
 using NodaTime;
 using BrokerageApi.V1.Infrastructure;
 
 namespace BrokerageApi.V1.Boundary.Response
 {
-    public class CarePackageResponse
+    public class CarePackageResponse : IAssigmentResponse
     {
         public int Id { get; set; }
 
@@ -32,6 +33,8 @@ namespace BrokerageApi.V1.Boundary.Response
         public UserResponse AssignedBroker { get; set; }
 
         public UserResponse AssignedApprover { get; set; }
+
+        public string AssignedTo => Status == ReferralStatus.AwaitingApproval ? AssignedApprover?.Email : AssignedBroker?.Email;
 
         public ReferralStatus Status { get; set; }
 

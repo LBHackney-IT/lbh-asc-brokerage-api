@@ -74,7 +74,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             _mockUserService
                 .SetupGet(x => x.Email)
-                .Returns(referral.AssignedBroker);
+                .Returns(referral.AssignedBrokerEmail);
 
             _mockClock
                 .SetupGet(x => x.Now)
@@ -139,7 +139,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             _mockUserService
                 .SetupGet(x => x.Email)
-                .Returns(referral.AssignedBroker);
+                .Returns(referral.AssignedBrokerEmail);
 
             // Act
             Func<Task<Element>> act = () => _classUnderTest.ExecuteAsync(referral.Id, elementId, request);
@@ -165,7 +165,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             _mockUserService
                 .SetupGet(x => x.Email)
-                .Returns(referral.AssignedBroker);
+                .Returns(referral.AssignedBrokerEmail);
 
             // Act
             Func<Task<Element>> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, request);
@@ -219,7 +219,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             _mockUserService
                 .SetupGet(x => x.Email)
-                .Returns(referral.AssignedBroker);
+                .Returns(referral.AssignedBrokerEmail);
 
             _mockElementTypeGateway
                 .Setup(x => x.GetByIdAsync(elementTypeId))
@@ -252,7 +252,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             _mockUserService
                 .SetupGet(x => x.Email)
-                .Returns(referral.AssignedBroker);
+                .Returns(referral.AssignedBrokerEmail);
 
             _mockElementTypeGateway
                 .Setup(x => x.GetByIdAsync(elementType.Id))

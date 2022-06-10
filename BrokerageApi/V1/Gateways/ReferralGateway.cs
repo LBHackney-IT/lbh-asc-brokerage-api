@@ -19,6 +19,8 @@ namespace BrokerageApi.V1.Gateways
             _currentReferrals = _context.Referrals
                 .Where(r => r.Status != ReferralStatus.Archived)
                 .Where(r => r.Status != ReferralStatus.Approved)
+                .Include(r => r.AssignedBroker)
+                .Include(r => r.AssignedApprover)
                 .OrderBy(r => r.Id);
         }
 
@@ -50,13 +52,13 @@ namespace BrokerageApi.V1.Gateways
             if (status == null)
             {
                 return await _currentReferrals
-                    .Where(r => r.AssignedBroker == email)
+                    .Where(r => r.AssignedBrokerEmail == email)
                     .ToListAsync();
             }
             else
             {
                 return await _currentReferrals
-                    .Where(r => r.AssignedBroker == email)
+                    .Where(r => r.AssignedBrokerEmail == email)
                     .Where(r => r.Status == status)
                     .ToListAsync();
             }
@@ -65,6 +67,8 @@ namespace BrokerageApi.V1.Gateways
         public async Task<Referral> GetByWorkflowIdAsync(string workflowId)
         {
             return await _context.Referrals
+                .Include(r => r.AssignedBroker)
+                .Include(r => r.AssignedApprover)
                 .Where(r => r.WorkflowId == workflowId)
                 .SingleOrDefaultAsync();
         }
@@ -73,6 +77,8 @@ namespace BrokerageApi.V1.Gateways
         {
             return await _context.Referrals
                 .Where(r => r.Id == id)
+                .Include(r => r.AssignedBroker)
+                .Include(r => r.AssignedApprover)
                 .SingleOrDefaultAsync();
         }
 
@@ -80,6 +86,8 @@ namespace BrokerageApi.V1.Gateways
         {
             return await _context.Referrals
                 .Where(r => r.Id == id)
+                .Include(r => r.AssignedBroker)
+                .Include(r => r.AssignedApprover)
                 .Include(r => r.Elements)
                     .ThenInclude(e => e.ParentElement)
                 .SingleOrDefaultAsync();
