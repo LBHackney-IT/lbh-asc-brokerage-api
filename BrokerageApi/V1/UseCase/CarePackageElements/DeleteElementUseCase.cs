@@ -33,7 +33,7 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
                 throw new ArgumentNullException(nameof(referralId), $"Referral not found for: {referralId}");
             }
 
-            if (referral.AssignedBroker != _userService.Email)
+            if (referral.AssignedBrokerEmail != _userService.Email)
             {
                 throw new UnauthorizedAccessException($"Referral is not assigned to {_userService.Email}");
             }

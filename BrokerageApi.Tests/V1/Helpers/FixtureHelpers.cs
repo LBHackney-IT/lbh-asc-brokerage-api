@@ -77,6 +77,10 @@ namespace BrokerageApi.Tests.V1.Helpers
             return fixture.Build<Referral>()
                 .Without(r => r.Elements)
                 .Without(r => r.ReferralElements)
+                .Without(r => r.AssignedBroker)
+                .Without(r => r.AssignedApprover)
+                .Without(r => r.AssignedBrokerEmail)
+                .Without(r => r.AssignedApproverEmail)
                 .With(r => r.WorkflowType, WorkflowType.Assessment)
                 .With(r => r.Status, status);
         }
@@ -124,7 +128,8 @@ namespace BrokerageApi.Tests.V1.Helpers
         {
             return fixture.Build<User>()
                 .Without(u => u.ApproverCarePackages)
-                .Without(u => u.BrokerCarePackages);
+                .Without(u => u.BrokerCarePackages)
+                .With(u => u.IsActive, true);
         }
     }
 }

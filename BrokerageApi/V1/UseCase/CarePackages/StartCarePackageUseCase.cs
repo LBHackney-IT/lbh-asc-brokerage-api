@@ -41,7 +41,7 @@ namespace BrokerageApi.V1.UseCase.CarePackages
                 throw new InvalidOperationException($"Referral is not in a valid state to start editing");
             }
 
-            if (referral.AssignedBroker != _userService.Email)
+            if (referral.AssignedBrokerEmail != _userService.Email)
             {
                 throw new UnauthorizedAccessException($"Referral is not assigned to {_userService.Email}");
             }

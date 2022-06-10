@@ -47,7 +47,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
 
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.Assigned)
-                .With(x => x.AssignedBroker, "a.broker@hackney.gov.uk")
+                .With(x => x.AssignedBrokerEmail, "a.broker@hackney.gov.uk")
                 .Without(x => x.StartedAt)
                 .Create();
 
@@ -126,7 +126,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             // Arrange
             var referral = _fixture.Build<Referral>()
                 .With(x => x.Status, ReferralStatus.Assigned)
-                .With(x => x.AssignedBroker, "other.broker@hackney.gov.uk")
+                .With(x => x.AssignedBrokerEmail, "other.broker@hackney.gov.uk")
                 .Create();
 
             _mockReferralGateway

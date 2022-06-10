@@ -95,8 +95,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
-                AssignedBroker = "some.email@hackney.gov.uk",
-                AssignedApprover = "some.otheremail@hackney.gov.uk",
+                AssignedBrokerEmail = "some.email@hackney.gov.uk",
+                AssignedApproverEmail = "some.otheremail@hackney.gov.uk",
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant,
                 CreatedAt = PreviousInstant,
@@ -142,7 +142,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 }
             };
 
-            var assignedBroker = new User()
+            var AssignedBrokerEmail = new User()
             {
                 Name = "UserName",
                 Email = "some.email@hackney.gov.uk",
@@ -173,7 +173,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.ProviderServices.AddAsync(anotherProviderService);
 
             await Context.Referrals.AddAsync(referral);
-            await Context.Users.AddAsync(assignedBroker);
+            await Context.Users.AddAsync(AssignedBrokerEmail);
             await Context.Users.AddAsync(assignedApprover);
             await Context.SaveChangesAsync();
 

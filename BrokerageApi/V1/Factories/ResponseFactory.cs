@@ -122,11 +122,12 @@ namespace BrokerageApi.V1.Factories
                 DirectPayments = referral.DirectPayments,
                 UrgentSince = referral.UrgentSince,
                 Status = referral.Status,
-                AssignedBroker = referral.AssignedBroker,
                 Note = referral.Note,
                 StartedAt = referral.StartedAt,
                 CreatedAt = referral.CreatedAt,
-                UpdatedAt = referral.UpdatedAt
+                UpdatedAt = referral.UpdatedAt,
+                AssignedBroker = referral.AssignedBroker?.ToResponse(),
+                AssignedApprover = referral.AssignedApprover?.ToResponse()
             };
         }
 
