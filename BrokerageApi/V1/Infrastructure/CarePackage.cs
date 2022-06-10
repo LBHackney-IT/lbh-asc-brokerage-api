@@ -55,6 +55,8 @@ namespace BrokerageApi.V1.Infrastructure
 
         public decimal? WeeklyPayment { get; set; }
 
+        public decimal? OneOffPayment { get; set; }
+
         public List<ReferralElement> ReferralElements { get; set; }
 
         public List<Element> Elements { get; set; }

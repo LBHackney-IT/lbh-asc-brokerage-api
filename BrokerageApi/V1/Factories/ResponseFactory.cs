@@ -32,6 +32,7 @@ namespace BrokerageApi.V1.Factories
                 StartDate = carePackage.StartDate,
                 WeeklyCost = carePackage.WeeklyCost,
                 WeeklyPayment = carePackage.WeeklyPayment,
+                OneOffPayment = carePackage.OneOffPayment,
                 Elements = carePackage.ReferralElements.Select(re => re.Element.ToResponse(re.ReferralId)).ToList(),
                 Comment = carePackage.Comment
             };
