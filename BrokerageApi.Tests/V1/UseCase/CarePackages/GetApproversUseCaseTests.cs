@@ -42,6 +42,8 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
                 .With(c => c.Status, ReferralStatus.InProgress)
                 .Create();
             var approvers = _fixture.CreateMany<User>();
+            var expectedYearlyCost = (carePackage.WeeklyPayment * 52) +
+                                     (carePackage.Elements.Where(e => e.ElementType.CostType == ElementCostType.OneOff).Sum(e => e.Cost));
 
             _mockCarePackageGateway
                 .Setup(x => x.GetByIdAsync(carePackage.Id))
@@ -55,7 +57,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
 
             // Assert
             resultApprovers.Should().BeEquivalentTo(approvers);
-            estimatedYearlyCost.Should().Be(carePackage.EstimatedYearlyCost);
+            estimatedYearlyCost.Should().Be(expectedYearlyCost);
         }
 
         [Test]
@@ -96,6 +98,55 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
                 await act.Should().ThrowAsync<InvalidOperationException>()
                     .WithMessage("Care package not in correct state");
             }
+        }
+
+        [Test]
+        public async Task YearlyCostCalculatedCorrectly()
+        {
+            // Arrange
+            var carePackage = _fixture.BuildCarePackage()
+                .With(c => c.Status, ReferralStatus.InProgress)
+                .Create();
+
+            var dailyElementType = _fixture.BuildElementType(1)
+                .With(et => et.CostType, ElementCostType.Daily)
+                .Create();
+
+            var oneOffElementType = _fixture.BuildElementType(1)
+                .With(et => et.CostType, ElementCostType.OneOff)
+                .Create();
+
+            var dailyElements = _fixture.BuildElement(1, dailyElementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .With(e => e.ElementType, dailyElementType)
+                .CreateMany();
+
+            var oneOffElements = _fixture.BuildElement(1, oneOffElementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .With(e => e.ElementType, oneOffElementType)
+                .CreateMany();
+
+            carePackage.Elements = new List<Element>();
+            carePackage.Elements.AddRange(dailyElements);
+            carePackage.Elements.AddRange(oneOffElements);
+
+            var approvers = _fixture.CreateMany<User>();
+            var expectedYearlyCost = carePackage.WeeklyPayment * 52 +
+                                     oneOffElements.Sum(e => e.Cost);
+
+            _mockCarePackageGateway
+                .Setup(x => x.GetByIdAsync(carePackage.Id))
+                .ReturnsAsync(carePackage);
+            _mockUserGateway
+                .Setup(x => x.GetBudgetApproversAsync(carePackage.EstimatedYearlyCost))
+                .ReturnsAsync(approvers);
+
+            // Act
+            var (resultApprovers, estimatedYearlyCost) = await _classUnderTest.ExecuteAsync(carePackage.Id);
+
+            // Assert
+            resultApprovers.Should().BeEquivalentTo(approvers);
+            estimatedYearlyCost.Should().Be(expectedYearlyCost);
         }
     }
 }
