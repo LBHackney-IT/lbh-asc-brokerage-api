@@ -499,7 +499,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                Status = ReferralStatus.Unassigned
+                Status = ReferralStatus.Archived,
+                Comment = "A comment"
             };
 
             await Context.Referrals.AddAsync(referral);
@@ -513,6 +514,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
             // Assert
             Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(response, Is.EqualTo(referral.ToResponse()).Using(comparer));
+            Assert.That(response.Comment.IsSameOrEqualTo(referral.Comment));
+
         }
 
         [Test, Property("AsUser", "BrokerageAssistant")]
