@@ -5,6 +5,7 @@ using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Controllers;
 using BrokerageApi.V1.Factories;
+using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using BrokerageApi.V1.UseCase.Interfaces;
 using FluentAssertions;
@@ -37,9 +38,24 @@ namespace BrokerageApi.Tests.V1.Controllers
             const int pageNumber = 1;
             const int pageSize = 10;
 
+            var referral = new Referral()
+            {
+                Id = 1234,
+                WorkflowId = "174079ae-75b4-43b4-9d29-363e88e7dd40",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBroker = "a.broker@hackney.gov.uk",
+                Status = ReferralStatus.Approved
+            };
+
             var auditEvents = _fixture.Build<AuditEvent>()
                 .With(ae => ae.SocialCareId, socialCareId)
-                .With(ae => ae.Metadata, "{ \"test\": \"test\" }")
+                .With(ae => ae.Metadata, "{ \"referralId\": 1234 }")
+                .With(ae => ae.Referral, referral)
                 .CreateMany(pageSize)
                 .AsQueryable()
                 .ToPagedList(pageNumber, pageSize);

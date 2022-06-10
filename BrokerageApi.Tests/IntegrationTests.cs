@@ -14,8 +14,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 using NUnit.Framework;
 using NodaTime;
+using NodaTime.Serialization.JsonNet;
 using NodaTime.Testing;
 
 namespace BrokerageApi.Tests
@@ -46,6 +49,8 @@ namespace BrokerageApi.Tests
         [SetUp]
         public void BaseSetup()
         {
+            ConfigureJsonSerializer();
+
             var currentTime = SystemClock.Instance.GetCurrentInstant();
             var fakeClock = new FakeClock(currentTime);
             _clock = new ClockService(fakeClock);
@@ -227,6 +232,21 @@ namespace BrokerageApi.Tests
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
+        }
+
+        private static void ConfigureJsonSerializer()
+        {
+            JsonConvert.DefaultSettings = () =>
+            {
+                var settings = new JsonSerializerSettings();
+                settings.Formatting = Formatting.Indented;
+                settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+
+                settings.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
+                settings.Converters.Add(new StringEnumConverter());
+
+                return settings;
+            };
         }
     }
 }

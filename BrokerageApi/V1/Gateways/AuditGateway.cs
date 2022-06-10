@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
@@ -34,6 +35,7 @@ namespace BrokerageApi.V1.Gateways
         public IPagedList<AuditEvent> GetServiceUserAuditEvents(string socialCareId, int pageNumber, int pageCount)
         {
             var auditEvents = _context.AuditEvents
+                .Include(ae => ae.Referral)
                 .Where(ae => ae.SocialCareId == socialCareId)
                 .OrderBy(e => e.CreatedAt)
                 .ToPagedList(pageNumber, pageCount);
