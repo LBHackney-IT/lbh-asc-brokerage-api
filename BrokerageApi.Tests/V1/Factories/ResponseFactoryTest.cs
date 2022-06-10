@@ -187,6 +187,7 @@ namespace BrokerageApi.Tests.V1.Factories
             response.StartDate.Should().Be(carePackage.StartDate);
             response.WeeklyCost.Should().Be(carePackage.WeeklyCost);
             response.WeeklyPayment.Should().Be(carePackage.WeeklyPayment);
+            response.OneOffPayment.Should().Be(carePackage.OneOffPayment);
             response.Elements.Should().BeEquivalentTo(carePackage.ReferralElements.Select(re => re.Element.ToResponse(re.ReferralId)).ToList());
             response.Comment.Should().Be(carePackage.Comment);
             response.AssignedBroker.Should().BeEquivalentTo(carePackage.AssignedBroker?.ToResponse());
