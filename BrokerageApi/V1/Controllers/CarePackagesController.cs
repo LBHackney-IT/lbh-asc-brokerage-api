@@ -26,13 +26,15 @@ namespace BrokerageApi.V1.Controllers
         private readonly ICancelCarePackageUseCase _cancelCarePackageUseCase;
         private readonly ISuspendCarePackageUseCase _suspendCarePackageUseCase;
         private readonly IGetBudgetApproversUseCase _getBudgetApproversUseCase;
+        private readonly IAssignBudgetApproverToCarePackageUseCase _assignBudgetApproverToCarePackageUseCase;
 
         public CarePackagesController(IGetCarePackageByIdUseCase getCarePackageByIdUseCase,
             IStartCarePackageUseCase startCarePackageUseCase,
             IEndCarePackageUseCase endCarePackageUseCase,
             ICancelCarePackageUseCase cancelCarePackageUseCase,
             ISuspendCarePackageUseCase suspendCarePackageUseCase,
-            IGetBudgetApproversUseCase getBudgetApproversUseCase)
+            IGetBudgetApproversUseCase getBudgetApproversUseCase,
+            IAssignBudgetApproverToCarePackageUseCase assignBudgetApproverToCarePackageUseCase)
         {
             _getCarePackageByIdUseCase = getCarePackageByIdUseCase;
             _startCarePackageUseCase = startCarePackageUseCase;
@@ -40,6 +42,7 @@ namespace BrokerageApi.V1.Controllers
             _cancelCarePackageUseCase = cancelCarePackageUseCase;
             _suspendCarePackageUseCase = suspendCarePackageUseCase;
             _getBudgetApproversUseCase = getBudgetApproversUseCase;
+            _assignBudgetApproverToCarePackageUseCase = assignBudgetApproverToCarePackageUseCase;
         }
 
         [Authorize]
@@ -261,6 +264,46 @@ namespace BrokerageApi.V1.Controllers
                     e.Message,
                     $"api/v1/referrals/{referralId}/care-package/budget-approvers",
                     StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
+                );
+            }
+        }
+
+        [Authorize(Roles = "Broker")]
+        [HttpPost]
+        [Route("assign-budget-approver")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> AssignBudgetApprover([FromRoute] int referralId, AssignApproverRequest request)
+        {
+            try
+            {
+                await _assignBudgetApproverToCarePackageUseCase.ExecuteAsync(referralId, request.Approver);
+                return Ok();
+            }
+            catch (ArgumentNullException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/assign-budget-approver",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (InvalidOperationException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/assign-budget-approver",
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
+                );
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/assign-budget-approver",
+                    StatusCodes.Status403Forbidden, "Forbidden"
                 );
             }
         }

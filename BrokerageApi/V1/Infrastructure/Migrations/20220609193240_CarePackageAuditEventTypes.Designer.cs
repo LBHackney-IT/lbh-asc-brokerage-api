@@ -5,6 +5,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -13,9 +14,10 @@ using NpgsqlTypes;
 namespace V1.Infrastructure.Migrations
 {
     [DbContext(typeof(BrokerageContext))]
-    partial class BrokerageContextModelSnapshot : ModelSnapshot
+    [Migration("20220609193240_CarePackageAuditEventTypes")]
+    partial class CarePackageAuditEventTypes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -54,14 +56,8 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnName("message");
 
                     b.Property<string>("Metadata")
-                        .HasColumnType("jsonb")
+                        .HasColumnType("text")
                         .HasColumnName("metadata");
-
-                    b.Property<int?>("ReferralId")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("integer")
-                        .HasColumnName("referral_id")
-                        .HasComputedColumnSql("(metadata->>'referralId')::integer", true);
 
                     b.Property<string>("SocialCareId")
                         .IsRequired()
@@ -74,9 +70,6 @@ namespace V1.Infrastructure.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_audit_events");
-
-                    b.HasIndex("ReferralId")
-                        .HasDatabaseName("ix_audit_events_referral_id");
 
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_audit_events_user_id");
@@ -683,19 +676,12 @@ namespace V1.Infrastructure.Migrations
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.AuditEvents.AuditEvent", b =>
                 {
-                    b.HasOne("BrokerageApi.V1.Infrastructure.Referral", "Referral")
-                        .WithMany()
-                        .HasForeignKey("ReferralId")
-                        .HasConstraintName("fk_audit_events_referrals_referral_id");
-
                     b.HasOne("BrokerageApi.V1.Infrastructure.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .HasConstraintName("fk_audit_events_users_user_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Referral");
 
                     b.Navigation("User");
                 });

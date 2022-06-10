@@ -41,8 +41,9 @@ namespace BrokerageApi.Tests.V1.UseCase
                 _mockUserService.Object,
                 _mockDbSaver.Object,
                 _mockUserGateway.Object
-                );
+            );
         }
+
 
         [Test]
         public async Task AssignsBrokerToReferral()

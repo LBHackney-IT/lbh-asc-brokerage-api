@@ -13,6 +13,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using BrokerageApi.V1.UseCase.Interfaces;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackages;
 
 namespace BrokerageApi.Tests.V1.Controllers
@@ -30,6 +31,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Mock<ISuspendCarePackageUseCase> _mockSuspendCarePackageUseCase;
         private Mock<ICancelCarePackageUseCase> _mockCancelCarePackageUseCase;
         private Mock<IGetBudgetApproversUseCase> _mockGetBudgetApproversUseCase;
+        private Mock<IAssignBudgetApproverToCarePackageUseCase> _mockAssignBudgetApproverUseCase;
 
         [SetUp]
         public void SetUp()
@@ -42,6 +44,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockCancelCarePackageUseCase = new Mock<ICancelCarePackageUseCase>();
             _mockSuspendCarePackageUseCase = new Mock<ISuspendCarePackageUseCase>();
             _mockGetBudgetApproversUseCase = new Mock<IGetBudgetApproversUseCase>();
+            _mockAssignBudgetApproverUseCase = new Mock<IAssignBudgetApproverToCarePackageUseCase>();
 
             _classUnderTest = new CarePackagesController(
                 _mockGetCarePackageByIdUseCase.Object,
@@ -49,7 +52,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 _mockEndCarePackageUseCase.Object,
                 _mockCancelCarePackageUseCase.Object,
                 _mockSuspendCarePackageUseCase.Object,
-                _mockGetBudgetApproversUseCase.Object
+                _mockGetBudgetApproversUseCase.Object,
+                _mockAssignBudgetApproverUseCase.Object
             );
 
             // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
@@ -319,6 +323,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             }
         };
 
+
         [TestCaseSource(nameof(_getBudgetApproversErrorList)), Property("AsUser", "Broker")]
         public async Task GetBudgetApproversMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
         {
@@ -329,6 +334,51 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             var objectResult = await _classUnderTest.GetBudgetApprovers(referralId);
             var statusCode = GetStatusCode(objectResult);
+
+            statusCode.Should().Be((int) expectedStatusCode);
+            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanAssignBudgetApprover()
+        {
+            const int referralId = 1234;
+            var request = _fixture.Create<AssignApproverRequest>();
+
+            var response = await _classUnderTest.AssignBudgetApprover(referralId, request);
+            var statusCode = GetStatusCode(response);
+
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            _mockAssignBudgetApproverUseCase.Verify(x => x.ExecuteAsync(referralId, request.Approver));
+        }
+
+        private static readonly object[] _assignApproverErrorList =
+        {
+            new object[]
+            {
+                new ArgumentNullException(null, "message"), HttpStatusCode.NotFound
+            },
+            new object[]
+            {
+                new UnauthorizedAccessException("message"), HttpStatusCode.Forbidden
+            },
+            new object[]
+            {
+                new InvalidOperationException("message"), HttpStatusCode.UnprocessableEntity
+            }
+        };
+
+        [TestCaseSource(nameof(_assignApproverErrorList)), Property("AsUser", "Broker")]
+        public async Task AssignBudgetApproverMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            const int referralId = 1234;
+            var request = _fixture.Create<AssignApproverRequest>();
+            _mockAssignBudgetApproverUseCase
+                .Setup(x => x.ExecuteAsync(referralId, request.Approver))
+                .ThrowsAsync(exception);
+
+            var response = await _classUnderTest.AssignBudgetApprover(referralId, request);
+            var statusCode = GetStatusCode(response);
 
             statusCode.Should().Be((int) expectedStatusCode);
             _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);

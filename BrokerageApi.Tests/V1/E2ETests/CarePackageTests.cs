@@ -551,5 +551,38 @@ namespace BrokerageApi.Tests.V1.E2ETests
             response.EstimatedYearlyCost.Should().Be(expectedYearlyCost);
             response.Approvers.Should().BeEquivalentTo(expectedApprovers.Select(u => u.ToResponse()));
         }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanAssignBudgetApprover()
+        {
+            // Arrange
+            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
+                .With(r => r.Status, ReferralStatus.InProgress)
+                .With(r => r.AssignedBroker, ApiUser.Email)
+                .Create();
+
+            var expectedApprover = _fixture.BuildUser()
+                .With(u => u.IsActive, true)
+                .With(u => u.Roles, new List<UserRole>
+                {
+                    UserRole.Approver
+                })
+                .With(u => u.ApprovalLimit, 100)
+                .Create();
+
+            await Context.Users.AddAsync(expectedApprover);
+            await Context.Referrals.AddAsync(referral);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            var request = _fixture.Build<AssignApproverRequest>()
+                .With(r => r.Approver, expectedApprover.Email)
+                .Create();
+
+            var code = await Post($"/api/v1/referrals/{referral.Id}/care-package/assign-budget-approver", request);
+
+            code.Should().Be(HttpStatusCode.OK);
+        }
     }
 }
