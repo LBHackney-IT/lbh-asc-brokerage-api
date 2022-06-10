@@ -18,6 +18,8 @@ namespace BrokerageApi.V1.Infrastructure
 
         public bool IsActive { get; set; }
 
+        public decimal? ApprovalLimit { get; set; }
+
         public List<CarePackage> BrokerCarePackages { get; set; }
 
         public List<CarePackage> ApproverCarePackages { get; set; }

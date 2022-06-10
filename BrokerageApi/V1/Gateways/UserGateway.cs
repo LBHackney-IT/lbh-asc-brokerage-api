@@ -19,21 +19,15 @@ namespace BrokerageApi.V1.Gateways
 
         public async Task<IEnumerable<User>> GetAllAsync(UserRole? role = null)
         {
-            if (role == null)
-            {
-                return await _context.Users
-                    .Where(u => u.IsActive == true)
-                    .OrderBy(u => u.Name)
-                    .ToListAsync();
-            }
-            else
-            {
-                return await _context.Users
-                    .Where(u => u.IsActive == true)
-                    .Where(u => u.Roles.Contains((UserRole) role))
-                    .OrderBy(u => u.Name)
-                    .ToListAsync();
-            }
+            return await GetAllQueryable(role)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<User>> GetBudgetApproversAsync(decimal limit)
+        {
+            return await GetAllQueryable(UserRole.Approver)
+                .Where(u => u.ApprovalLimit >= limit)
+                .ToListAsync();
         }
 
         public async Task<User> GetByEmailAsync(string email)
@@ -62,6 +56,19 @@ namespace BrokerageApi.V1.Gateways
             await _context.SaveChangesAsync();
 
             return user;
+        }
+        private IQueryable<User> GetAllQueryable(UserRole? role)
+        {
+
+            var result = _context.Users.Where(u => u.IsActive == true);
+
+            if (role != null)
+            {
+                result = result.Where(u => u.Roles.Contains((UserRole) role));
+            }
+
+            result = result.OrderBy(u => u.Name);
+            return result;
         }
     }
 }
