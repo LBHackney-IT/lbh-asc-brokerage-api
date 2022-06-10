@@ -154,7 +154,8 @@ namespace BrokerageApi.V1.Factories
                 Roles = user.Roles,
                 IsActive = user.IsActive,
                 CreatedAt = user.CreatedAt,
-                UpdatedAt = user.UpdatedAt
+                UpdatedAt = user.UpdatedAt,
+                ApprovalLimit = user.ApprovalLimit
             };
         }
 
