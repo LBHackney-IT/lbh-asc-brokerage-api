@@ -513,7 +513,9 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 .With(r => r.Elements, dailyElements.Concat(oneOffElements).ToList)
                 .Create();
 
-            var expectedYearlyCost = referral.Elements.Sum(e => e.Cost) * 52;
+            var expectedYearlyCost =
+                dailyElements.Sum(e => e.Cost) * 52 +
+                oneOffElements.Sum(e => e.Cost);
 
             var expectedApprovers = _fixture.BuildUser()
                 .With(u => u.IsActive, true)
