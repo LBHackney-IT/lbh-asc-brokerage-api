@@ -2,6 +2,8 @@ using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoFixture.Dsl;
 using BrokerageApi.V1.Infrastructure;
+using BrokerageApi.V1.Infrastructure.AuditEvents;
+using FluentAssertions;
 using MicroElements.AutoFixture.NodaTime;
 
 namespace BrokerageApi.Tests.V1.Helpers
@@ -24,10 +26,14 @@ namespace BrokerageApi.Tests.V1.Helpers
         {
             return fixture.Create<int>() % (max - min + 1) + min;
         }
-        public static IPostprocessComposer<CarePackage> BuildCarePackage(this IFixture fixture, string socialCareId = null)
+        public static IPostprocessComposer<CarePackage> BuildCarePackage(this IFixture fixture, string socialCareId = null, bool withElements = false)
         {
-            var builder = fixture.Build<CarePackage>()
-                .Without(cp => cp.Elements);
+            var builder = fixture.Build<CarePackage>().As<IPostprocessComposer<CarePackage>>();
+
+            if (!withElements)
+            {
+                builder = builder.Without(cp => cp.Elements);
+            }
 
             if (socialCareId != null)
             {
@@ -72,17 +78,23 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .With(et => et.ServiceId, serviceId)
                 .With(et => et.IsArchived, false);
         }
-        public static IPostprocessComposer<Referral> BuildReferral(this IFixture fixture, ReferralStatus status)
+        public static IPostprocessComposer<Referral> BuildReferral(this IFixture fixture, ReferralStatus? status = null)
         {
-            return fixture.Build<Referral>()
+            var builder = fixture.Build<Referral>()
                 .Without(r => r.Elements)
                 .Without(r => r.ReferralElements)
                 .Without(r => r.AssignedBroker)
                 .Without(r => r.AssignedApprover)
                 .Without(r => r.AssignedBrokerEmail)
                 .Without(r => r.AssignedApproverEmail)
-                .With(r => r.WorkflowType, WorkflowType.Assessment)
-                .With(r => r.Status, status);
+                .With(r => r.WorkflowType, WorkflowType.Assessment);
+
+            if (status != null)
+            {
+                builder = builder.With(r => r.Status, status);
+            }
+
+            return builder;
         }
         public static IPostprocessComposer<Element> BuildElement(this IFixture fixture, int providerId, int elementTypeId)
         {
@@ -130,6 +142,13 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(u => u.ApproverCarePackages)
                 .Without(u => u.BrokerCarePackages)
                 .With(u => u.IsActive, true);
+        }
+
+        public static IPostprocessComposer<AuditEvent> BuildAuditEvent(this IFixture fixture)
+        {
+            return fixture.Build<AuditEvent>()
+                .Without(ae => ae.Referral)
+                .Without(ae => ae.User);
         }
     }
 }

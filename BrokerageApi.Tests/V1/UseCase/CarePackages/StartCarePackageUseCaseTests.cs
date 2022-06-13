@@ -45,8 +45,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             // Arrange
             var currentInstant = SystemClock.Instance.GetCurrentInstant();
 
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Assigned)
+            var referral = _fixture.BuildReferral(ReferralStatus.Assigned)
                 .With(x => x.AssignedBrokerEmail, "a.broker@hackney.gov.uk")
                 .Without(x => x.StartedAt)
                 .Create();
@@ -100,8 +99,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
         public void ThrowsInvalidOperationExceptionWhenReferralIsUnassigned()
         {
             // Arrange
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Unassigned)
+            var referral = _fixture.BuildReferral(ReferralStatus.Unassigned)
                 .Create();
 
             _mockReferralGateway
@@ -124,8 +122,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
         public void ThrowsUnauthorizedAccessExceptionWhenReferralIsAssignedToSomeoneElse()
         {
             // Arrange
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Assigned)
+            var referral = _fixture.BuildReferral(ReferralStatus.Assigned)
                 .With(x => x.AssignedBrokerEmail, "other.broker@hackney.gov.uk")
                 .Create();
 

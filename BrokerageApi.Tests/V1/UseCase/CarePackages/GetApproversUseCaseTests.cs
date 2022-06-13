@@ -38,10 +38,10 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
         public async Task GetApprovers()
         {
             // Arrange
-            var carePackage = _fixture.Build<CarePackage>()
+            var carePackage = _fixture.BuildCarePackage(null, true)
                 .With(c => c.Status, ReferralStatus.InProgress)
                 .Create();
-            var approvers = _fixture.CreateMany<User>();
+            var approvers = _fixture.BuildUser().CreateMany();
             var expectedYearlyCost = (carePackage.WeeklyPayment * 52) +
                                      (carePackage.Elements.Where(e => e.ElementType.CostType == ElementCostType.OneOff).Sum(e => e.Cost));
 
@@ -81,7 +81,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
         public async Task ThrowsInvalidOperationExceptionWhenCarePackageIsNotInProgress([Values] ReferralStatus status)
         {
             // Arrange
-            var carePackage = _fixture.Build<CarePackage>()
+            var carePackage = _fixture.BuildCarePackage()
                 .With(c => c.Status, status)
                 .Create();
 
@@ -130,7 +130,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             carePackage.Elements.AddRange(dailyElements);
             carePackage.Elements.AddRange(oneOffElements);
 
-            var approvers = _fixture.CreateMany<User>();
+            var approvers = _fixture.BuildUser().CreateMany();
             var expectedYearlyCost = carePackage.WeeklyPayment * 52 +
                                      oneOffElements.Sum(e => e.Cost);
 

@@ -34,8 +34,8 @@ namespace BrokerageApi.Tests.V1.UseCase
         public async Task FindProvidersByService()
         {
             // Arrange
-            var service = _fixture.Create<Service>();
-            var expectedProviders = _fixture.CreateMany<Provider>();
+            var service = _fixture.BuildService().Create();
+            var expectedProviders = _fixture.BuildProvider().CreateMany();
 
             _mockServiceGateway
                 .Setup(x => x.GetByIdAsync(service.Id))

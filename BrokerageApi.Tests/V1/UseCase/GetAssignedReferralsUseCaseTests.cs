@@ -35,7 +35,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         public async Task GetAssignedReferrals()
         {
             // Arrange
-            var expectedReferrals = _fixture.CreateMany<Referral>();
+            var expectedReferrals = _fixture.BuildReferral(ReferralStatus.Assigned).CreateMany();
 
             _mockUserService
                 .SetupGet(x => x.Email)
@@ -56,7 +56,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         public async Task GetFilteredAssignedReferrals()
         {
             // Arrange
-            var expectedReferrals = _fixture.CreateMany<Referral>();
+            var expectedReferrals = _fixture.BuildReferral(ReferralStatus.Assigned).CreateMany();
 
             _mockUserService
                 .SetupGet(x => x.Email)

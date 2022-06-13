@@ -28,7 +28,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         public async Task GetCurrentReferrals()
         {
             // Arrange
-            var expectedReferrals = _fixture.CreateMany<Referral>();
+            var expectedReferrals = _fixture.BuildReferral().CreateMany();
             _mockReferralGateway
                 .Setup(x => x.GetCurrentAsync(null))
                 .ReturnsAsync(expectedReferrals);
@@ -44,7 +44,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         public async Task GetFilteredCurrentReferrals()
         {
             // Arrange
-            var expectedReferrals = _fixture.CreateMany<Referral>();
+            var expectedReferrals = _fixture.BuildReferral().CreateMany();
             _mockReferralGateway
                 .Setup(x => x.GetCurrentAsync(ReferralStatus.Unassigned))
                 .ReturnsAsync(expectedReferrals);

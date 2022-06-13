@@ -28,7 +28,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         public async Task GetAllUsers()
         {
             // Arrange
-            var expectedUsers = _fixture.CreateMany<User>();
+            var expectedUsers = _fixture.BuildUser().CreateMany();
             _mockUserGateway
                 .Setup(x => x.GetAllAsync(null))
                 .ReturnsAsync(expectedUsers);
@@ -44,7 +44,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         public async Task GetFilteredAllUsers()
         {
             // Arrange
-            var expectedUsers = _fixture.CreateMany<User>();
+            var expectedUsers = _fixture.BuildUser().CreateMany();
             _mockUserGateway
                 .Setup(x => x.GetAllAsync(UserRole.BrokerageAssistant))
                 .ReturnsAsync(expectedUsers);

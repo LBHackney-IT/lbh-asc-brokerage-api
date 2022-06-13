@@ -49,14 +49,13 @@ namespace BrokerageApi.Tests.V1.UseCase
         public async Task ReassignsBrokerToReferral()
         {
             // Arrange
-            var expectedBroker = _fixture.Create<User>();
+            var expectedBroker = _fixture.BuildUser().Create();
 
             var request = _fixture.Build<AssignBrokerRequest>()
                 .With(x => x.Broker, expectedBroker.Email)
                 .Create();
 
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Assigned)
+            var referral = _fixture.BuildReferral(ReferralStatus.Assigned)
                 .With(x => x.AssignedBrokerEmail, "other.broker@hackney.gov.uk")
                 .Create();
 
@@ -112,8 +111,7 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .With(x => x.Broker, expectedBroker)
                 .Create();
 
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Assigned)
+            var referral = _fixture.BuildReferral(ReferralStatus.Assigned)
                 .With(x => x.AssignedBrokerEmail, "other.broker@hackney.gov.uk")
                 .Create();
 
@@ -141,8 +139,7 @@ namespace BrokerageApi.Tests.V1.UseCase
                 .With(x => x.Broker, "a.broker@hackney.gov.uk")
                 .Create();
 
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Unassigned)
+            var referral = _fixture.BuildReferral(ReferralStatus.Unassigned)
                 .Create();
 
             _mockReferralGateway
@@ -162,13 +159,12 @@ namespace BrokerageApi.Tests.V1.UseCase
         {
             // Arrange
             const int expectedUserId = 1234;
-            var expectedBroker = _fixture.Create<User>();
+            var expectedBroker = _fixture.BuildUser().Create();
             var request = _fixture.Build<AssignBrokerRequest>()
                 .With(x => x.Broker, expectedBroker.Email)
                 .Create();
 
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Assigned)
+            var referral = _fixture.BuildReferral(ReferralStatus.Assigned)
                 .With(x => x.AssignedBrokerEmail, "other.broker@hackney.gov.uk")
                 .Create();
 

@@ -68,7 +68,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             // Arrange
             var request = _fixture.Create<CreateReferralRequest>();
-            var referral = _fixture.Create<Referral>();
+            var referral = _fixture.BuildReferral().Create();
 
             _mockCreateReferralUseCase
                 .Setup(x => x.ExecuteAsync(request))
@@ -88,7 +88,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task GetCurrentReferrals()
         {
             // Arrange
-            var referrals = _fixture.CreateMany<Referral>();
+            var referrals = _fixture.BuildReferral().CreateMany();
             _mockGetCurrentReferralsUseCase
                 .Setup(x => x.ExecuteAsync(null))
                 .ReturnsAsync(referrals);
@@ -107,7 +107,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task GetFilteredCurrentReferrals()
         {
             // Arrange
-            var referrals = _fixture.CreateMany<Referral>();
+            var referrals = _fixture.BuildReferral().CreateMany();
             _mockGetCurrentReferralsUseCase
                 .Setup(x => x.ExecuteAsync(ReferralStatus.Unassigned))
                 .ReturnsAsync(referrals);
@@ -126,7 +126,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task GetAssignedReferrals()
         {
             // Arrange
-            var referrals = _fixture.CreateMany<Referral>();
+            var referrals = _fixture.BuildReferral().CreateMany();
             _mockGetAssignedReferralsUseCase
                 .Setup(x => x.ExecuteAsync(null))
                 .ReturnsAsync(referrals);
@@ -145,7 +145,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task GetFilteredAssignedReferrals()
         {
             // Arrange
-            var referrals = _fixture.CreateMany<Referral>();
+            var referrals = _fixture.BuildReferral().CreateMany();
             _mockGetAssignedReferralsUseCase
                 .Setup(x => x.ExecuteAsync(ReferralStatus.InProgress))
                 .ReturnsAsync(referrals);
@@ -164,7 +164,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task GetReferral()
         {
             // Arrange
-            var referral = _fixture.Create<Referral>();
+            var referral = _fixture.BuildReferral().Create();
             _mockGetReferralByIdUseCase
                 .Setup(x => x.ExecuteAsync(referral.Id))
                 .ReturnsAsync(referral);
@@ -205,8 +205,7 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.Broker, "a.broker@hackney.gov.uk")
                 .Create();
 
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Assigned)
+            var referral = _fixture.BuildReferral(ReferralStatus.Assigned)
                 .Create();
 
             _mockAssignBrokerToReferralUseCase
@@ -253,8 +252,7 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.Broker, "a.broker@hackney.gov.uk")
                 .Create();
 
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Assigned)
+            var referral = _fixture.BuildReferral(ReferralStatus.Assigned)
                 .Create();
 
             _mockAssignBrokerToReferralUseCase
@@ -278,8 +276,7 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.Broker, "a.broker@hackney.gov.uk")
                 .Create();
 
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Assigned)
+            var referral = _fixture.BuildReferral(ReferralStatus.Assigned)
                 .Create();
 
             _mockReassignBrokerToReferralUseCase
@@ -326,8 +323,7 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .With(x => x.Broker, "a.broker@hackney.gov.uk")
                 .Create();
 
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Unassigned)
+            var referral = _fixture.BuildReferral(ReferralStatus.Unassigned)
                 .Create();
 
             _mockReassignBrokerToReferralUseCase
