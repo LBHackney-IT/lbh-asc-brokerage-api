@@ -512,9 +512,9 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var (code, response) = await Get<ReferralResponse>($"/api/v1/referrals/{referral.Id}");
 
             // Assert
-            Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
-            Assert.That(response, Is.EqualTo(referral.ToResponse()).Using(comparer));
-            Assert.That(response.Comment.IsSameOrEqualTo(referral.Comment));
+            code.Should().Be(HttpStatusCode.OK);
+            response.Should().BeEquivalentTo(referral.ToResponse());
+            response.Comment.Should().BeEquivalentTo(referral.Comment);
 
         }
 
