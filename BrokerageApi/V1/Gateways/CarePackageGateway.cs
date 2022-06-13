@@ -28,6 +28,8 @@ namespace BrokerageApi.V1.Gateways
                         .ThenInclude(et => et.Service)
                 .Include(cp => cp.Elements.OrderBy(e => e.CreatedAt))
                     .ThenInclude(e => e.SuspensionElements)
+                .Include(cp => cp.AssignedBroker)
+                .Include(cp => cp.AssignedApprover)
                 .SingleOrDefaultAsync(cp => cp.Id == id);
         }
         public async Task<IEnumerable<CarePackage>> GetByServiceUserIdAsync(string serviceUserId)
