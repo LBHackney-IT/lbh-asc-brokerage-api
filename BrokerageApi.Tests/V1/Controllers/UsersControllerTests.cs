@@ -48,7 +48,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task GetAllUsers()
         {
             // Arrange
-            var users = _fixture.CreateMany<User>();
+            var users = _fixture.BuildUser().CreateMany();
             _mockGetAllUsersUseCase
                 .Setup(x => x.ExecuteAsync(null))
                 .ReturnsAsync(users);
@@ -67,7 +67,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task GetFilteredAllUsers()
         {
             // Arrange
-            var users = _fixture.CreateMany<User>();
+            var users = _fixture.BuildUser().CreateMany();
             _mockGetAllUsersUseCase
                 .Setup(x => x.ExecuteAsync(UserRole.Broker))
                 .ReturnsAsync(users);
@@ -86,7 +86,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task GetCurrentUser()
         {
             // Arrange
-            var user = _fixture.Create<User>();
+            var user = _fixture.BuildUser().Create();
             _mockCurrentUserUseCase
                 .Setup(x => x.ExecuteAsync())
                 .ReturnsAsync(user);

@@ -51,7 +51,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task GetAllServices()
         {
             // Arrange
-            var services = _fixture.CreateMany<Service>();
+            var services = _fixture.BuildService().CreateMany();
             _mockGetAllServicesUseCase
                 .Setup(x => x.ExecuteAsync())
                 .ReturnsAsync(services);
@@ -70,7 +70,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task GetService()
         {
             // Arrange
-            var service = _fixture.Create<Service>();
+            var service = _fixture.BuildService().Create();
             _mockGetServiceByIdUseCase
                 .Setup(x => x.ExecuteAsync(service.Id))
                 .ReturnsAsync(service);
@@ -107,8 +107,8 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task FindProvidersByService()
         {
             // Arrange
-            var service = _fixture.Create<Service>();
-            var providers = _fixture.CreateMany<Provider>();
+            var service = _fixture.BuildService().Create();
+            var providers = _fixture.BuildProvider().CreateMany();
             _mockFindProvidersByServiceUseCase
                 .Setup(x => x.ExecuteAsync(service.Id, "Acme"))
                 .ReturnsAsync(providers);

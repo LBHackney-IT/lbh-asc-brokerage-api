@@ -30,7 +30,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         {
             // Arrange
             var request = _fixture.Create<CreateReferralRequest>();
-            var referral = _fixture.Create<Referral>();
+            var referral = _fixture.BuildReferral().Create();
 
             _mockReferralGateway
                 .Setup(m => m.CreateAsync(It.IsAny<Referral>()))

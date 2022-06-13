@@ -52,7 +52,7 @@ namespace BrokerageApi.Tests.V1.Controllers
                 Status = ReferralStatus.Approved
             };
 
-            var auditEvents = _fixture.Build<AuditEvent>()
+            var auditEvents = _fixture.BuildAuditEvent()
                 .With(ae => ae.SocialCareId, socialCareId)
                 .With(ae => ae.Metadata, "{ \"referralId\": 1234 }")
                 .With(ae => ae.Referral, referral)

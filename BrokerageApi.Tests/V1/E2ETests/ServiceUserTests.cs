@@ -142,7 +142,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 }
             };
 
-            var AssignedBrokerEmail = new User()
+            var assignedBrokerEmail = new User()
             {
                 Name = "UserName",
                 Email = "some.email@hackney.gov.uk",
@@ -173,7 +173,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.ProviderServices.AddAsync(anotherProviderService);
 
             await Context.Referrals.AddAsync(referral);
-            await Context.Users.AddAsync(AssignedBrokerEmail);
+            await Context.Users.AddAsync(assignedBrokerEmail);
             await Context.Users.AddAsync(assignedApprover);
             await Context.SaveChangesAsync();
 

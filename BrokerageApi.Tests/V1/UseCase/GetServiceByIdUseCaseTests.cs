@@ -29,7 +29,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         public async Task GetService()
         {
             // Arrange
-            var service = _fixture.Create<Service>();
+            var service = _fixture.BuildService().Create();
             _mockServiceGateway
                 .Setup(x => x.GetByIdAsync(service.Id))
                 .ReturnsAsync(service);

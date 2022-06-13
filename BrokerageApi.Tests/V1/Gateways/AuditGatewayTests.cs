@@ -140,7 +140,7 @@ namespace BrokerageApi.Tests.V1.Gateways
 
         private async Task<IEnumerable<AuditEvent>> SeedEvents(int expectedUserId, string expectedSocialCareId, int count = 5)
         {
-            var auditEvents = _fixture.Build<AuditEvent>()
+            var auditEvents = _fixture.BuildAuditEvent()
                 .With(ae => ae.UserId, expectedUserId)
                 .With(ae => ae.SocialCareId, expectedSocialCareId)
                 .Without(ae => ae.Metadata)

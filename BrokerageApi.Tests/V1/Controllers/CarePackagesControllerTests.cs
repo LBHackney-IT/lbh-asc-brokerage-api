@@ -103,8 +103,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task StartCarePackage()
         {
             // Arrange
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Assigned)
+            var referral = _fixture.BuildReferral(ReferralStatus.Assigned)
                 .With(x => x.AssignedBrokerEmail, "a.broker@hackney.gov.uk")
                 .Create();
 
@@ -144,8 +143,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task StartCarePackageWhenReferralIsUnassigned()
         {
             // Arrange
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Unassigned)
+            var referral = _fixture.BuildReferral(ReferralStatus.Unassigned)
                 .Create();
 
             _mockStartCarePackageUseCase
@@ -165,8 +163,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task StartCarePackageWhenReferralIsAssignedToSomeoneElse()
         {
             // Arrange
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Assigned)
+            var referral = _fixture.BuildReferral(ReferralStatus.Assigned)
                 .With(x => x.AssignedBrokerEmail, "other.broker@hackney.gov.uk")
                 .Create();
 
@@ -295,7 +292,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task CanGetBudgetApprovers()
         {
             const int referralId = 1234;
-            var expectedApprovers = _fixture.CreateMany<User>();
+            var expectedApprovers = _fixture.BuildUser().CreateMany();
             const decimal expectedEstimatedYearlyCost = 12345678;
 
             _mockGetBudgetApproversUseCase

@@ -47,7 +47,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 Status = ReferralStatus.Approved
             };
 
-            var auditEvents = _fixture.Build<AuditEvent>()
+            var auditEvents = _fixture.BuildAuditEvent()
                 .With(ae => ae.UserId, user.Id)
                 .With(ae => ae.SocialCareId, socialCareId)
                 .Without(ae => ae.User)

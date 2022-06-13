@@ -29,7 +29,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         public async Task GetReferral()
         {
             // Arrange
-            var referral = _fixture.Create<Referral>();
+            var referral = _fixture.BuildReferral().Create();
 
             _mockReferralGateway
                 .Setup(x => x.GetByIdAsync(referral.Id))
