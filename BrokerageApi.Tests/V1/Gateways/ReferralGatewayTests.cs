@@ -1,4 +1,6 @@
 using System.Threading.Tasks;
+using AutoFixture;
+using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Gateways;
 using BrokerageApi.V1.Infrastructure;
 using FluentAssertions;
@@ -52,6 +54,8 @@ namespace BrokerageApi.Tests.V1.Gateways
         public async Task GetsCurrentReferrals()
         {
             // Arrange
+            var brokerUser = Fixture.BuildUser().Create();
+
             var unassignedReferral = new Referral()
             {
                 WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
@@ -85,7 +89,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBroker = "a.broker@hackney.gov.uk",
+                AssignedBrokerEmail = brokerUser.Email,
                 Status = ReferralStatus.Assigned
             };
 
@@ -122,7 +126,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBroker = "a.broker@hackney.gov.uk",
+                AssignedBrokerEmail = brokerUser.Email,
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant
             };
@@ -136,7 +140,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBroker = "a.broker@hackney.gov.uk",
+                AssignedBrokerEmail = brokerUser.Email,
                 Status = ReferralStatus.AwaitingApproval
             };
 
@@ -149,7 +153,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBroker = "a.broker@hackney.gov.uk",
+                AssignedBrokerEmail = brokerUser.Email,
                 Status = ReferralStatus.Approved
             };
 
@@ -161,6 +165,7 @@ namespace BrokerageApi.Tests.V1.Gateways
             await BrokerageContext.Referrals.AddAsync(inProgressReferral);
             await BrokerageContext.Referrals.AddAsync(awaitingApprovalReferral);
             await BrokerageContext.Referrals.AddAsync(approvedReferral);
+            await BrokerageContext.Users.AddAsync(brokerUser);
             await BrokerageContext.SaveChangesAsync();
 
             // Act
@@ -220,6 +225,9 @@ namespace BrokerageApi.Tests.V1.Gateways
         public async Task GetsAssignedReferrals()
         {
             // Arrange
+            var brokerUser = Fixture.BuildUser().Create();
+            var anotherUser = Fixture.BuildUser().Create();
+
             var unassignedReferral = new Referral()
             {
                 WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
@@ -253,7 +261,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBroker = "a.broker@hackney.gov.uk",
+                AssignedBrokerEmail = brokerUser.Email,
                 Status = ReferralStatus.Assigned
             };
 
@@ -266,7 +274,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBroker = "other.broker@hackney.gov.uk",
+                AssignedBrokerEmail = anotherUser.Email,
                 Status = ReferralStatus.Assigned
             };
 
@@ -303,7 +311,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBroker = "a.broker@hackney.gov.uk",
+                AssignedBrokerEmail = brokerUser.Email,
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant
             };
@@ -317,7 +325,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBroker = "a.broker@hackney.gov.uk",
+                AssignedBrokerEmail = brokerUser.Email,
                 Status = ReferralStatus.AwaitingApproval
             };
 
@@ -330,7 +338,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBroker = "a.broker@hackney.gov.uk",
+                AssignedBrokerEmail = brokerUser.Email,
                 Status = ReferralStatus.Approved
             };
 
@@ -343,10 +351,12 @@ namespace BrokerageApi.Tests.V1.Gateways
             await BrokerageContext.Referrals.AddAsync(inProgressReferral);
             await BrokerageContext.Referrals.AddAsync(awaitingApprovalReferral);
             await BrokerageContext.Referrals.AddAsync(approvedReferral);
+            await BrokerageContext.Users.AddAsync(brokerUser);
+            await BrokerageContext.Users.AddAsync(anotherUser);
             await BrokerageContext.SaveChangesAsync();
 
             // Act
-            var result = await _classUnderTest.GetAssignedAsync("a.broker@hackney.gov.uk");
+            var result = await _classUnderTest.GetAssignedAsync(brokerUser.Email);
 
             Assert.That(result, Contains.Item(assignedReferral));
             Assert.That(result, Contains.Item(inProgressReferral));
@@ -364,6 +374,8 @@ namespace BrokerageApi.Tests.V1.Gateways
         public async Task GetsFilteredAssignedReferrals()
         {
             // Arrange
+            var brokerUser = Fixture.BuildUser().Create();
+
             var assignedReferral = new Referral()
             {
                 WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
@@ -373,7 +385,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBroker = "a.broker@hackney.gov.uk",
+                AssignedBrokerEmail = brokerUser.Email,
                 Status = ReferralStatus.Assigned
             };
 
@@ -386,17 +398,18 @@ namespace BrokerageApi.Tests.V1.Gateways
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBroker = "a.broker@hackney.gov.uk",
+                AssignedBrokerEmail = brokerUser.Email,
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant
             };
 
             await BrokerageContext.Referrals.AddAsync(assignedReferral);
             await BrokerageContext.Referrals.AddAsync(inProgressReferral);
+            await BrokerageContext.Users.AddAsync(brokerUser);
             await BrokerageContext.SaveChangesAsync();
 
             // Act
-            var result = await _classUnderTest.GetAssignedAsync("a.broker@hackney.gov.uk", ReferralStatus.InProgress);
+            var result = await _classUnderTest.GetAssignedAsync(brokerUser.Email, ReferralStatus.InProgress);
 
             Assert.That(result, Contains.Item(inProgressReferral));
             Assert.That(result, Does.Not.Contain(assignedReferral));

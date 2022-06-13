@@ -2,6 +2,7 @@ using NodaTime;
 
 namespace BrokerageApi.V1.Boundary.Request
 {
+
     public class SuspendRequest : ICommentRequest
     {
         public LocalDate StartDate { get; set; }

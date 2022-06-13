@@ -24,11 +24,17 @@ namespace BrokerageApi.Tests.V1.Helpers
         {
             return fixture.Create<int>() % (max - min + 1) + min;
         }
-        public static IPostprocessComposer<CarePackage> BuildCarePackage(this IFixture fixture, string socialCareId)
+        public static IPostprocessComposer<CarePackage> BuildCarePackage(this IFixture fixture, string socialCareId = null)
         {
-            return fixture.Build<CarePackage>()
-                .Without(cp => cp.Elements)
-                .With(cp => cp.SocialCareId, socialCareId);
+            var builder = fixture.Build<CarePackage>()
+                .Without(cp => cp.Elements);
+
+            if (socialCareId != null)
+            {
+                builder = builder.With(cp => cp.SocialCareId, socialCareId);
+            }
+
+            return builder;
         }
 
         public static IPostprocessComposer<Provider> BuildProvider(this IFixture fixture)
@@ -71,6 +77,10 @@ namespace BrokerageApi.Tests.V1.Helpers
             return fixture.Build<Referral>()
                 .Without(r => r.Elements)
                 .Without(r => r.ReferralElements)
+                .Without(r => r.AssignedBroker)
+                .Without(r => r.AssignedApprover)
+                .Without(r => r.AssignedBrokerEmail)
+                .Without(r => r.AssignedApproverEmail)
                 .With(r => r.WorkflowType, WorkflowType.Assessment)
                 .With(r => r.Status, status);
         }
@@ -118,7 +128,8 @@ namespace BrokerageApi.Tests.V1.Helpers
         {
             return fixture.Build<User>()
                 .Without(u => u.ApproverCarePackages)
-                .Without(u => u.BrokerCarePackages);
+                .Without(u => u.BrokerCarePackages)
+                .With(u => u.IsActive, true);
         }
     }
 }

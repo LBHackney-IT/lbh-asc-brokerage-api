@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.ComponentModel.DataAnnotations.Schema;
 using NodaTime;
 
@@ -54,10 +55,15 @@ namespace BrokerageApi.V1.Infrastructure
 
         public decimal? WeeklyPayment { get; set; }
 
+        public decimal? OneOffPayment { get; set; }
+
         public List<ReferralElement> ReferralElements { get; set; }
 
         public List<Element> Elements { get; set; }
 
         public string Comment { get; set; }
+        public decimal EstimatedYearlyCost =>
+            (WeeklyPayment is null ? 0 : WeeklyPayment.Value * 52) +
+            (Elements?.Where(e => e.ElementType.CostType == ElementCostType.OneOff).Sum(e => e.Cost) ?? 0);
     }
 }

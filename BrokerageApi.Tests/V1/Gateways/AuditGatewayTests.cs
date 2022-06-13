@@ -56,7 +56,7 @@ namespace BrokerageApi.Tests.V1.Gateways
             },
             new object[]
             {
-                AuditEventType.ReferralBrokerReassignment, "Reassigned to broker", new ReferralReassignmentAuditEventMetadata
+                AuditEventType.ReferralBrokerReassignment, "Reassigned to broker", new ReferralAssignmentAuditEventMetadata
                 {
                     ReferralId = 1234,
                     AssignedBrokerName = "TestBroker"
@@ -68,17 +68,22 @@ namespace BrokerageApi.Tests.V1.Gateways
         [TestCaseSource(nameof(_metadataTests))]
         public async Task ReferralBrokerAssignmentHasCorrectMetadata(AuditEventType eventType, string expectedMessage, AuditMetadataBase metadata)
         {
+            var expectedReferral = await SeedReferral();
             var expectedUser = await SeedUser();
             const string expectedSocialCareId = "socialCareId";
 
             await _classUnderTest.AddAuditEvent(eventType, "socialCareId", expectedUser.Id, metadata);
 
-            var auditEvent = await BrokerageContext.AuditEvents.SingleOrDefaultAsync(ae => ae.EventType == eventType);
+            var auditEvent = await BrokerageContext.AuditEvents
+                .Include(ae => ae.Referral)
+                .SingleOrDefaultAsync(ae => ae.EventType == eventType);
+
             auditEvent.Metadata.Should().Be(JsonConvert.SerializeObject(metadata));
             auditEvent.CreatedAt.Should().Be(CurrentInstant);
             auditEvent.SocialCareId.Should().Be(expectedSocialCareId);
             auditEvent.UserId.Should().Be(expectedUser.Id);
             auditEvent.Message.Should().Be(expectedMessage);
+            auditEvent.Referral.Should().BeEquivalentTo(expectedReferral);
         }
 
         [Test]
@@ -121,11 +126,25 @@ namespace BrokerageApi.Tests.V1.Gateways
             pageMetadata.PageCount.Should().Be((int) Math.Ceiling((float) allEvents.Count() / pageSize));
         }
 
+        [Test]
+        public async Task CanGetMessageString([Values] AuditEventType type)
+        {
+            var expectedUser = await SeedUser();
+            var expectedType = type;
+
+            await _classUnderTest.AddAuditEvent(expectedType, "socialCareId", expectedUser.Id, null);
+
+            var auditEvent = await BrokerageContext.AuditEvents.SingleOrDefaultAsync(ae => ae.EventType == expectedType);
+            auditEvent.Message.Should().NotBeNullOrEmpty();
+        }
+
         private async Task<IEnumerable<AuditEvent>> SeedEvents(int expectedUserId, string expectedSocialCareId, int count = 5)
         {
             var auditEvents = _fixture.Build<AuditEvent>()
                 .With(ae => ae.UserId, expectedUserId)
                 .With(ae => ae.SocialCareId, expectedSocialCareId)
+                .Without(ae => ae.Metadata)
+                .Without(ae => ae.Referral)
                 .Without(ae => ae.User)
                 .CreateMany(count);
 
@@ -133,6 +152,28 @@ namespace BrokerageApi.Tests.V1.Gateways
             await BrokerageContext.SaveChangesAsync();
 
             return auditEvents;
+        }
+
+        private async Task<Referral> SeedReferral()
+        {
+            var referral = new Referral()
+            {
+                Id = 1234,
+                WorkflowId = "174079ae-75b4-43b4-9d29-363e88e7dd40",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBroker = "a.broker@hackney.gov.uk",
+                Status = ReferralStatus.Approved
+            };
+
+            await BrokerageContext.Referrals.AddAsync(referral);
+            await BrokerageContext.SaveChangesAsync();
+
+            return referral;
         }
 
         private async Task<User> SeedUser()

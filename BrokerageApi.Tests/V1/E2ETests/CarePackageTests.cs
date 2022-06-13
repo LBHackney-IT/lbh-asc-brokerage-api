@@ -131,7 +131,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
-                AssignedBroker = "a.broker@hackney.gov.uk",
+                AssignedBrokerEmail = ApiUser.Email,
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant,
                 CreatedAt = PreviousInstant,
@@ -225,7 +225,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
                 Status = ReferralStatus.Assigned,
-                AssignedBroker = "api.user@hackney.gov.uk",
+                AssignedBrokerEmail = "api.user@hackney.gov.uk",
                 StartedAt = null,
                 CreatedAt = PreviousInstant,
                 UpdatedAt = PreviousInstant
@@ -271,7 +271,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
                 .With(r => r.Status, ReferralStatus.Approved)
-                .With(r => r.AssignedBroker, ApiUser.Email)
+                .With(r => r.AssignedBrokerEmail, ApiUser.Email)
                 .With(r => r.Elements, elements.ToList)
                 .Create();
 
@@ -324,7 +324,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
                 .With(r => r.Status, ReferralStatus.Approved)
-                .With(r => r.AssignedBroker, ApiUser.Email)
+                .With(r => r.AssignedBrokerEmail, ApiUser.Email)
                 .With(r => r.Elements, elements.ToList)
                 .Create();
 
@@ -381,7 +381,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
                 .With(r => r.Status, ReferralStatus.Approved)
-                .With(r => r.AssignedBroker, ApiUser.Email)
+                .With(r => r.AssignedBrokerEmail, ApiUser.Email)
                 .With(r => r.Elements, elements.ToList)
                 .Create();
 
@@ -442,7 +442,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
                 .With(r => r.Status, ReferralStatus.Approved)
-                .With(r => r.AssignedBroker, ApiUser.Email)
+                .With(r => r.AssignedBrokerEmail, ApiUser.Email)
                 .With(r => r.Elements, elements.ToList)
                 .Create();
 
@@ -476,6 +476,115 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 suspensionElement.IsSuspension.Should().BeTrue();
             }
             Context.AuditEvents.Should().ContainSingle(ae => ae.EventType == AuditEventType.CarePackageSuspended);
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanGetBudgetApprovers()
+        {
+            // Arrange
+            var service = _fixture.BuildService()
+                .Create();
+
+            var provider = _fixture.BuildProvider()
+                .Create();
+
+            var providerService = _fixture.BuildProviderService(provider.Id, service.Id)
+                .Create();
+
+            var dailyElementType = _fixture.BuildElementType(service.Id)
+                .With(et => et.CostType, ElementCostType.Daily)
+                .Create();
+
+            var oneOffElementType = _fixture.BuildElementType(service.Id)
+                .With(et => et.CostType, ElementCostType.OneOff)
+                .Create();
+
+            var dailyElements = _fixture.BuildElement(provider.Id, dailyElementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .CreateMany();
+
+            var oneOffElements = _fixture.BuildElement(provider.Id, oneOffElementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .CreateMany();
+
+            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
+                .With(r => r.Status, ReferralStatus.InProgress)
+                .With(r => r.AssignedBrokerEmail, ApiUser.Email)
+                .With(r => r.Elements, dailyElements.Concat(oneOffElements).ToList)
+                .Create();
+
+            var expectedYearlyCost =
+                dailyElements.Sum(e => e.Cost) * 52 +
+                oneOffElements.Sum(e => e.Cost);
+
+            var expectedApprovers = _fixture.BuildUser()
+                .With(u => u.IsActive, true)
+                .With(u => u.Roles, new List<UserRole>
+                {
+                    UserRole.Approver
+                })
+                .With(u => u.ApprovalLimit, expectedYearlyCost + 100)
+                .CreateMany();
+
+            var notExpectedApprovers = _fixture.BuildUser()
+                .With(u => u.IsActive, true)
+                .With(u => u.Roles, new List<UserRole>
+                {
+                    UserRole.Approver
+                })
+                .With(u => u.ApprovalLimit, expectedYearlyCost - 100)
+                .CreateMany();
+
+            await Context.Users.AddRangeAsync(expectedApprovers);
+            await Context.Users.AddRangeAsync(notExpectedApprovers);
+            await Context.Referrals.AddAsync(referral);
+            await Context.Services.AddAsync(service);
+            await Context.Providers.AddAsync(provider);
+            await Context.ProviderServices.AddAsync(providerService);
+            await Context.ElementTypes.AddAsync(dailyElementType);
+            await Context.ElementTypes.AddAsync(oneOffElementType);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            var (code, response) = await Get<GetApproversResponse>($"/api/v1/referrals/{referral.Id}/care-package/budget-approvers");
+
+            code.Should().Be(HttpStatusCode.OK);
+            response.EstimatedYearlyCost.Should().Be(expectedYearlyCost);
+            response.Approvers.Should().BeEquivalentTo(expectedApprovers.Select(u => u.ToResponse()));
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanAssignBudgetApprover()
+        {
+            // Arrange
+            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
+                .With(r => r.Status, ReferralStatus.InProgress)
+                .With(r => r.AssignedBrokerEmail, ApiUser.Email)
+                .Create();
+
+            var expectedApprover = _fixture.BuildUser()
+                .With(u => u.IsActive, true)
+                .With(u => u.Roles, new List<UserRole>
+                {
+                    UserRole.Approver
+                })
+                .With(u => u.ApprovalLimit, 100)
+                .Create();
+
+            await Context.Users.AddAsync(expectedApprover);
+            await Context.Referrals.AddAsync(referral);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            var request = _fixture.Build<AssignApproverRequest>()
+                .With(r => r.Approver, expectedApprover.Email)
+                .Create();
+
+            var code = await Post($"/api/v1/referrals/{referral.Id}/care-package/assign-budget-approver", request);
+
+            code.Should().Be(HttpStatusCode.OK);
         }
     }
 }

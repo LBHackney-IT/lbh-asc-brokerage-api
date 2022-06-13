@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -8,6 +9,7 @@ using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.UseCase.Interfaces;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackages;
+using X.PagedList;
 
 namespace BrokerageApi.V1.Controllers
 {
@@ -23,19 +25,24 @@ namespace BrokerageApi.V1.Controllers
         private readonly IEndCarePackageUseCase _endCarePackageUseCase;
         private readonly ICancelCarePackageUseCase _cancelCarePackageUseCase;
         private readonly ISuspendCarePackageUseCase _suspendCarePackageUseCase;
+        private readonly IGetBudgetApproversUseCase _getBudgetApproversUseCase;
+        private readonly IAssignBudgetApproverToCarePackageUseCase _assignBudgetApproverToCarePackageUseCase;
 
-        public CarePackagesController(
-            IGetCarePackageByIdUseCase getCarePackageByIdUseCase,
+        public CarePackagesController(IGetCarePackageByIdUseCase getCarePackageByIdUseCase,
             IStartCarePackageUseCase startCarePackageUseCase,
             IEndCarePackageUseCase endCarePackageUseCase,
             ICancelCarePackageUseCase cancelCarePackageUseCase,
-            ISuspendCarePackageUseCase suspendCarePackageUseCase)
+            ISuspendCarePackageUseCase suspendCarePackageUseCase,
+            IGetBudgetApproversUseCase getBudgetApproversUseCase,
+            IAssignBudgetApproverToCarePackageUseCase assignBudgetApproverToCarePackageUseCase)
         {
             _getCarePackageByIdUseCase = getCarePackageByIdUseCase;
             _startCarePackageUseCase = startCarePackageUseCase;
             _endCarePackageUseCase = endCarePackageUseCase;
             _cancelCarePackageUseCase = cancelCarePackageUseCase;
             _suspendCarePackageUseCase = suspendCarePackageUseCase;
+            _getBudgetApproversUseCase = getBudgetApproversUseCase;
+            _assignBudgetApproverToCarePackageUseCase = assignBudgetApproverToCarePackageUseCase;
         }
 
         [Authorize]
@@ -222,6 +229,83 @@ namespace BrokerageApi.V1.Controllers
                 );
             }
             return Ok();
+        }
+
+        [Authorize(Roles = "Broker")]
+        [HttpGet]
+        [Route("budget-approvers")]
+        [ProducesResponseType(typeof(GetApproversResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetBudgetApprovers([FromRoute] int referralId)
+        {
+            try
+            {
+                var (approvers, estimatedYearlyCost) = await _getBudgetApproversUseCase.ExecuteAsync(referralId);
+
+                var result = new GetApproversResponse
+                {
+                    Approvers = await approvers.Select(u => u.ToResponse()).ToListAsync(),
+                    EstimatedYearlyCost = estimatedYearlyCost
+                };
+
+                return Ok(result);
+            }
+            catch (ArgumentNullException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/budget-approvers",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (InvalidOperationException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/budget-approvers",
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
+                );
+            }
+        }
+
+        [Authorize(Roles = "Broker")]
+        [HttpPost]
+        [Route("assign-budget-approver")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> AssignBudgetApprover([FromRoute] int referralId, AssignApproverRequest request)
+        {
+            try
+            {
+                await _assignBudgetApproverToCarePackageUseCase.ExecuteAsync(referralId, request.Approver);
+                return Ok();
+            }
+            catch (ArgumentNullException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/assign-budget-approver",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (InvalidOperationException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/assign-budget-approver",
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
+                );
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/assign-budget-approver",
+                    StatusCodes.Status403Forbidden, "Forbidden"
+                );
+            }
         }
     }
 }

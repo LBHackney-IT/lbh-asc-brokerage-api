@@ -13,5 +13,7 @@ namespace BrokerageApi.V1.Boundary.Response
         public Instant CreatedAt { get; set; }
         public int UserId { get; set; }
         public JObject Metadata { get; set; }
+        public int? ReferralId { get; set; }
+        public string FormName { get; set; }
     }
 }

@@ -32,6 +32,7 @@ namespace BrokerageApi.V1.Factories
                 StartDate = carePackage.StartDate,
                 WeeklyCost = carePackage.WeeklyCost,
                 WeeklyPayment = carePackage.WeeklyPayment,
+                OneOffPayment = carePackage.OneOffPayment,
                 Elements = carePackage.ReferralElements.Select(re => re.Element.ToResponse(re.ReferralId)).ToList(),
                 Comment = carePackage.Comment
             };
@@ -122,12 +123,13 @@ namespace BrokerageApi.V1.Factories
                 DirectPayments = referral.DirectPayments,
                 UrgentSince = referral.UrgentSince,
                 Status = referral.Status,
-                AssignedBroker = referral.AssignedBroker,
                 Note = referral.Note,
                 Comment = referral.Comment,
                 StartedAt = referral.StartedAt,
                 CreatedAt = referral.CreatedAt,
-                UpdatedAt = referral.UpdatedAt
+                UpdatedAt = referral.UpdatedAt,
+                AssignedBroker = referral.AssignedBroker?.ToResponse(),
+                AssignedApprover = referral.AssignedApprover?.ToResponse()
             };
         }
 
@@ -154,7 +156,8 @@ namespace BrokerageApi.V1.Factories
                 Roles = user.Roles,
                 IsActive = user.IsActive,
                 CreatedAt = user.CreatedAt,
-                UpdatedAt = user.UpdatedAt
+                UpdatedAt = user.UpdatedAt,
+                ApprovalLimit = user.ApprovalLimit
             };
         }
 
@@ -168,7 +171,9 @@ namespace BrokerageApi.V1.Factories
                 EventType = auditEvent.EventType,
                 UserId = auditEvent.UserId,
                 SocialCareId = auditEvent.SocialCareId,
-                Metadata = JObject.Parse(auditEvent.Metadata)
+                Metadata = JObject.Parse(auditEvent.Metadata),
+                ReferralId = auditEvent.Referral?.Id,
+                FormName = auditEvent.Referral?.FormName
             };
         }
 

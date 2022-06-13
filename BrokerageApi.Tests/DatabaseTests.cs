@@ -6,8 +6,12 @@ using BrokerageApi.V1.Services;
 using BrokerageApi.V1.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 using NUnit.Framework;
 using NodaTime;
+using NodaTime.Serialization.JsonNet;
 using NodaTime.Testing;
 
 namespace BrokerageApi.Tests
@@ -26,6 +30,8 @@ namespace BrokerageApi.Tests
         [SetUp]
         public void RunBeforeAnyTests()
         {
+            ConfigureJsonSerializer();
+
             Fixture = FixtureHelpers.Fixture;
             var builder = new DbContextOptionsBuilder();
             builder.UseNpgsql(ConnectionString.TestDatabase())
@@ -69,6 +75,21 @@ namespace BrokerageApi.Tests
             await BrokerageContext.SaveChangesAsync();
 
             return elementType;
+        }
+
+        private static void ConfigureJsonSerializer()
+        {
+            JsonConvert.DefaultSettings = () =>
+            {
+                var settings = new JsonSerializerSettings();
+                settings.Formatting = Formatting.Indented;
+                settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+
+                settings.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
+                settings.Converters.Add(new StringEnumConverter());
+
+                return settings;
+            };
         }
     }
 }

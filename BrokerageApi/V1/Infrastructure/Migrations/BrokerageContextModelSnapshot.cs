@@ -19,7 +19,7 @@ namespace V1.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasPostgresEnum(null, "audit_event_type", new[] { "referral_broker_assignment", "referral_broker_reassignment", "element_ended", "element_cancelled", "element_suspended", "care_package_ended", "care_package_cancelled", "care_package_suspended", "referral_archived", "import_note" })
+                .HasPostgresEnum(null, "audit_event_type", new[] { "referral_broker_assignment", "referral_broker_reassignment", "element_ended", "element_cancelled", "element_suspended", "care_package_ended", "care_package_cancelled", "care_package_suspended", "referral_archived", "import_note", "care_package_budget_approver_assigned", "care_package_approved" })
                 .HasPostgresEnum(null, "element_billing_type", new[] { "supplier", "customer", "none" })
                 .HasPostgresEnum(null, "element_cost_type", new[] { "hourly", "daily", "weekly", "transport", "one_off" })
                 .HasPostgresEnum(null, "element_status", new[] { "in_progress", "awaiting_approval", "approved", "inactive", "active", "ended", "suspended", "cancelled" })
@@ -54,8 +54,14 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnName("message");
 
                     b.Property<string>("Metadata")
-                        .HasColumnType("text")
+                        .HasColumnType("jsonb")
                         .HasColumnName("metadata");
+
+                    b.Property<int?>("ReferralId")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("integer")
+                        .HasColumnName("referral_id")
+                        .HasComputedColumnSql("(metadata->>'referralId')::integer", true);
 
                     b.Property<string>("SocialCareId")
                         .IsRequired()
@@ -68,6 +74,9 @@ namespace V1.Infrastructure.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_audit_events");
+
+                    b.HasIndex("ReferralId")
+                        .HasDatabaseName("ix_audit_events_referral_id");
 
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_audit_events_user_id");
@@ -468,13 +477,13 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnName("id")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<string>("AssignedApprover")
+                    b.Property<string>("AssignedApproverEmail")
                         .HasColumnType("text")
-                        .HasColumnName("assigned_approver");
+                        .HasColumnName("assigned_approver_email");
 
-                    b.Property<string>("AssignedBroker")
+                    b.Property<string>("AssignedBrokerEmail")
                         .HasColumnType("text")
-                        .HasColumnName("assigned_broker");
+                        .HasColumnName("assigned_broker_email");
 
                     b.Property<string>("Comment")
                         .HasColumnType("text")
@@ -538,6 +547,12 @@ namespace V1.Infrastructure.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_referrals");
+
+                    b.HasIndex("AssignedApproverEmail")
+                        .HasDatabaseName("ix_referrals_assigned_approver_email");
+
+                    b.HasIndex("AssignedBrokerEmail")
+                        .HasDatabaseName("ix_referrals_assigned_broker_email");
 
                     b.HasIndex("WorkflowId")
                         .IsUnique()
@@ -629,6 +644,10 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnName("id")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
+                    b.Property<decimal?>("ApprovalLimit")
+                        .HasColumnType("numeric")
+                        .HasColumnName("approval_limit");
+
                     b.Property<Instant>("CreatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("created_at");
@@ -670,12 +689,19 @@ namespace V1.Infrastructure.Migrations
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.AuditEvents.AuditEvent", b =>
                 {
+                    b.HasOne("BrokerageApi.V1.Infrastructure.Referral", "Referral")
+                        .WithMany()
+                        .HasForeignKey("ReferralId")
+                        .HasConstraintName("fk_audit_events_referrals_referral_id");
+
                     b.HasOne("BrokerageApi.V1.Infrastructure.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .HasConstraintName("fk_audit_events_users_user_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Referral");
 
                     b.Navigation("User");
                 });
@@ -765,6 +791,25 @@ namespace V1.Infrastructure.Migrations
                     b.Navigation("Provider");
 
                     b.Navigation("Service");
+                });
+
+            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Referral", b =>
+                {
+                    b.HasOne("BrokerageApi.V1.Infrastructure.User", "AssignedApprover")
+                        .WithMany()
+                        .HasForeignKey("AssignedApproverEmail")
+                        .HasConstraintName("fk_referrals_users_assigned_approver_id")
+                        .HasPrincipalKey("Email");
+
+                    b.HasOne("BrokerageApi.V1.Infrastructure.User", "AssignedBroker")
+                        .WithMany()
+                        .HasForeignKey("AssignedBrokerEmail")
+                        .HasConstraintName("fk_referrals_users_assigned_broker_id")
+                        .HasPrincipalKey("Email");
+
+                    b.Navigation("AssignedApprover");
+
+                    b.Navigation("AssignedBroker");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ReferralElement", b =>
