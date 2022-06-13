@@ -68,8 +68,8 @@ namespace BrokerageApi.Tests.V1.Gateways
         [TestCaseSource(nameof(_metadataTests))]
         public async Task ReferralBrokerAssignmentHasCorrectMetadata(AuditEventType eventType, string expectedMessage, AuditMetadataBase metadata)
         {
-            var expectedReferral = await SeedReferral();
             var expectedUser = await SeedUser();
+            var expectedReferral = await SeedReferral(expectedUser);
             const string expectedSocialCareId = "socialCareId";
 
             await _classUnderTest.AddAuditEvent(eventType, "socialCareId", expectedUser.Id, metadata);
@@ -154,7 +154,7 @@ namespace BrokerageApi.Tests.V1.Gateways
             return auditEvents;
         }
 
-        private async Task<Referral> SeedReferral()
+        private async Task<Referral> SeedReferral(User expectedUser)
         {
             var referral = new Referral()
             {
@@ -166,7 +166,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
-                AssignedBrokerEmail = "a.broker@hackney.gov.uk",
+                AssignedBrokerEmail = expectedUser.Email,
                 Status = ReferralStatus.Approved
             };
 
