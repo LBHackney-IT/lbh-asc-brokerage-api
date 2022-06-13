@@ -94,7 +94,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             await _classUnderTest.ExecuteAsync(referral.Id, approverEmail);
 
             referral.Status.Should().Be(ReferralStatus.AwaitingApproval);
-            referral.AssignedBrokerEmail.Should().BeEquivalentTo(approver.Email);
+            referral.AssignedApproverEmail.Should().BeEquivalentTo(approver.Email);
             _mockDbSaver.VerifyChangesSaved();
         }
 

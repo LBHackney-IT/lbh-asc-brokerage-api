@@ -66,7 +66,7 @@ namespace BrokerageApi.V1.UseCase
             }
 
             referral.Status = ReferralStatus.AwaitingApproval;
-            referral.AssignedBrokerEmail = approver.Email;
+            referral.AssignedApproverEmail = approver.Email;
 
             await _dbSaver.SaveChangesAsync();
 
