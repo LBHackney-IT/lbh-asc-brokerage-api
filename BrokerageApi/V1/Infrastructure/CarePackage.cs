@@ -62,8 +62,6 @@ namespace BrokerageApi.V1.Infrastructure
         public List<Element> Elements { get; set; }
 
         public string Comment { get; set; }
-        public decimal EstimatedYearlyCost =>
-            (WeeklyPayment is null ? 0 : WeeklyPayment.Value * 52) +
-            (Elements?.Where(e => e.ElementType.CostType == ElementCostType.OneOff).Sum(e => e.Cost) ?? 0);
+        public decimal EstimatedYearlyCost { get; set; }
     }
 }

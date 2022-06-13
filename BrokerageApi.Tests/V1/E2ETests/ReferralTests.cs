@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -9,7 +10,6 @@ using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using FluentAssertions;
-using FluentAssertions.Common;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
@@ -686,6 +686,59 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var auditEvent = await Context.AuditEvents.SingleOrDefaultAsync(ae => ae.EventType == AuditEventType.ReferralArchived && ae.CreatedAt == Context.Clock.Now);
             auditEvent.Should().NotBeNull();
+        }
+
+
+        [Test, Property("AsUser", "Approver"), Property("WithApprovalLimit", 1000)]
+        public async Task CanGetApprovals()
+        {
+            const decimal approvalLimit = 1000;
+            var provider = _fixture.BuildProvider()
+                .Create();
+
+            var service = _fixture.BuildService()
+                .Create();
+
+            var elementType = _fixture.BuildElementType(service.Id)
+                .With(et => et.CostType, ElementCostType.OneOff)
+                .Create();
+
+            var belowLimitElement = _fixture.BuildElement(provider.Id, elementType.Id)
+                .With(e => e.Cost, approvalLimit - 1)
+                .Create();
+
+            var aboveLimitElement = _fixture.BuildElement(provider.Id, elementType.Id)
+                .With(e => e.Cost, approvalLimit + 1)
+                .Create();
+
+            var belowLimitReferrals = _fixture.BuildReferral(ReferralStatus.AwaitingApproval)
+                .With(r => r.Elements, new List<Element>
+                {
+                    belowLimitElement
+                })
+                .CreateMany();
+
+            var aboveLimitReferrals = _fixture.BuildReferral(ReferralStatus.AwaitingApproval)
+                .With(r => r.Elements, new List<Element>
+                {
+                    aboveLimitElement
+                })
+                .CreateMany();
+
+            await Context.Providers.AddAsync(provider);
+            await Context.Services.AddAsync(service);
+            await Context.ElementTypes.AddAsync(elementType);
+            await Context.Referrals.AddRangeAsync(belowLimitReferrals);
+            await Context.Referrals.AddRangeAsync(aboveLimitReferrals);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            var (code, response) = await Get<List<CarePackageResponse>>($"/api/v1/referrals/budget-approvals");
+
+            code.Should().Be((int) HttpStatusCode.OK);
+            response.Select(r => r.Id).Should().Contain(belowLimitReferrals.Select(r => r.Id));
+            response.Select(r => r.Id).Should().NotContain(aboveLimitReferrals.Select(r => r.Id));
         }
     }
 }

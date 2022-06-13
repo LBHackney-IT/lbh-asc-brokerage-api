@@ -63,7 +63,7 @@ namespace BrokerageApi.Tests
 
             if (IsAuthenticated())
             {
-                SetupAuthentication(AsUser());
+                SetupAuthentication(AsUser(), WithApprovalLimit());
             }
         }
 
@@ -142,7 +142,7 @@ namespace BrokerageApi.Tests
             return result;
         }
 
-        private void SetupAuthentication(string user)
+        private void SetupAuthentication(string user, decimal? withApprovalLimit)
         {
             switch (user)
             {
@@ -152,16 +152,21 @@ namespace BrokerageApi.Tests
 
                 case "Broker":
                     SetAuthorizationHeader(GenerateToken("saml-socialcarefinance-brokerage"));
-                    CreateApiUser(UserRole.Broker);
+                    CreateApiUser(UserRole.Broker, withApprovalLimit);
                     break;
 
                 case "BrokerageAssistant":
                     SetAuthorizationHeader(GenerateToken("saml-socialcarefinance-brokerage"));
-                    CreateApiUser(UserRole.BrokerageAssistant);
+                    CreateApiUser(UserRole.BrokerageAssistant, withApprovalLimit);
                     break;
 
                 case "NewUser":
                     SetAuthorizationHeader(GenerateToken("saml-socialcarefinance-brokerage"));
+                    break;
+
+                case "Approver":
+                    SetAuthorizationHeader(GenerateToken("saml-socialcarefinance-brokerage"));
+                    CreateApiUser(UserRole.Approver, withApprovalLimit);
                     break;
             }
         }
@@ -171,14 +176,18 @@ namespace BrokerageApi.Tests
             Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
 
-        private void CreateApiUser(UserRole role)
+        private void CreateApiUser(UserRole role, decimal? approvalLimit)
         {
             _apiUser = new User()
             {
                 Name = "Api User",
                 Email = "api.user@hackney.gov.uk",
-                Roles = new List<UserRole>() { role },
-                IsActive = true
+                Roles = new List<UserRole>()
+                {
+                    role
+                },
+                IsActive = true,
+                ApprovalLimit = approvalLimit
             };
 
             Context.Users.Add(_apiUser);
@@ -211,6 +220,13 @@ namespace BrokerageApi.Tests
             return (string) TestContext.CurrentContext.Test.Properties.Get("AsUser");
         }
 
+        private static decimal? WithApprovalLimit()
+        {
+            if (!TestContext.CurrentContext.Test.Properties.ContainsKey("WithApprovalLimit")) return null;
+
+            return (int) TestContext.CurrentContext.Test.Properties.Get("WithApprovalLimit");
+        }
+
         private static string GenerateToken(string group)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("super-secret-token"));
@@ -219,11 +235,7 @@ namespace BrokerageApi.Tests
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim("sub", "123456789012345678901"),
-                    new Claim("email", "api.user@hackney.gov.uk"),
-                    new Claim("name", "Api User"),
-                    new Claim("groups", "HackneyAll"),
-                    new Claim("groups", group)
+                    new Claim("sub", "123456789012345678901"), new Claim("email", "api.user@hackney.gov.uk"), new Claim("name", "Api User"), new Claim("groups", "HackneyAll"), new Claim("groups", group)
                 }),
                 Issuer = "Hackney",
                 IssuedAt = DateTime.UtcNow,

@@ -11,6 +11,7 @@ using NUnit.Framework;
 
 namespace BrokerageApi.Tests.V1.UseCase
 {
+
     public class GetAssignedReferralsUseCaseTests
     {
         private Mock<IReferralGateway> _mockReferralGateway;
