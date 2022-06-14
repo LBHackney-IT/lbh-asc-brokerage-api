@@ -504,6 +504,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
+                Comment = "A comment",
                 Status = ReferralStatus.Unassigned,
                 AssignedBrokerEmail = user.Email
             };
@@ -520,6 +521,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             // Assert
             code.Should().Be(HttpStatusCode.OK);
             response.Should().BeEquivalentTo(referral.ToResponse());
+            response.Comment.Should().BeEquivalentTo(referral.Comment);
             response.AssignedBroker.Should().BeEquivalentTo(user.ToResponse());
         }
 
