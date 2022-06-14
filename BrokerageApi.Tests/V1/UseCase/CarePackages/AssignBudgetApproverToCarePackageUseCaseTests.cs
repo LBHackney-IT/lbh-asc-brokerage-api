@@ -64,7 +64,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
                 .With(c => c.Id, referral.Id)
                 .With(c => c.Status, ReferralStatus.InProgress)
                 .With(c => c.AssignedBrokerId, brokerEmail)
-                .With(c => c.WeeklyPayment, estimatedYearlyCost / 52)
+                .With(c => c.EstimatedYearlyCost, estimatedYearlyCost)
                 .Create();
 
             var approver = _fixture.BuildUser()
@@ -214,7 +214,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
                 .With(c => c.Id, referral.Id)
                 .With(c => c.Status, ReferralStatus.InProgress)
                 .With(c => c.AssignedBrokerId, brokerEmail)
-                .With(c => c.WeeklyPayment, estimatedYearlyCost / 52)
+                .With(c => c.EstimatedYearlyCost, estimatedYearlyCost)
                 .Create();
 
             var approver = _fixture.BuildUser()
@@ -260,7 +260,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
                 .With(c => c.Id, referral.Id)
                 .With(c => c.Status, ReferralStatus.InProgress)
                 .With(c => c.AssignedBrokerId, brokerEmail)
-                .With(c => c.WeeklyPayment, estimatedYearlyCost / 52)
+                .With(c => c.EstimatedYearlyCost, estimatedYearlyCost)
                 .Create();
 
             var approver = _fixture.BuildUser()

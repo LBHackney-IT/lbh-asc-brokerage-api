@@ -29,6 +29,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Mock<IGetReferralByIdUseCase> _mockGetReferralByIdUseCase;
         private Mock<IAssignBrokerToReferralUseCase> _mockAssignBrokerToReferralUseCase;
         private Mock<IReassignBrokerToReferralUseCase> _mockReassignBrokerToReferralUseCase;
+        private Mock<IGetBudgetApprovalsUseCase> _mockGetBudgetApprovalsUseCase;
         private MockProblemDetailsFactory _mockProblemDetailsFactory;
 
         private ReferralsController _classUnderTest;
@@ -46,6 +47,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockReassignBrokerToReferralUseCase = new Mock<IReassignBrokerToReferralUseCase>();
             _mockProblemDetailsFactory = new MockProblemDetailsFactory();
             _mockArchiveReferralUseCase = new Mock<IArchiveReferralUseCase>();
+            _mockGetBudgetApprovalsUseCase = new Mock<IGetBudgetApprovalsUseCase>();
 
             _classUnderTest = new ReferralsController(
                 _mockCreateReferralUseCase.Object,
@@ -54,7 +56,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 _mockGetReferralByIdUseCase.Object,
                 _mockAssignBrokerToReferralUseCase.Object,
                 _mockReassignBrokerToReferralUseCase.Object,
-                _mockArchiveReferralUseCase.Object
+                _mockArchiveReferralUseCase.Object,
+                _mockGetBudgetApprovalsUseCase.Object
             );
 
             // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
@@ -380,6 +383,50 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Act
             var response = await _classUnderTest.ArchiveReferral(referralId, request);
+            var statusCode = GetStatusCode(response);
+
+            // Assert
+            statusCode.Should().Be((int) expectedStatusCode);
+            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+        }
+
+        [Test, Property("AsUser", "Approver")]
+        public async Task GetBudgetApprovals()
+        {
+            // Arrange
+            var carePackages = _fixture.BuildCarePackage().CreateMany();
+            _mockGetBudgetApprovalsUseCase
+                .Setup(x => x.ExecuteAsync())
+                .ReturnsAsync(carePackages);
+
+            // Act
+            var objectResult = await _classUnderTest.GetBudgetApprovals();
+            var statusCode = GetStatusCode(objectResult);
+            var result = GetResultData<List<CarePackageResponse>>(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            result.Should().BeEquivalentTo(carePackages.Select(c => c.ToResponse()).ToList());
+        }
+
+        private static readonly object[] _getBudgetApprovalsErrorList =
+        {
+            new object[]
+            {
+                new UnauthorizedAccessException("message"), HttpStatusCode.Unauthorized
+            }
+        };
+
+        [TestCaseSource(nameof(_getBudgetApprovalsErrorList))]
+        public async Task GetBudgetApprovalsMapsErrorsCorrectly(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            // Arrange
+            _mockGetBudgetApprovalsUseCase
+                .Setup(x => x.ExecuteAsync())
+                .ThrowsAsync(exception);
+
+            // Act
+            var response = await _classUnderTest.GetBudgetApprovals();
             var statusCode = GetStatusCode(response);
 
             // Assert

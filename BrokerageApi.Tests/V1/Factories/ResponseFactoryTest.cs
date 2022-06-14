@@ -149,6 +149,7 @@ namespace BrokerageApi.Tests.V1.Factories
             response.UrgentSince.Should().Be(referral.UrgentSince);
             response.Status.Should().Be(referral.Status);
             response.Note.Should().Be(referral.Note);
+            response.Comment.Should().Be(referral.Comment);
             response.StartedAt.Should().Be(referral.StartedAt);
             response.CreatedAt.Should().Be(referral.CreatedAt);
             response.UpdatedAt.Should().Be(referral.UpdatedAt);

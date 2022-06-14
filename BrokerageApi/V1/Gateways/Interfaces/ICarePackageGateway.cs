@@ -10,5 +10,7 @@ namespace BrokerageApi.V1.Gateways.Interfaces
 
         public Task<IEnumerable<CarePackage>> GetByServiceUserIdAsync(string serviceUserId);
 
+        public Task<IEnumerable<CarePackage>> GetByBudgetApprovalLimitAsync(decimal approvalLimit);
+
     }
 }

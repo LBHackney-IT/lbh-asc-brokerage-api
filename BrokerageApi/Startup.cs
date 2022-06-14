@@ -251,6 +251,7 @@ namespace BrokerageApi
             services.AddTransient<IGetCurrentUserUseCase, GetCurrentUserUseCase>();
             services.AddTransient<IGetBudgetApproversUseCase, GetBudgetApproversUseCase>();
             services.AddTransient<IAssignBudgetApproverToCarePackageUseCase, AssignBudgetApproverToCarePackageUseCase>();
+            services.AddTransient<IGetBudgetApprovalsUseCase, GetBudgetApprovalsUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

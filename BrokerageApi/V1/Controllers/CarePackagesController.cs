@@ -57,10 +57,10 @@ namespace BrokerageApi.V1.Controllers
                 var carePackage = await _getCarePackageByIdUseCase.ExecuteAsync(referralId);
                 return Ok(carePackage.ToResponse());
             }
-            catch (ArgumentNullException)
+            catch (ArgumentNullException e)
             {
                 return Problem(
-                    "The requested care package was not found",
+                    e.Message,
                     $"/api/v1/referrals/{referralId}/care-package",
                     StatusCodes.Status404NotFound, "Not Found"
                 );

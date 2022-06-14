@@ -38,9 +38,8 @@ namespace BrokerageApi.V1.Boundary.Response
         public ReferralStatus Status { get; set; }
 
         public string Note { get; set; }
-
+        public string Comment { get; set; }
         public Instant? StartedAt { get; set; }
-
         public Instant CreatedAt { get; set; }
 
         public Instant UpdatedAt { get; set; }
