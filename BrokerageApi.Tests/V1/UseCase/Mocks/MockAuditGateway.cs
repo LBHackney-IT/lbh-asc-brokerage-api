@@ -28,5 +28,10 @@ namespace BrokerageApi.Tests.V1.UseCase.Mocks
         {
             Verify(x => x.AddAuditEvent(eventType, It.IsAny<string>(), It.IsAny<int>(), It.IsAny<AuditMetadataBase>()));
         }
+
+        public void VerifyNoEventsAdded()
+        {
+            Verify(x => x.AddAuditEvent(It.IsAny<AuditEventType>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<AuditMetadataBase>()), Times.Never);
+        }
     }
 }

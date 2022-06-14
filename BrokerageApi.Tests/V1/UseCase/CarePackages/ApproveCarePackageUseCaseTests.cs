@@ -57,7 +57,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
                 .With(e => e.InternalStatus, ElementStatus.AwaitingApproval)
                 .CreateMany();
 
-            var (referral, carePackage) = SetupReferralAndCarePackage(1000, elements.ToArray());
+            var (referral, carePackage) = SetupReferralAndCarePackage(ReferralStatus.AwaitingApproval, 1000, elements.ToArray());
 
             SetupUser(carePackage.EstimatedYearlyCost + 100);
 
@@ -85,18 +85,9 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
                 .With(e => e.ParentElement, parentElement)
                 .Create();
 
-            var referral = _fixture.BuildReferral(ReferralStatus.AwaitingApproval)
-                .With(r => r.Elements, new List<Element>
-                {
-                    element
-                })
-                .Create();
+            var (referral, carePackage) = SetupReferralAndCarePackage(ReferralStatus.AwaitingApproval, 1000, element, parentElement);
 
-            _mockReferralGateway
-                .Setup(x => x.GetByIdWithElementsAsync(referral.Id))
-                .ReturnsAsync(referral);
-
-            SetupUser(element.Cost * 100);
+            SetupUser(carePackage.EstimatedYearlyCost + 100);
 
             await _classUnderTest.ExecuteAsync(referral.Id);
 
@@ -106,9 +97,34 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
         }
 
         [Test]
+        public async Task ThrowsArgumentNullExceptionWhenReferralNotFound()
+        {
+            const int unknownReferralId = 1234;
+
+            Func<Task> act = () => _classUnderTest.ExecuteAsync(unknownReferralId);
+
+            await act.Should().ThrowAsync<ArgumentNullException>()
+                .WithMessage($"Referral not found for: {unknownReferralId} (Parameter 'referralId')");
+        }
+
+        [Test]
+        public async Task ThrowsArgumentNullExceptionWhenCarePackageNotFound()
+        {
+            const int expectedReferralId = 1234;
+            _mockReferralGateway
+                .Setup(x => x.GetByIdWithElementsAsync(expectedReferralId))
+                .ReturnsAsync(new Referral());
+
+            Func<Task> act = () => _classUnderTest.ExecuteAsync(expectedReferralId);
+
+            await act.Should().ThrowAsync<ArgumentNullException>()
+                .WithMessage($"Care package not found for: {expectedReferralId} (Parameter 'referralId')");
+        }
+
+        [Test]
         public async Task ThrowsUnauthorizedWhenUserApprovalLimitTooLow()
         {
-            var (referral, carePackage) = SetupReferralAndCarePackage(1000);
+            var (referral, carePackage) = SetupReferralAndCarePackage(ReferralStatus.AwaitingApproval, 1000);
 
             SetupUser(carePackage.EstimatedYearlyCost - 10);
 
@@ -119,22 +135,31 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
         }
 
         [Test]
+        public async Task ThrowsInvalidOperationWhenCarePackageNotAwaitingApproval([Values] ReferralStatus status)
+        {
+            var (referral, carePackage) = SetupReferralAndCarePackage(status, 1000);
+
+            SetupUser(carePackage.EstimatedYearlyCost + 10);
+
+            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id);
+
+            if (status != ReferralStatus.AwaitingApproval)
+            {
+                await act.Should().ThrowAsync<InvalidOperationException>()
+                    .WithMessage("Referral is not in a valid state for approval");
+            }
+        }
+
+        [Test]
         public async Task AddsApprovedAuditEvent()
         {
-
             var elements = _fixture.BuildElement(1, 1)
                 .With(e => e.InternalStatus, ElementStatus.AwaitingApproval)
                 .CreateMany();
 
-            var referral = _fixture.BuildReferral(ReferralStatus.AwaitingApproval)
-                .With(r => r.Elements, elements.ToList())
-                .Create();
+            var (referral, carePackage) = SetupReferralAndCarePackage(ReferralStatus.AwaitingApproval, 1000, elements.ToArray());
 
-            _mockReferralGateway
-                .Setup(x => x.GetByIdWithElementsAsync(referral.Id))
-                .ReturnsAsync(referral);
-
-            var expectedUser = SetupUser(elements.Sum(e => e.Cost) * 100);
+            var expectedUser = SetupUser(carePackage.EstimatedYearlyCost + 100);
 
             await _classUnderTest.ExecuteAsync(referral.Id);
 
@@ -149,17 +174,11 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
         {
             new object[] // pending ending
             {
-                LocalDate.FromDateTime(DateTime.Today),
-                "expected comment here",
-                null,
-                AuditEventType.ElementEnded
+                LocalDate.FromDateTime(DateTime.Today), "expected comment here", null, AuditEventType.ElementEnded
             },
             new object[] // pending cancellation
             {
-                null,
-                "expected comment here",
-                true,
-                AuditEventType.ElementCancelled
+                null, "expected comment here", true, AuditEventType.ElementCancelled
             },
         };
 
@@ -169,7 +188,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             [CanBeNull] string expectedComment,
             bool? expectedCancellation,
             AuditEventType auditEventType
-            )
+        )
         {
             var referralElement = _fixture.BuildReferralElement(1, 1)
                 .With(re => re.PendingEndDate, expectedEndDate)
@@ -204,6 +223,14 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             _mockReferralGateway
                 .Setup(x => x.GetByIdWithElementsAsync(referral.Id))
                 .ReturnsAsync(referral);
+
+            _mockCarePackageGateway
+                .Setup(x => x.GetByIdAsync(referral.Id))
+                .ReturnsAsync(new CarePackage
+                {
+                    Id = referral.Id,
+                    Status = referral.Status
+                });
 
             var expectedUser = SetupUser(element.Cost * 100);
 
@@ -257,9 +284,9 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
 
             return user;
         }
-        private (Referral referral, CarePackage carePackage) SetupReferralAndCarePackage(decimal estimatedYearlyCost = 0, params Element[] elements)
+        private (Referral referral, CarePackage carePackage) SetupReferralAndCarePackage(ReferralStatus status, decimal estimatedYearlyCost = 0, params Element[] elements)
         {
-            var referralBuilder = _fixture.BuildReferral();
+            var referralBuilder = _fixture.BuildReferral(status);
 
             if (elements.Length > 0)
             {
@@ -271,6 +298,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             var carePackage = _fixture.BuildCarePackage()
                 .With(c => c.Id, referral.Id)
                 .With(c => c.EstimatedYearlyCost, estimatedYearlyCost)
+                .With(c => c.Status, referral.Status)
                 .Create();
 
             _mockReferralGateway
