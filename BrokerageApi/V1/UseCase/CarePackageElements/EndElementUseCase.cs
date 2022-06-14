@@ -67,15 +67,6 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
             referralElement.PendingComment = comment;
 
             await _dbSaver.SaveChangesAsync();
-
-            var metadata = new ElementAuditEventMetadata
-            {
-                ReferralId = referral.Id,
-                ElementId = element.Id,
-                ElementDetails = element.Details,
-                Comment = comment
-            };
-            await _auditGateway.AddAuditEvent(AuditEventType.ElementEnded, referral.SocialCareId, _userService.UserId, metadata);
         }
     }
 
