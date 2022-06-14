@@ -1,6 +1,8 @@
+using System.Linq;
 using System.Threading.Tasks;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
+using BrokerageApi.V1.Infrastructure.AuditEvents;
 using BrokerageApi.V1.Services.Interfaces;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackages;
 
@@ -30,9 +32,66 @@ namespace BrokerageApi.V1.UseCase.CarePackages
             _auditGateway = auditGateway;
         }
 
-        public Task ExecuteAsync(int referralId)
+        public async Task ExecuteAsync(int referralId)
         {
-            throw new System.NotImplementedException();
+            var referral = await _referralGateway.GetByIdWithElementsAsync(referralId);
+
+            referral.Status = ReferralStatus.Approved;
+            referral.Elements.ForEach(async e =>
+            {
+                e.InternalStatus = ElementStatus.Approved;
+
+                if (e.ParentElement != null)
+                {
+                    e.ParentElement.EndDate = e.StartDate.PlusDays(-1);
+                }
+
+                await ApplyPendingStates(e, referral);
+            });
+
+            await _dbSaver.SaveChangesAsync();
+
+            var metadata = new CarePackageApprovalAuditEventMetadata
+            {
+                ReferralId = referral.Id,
+            };
+            await _auditGateway.AddAuditEvent(AuditEventType.CarePackageApproved, referral.SocialCareId, _userService.UserId, metadata);
+
+        }
+        private async Task ApplyPendingStates(Element e, Referral referral)
+        {
+            var referralElement = e.ReferralElements?.SingleOrDefault(re => re.ReferralId == referral.Id);
+
+            if (referralElement is null) return;
+
+            var metadata = new ElementAuditEventMetadata
+            {
+                ReferralId = referral.Id,
+                ElementId = e.Id,
+                ElementDetails = e.Details,
+                Comment = referralElement.PendingComment
+            };
+
+            if (referralElement.PendingComment != null)
+            {
+                e.Comment = referralElement.PendingComment;
+                referralElement.PendingComment = null;
+            }
+
+            if (referralElement.PendingEndDate != null)
+            {
+                e.EndDate = referralElement.PendingEndDate;
+                referralElement.PendingEndDate = null;
+                await _auditGateway.AddAuditEvent(AuditEventType.ElementEnded, referral.SocialCareId, _userService.UserId, metadata);
+            }
+
+            if (referralElement.PendingCancellation != null)
+            {
+                e.InternalStatus = ElementStatus.Cancelled;
+                referralElement.PendingCancellation = null;
+                await _auditGateway.AddAuditEvent(AuditEventType.ElementCancelled, referral.SocialCareId, _userService.UserId, metadata);
+            }
+
         }
     }
 }
