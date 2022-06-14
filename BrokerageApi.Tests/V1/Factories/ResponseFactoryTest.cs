@@ -68,6 +68,24 @@ namespace BrokerageApi.Tests.V1.Factories
         }
 
         [Test]
+        public void ElementTypeResponseMapsCorrectly()
+        {
+            var service = _fixture.BuildService().Create();
+            var elementType = _fixture.BuildElementType(service.Id).Create();
+
+            var response = elementType.ToResponse();
+
+            response.Id.Should().Be(elementType.Id);
+            response.Name.Should().Be(elementType.Name);
+            response.Type.Should().Be(elementType.Type);
+            response.CostType.Should().Be(elementType.CostType);
+            response.Billing.Should().Be(elementType.Billing);
+            response.NonPersonalBudget.Should().Be(elementType.NonPersonalBudget);
+            response.IsS117.Should().Be(elementType.IsS117);
+            response.Service.Should().BeEquivalentTo(elementType.Service?.ToResponse());
+        }
+
+        [Test]
         public void ElementMapsCorrectly()
         {
             var expectedReferralId = 1234;

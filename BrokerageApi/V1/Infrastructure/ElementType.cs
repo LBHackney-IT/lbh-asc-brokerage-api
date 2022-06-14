@@ -23,6 +23,8 @@ namespace BrokerageApi.V1.Infrastructure
 
         public bool NonPersonalBudget { get; set; }
 
+        public bool IsS117 { get; set; }
+
         public int Position { get; set; }
 
         public bool IsArchived { get; set; }

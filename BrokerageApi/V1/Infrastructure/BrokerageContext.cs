@@ -169,6 +169,10 @@ namespace BrokerageApi.V1.Infrastructure
                 .HasDefaultValue(false);
 
             modelBuilder.Entity<ElementType>()
+                .Property(et => et.IsS117)
+                .HasDefaultValue(false);
+
+            modelBuilder.Entity<ElementType>()
                 .Property(et => et.IsArchived)
                 .HasDefaultValue(false);
 

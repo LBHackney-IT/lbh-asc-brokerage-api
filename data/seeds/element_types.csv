@@ -1,125 +1,133 @@
-﻿id,service_id,name,subjective_code,type,cost_type,billing,non_personal_budget,position,is_archived
-1,1,Holiday Payment Hackney Adult Placement Scheme (Shared Lives),520070,service,weekly,supplier,TRUE,1,FALSE
-2,1,Shared Lives Hackney Adult Placement Scheme,520070,service,weekly,supplier,TRUE,2,FALSE
-3,1,Additional Needs Payment,520070,service,weekly,supplier,TRUE,3,FALSE
-4,2,Additional Needs Payment,520070,service,hourly,supplier,FALSE,1,FALSE
-5,2,Day Opportunities (daily),520070,service,daily,supplier,FALSE,2,FALSE
-6,2,Day Opportunities (hourly),520070,service,hourly,supplier,FALSE,3,FALSE
-7,2,Supported Living Core Costs/Accommodation (weekly),520070,service,weekly,supplier,FALSE,4,FALSE
-8,2,Extra Hours (hourly),520070,service,hourly,supplier,FALSE,5,FALSE
-9,2,Sleeping Nights (hourly),520070,service,hourly,supplier,FALSE,6,FALSE
-10,2,Waking Nights (per night),520070,service,daily,supplier,FALSE,7,FALSE
-11,13,Additional Needs Payment,520045,service,hourly,supplier,FALSE,1,FALSE
-12,13,Agreed Council Top Up Payment ,520045,service,weekly,supplier,FALSE,2,FALSE
-13,13,FNCC Payment to Home,520215,service,weekly,supplier,FALSE,3,FALSE
-14,13,Long Stay Nursing Care,520045,service,weekly,supplier,FALSE,4,FALSE
-15,13,Personal Allowance Payment,520045,service,weekly,supplier,FALSE,5,FALSE
-16,14,FNCC Payment to Home,520215,service,weekly,supplier,FALSE,1,FALSE
-17,14,Temporary Stay Nursing Care,520045,service,weekly,supplier,FALSE,2,FALSE
-18,15,Additional Needs Payment,520045,service,weekly,supplier,FALSE,1,FALSE
-19,15,FNCC Payment to Home,520215,service,weekly,supplier,FALSE,2,FALSE
-20,15,Short Stay Nursing Care,520045,service,weekly,supplier,FALSE,3,FALSE
-21,16,Additional Needs Payment,520040,service,weekly,supplier,FALSE,1,FALSE
-22,16,Agreed Council Top Up Payment,520040,service,weekly,supplier,FALSE,2,FALSE
-23,16,Day Opportunities (weekly),520040,service,weekly,supplier,FALSE,3,FALSE
-24,16,Long Stay Residential Care,520040,service,weekly,supplier,FALSE,4,FALSE
-25,16,Personal Allowance Payment,520040,service,weekly,supplier,FALSE,5,FALSE
-26,17,Personal Allowance Payment,520040,service,weekly,supplier,FALSE,1,FALSE
-27,17,Short Stay Residential Care,520040,service,weekly,supplier,FALSE,2,FALSE
-28,18,Additional Needs Payment,520040,service,weekly,supplier,FALSE,1,FALSE
-29,18,Short Stay Residential Care,520040,service,weekly,supplier,FALSE,2,FALSE
-30,5,Direct Payment - Day Care (weekly),520085,service,weekly,supplier,FALSE,1,FALSE
-31,5,Direct Payment - Personal Care (hourly),520085,service,hourly,supplier,FALSE,2,FALSE
-32,5,Direct Payment - Personal Care (weekly),520085,service,weekly,supplier,FALSE,3,FALSE
-33,5,Direct Payment - Transport (weekly),520085,service,transport,supplier,FALSE,4,FALSE
-34,5,Direct Payment (One off set up cost),520085,service,one_off,supplier,FALSE,5,FALSE
-35,5,Direct Payment (other one off payment),520085,service,one_off,supplier,FALSE,6,FALSE
-36,5,Direct Payment (Carer Respite one off payment),520085,service,one_off,supplier,FALSE,7,FALSE
-37,5,Direct Payment Clawback (from service user),520085,service,weekly,supplier,FALSE,8,FALSE
-38,5,Direct Payment to third party - Day Care (weekly),520085,service,weekly,supplier,FALSE,9,FALSE
-39,5,Direct Payment to third party - Personal Care (hourly),520085,service,hourly,supplier,FALSE,10,FALSE
-40,5,Direct Payment to third party - Personal Care (weekly),520085,service,weekly,supplier,FALSE,11,FALSE
-41,5,Direct Payment to third party - Transport (weekly),520085,service,transport,supplier,FALSE,12,FALSE
-42,5,Direct Payment to third party (once off set up cost),520085,service,one_off,supplier,FALSE,13,FALSE
-43,5,Direct Payment to third party (other one off payments),520085,service,one_off,supplier,FALSE,14,FALSE
-44,5,Direct Payment to third party (Carer respite one off payment),520085,service,one_off,supplier,FALSE,15,FALSE
-45,6,Day opportunity - external provider (daily),520110,service,daily,supplier,FALSE,1,FALSE
-46,6,Day opportunity - internal provider (daily),520055,service,daily,none,FALSE,2,FALSE
-47,6,Day opportunity (hourly),520110,service,hourly,supplier,FALSE,3,FALSE
-48,6,Day opportunity - transport - external provider,520110,service,transport,supplier,FALSE,4,FALSE
-49,6,Day opportunity - transport - internal provider,520075,service,transport,none,FALSE,5,FALSE
-50,7,Escort (hourly),520050,service,hourly,supplier,FALSE,1,FALSE
-51,7,Live in Carer (hourly),520050,service,hourly,supplier,FALSE,2,FALSE
-52,7,Live in Carer (daily),520050,service,weekly,supplier,FALSE,3,FALSE
-53,7,Personal Home Care - Additional Carer (hourly),520050,service,hourly,supplier,FALSE,4,FALSE
-54,7,Personal Home Care (hourly),520050,service,hourly,supplier,FALSE,5,FALSE
-55,7,Personal Home Care (weekly),520050,service,weekly,supplier,FALSE,6,FALSE
-56,7,Sleeping Night (hourly),520050,service,hourly,supplier,FALSE,7,FALSE
-57,7,Sleeping Nights (cost per night),520050,service,daily,supplier,FALSE,8,FALSE
-58,7,Waking Night (hourly),520050,service,hourly,supplier,FALSE,9,FALSE
-59,7,Waking Nights (cost per night),520050,service,daily,supplier,FALSE,10,FALSE
-60,8,Subsistence ASC (Weekly),520110,service,weekly,supplier,FALSE,1,FALSE
-61,8,Temporary Accommodation (cost per night),520110,service,daily,supplier,TRUE,2,FALSE
-62,9,Temporary Accommodation (cost per night),520110,service,daily,supplier,TRUE,1,FALSE
-63,9,Intense Clean,520110,service,one_off,supplier,TRUE,2,FALSE
-64,12,Intense Clean,520110,service,one_off,supplier,TRUE,1,FALSE
-65,12,Other professional services (hourly),520110,service,hourly,supplier,TRUE,2,FALSE
-66,12,Other professional services (daily),520110,service,daily,supplier,TRUE,3,FALSE
-67,12,Pet Kennelling (daily),520110,service,daily,supplier,TRUE,4,FALSE
-68,12,Pet Kennelling (weekly),520110,service,weekly,supplier,TRUE,5,FALSE
-69,12,Transport (weekly),520110,service,transport,supplier,TRUE,6,FALSE
-70,10,Housing with Care - external provider (hourly amount),520110,service,hourly,supplier,FALSE,1,FALSE
-71,10,Housing with Care - internal provider (hourly amount),520110,service,hourly,supplier,FALSE,2,FALSE
-72,10,Additional Needs Payment,520110,service,hourly,supplier,FALSE,3,FALSE
-73,11,Carer Support - Day Sitting Service (hourly),520110,service,hourly,supplier,FALSE,1,FALSE
-74,11,Day Opportunities Respite (daily),520110,service,daily,supplier,FALSE,2,FALSE
-75,11,Day Opportunities Respite (hourly),520110,service,hourly,supplier,FALSE,3,FALSE
-76,11,FNCC Payment to Home,520110,service,weekly,supplier,FALSE,4,FALSE
-77,11,Respite Nursing Care,520110,service,weekly,supplier,FALSE,5,FALSE
-78,11,FNCC Respite Nursing Care (collected by provider),520110,service,weekly,supplier,FALSE,6,FALSE
-79,11,Additional Needs Payment,520110,service,weekly,supplier,FALSE,7,FALSE
-82,11,Respite Residential Care,520110,service,weekly,supplier,FALSE,8,FALSE
-83,11,Carer BACS Payment - S2029 (one off),520110,service,weekly,supplier,FALSE,9,FALSE
-84,11,Carer Cheque Payment - (one off),520110,service,weekly,supplier,FALSE,10,FALSE
-201,13,Provisional Residential Care Charges (collected by provider),920180,provisional_care_charge,weekly,supplier,FALSE,101,FALSE
-202,13,Provisional Residential Care Charges (collected by Hackney),920180,provisional_care_charge,weekly,customer,FALSE,102,FALSE
-203,13,FNCC Reclaim,920210,confirmed_care_charge,weekly,none,FALSE,103,FALSE
-204,13,FNCC Nursing Care (collected by provider),920210,confirmed_care_charge,weekly,supplier,FALSE,104,FALSE
-205,13,Third Party top up (collected by Hackney),920130,confirmed_care_charge,weekly,customer,FALSE,105,FALSE
-206,13,Third Party top up (payment to provider),920130,confirmed_care_charge,weekly,supplier,FALSE,106,FALSE
-207,13,Residential Care Charges weeks 1 to 12 (collected by Hackney),920180,confirmed_care_charge,weekly,customer,FALSE,107,FALSE
-208,13,Residential Care Charges weeks 1 to 12 (collected by provider),920180,confirmed_care_charge,weekly,supplier,FALSE,108,FALSE
-209,13,Residential Care Charges weeks 13 onwards (collected by Hackney),920180,confirmed_care_charge,weekly,customer,FALSE,109,FALSE
-210,13,Residential Care Charges weeks 13 onwards (collected by provider),920180,confirmed_care_charge,weekly,supplier,FALSE,110,FALSE
-211,14,Provisional Residential Care Charges (collected by provider),920180,provisional_care_charge,weekly,supplier,FALSE,101,FALSE
-212,14,Provisional Residential Care Charges (collected by Hackney),920180,provisional_care_charge,weekly,customer,FALSE,102,FALSE
-213,14,FNCC Nursing Care (collected by provider),920210,confirmed_care_charge,weekly,supplier,FALSE,103,FALSE
-214,15,Short Stay Residential Care Charges (collected by provider),920180,confirmed_care_charge,weekly,supplier,FALSE,101,FALSE
-215,15,Short Stay Residential Care Charges (collected by Hackney),920180,confirmed_care_charge,weekly,customer,FALSE,102,FALSE
-216,15,Provisional Residential Care Charges (collected by provider),920180,provisional_care_charge,weekly,supplier,FALSE,103,FALSE
-217,15,Provisional Residential Care Charges (collected by Hackney),920180,provisional_care_charge,weekly,customer,FALSE,104,FALSE
-218,15,FNCC Reclaim,920210,confirmed_care_charge,weekly,customer,FALSE,105,FALSE
-219,15,FNCC Nursing Care (collected by provider),920210,confirmed_care_charge,weekly,supplier,FALSE,106,FALSE
-220,15,Short Stay Residential Care Charges (collected by provider),920180,confirmed_care_charge,weekly,supplier,FALSE,107,FALSE
-221,15,Short Stay Residential Care Charges (collected by Hackney),920180,confirmed_care_charge,weekly,customer,FALSE,108,FALSE
-222,16,Provisional Residential Care Charges (collected by provider),920180,provisional_care_charge,weekly,supplier,FALSE,101,FALSE
-223,16,Provisional Residential Care Charges (collected by Hackney),920180,provisional_care_charge,weekly,customer,FALSE,102,FALSE
-224,16,Third Party top up (collected by Hackney),920130,confirmed_care_charge,weekly,customer,FALSE,103,FALSE
-225,16,Third Party top up (collected by provider),920130,confirmed_care_charge,weekly,supplier,FALSE,104,FALSE
-226,16,Residential Care Charges weeks 1 to 12 (collected by Hackney),920128,confirmed_care_charge,weekly,customer,FALSE,105,FALSE
-227,16,Residential Care Charges weeks 1 to 12 (collected by provider),920128,confirmed_care_charge,weekly,supplier,FALSE,106,FALSE
-228,16,Residential Care Charges weeks 13 onwards (collected by Hackney),920128,confirmed_care_charge,weekly,customer,FALSE,107,FALSE
-229,16,Residential Care Charges weeks 13 onwards (collected by provider),920128,confirmed_care_charge,weekly,supplier,FALSE,108,FALSE
-230,17,Provisional Residential Care Charges (collected by provider),920128,provisional_care_charge,weekly,customer,FALSE,101,FALSE
-231,17,Provisional Residential Care Charges (collected by Hackney),920128,provisional_care_charge,weekly,supplier,FALSE,102,FALSE
-232,17,Short Stay Residential Care Charges (collected by provider),920128,confirmed_care_charge,weekly,supplier,FALSE,103,FALSE
-233,17,Short Stay Residential Care Charges (collected by Hackney),920128,confirmed_care_charge,weekly,customer,FALSE,104,FALSE
-234,18,Provisional Residential Care Charges (collected by provider),920128,provisional_care_charge,weekly,supplier,FALSE,101,FALSE
-235,18,Provisional Residential Care Charges (collected by Hackney),920128,provisional_care_charge,weekly,customer,FALSE,102,FALSE
-236,18,Short Stay Residential Care Charges (collected by provider),920128,confirmed_care_charge,weekly,supplier,FALSE,103,FALSE
-237,18,Short Stay Residential Care Charges (collected by Hackney),920128,confirmed_care_charge,weekly,customer,FALSE,104,FALSE
-238,11,Provisional Residential respite charge (collected by provider),920128,provisional_care_charge,weekly,supplier,FALSE,101,FALSE
-239,11,Provisional Residential respite charge (collected by Hackney),920128,provisional_care_charge,weekly,customer,FALSE,102,FALSE
-240,11,Respite Residential Care,920128,confirmed_care_charge,weekly,supplier,FALSE,103,FALSE
-241,,Non-Residential Care Charges (deduct from DP),920128,confirmed_care_charge,weekly,customer,FALSE,101,FALSE
-242,,Non-Residential Care Charges (collected by Hackney),920128,confirmed_care_charge,weekly,customer,FALSE,102,FALSE
+﻿id,service_id,name,subjective_code,type,cost_type,billing,non_personal_budget,position,is_archived,is_s117
+1,1,Holiday Payment Hackney Adult Placement Scheme (Shared Lives),520070,service,weekly,supplier,TRUE,1,FALSE,FALSE
+2,1,Shared Lives Hackney Adult Placement Scheme,520070,service,weekly,supplier,TRUE,2,FALSE,FALSE
+3,1,Additional Needs Payment,520070,service,weekly,supplier,TRUE,3,FALSE,FALSE
+4,2,Additional Needs Payment,520070,service,hourly,supplier,FALSE,1,FALSE,FALSE
+5,2,Day Opportunities (daily),520070,service,daily,supplier,FALSE,2,FALSE,FALSE
+6,2,Day Opportunities (hourly),520070,service,hourly,supplier,FALSE,3,FALSE,FALSE
+7,2,Supported Living Core Costs/Accommodation (weekly),520070,service,weekly,supplier,FALSE,4,FALSE,FALSE
+8,2,Extra Hours (hourly),520070,service,hourly,supplier,FALSE,5,FALSE,FALSE
+9,2,Sleeping Nights (hourly),520070,service,hourly,supplier,FALSE,6,FALSE,FALSE
+10,2,Waking Nights (per night),520070,service,daily,supplier,FALSE,7,FALSE,FALSE
+11,13,Additional Needs Payment,520045,service,hourly,supplier,FALSE,1,FALSE,FALSE
+12,13,Agreed Council Top Up Payment ,520045,service,weekly,supplier,FALSE,2,FALSE,FALSE
+13,13,FNCC Payment to Home,520215,service,weekly,supplier,FALSE,3,FALSE,FALSE
+14,13,Long Stay Nursing Care,520045,service,weekly,supplier,FALSE,4,FALSE,FALSE
+15,13,Personal Allowance Payment,520045,service,weekly,supplier,FALSE,5,FALSE,FALSE
+16,14,FNCC Payment to Home,520215,service,weekly,supplier,FALSE,1,FALSE,FALSE
+17,14,Temporary Stay Nursing Care,520045,service,weekly,supplier,FALSE,2,FALSE,FALSE
+18,15,Additional Needs Payment,520045,service,weekly,supplier,FALSE,1,FALSE,FALSE
+19,15,FNCC Payment to Home,520215,service,weekly,supplier,FALSE,2,FALSE,FALSE
+20,15,Short Stay Nursing Care,520045,service,weekly,supplier,FALSE,3,FALSE,FALSE
+21,16,Additional Needs Payment,520040,service,weekly,supplier,FALSE,1,FALSE,FALSE
+22,16,Agreed Council Top Up Payment,520040,service,weekly,supplier,FALSE,2,FALSE,FALSE
+23,16,Day Opportunities (weekly),520040,service,weekly,supplier,FALSE,3,FALSE,FALSE
+24,16,Long Stay Residential Care,520040,service,weekly,supplier,FALSE,4,FALSE,FALSE
+25,16,Personal Allowance Payment,520040,service,weekly,supplier,FALSE,5,FALSE,FALSE
+26,17,Personal Allowance Payment,520040,service,weekly,supplier,FALSE,1,FALSE,FALSE
+27,17,Short Stay Residential Care,520040,service,weekly,supplier,FALSE,2,FALSE,FALSE
+28,18,Additional Needs Payment,520040,service,weekly,supplier,FALSE,1,FALSE,FALSE
+29,18,Short Stay Residential Care,520040,service,weekly,supplier,FALSE,2,FALSE,FALSE
+30,5,Direct Payment - Day Care (weekly),520085,service,weekly,supplier,FALSE,1,FALSE,FALSE
+31,5,Direct Payment - Personal Care (hourly),520085,service,hourly,supplier,FALSE,2,FALSE,FALSE
+32,5,Direct Payment - Personal Care (weekly),520085,service,weekly,supplier,FALSE,3,FALSE,FALSE
+33,5,Direct Payment - Transport (weekly),520085,service,transport,supplier,FALSE,4,FALSE,FALSE
+34,5,Direct Payment (One off set up cost),520085,service,one_off,supplier,FALSE,5,FALSE,FALSE
+35,5,Direct Payment (other one off payment),520085,service,one_off,supplier,FALSE,6,FALSE,FALSE
+36,5,Direct Payment (Carer Respite one off payment),520085,service,one_off,supplier,FALSE,7,FALSE,FALSE
+37,5,Direct Payment Clawback (from service user),520085,service,weekly,supplier,FALSE,8,FALSE,FALSE
+38,5,Direct Payment to third party - Day Care (weekly),520085,service,weekly,supplier,FALSE,9,FALSE,FALSE
+39,5,Direct Payment to third party - Personal Care (hourly),520085,service,hourly,supplier,FALSE,10,FALSE,FALSE
+40,5,Direct Payment to third party - Personal Care (weekly),520085,service,weekly,supplier,FALSE,11,FALSE,FALSE
+41,5,Direct Payment to third party - Transport (weekly),520085,service,transport,supplier,FALSE,12,FALSE,FALSE
+42,5,Direct Payment to third party (once off set up cost),520085,service,one_off,supplier,FALSE,13,FALSE,FALSE
+43,5,Direct Payment to third party (other one off payments),520085,service,one_off,supplier,FALSE,14,FALSE,FALSE
+44,5,Direct Payment to third party (Carer respite one off payment),520085,service,one_off,supplier,FALSE,15,FALSE,FALSE
+45,6,Day opportunity - external provider (daily),520110,service,daily,supplier,FALSE,1,FALSE,FALSE
+46,6,Day opportunity - internal provider (daily),520055,service,daily,none,FALSE,2,FALSE,FALSE
+47,6,Day opportunity (hourly),520110,service,hourly,supplier,FALSE,3,FALSE,FALSE
+48,6,Day opportunity - transport - external provider,520110,service,transport,supplier,FALSE,4,FALSE,FALSE
+49,6,Day opportunity - transport - internal provider,520075,service,transport,none,FALSE,5,FALSE,FALSE
+50,7,Escort (hourly),520050,service,hourly,supplier,FALSE,1,FALSE,FALSE
+51,7,Live in Carer (hourly),520050,service,hourly,supplier,FALSE,2,FALSE,FALSE
+52,7,Live in Carer (daily),520050,service,weekly,supplier,FALSE,3,FALSE,FALSE
+53,7,Personal Home Care - Additional Carer (hourly),520050,service,hourly,supplier,FALSE,4,FALSE,FALSE
+54,7,Personal Home Care (hourly),520050,service,hourly,supplier,FALSE,5,FALSE,FALSE
+55,7,Personal Home Care (weekly),520050,service,weekly,supplier,FALSE,6,FALSE,FALSE
+56,7,Sleeping Night (hourly),520050,service,hourly,supplier,FALSE,7,FALSE,FALSE
+57,7,Sleeping Nights (cost per night),520050,service,daily,supplier,FALSE,8,FALSE,FALSE
+58,7,Waking Night (hourly),520050,service,hourly,supplier,FALSE,9,FALSE,FALSE
+59,7,Waking Nights (cost per night),520050,service,daily,supplier,FALSE,10,FALSE,FALSE
+60,8,Subsistence ASC (Weekly),520110,service,weekly,supplier,FALSE,1,FALSE,FALSE
+61,8,Temporary Accommodation (cost per night),520110,service,daily,supplier,TRUE,2,FALSE,FALSE
+62,9,Temporary Accommodation (cost per night),520110,service,daily,supplier,TRUE,1,FALSE,FALSE
+63,9,Intense Clean,520110,service,one_off,supplier,TRUE,2,FALSE,FALSE
+64,12,Intense Clean,520110,service,one_off,supplier,TRUE,1,FALSE,FALSE
+65,12,Other professional services (hourly),520110,service,hourly,supplier,TRUE,2,FALSE,FALSE
+66,12,Other professional services (daily),520110,service,daily,supplier,TRUE,3,FALSE,FALSE
+67,12,Pet Kennelling (daily),520110,service,daily,supplier,TRUE,4,FALSE,FALSE
+68,12,Pet Kennelling (weekly),520110,service,weekly,supplier,TRUE,5,FALSE,FALSE
+69,12,Transport (weekly),520110,service,transport,supplier,TRUE,6,FALSE,FALSE
+70,10,Housing with Care - external provider (hourly amount),520110,service,hourly,supplier,FALSE,1,FALSE,FALSE
+71,10,Housing with Care - internal provider (hourly amount),520110,service,hourly,supplier,FALSE,2,FALSE,FALSE
+72,10,Additional Needs Payment,520110,service,hourly,supplier,FALSE,3,FALSE,FALSE
+73,11,Carer Support - Day Sitting Service (hourly),520110,service,hourly,supplier,FALSE,1,FALSE,FALSE
+74,11,Day Opportunities Respite (daily),520110,service,daily,supplier,FALSE,2,FALSE,FALSE
+75,11,Day Opportunities Respite (hourly),520110,service,hourly,supplier,FALSE,3,FALSE,FALSE
+76,11,FNCC Payment to Home,520110,service,weekly,supplier,FALSE,4,FALSE,FALSE
+77,11,Respite Nursing Care,520110,service,weekly,supplier,FALSE,5,FALSE,FALSE
+78,11,FNCC Respite Nursing Care (collected by provider),520110,service,weekly,supplier,FALSE,6,FALSE,FALSE
+79,11,Additional Needs Payment,520110,service,weekly,supplier,FALSE,7,FALSE,FALSE
+82,11,Respite Residential Care,520110,service,weekly,supplier,FALSE,8,FALSE,FALSE
+83,11,Carer BACS Payment - S2029 (one off),520110,service,weekly,supplier,FALSE,9,FALSE,FALSE
+84,11,Carer Cheque Payment - (one off),520110,service,weekly,supplier,FALSE,10,FALSE,FALSE
+201,13,Service user is an S117 client,920180,provisional_care_charge,weekly,customer,FALSE,101,FALSE,TRUE
+202,13,Provisional Residential Care Charges (collected by provider),920180,provisional_care_charge,weekly,supplier,FALSE,102,FALSE,FALSE
+203,13,Provisional Residential Care Charges (collected by Hackney),920180,provisional_care_charge,weekly,customer,FALSE,103,FALSE,FALSE
+204,13,FNCC Reclaim,920210,confirmed_care_charge,weekly,none,FALSE,101,FALSE,FALSE
+205,13,FNCC Nursing Care (collected by provider),920210,confirmed_care_charge,weekly,supplier,FALSE,102,FALSE,FALSE
+206,13,Third Party top up (collected by Hackney),920130,confirmed_care_charge,weekly,customer,FALSE,103,FALSE,FALSE
+207,13,Third Party top up (payment to provider),920130,confirmed_care_charge,weekly,supplier,FALSE,104,FALSE,FALSE
+208,13,Residential Care Charges weeks 1 to 12 (collected by Hackney),920180,confirmed_care_charge,weekly,customer,FALSE,105,FALSE,FALSE
+209,13,Residential Care Charges weeks 1 to 12 (collected by provider),920180,confirmed_care_charge,weekly,supplier,FALSE,106,FALSE,FALSE
+210,13,Residential Care Charges weeks 13 onwards (collected by Hackney),920180,confirmed_care_charge,weekly,customer,FALSE,107,FALSE,FALSE
+211,13,Residential Care Charges weeks 13 onwards (collected by provider),920180,confirmed_care_charge,weekly,supplier,FALSE,108,FALSE,FALSE
+212,14,Service user is an S117 client,920180,provisional_care_charge,weekly,customer,FALSE,101,FALSE,TRUE
+213,14,Provisional Residential Care Charges (collected by provider),920180,provisional_care_charge,weekly,supplier,FALSE,102,FALSE,FALSE
+214,14,Provisional Residential Care Charges (collected by Hackney),920180,provisional_care_charge,weekly,customer,FALSE,103,FALSE,FALSE
+215,14,FNCC Nursing Care (collected by provider),920210,confirmed_care_charge,weekly,supplier,FALSE,101,FALSE,FALSE
+216,14,Short Stay Residential Care Charges (collected by provider),920180,confirmed_care_charge,weekly,supplier,FALSE,102,FALSE,FALSE
+217,14,Short Stay Residential Care Charges (collected by Hackney),920180,confirmed_care_charge,weekly,customer,FALSE,103,FALSE,FALSE
+218,15,Service user is an S117 client,920180,provisional_care_charge,weekly,customer,FALSE,101,FALSE,TRUE
+219,15,Provisional Residential Care Charges (collected by provider),920180,provisional_care_charge,weekly,supplier,FALSE,102,FALSE,FALSE
+220,15,Provisional Residential Care Charges (collected by Hackney),920180,provisional_care_charge,weekly,customer,FALSE,103,FALSE,FALSE
+221,15,FNCC Reclaim,920210,confirmed_care_charge,weekly,customer,FALSE,101,FALSE,FALSE
+222,15,FNCC Nursing Care (collected by provider),920210,confirmed_care_charge,weekly,supplier,FALSE,102,FALSE,FALSE
+223,15,Short Stay Residential Care Charges (collected by provider),920180,confirmed_care_charge,weekly,supplier,FALSE,103,FALSE,FALSE
+224,15,Short Stay Residential Care Charges (collected by Hackney),920180,confirmed_care_charge,weekly,customer,FALSE,104,FALSE,FALSE
+225,16,Service user is an S117 client,920180,provisional_care_charge,weekly,customer,FALSE,101,FALSE,TRUE
+226,16,Provisional Residential Care Charges (collected by provider),920180,provisional_care_charge,weekly,supplier,FALSE,102,FALSE,FALSE
+227,16,Provisional Residential Care Charges (collected by Hackney),920180,provisional_care_charge,weekly,customer,FALSE,103,FALSE,FALSE
+228,16,Third Party top up (collected by Hackney),920130,confirmed_care_charge,weekly,customer,FALSE,101,FALSE,FALSE
+229,16,Third Party top up (collected by provider),920130,confirmed_care_charge,weekly,supplier,FALSE,102,FALSE,FALSE
+230,16,Residential Care Charges weeks 1 to 12 (collected by Hackney),920128,confirmed_care_charge,weekly,customer,FALSE,103,FALSE,FALSE
+231,16,Residential Care Charges weeks 1 to 12 (collected by provider),920128,confirmed_care_charge,weekly,supplier,FALSE,104,FALSE,FALSE
+232,16,Residential Care Charges weeks 13 onwards (collected by Hackney),920128,confirmed_care_charge,weekly,customer,FALSE,105,FALSE,FALSE
+233,16,Residential Care Charges weeks 13 onwards (collected by provider),920128,confirmed_care_charge,weekly,supplier,FALSE,106,FALSE,FALSE
+234,17,Service user is an S117 client,920128,provisional_care_charge,weekly,customer,FALSE,101,FALSE,TRUE
+235,17,Provisional Residential Care Charges (collected by provider),920128,provisional_care_charge,weekly,customer,FALSE,102,FALSE,FALSE
+236,17,Provisional Residential Care Charges (collected by Hackney),920128,provisional_care_charge,weekly,supplier,FALSE,103,FALSE,FALSE
+237,17,Short Stay Residential Care Charges (collected by provider),920128,confirmed_care_charge,weekly,supplier,FALSE,101,FALSE,FALSE
+238,17,Short Stay Residential Care Charges (collected by Hackney),920128,confirmed_care_charge,weekly,customer,FALSE,102,FALSE,FALSE
+239,18,Service user is an S117 client,920128,provisional_care_charge,weekly,customer,FALSE,101,FALSE,TRUE
+240,18,Provisional Residential Care Charges (collected by provider),920128,provisional_care_charge,weekly,supplier,FALSE,102,FALSE,FALSE
+241,18,Provisional Residential Care Charges (collected by Hackney),920128,provisional_care_charge,weekly,customer,FALSE,103,FALSE,FALSE
+242,18,Short Stay Residential Care Charges (collected by provider),920128,confirmed_care_charge,weekly,supplier,FALSE,101,FALSE,FALSE
+243,18,Short Stay Residential Care Charges (collected by Hackney),920128,confirmed_care_charge,weekly,customer,FALSE,102,FALSE,FALSE
+244,11,Service user is an S117 client,920128,provisional_care_charge,weekly,customer,FALSE,101,FALSE,TRUE
+245,11,Provisional Residential respite charge (collected by provider),920128,provisional_care_charge,weekly,supplier,FALSE,102,FALSE,FALSE
+246,11,Provisional Residential respite charge (collected by Hackney),920128,provisional_care_charge,weekly,customer,FALSE,103,FALSE,FALSE
+247,11,Respite Residential Care Charges (collected by provider),920128,confirmed_care_charge,weekly,supplier,FALSE,101,FALSE,FALSE
+248,11,Respite Residential Care Charges (collected by Hackney),920128,confirmed_care_charge,weekly,customer,FALSE,102,FALSE,FALSE
+249,,Non-Residential Care Charges (deduct from DP),920128,confirmed_care_charge,weekly,customer,FALSE,101,FALSE,FALSE
+250,,Non-Residential Care Charges (collected by Hackney),920128,confirmed_care_charge,weekly,customer,FALSE,102,FALSE,FALSE
