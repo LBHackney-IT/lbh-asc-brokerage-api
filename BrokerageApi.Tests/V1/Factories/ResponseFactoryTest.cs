@@ -194,6 +194,7 @@ namespace BrokerageApi.Tests.V1.Factories
             response.AssignedBroker.Should().BeEquivalentTo(carePackage.AssignedBroker?.ToResponse());
             response.AssignedApprover.Should().BeEquivalentTo(carePackage.AssignedApprover?.ToResponse());
             response.AssignedTo.Should().Be(status == ReferralStatus.AwaitingApproval ? carePackage.AssignedApprover.Email : carePackage.AssignedBroker.Email);
+            response.EstimatedYearlyCost.Should().Be(carePackage.EstimatedYearlyCost);
         }
 
         [Test]

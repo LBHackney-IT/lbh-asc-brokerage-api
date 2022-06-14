@@ -54,6 +54,8 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public decimal? OneOffPayment { get; set; }
 
+        public decimal? EstimatedYearlyCost { get; set; }
+
         public List<ElementResponse> Elements { get; set; }
 
         public string Comment { get; set; }
