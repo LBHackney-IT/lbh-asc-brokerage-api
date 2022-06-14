@@ -6,7 +6,7 @@ ENV LBHPACKAGESTOKEN=$LBHPACKAGESTOKEN
 WORKDIR /app
 
 # Install dotnet-ef tool to run migrations
-RUN dotnet tool install --global dotnet-ef
+RUN dotnet tool install --global dotnet-ef --version 5.0.10
 
 # Ensure dotnet tools are in the path
 ENV PATH="$PATH:/root/.dotnet/tools"
