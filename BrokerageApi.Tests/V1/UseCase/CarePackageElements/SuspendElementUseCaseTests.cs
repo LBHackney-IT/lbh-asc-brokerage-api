@@ -70,7 +70,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             var newElement = _mockElementGateway.LastElementAdded;
             newElement.Should().NotBeNull();
-            newElement.InternalStatus.Should().Be(ElementStatus.Suspended);
+            newElement.InternalStatus.Should().Be(ElementStatus.InProgress);
             newElement.CreatedBy.Should().Be(expectedUserEmail);
             newElement.CreatedAt.Should().Be(_clock.Now);
             newElement.UpdatedAt.Should().Be(_clock.Now);

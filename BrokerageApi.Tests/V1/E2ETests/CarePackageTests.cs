@@ -269,8 +269,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 .With(e => e.EndDate, endDate.PlusDays(5))
                 .CreateMany();
 
-            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
-                .With(r => r.Status, ReferralStatus.Approved)
+            var referral = _fixture.BuildReferral(ReferralStatus.Approved)
                 .With(r => r.AssignedBrokerEmail, ApiUser.Email)
                 .With(r => r.Elements, elements.ToList)
                 .Create();
@@ -322,8 +321,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 .With(e => e.InternalStatus, ElementStatus.Approved)
                 .CreateMany();
 
-            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
-                .With(r => r.Status, ReferralStatus.Approved)
+            var referral = _fixture.BuildReferral(ReferralStatus.Approved)
                 .With(r => r.AssignedBrokerEmail, ApiUser.Email)
                 .With(r => r.Elements, elements.ToList)
                 .Create();
@@ -379,8 +377,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 .With(e => e.EndDate, endDate.PlusDays(5))
                 .CreateMany();
 
-            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
-                .With(r => r.Status, ReferralStatus.Approved)
+            var referral = _fixture.BuildReferral(ReferralStatus.Approved)
                 .With(r => r.AssignedBrokerEmail, ApiUser.Email)
                 .With(r => r.Elements, elements.ToList)
                 .Create();
@@ -440,8 +437,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 .With(e => e.EndDate, startDate.PlusDays(5))
                 .CreateMany();
 
-            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
-                .With(r => r.Status, ReferralStatus.Approved)
+            var referral = _fixture.BuildReferral(ReferralStatus.Approved)
                 .With(r => r.AssignedBrokerEmail, ApiUser.Email)
                 .With(r => r.Elements, elements.ToList)
                 .Create();
@@ -508,7 +504,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 .CreateMany();
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
-                .With(r => r.Status, ReferralStatus.InProgress)
                 .With(r => r.AssignedBrokerEmail, ApiUser.Email)
                 .With(r => r.Elements, dailyElements.Concat(oneOffElements).ToList)
                 .Create();
@@ -559,7 +554,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
         {
             // Arrange
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
-                .With(r => r.Status, ReferralStatus.InProgress)
                 .With(r => r.AssignedBrokerEmail, ApiUser.Email)
                 .Create();
 
@@ -585,6 +579,101 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var code = await Post($"/api/v1/referrals/{referral.Id}/care-package/assign-budget-approver", request);
 
             code.Should().Be(HttpStatusCode.OK);
+        }
+
+        [Test, Property("AsUser", "Approver"), Property("WithApprovalLimit", 1000)]
+        public async Task CanApproveCarePackage()
+        {
+            // Arrange
+            var service = _fixture.BuildService()
+                .Create();
+
+            var provider = _fixture.BuildProvider()
+                .Create();
+
+            var providerService = _fixture.BuildProviderService(provider.Id, service.Id)
+                .Create();
+
+            var oneOffElementType = _fixture.BuildElementType(service.Id)
+                .With(et => et.CostType, ElementCostType.OneOff)
+                .Create();
+
+            var referral = _fixture.BuildReferral(ReferralStatus.AwaitingApproval)
+                .With(r => r.AssignedBrokerEmail, ApiUser.Email)
+                .Create();
+
+            var newElement = _fixture.BuildElement(provider.Id, oneOffElementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.AwaitingApproval)
+                .With(e => e.Cost, 100)
+                .Create();
+            var newReferralElement = _fixture.BuildReferralElement(referral.Id, newElement.Id)
+                .Create();
+
+            var parentElement = _fixture.BuildElement(provider.Id, oneOffElementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .With(e => e.Cost, 100)
+                .Without(e => e.EndDate)
+                .Create();
+            var parentReferralElement = _fixture.BuildReferralElement(referral.Id, parentElement.Id)
+                .Create();
+
+            var childElement = _fixture.BuildElement(provider.Id, oneOffElementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.AwaitingApproval)
+                .With(e => e.Cost, 100)
+                .With(e => e.ParentElement, parentElement)
+                .Create();
+            var childReferralElement = _fixture.BuildReferralElement(referral.Id, childElement.Id)
+                .Create();
+
+            var cancelElement = _fixture.BuildElement(provider.Id, oneOffElementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .Create();
+            var cancelReferralElement = _fixture.BuildReferralElement(referral.Id, cancelElement.Id)
+                .With(re => re.PendingCancellation, true)
+                .With(re => re.PendingComment, "comment here")
+                .Create();
+
+            var endElement = _fixture.BuildElement(provider.Id, oneOffElementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .Without(e => e.EndDate)
+                .Create();
+            var endReferralElement = _fixture.BuildReferralElement(referral.Id, endElement.Id)
+                .With(re => re.PendingEndDate, CurrentDate)
+                .Create();
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.Services.AddAsync(service);
+            await Context.Providers.AddAsync(provider);
+            await Context.ProviderServices.AddAsync(providerService);
+            await Context.ElementTypes.AddAsync(oneOffElementType);
+            await Context.Referrals.AddAsync(referral);
+            await Context.Elements.AddRangeAsync(newElement, parentElement, childElement, cancelElement, endElement);
+            await Context.ReferralElements.AddRangeAsync(newReferralElement, parentReferralElement, childReferralElement, cancelReferralElement, endReferralElement);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            var code = await Post($"/api/v1/referrals/{referral.Id}/care-package/approve", null);
+
+            code.Should().Be(HttpStatusCode.OK);
+            var resultReferral = Context.Referrals.Single(r => r.Id == referral.Id);
+            resultReferral.Status.Should().Be(ReferralStatus.Approved);
+
+            var newElementResult = await Context.Elements.SingleAsync(e => e.Id == newElement.Id);
+            newElementResult.InternalStatus.Should().Be(ElementStatus.Approved);
+
+            var childElementResult = await Context.Elements.SingleAsync(e => e.Id == childElement.Id);
+            childElementResult.InternalStatus.Should().Be(ElementStatus.Approved);
+
+            var parentElementResult = await Context.Elements.SingleAsync(e => e.Id == parentElement.Id);
+            parentElementResult.EndDate.Should().Be(childElement.StartDate.PlusDays(-1));
+
+            var cancelElementResult = await Context.Elements.SingleAsync(e => e.Id == cancelElement.Id);
+            cancelElementResult.InternalStatus.Should().Be(ElementStatus.Cancelled);
+            cancelElementResult.Comment.Should().Be(cancelReferralElement.PendingComment);
+
+            var endElementResult = await Context.Elements.SingleAsync(e => e.Id == endElement.Id);
+            endElementResult.EndDate.Should().Be(endReferralElement.PendingEndDate);
         }
     }
 }

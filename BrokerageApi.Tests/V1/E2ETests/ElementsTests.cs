@@ -164,9 +164,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var resultReferralElement = await Context.ReferralElements.SingleAsync(re => re.ElementId == element.Id && re.ReferralId == referral.Id);
             resultReferralElement.PendingEndDate.Should().Be(request.EndDate);
             resultReferralElement.PendingComment.Should().Be(request.Comment);
-
-            var auditEvent = await Context.AuditEvents.SingleOrDefaultAsync(ae => ae.EventType == AuditEventType.ElementEnded);
-            auditEvent.Should().NotBeNull();
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -206,9 +203,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var resultReferralElement = await Context.ReferralElements.SingleAsync(re => re.ElementId == element.Id && re.ReferralId == referral.Id);
             resultReferralElement.PendingCancellation.Should().BeTrue();
             resultReferralElement.PendingComment.Should().Be(request.Comment);
-
-            var auditEvent = await Context.AuditEvents.SingleOrDefaultAsync(ae => ae.EventType == AuditEventType.ElementCancelled);
-            auditEvent.Should().NotBeNull();
         }
 
         [Test, Property("AsUser", "Broker")]

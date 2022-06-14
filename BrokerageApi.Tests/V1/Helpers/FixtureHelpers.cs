@@ -111,7 +111,8 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(e => e.ElementType)
                 .With(e => e.ProviderId, providerId)
                 .With(e => e.ElementTypeId, elementTypeId)
-                .With(e => e.InternalStatus, ElementStatus.InProgress);
+                .With(e => e.InternalStatus, ElementStatus.InProgress)
+                .With(e => e.IsSuspension, false);
         }
 
         public static IPostprocessComposer<Element> WithoutCost(this IPostprocessComposer<Element> elementBuilder)
@@ -132,6 +133,9 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(re => re.Element)
                 .Without(re => re.Referral)
                 .Without(re => re.CarePackage)
+                .Without(re => re.PendingCancellation)
+                .Without(re => re.PendingComment)
+                .Without(re => re.PendingEndDate)
                 .With(re => re.ReferralId, referralId)
                 .With(re => re.ElementId, elementId);
         }

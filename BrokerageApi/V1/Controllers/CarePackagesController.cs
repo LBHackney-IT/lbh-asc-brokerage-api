@@ -27,6 +27,7 @@ namespace BrokerageApi.V1.Controllers
         private readonly ISuspendCarePackageUseCase _suspendCarePackageUseCase;
         private readonly IGetBudgetApproversUseCase _getBudgetApproversUseCase;
         private readonly IAssignBudgetApproverToCarePackageUseCase _assignBudgetApproverToCarePackageUseCase;
+        private readonly IApproveCarePackageUseCase _approveCarePackageUseCase;
 
         public CarePackagesController(IGetCarePackageByIdUseCase getCarePackageByIdUseCase,
             IStartCarePackageUseCase startCarePackageUseCase,
@@ -34,7 +35,8 @@ namespace BrokerageApi.V1.Controllers
             ICancelCarePackageUseCase cancelCarePackageUseCase,
             ISuspendCarePackageUseCase suspendCarePackageUseCase,
             IGetBudgetApproversUseCase getBudgetApproversUseCase,
-            IAssignBudgetApproverToCarePackageUseCase assignBudgetApproverToCarePackageUseCase)
+            IAssignBudgetApproverToCarePackageUseCase assignBudgetApproverToCarePackageUseCase,
+            IApproveCarePackageUseCase approveCarePackageUseCase)
         {
             _getCarePackageByIdUseCase = getCarePackageByIdUseCase;
             _startCarePackageUseCase = startCarePackageUseCase;
@@ -43,6 +45,7 @@ namespace BrokerageApi.V1.Controllers
             _suspendCarePackageUseCase = suspendCarePackageUseCase;
             _getBudgetApproversUseCase = getBudgetApproversUseCase;
             _assignBudgetApproverToCarePackageUseCase = assignBudgetApproverToCarePackageUseCase;
+            _approveCarePackageUseCase = approveCarePackageUseCase;
         }
 
         [Authorize]
@@ -306,6 +309,47 @@ namespace BrokerageApi.V1.Controllers
                     StatusCodes.Status403Forbidden, "Forbidden"
                 );
             }
+        }
+
+        [Authorize(Roles = "Approver")]
+        [HttpPost]
+        [Route("approve")]
+        [ProducesResponseType(typeof(ReferralResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ApproveCarePackage([FromRoute] int referralId)
+        {
+            try
+            {
+                await _approveCarePackageUseCase.ExecuteAsync(referralId);
+            }
+            catch (ArgumentNullException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/approve",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (InvalidOperationException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/approve",
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
+                );
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/approve",
+                    StatusCodes.Status403Forbidden, "Forbidden"
+                );
+            }
+            return Ok();
         }
     }
 }

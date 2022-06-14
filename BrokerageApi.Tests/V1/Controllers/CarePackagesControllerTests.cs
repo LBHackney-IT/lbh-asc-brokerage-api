@@ -32,6 +32,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Mock<ICancelCarePackageUseCase> _mockCancelCarePackageUseCase;
         private Mock<IGetBudgetApproversUseCase> _mockGetBudgetApproversUseCase;
         private Mock<IAssignBudgetApproverToCarePackageUseCase> _mockAssignBudgetApproverUseCase;
+        private Mock<IApproveCarePackageUseCase> _mockApproveCarePackageUSeCase;
 
         [SetUp]
         public void SetUp()
@@ -45,6 +46,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockSuspendCarePackageUseCase = new Mock<ISuspendCarePackageUseCase>();
             _mockGetBudgetApproversUseCase = new Mock<IGetBudgetApproversUseCase>();
             _mockAssignBudgetApproverUseCase = new Mock<IAssignBudgetApproverToCarePackageUseCase>();
+            _mockApproveCarePackageUSeCase = new Mock<IApproveCarePackageUseCase>();
 
             _classUnderTest = new CarePackagesController(
                 _mockGetCarePackageByIdUseCase.Object,
@@ -53,7 +55,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 _mockCancelCarePackageUseCase.Object,
                 _mockSuspendCarePackageUseCase.Object,
                 _mockGetBudgetApproversUseCase.Object,
-                _mockAssignBudgetApproverUseCase.Object
+                _mockAssignBudgetApproverUseCase.Object,
+                _mockApproveCarePackageUSeCase.Object
             );
 
             // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
@@ -349,7 +352,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockAssignBudgetApproverUseCase.Verify(x => x.ExecuteAsync(referralId, request.Approver));
         }
 
-        private static readonly object[] _assignApproverErrorList =
+        private static readonly object[] _approverErrorList =
         {
             new object[]
             {
@@ -365,7 +368,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             }
         };
 
-        [TestCaseSource(nameof(_assignApproverErrorList)), Property("AsUser", "Broker")]
+        [TestCaseSource(nameof(_approverErrorList)), Property("AsUser", "Broker")]
         public async Task AssignBudgetApproverMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
         {
             const int referralId = 1234;
@@ -375,6 +378,33 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ThrowsAsync(exception);
 
             var response = await _classUnderTest.AssignBudgetApprover(referralId, request);
+            var statusCode = GetStatusCode(response);
+
+            statusCode.Should().Be((int) expectedStatusCode);
+            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+        }
+
+        [Test, Property("AsUser", "Approver")]
+        public async Task CanApproveCarePackage()
+        {
+            const int referralId = 1234;
+
+            var response = await _classUnderTest.ApproveCarePackage(referralId);
+            var statusCode = GetStatusCode(response);
+
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            _mockApproveCarePackageUSeCase.Verify(x => x.ExecuteAsync(referralId));
+        }
+
+        [TestCaseSource(nameof(_approverErrorList)), Property("AsUser", "Approver")]
+        public async Task CanApproveCarePackageMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            const int referralId = 1234;
+            _mockApproveCarePackageUSeCase
+                .Setup(x => x.ExecuteAsync(referralId))
+                .ThrowsAsync(exception);
+
+            var response = await _classUnderTest.ApproveCarePackage(referralId);
             var statusCode = GetStatusCode(response);
 
             statusCode.Should().Be((int) expectedStatusCode);

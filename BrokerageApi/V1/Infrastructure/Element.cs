@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using NodaTime;
 using BrokerageApi.V1.Services.Interfaces;
 using JetBrains.Annotations;
@@ -15,7 +16,7 @@ namespace BrokerageApi.V1.Infrastructure
         {
         }
 
-        private Element(BrokerageContext db)
+        public Element(BrokerageContext db)
         {
             _clock = db.Clock;
         }
@@ -124,6 +125,10 @@ namespace BrokerageApi.V1.Infrastructure
                         }
                         else if (Today >= StartDate)
                         {
+                            if (SuspensionElements != null && SuspensionElements.Any(e => e.Status == ElementStatus.Active))
+                            {
+                                return ElementStatus.Suspended;
+                            }
                             return ElementStatus.Active;
                         }
                         else

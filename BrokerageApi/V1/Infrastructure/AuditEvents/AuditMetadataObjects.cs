@@ -23,4 +23,8 @@ namespace BrokerageApi.V1.Infrastructure.AuditEvents
         public int ReferralId { get; set; }
         public string Comment { get; set; }
     }
+    public class CarePackageApprovalAuditEventMetadata : AuditMetadataBase
+    {
+        public int ReferralId { get; set; }
+    }
 }

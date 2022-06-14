@@ -90,6 +90,8 @@ namespace BrokerageApi.V1.Gateways
                 .Include(r => r.AssignedApprover)
                 .Include(r => r.Elements)
                     .ThenInclude(e => e.ParentElement)
+                .Include(r => r.Elements)
+                    .ThenInclude(e => e.ReferralElements)
                 .SingleOrDefaultAsync();
         }
     }

@@ -126,30 +126,6 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             }
         }
 
-        [Test]
-        public async Task AddsAuditTrail()
-        {
-            const string expectedComment = "commentHere";
-            var (referral, element) = CreateReferralAndElement();
-            const int expectedUserId = 1234;
-            _mockElementGateway.Setup(x => x.GetByIdAsync(element.Id))
-                .ReturnsAsync(element);
-            _mockUserService
-                .Setup(x => x.UserId)
-                .Returns(expectedUserId);
-
-            await _classUnderTest.ExecuteAsync(referral.Id, element.Id, expectedComment);
-
-            _mockAuditGateway.VerifyAuditEventAdded(AuditEventType.ElementCancelled);
-            _mockAuditGateway.LastUserId.Should().Be(expectedUserId);
-            _mockAuditGateway.LastSocialCareId.Should().Be(referral.SocialCareId);
-            var eventMetadata = _mockAuditGateway.LastMetadata.Should().BeOfType<ElementAuditEventMetadata>().Which;
-            eventMetadata.ReferralId.Should().Be(referral.Id);
-            eventMetadata.ElementId.Should().Be(element.Id);
-            eventMetadata.ElementDetails.Should().Be(element.Details);
-            eventMetadata.Comment.Should().Be(expectedComment);
-        }
-
         private (Referral referral, Element element) CreateReferralAndElement(ElementStatus status = ElementStatus.Approved, LocalDate? endDate = null)
         {
             var builder = _fixture.BuildElement(1, 1)
