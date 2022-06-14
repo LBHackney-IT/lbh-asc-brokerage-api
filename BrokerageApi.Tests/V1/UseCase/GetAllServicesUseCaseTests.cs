@@ -28,7 +28,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         public async Task GetAllServices()
         {
             // Arrange
-            var expectedServices = _fixture.CreateMany<Service>();
+            var expectedServices = _fixture.BuildService().CreateMany();
             _mockServiceGateway
                 .Setup(x => x.GetAllAsync())
                 .ReturnsAsync(expectedServices);
@@ -44,7 +44,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         public async Task GetFilteredAllServices()
         {
             // Arrange
-            var expectedServices = _fixture.CreateMany<Service>();
+            var expectedServices = _fixture.BuildService().CreateMany();
             _mockServiceGateway
                 .Setup(x => x.GetAllAsync())
                 .ReturnsAsync(expectedServices);

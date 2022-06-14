@@ -28,9 +28,9 @@ namespace BrokerageApi.Tests.V1.Factories
         [Test]
         public void AuditResponseMapsCorrectly()
         {
-            var referral = _fixture.Create<Referral>();
+            var referral = _fixture.BuildReferral().Create();
 
-            var auditEvent = _fixture.Build<AuditEvent>()
+            var auditEvent = _fixture.BuildAuditEvent()
                 .With(ae => ae.Metadata, "{ \"test\": \"test\" }")
                 .With(ae => ae.Referral, referral)
                 .Create();

@@ -53,12 +53,11 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         {
             // Arrange
             var currentInstant = SystemClock.Instance.GetCurrentInstant();
-            var elementType = _fixture.Create<ElementType>();
-            var provider = _fixture.Create<Provider>();
+            var elementType = _fixture.BuildElementType(1).Create();
+            var provider = _fixture.BuildProvider().Create();
             const string expectedUserEmail = "expected@email.com";
 
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.InProgress)
+            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
                 .With(x => x.AssignedBrokerEmail, expectedUserEmail)
                 .Without(x => x.Elements)
                 .Create();
@@ -135,8 +134,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             // Arrange
             var request = _fixture.Create<CreateElementRequest>();
 
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Assigned)
+            var referral = _fixture.BuildReferral(ReferralStatus.Assigned)
                 .With(x => x.AssignedBrokerEmail, "a.broker@hackney.go.uk")
                 .Create();
 
@@ -163,8 +161,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             // Arrange
             var request = _fixture.Create<CreateElementRequest>();
 
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.InProgress)
+            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
                 .With(x => x.AssignedBrokerEmail, "other.broker@hackney.gov.uk")
                 .Create();
 
@@ -193,8 +190,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .With(x => x.ElementTypeId, 123456)
                 .Create();
 
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.InProgress)
+            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
                 .With(x => x.AssignedBrokerEmail, "a.broker@hackney.gov.uk")
                 .Create();
 
@@ -223,15 +219,14 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         public void ThrowsArgumentExceptionWhenProviderDoesNotExist()
         {
             // Arrange
-            var elementType = _fixture.Create<ElementType>();
+            var elementType = _fixture.BuildElementType(1).Create();
 
             var request = _fixture.Build<CreateElementRequest>()
                 .With(x => x.ElementTypeId, elementType.Id)
                 .With(x => x.ProviderId, 123456)
                 .Create();
 
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.InProgress)
+            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
                 .With(x => x.AssignedBrokerEmail, "a.broker@hackney.gov.uk")
                 .Create();
 
@@ -265,13 +260,12 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         {
             // Arrange
             var currentInstant = SystemClock.Instance.GetCurrentInstant();
-            var elementType = _fixture.Create<ElementType>();
-            var provider = _fixture.Create<Provider>();
+            var elementType = _fixture.BuildElementType(1).Create();
+            var provider = _fixture.BuildProvider().Create();
 
             var parentElement = _fixture.BuildElement(provider.Id, elementType.Id).Create();
 
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.InProgress)
+            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
                 .With(x => x.AssignedBrokerEmail, "a.broker@hackney.gov.uk")
                 .With(x => x.Elements, new List<Element> { parentElement })
                 .Create();

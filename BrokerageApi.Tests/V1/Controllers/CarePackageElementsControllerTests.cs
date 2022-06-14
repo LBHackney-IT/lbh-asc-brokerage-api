@@ -64,8 +64,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task CreatesElement()
         {
             // Arrange
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Assigned)
+            var referral = _fixture.BuildReferral(ReferralStatus.Assigned)
                 .With(x => x.AssignedBrokerEmail, "a.broker@hackney.gov.uk")
                 .Create();
 
@@ -109,8 +108,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task CreateElementMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
         {
             // Arrange
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Assigned)
+            var referral = _fixture.BuildReferral(ReferralStatus.Assigned)
                 .With(x => x.AssignedBrokerEmail, "a.broker@hackney.gov.uk")
                 .Create();
 
@@ -133,9 +131,10 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task DeletesElement()
         {
             // Arrange
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Assigned)
+            var elements = _fixture.BuildElement(1, 1).CreateMany();
+            var referral = _fixture.BuildReferral(ReferralStatus.Assigned)
                 .With(x => x.AssignedBrokerEmail, "a.broker@hackney.gov.uk")
+                .With(x => x.Elements, elements.ToList)
                 .Create();
             var elementId = referral.Elements.First().Id;
 
@@ -168,8 +167,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task DeleteElementMapsErrors(Exception exception, int expectedStatusCode)
         {
             // Arrange
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Assigned)
+            var referral = _fixture.BuildReferral(ReferralStatus.Assigned)
                 .With(x => x.AssignedBrokerEmail, "a.broker@hackney.gov.uk")
                 .Create();
 
@@ -178,7 +176,7 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .Throws(exception);
 
             // Act
-            var objectResult = await _classUnderTest.DeleteElement(referral.Id, referral.Elements.First().Id);
+            var objectResult = await _classUnderTest.DeleteElement(referral.Id, 1);
             var statusCode = GetStatusCode(objectResult);
 
             // Assert
@@ -280,8 +278,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             var element = _fixture.BuildElement(1, 1)
                 .Create();
 
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Assigned)
+            var referral = _fixture.BuildReferral(ReferralStatus.Assigned)
                 .With(x => x.AssignedBrokerEmail, "a.broker@hackney.gov.uk")
                 .With(x => x.Elements, new List<Element> { element })
                 .Create();
@@ -309,8 +306,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             var element = _fixture.BuildElement(1, 1)
                 .Create();
 
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, ReferralStatus.Assigned)
+            var referral = _fixture.BuildReferral(ReferralStatus.Assigned)
                 .With(x => x.AssignedBrokerEmail, "a.broker@hackney.gov.uk")
                 .With(x => x.Elements, new List<Element> { element })
                 .Create();

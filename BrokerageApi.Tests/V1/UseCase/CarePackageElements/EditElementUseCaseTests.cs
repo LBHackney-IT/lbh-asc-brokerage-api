@@ -273,17 +273,16 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         private (Provider provider, ElementType elementType, Element element, Referral referral) CreateReferralWithElement(ReferralStatus referralStatus = ReferralStatus.InProgress)
         {
 
-            var elementType = _fixture
-                .Create<ElementType>();
+            var elementType = _fixture.BuildElementType(1)
+                .Create();
 
-            var provider = _fixture
-                .Create<Provider>();
+            var provider = _fixture.BuildProvider()
+                .Create();
 
             var element = _fixture.BuildElement(provider.Id, elementType.Id)
                 .Create();
 
-            var referral = _fixture.Build<Referral>()
-                .With(x => x.Status, referralStatus)
+            var referral = _fixture.BuildReferral(referralStatus)
                 .With(x => x.Elements, new List<Element> { element })
                 .Create();
 

@@ -35,7 +35,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         [Test]
         public async Task CanGetCurrentUser()
         {
-            var user = _fixture.Create<User>();
+            var user = _fixture.BuildUser().Create();
 
             _mockUserService.Setup(x => x.Email)
                 .Returns(user.Email);

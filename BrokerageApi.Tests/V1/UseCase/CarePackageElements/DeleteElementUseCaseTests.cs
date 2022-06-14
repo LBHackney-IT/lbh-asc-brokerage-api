@@ -176,8 +176,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
         private Referral CreateReferral(ReferralStatus referralStatus = ReferralStatus.InProgress, List<Element> elements = null, string assignedToCom = null)
         {
-            var referralBuilder = _fixture.Build<Referral>()
-                .With(r => r.Status, referralStatus)
+            var referralBuilder = _fixture.BuildReferral(referralStatus)
                 .With(r => r.Elements, elements)
                 .With(r => r.UpdatedAt, _currentInstant.Minus(Duration.FromDays(1)));
 
@@ -195,14 +194,14 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
         private IEnumerable<Element> CreateElements(int minId = 0)
         {
-            var elements = _fixture.Build<Element>()
+            var elements = _fixture.BuildElement(1, 1)
                 .With(e => e.Id, _fixture.CreateInt(minId, minId))
                 .CreateMany();
             return elements;
         }
         private Element CreateElement(int elementId)
         {
-            var element = _fixture.Build<Element>()
+            var element = _fixture.BuildElement(1, 1)
                 .With(e => e.Id, elementId)
                 .Create();
             return element;
