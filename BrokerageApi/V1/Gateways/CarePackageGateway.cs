@@ -37,10 +37,25 @@ namespace BrokerageApi.V1.Gateways
             return await _context.CarePackages
                 .Where(cp => cp.SocialCareId == serviceUserId)
                 .Include(cp => cp.Elements.OrderBy(e => e.CreatedAt))
-                .ThenInclude(e => e.Provider)
+                    .ThenInclude(e => e.Provider)
                 .Include(cp => cp.Elements.OrderBy(e => e.CreatedAt))
-                .ThenInclude(e => e.ElementType)
-                .ThenInclude(et => et.Service)
+                    .ThenInclude(e => e.ElementType)
+                    .ThenInclude(et => et.Service)
+                .Include(cp => cp.AssignedBroker)
+                .Include(cp => cp.AssignedApprover)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<CarePackage>> GetByBudgetApprovalLimitAsync(decimal approvalLimit)
+        {
+            return await _context.CarePackages
+                .Where(x => x.Status == ReferralStatus.AwaitingApproval)
+                .Where(c => c.EstimatedYearlyCost <= approvalLimit)
+                .Include(cp => cp.Elements.OrderBy(e => e.CreatedAt))
+                    .ThenInclude(e => e.Provider)
+                .Include(cp => cp.Elements.OrderBy(e => e.CreatedAt))
+                    .ThenInclude(e => e.ElementType)
+                    .ThenInclude(et => et.Service)
                 .Include(cp => cp.AssignedBroker)
                 .Include(cp => cp.AssignedApprover)
                 .ToListAsync();

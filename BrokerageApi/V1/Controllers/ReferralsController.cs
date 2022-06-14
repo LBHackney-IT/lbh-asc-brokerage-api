@@ -10,6 +10,7 @@ using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.UseCase.Interfaces;
+using X.PagedList;
 
 namespace BrokerageApi.V1.Controllers
 {
@@ -27,16 +28,16 @@ namespace BrokerageApi.V1.Controllers
         private readonly IAssignBrokerToReferralUseCase _assignBrokerToReferralUseCase;
         private readonly IReassignBrokerToReferralUseCase _reassignBrokerToReferralUseCase;
         private readonly IArchiveReferralUseCase _archiveReferralUseCase;
+        private readonly IGetBudgetApprovalsUseCase _getBudgetApprovalsUseCase;
 
-        public ReferralsController(
-            ICreateReferralUseCase createReferralUseCase,
+        public ReferralsController(ICreateReferralUseCase createReferralUseCase,
             IGetAssignedReferralsUseCase getAssignedReferralsUseCase,
             IGetCurrentReferralsUseCase getCurrentReferralsUseCase,
             IGetReferralByIdUseCase getReferralByIdUseCase,
             IAssignBrokerToReferralUseCase assignBrokerToReferralUseCase,
             IReassignBrokerToReferralUseCase reassignBrokerToReferralUseCase,
-            IArchiveReferralUseCase archiveReferralUseCase
-        )
+            IArchiveReferralUseCase archiveReferralUseCase,
+            IGetBudgetApprovalsUseCase getBudgetApprovalsUseCase)
         {
             _createReferralUseCase = createReferralUseCase;
             _getAssignedReferralsUseCase = getAssignedReferralsUseCase;
@@ -45,6 +46,7 @@ namespace BrokerageApi.V1.Controllers
             _assignBrokerToReferralUseCase = assignBrokerToReferralUseCase;
             _reassignBrokerToReferralUseCase = reassignBrokerToReferralUseCase;
             _archiveReferralUseCase = archiveReferralUseCase;
+            _getBudgetApprovalsUseCase = getBudgetApprovalsUseCase;
         }
 
         [Authorize(Roles = "Referrer")]
@@ -210,6 +212,31 @@ namespace BrokerageApi.V1.Controllers
                     e.Message,
                     $"/api/v1/referrals/{id}/archive",
                     StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
+                );
+            }
+        }
+
+        [Authorize(Roles = "Approver")]
+        [HttpGet]
+        [Route("budget-approvals")]
+        [ProducesResponseType(typeof(List<CarePackageResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetBudgetApprovals()
+        {
+            try
+            {
+                var approvals = await (await _getBudgetApprovalsUseCase.ExecuteAsync())
+                    .Select(a => a.ToResponse())
+                    .ToListAsync();
+                return Ok(approvals);
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"/api/v1/referrals/budget-approvals",
+                    StatusCodes.Status401Unauthorized, "Unauthorized"
                 );
             }
         }
