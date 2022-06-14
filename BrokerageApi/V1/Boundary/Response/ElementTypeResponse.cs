@@ -18,6 +18,8 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public bool NonPersonalBudget { get; set; }
 
+        public bool IsS117 { get; set; }
+
         public ServiceResponse Service { get; set; }
 
         public bool ShouldSerializeService() => Service != null;
