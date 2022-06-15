@@ -3,7 +3,7 @@
 2,,"Supported Living",,2,FALSE,FALSE
 3,,"Nursing",,3,FALSE,FALSE
 4,,"Residential",,4,FALSE,FALSE
-5,,"Direct Payments",,5,FALSE,FALSE
+5,,"Direct Payments",,5,TRUE,FALSE
 6,,"Day Care",,6,FALSE,FALSE
 7,,"Home Care",,7,FALSE,FALSE
 8,,"No Recourse to Public Funds",,8,FALSE,FALSE
