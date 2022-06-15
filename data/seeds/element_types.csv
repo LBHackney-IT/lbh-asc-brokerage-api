@@ -129,5 +129,5 @@
 246,11,Provisional Residential respite charge (collected by Hackney),920128,provisional_care_charge,weekly,customer,FALSE,103,FALSE,FALSE
 247,11,Respite Residential Care Charges (collected by provider),920128,confirmed_care_charge,weekly,supplier,FALSE,101,FALSE,FALSE
 248,11,Respite Residential Care Charges (collected by Hackney),920128,confirmed_care_charge,weekly,customer,FALSE,102,FALSE,FALSE
-249,,Non-Residential Care Charges (deduct from DP),920128,confirmed_care_charge,weekly,customer,FALSE,101,FALSE,FALSE
-250,,Non-Residential Care Charges (collected by Hackney),920128,confirmed_care_charge,weekly,customer,FALSE,102,FALSE,FALSE
+249,19,Non-Residential Care Charges (deduct from DP),920128,confirmed_care_charge,weekly,customer,FALSE,101,FALSE,FALSE
+250,19,Non-Residential Care Charges (collected by Hackney),920128,confirmed_care_charge,weekly,customer,FALSE,102,FALSE,FALSE
