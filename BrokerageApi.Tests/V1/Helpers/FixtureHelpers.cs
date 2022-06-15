@@ -28,7 +28,8 @@ namespace BrokerageApi.Tests.V1.Helpers
         }
         public static IPostprocessComposer<CarePackage> BuildCarePackage(this IFixture fixture, string socialCareId = null, bool withElements = false)
         {
-            var builder = fixture.Build<CarePackage>().As<IPostprocessComposer<CarePackage>>();
+            var builder = fixture.Build<CarePackage>()
+                .Without(c => c.ReferralAmendments);
 
             if (!withElements)
             {
@@ -87,6 +88,7 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(r => r.AssignedApprover)
                 .Without(r => r.AssignedBrokerEmail)
                 .Without(r => r.AssignedApproverEmail)
+                .Without(r => r.ReferralAmendments)
                 .With(r => r.WorkflowType, WorkflowType.Assessment);
 
             if (status != null)
@@ -153,6 +155,13 @@ namespace BrokerageApi.Tests.V1.Helpers
             return fixture.Build<AuditEvent>()
                 .Without(ae => ae.Referral)
                 .Without(ae => ae.User);
+        }
+
+        public static IPostprocessComposer<ReferralAmendment> BuildReferralAmendment(this IFixture fixture)
+        {
+            return fixture.Build<ReferralAmendment>()
+                .Without(a => a.Referral)
+                .Without(a => a.ReferralId);
         }
     }
 }

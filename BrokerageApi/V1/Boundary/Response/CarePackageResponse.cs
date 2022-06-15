@@ -58,6 +58,8 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public List<ElementResponse> Elements { get; set; }
 
+        public List<AmendmentResponse> Amendments { get; set; }
+
         public string Comment { get; set; }
     }
 }

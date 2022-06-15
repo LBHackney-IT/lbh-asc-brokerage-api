@@ -17,6 +17,7 @@ namespace BrokerageApi.V1.Infrastructure.AuditEvents
         ReferralArchived,
         ImportNote,
         CarePackageBudgetApproverAssigned,
-        CarePackageApproved
+        CarePackageApproved,
+        AmendmentRequested
     }
 }

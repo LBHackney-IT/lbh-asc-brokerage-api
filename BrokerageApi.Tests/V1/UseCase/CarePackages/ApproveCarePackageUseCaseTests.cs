@@ -18,6 +18,7 @@ using NUnit.Framework;
 
 namespace BrokerageApi.Tests.V1.UseCase.CarePackages
 {
+
     public class ApproveCarePackageUseCaseTests
     {
         private Mock<ICarePackageGateway> _mockCarePackageGateway;

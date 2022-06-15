@@ -21,6 +21,7 @@ namespace BrokerageApi.V1.Gateways
                 .Where(r => r.Status != ReferralStatus.Approved)
                 .Include(r => r.AssignedBroker)
                 .Include(r => r.AssignedApprover)
+                .Include(r => r.ReferralAmendments)
                 .OrderBy(r => r.Id);
         }
 
@@ -69,6 +70,7 @@ namespace BrokerageApi.V1.Gateways
             return await _context.Referrals
                 .Include(r => r.AssignedBroker)
                 .Include(r => r.AssignedApprover)
+                .Include(r => r.ReferralAmendments)
                 .Where(r => r.WorkflowId == workflowId)
                 .SingleOrDefaultAsync();
         }
@@ -79,6 +81,7 @@ namespace BrokerageApi.V1.Gateways
                 .Where(r => r.Id == id)
                 .Include(r => r.AssignedBroker)
                 .Include(r => r.AssignedApprover)
+                .Include(r => r.ReferralAmendments)
                 .SingleOrDefaultAsync();
         }
 
@@ -92,6 +95,7 @@ namespace BrokerageApi.V1.Gateways
                     .ThenInclude(e => e.ParentElement)
                 .Include(r => r.Elements)
                     .ThenInclude(e => e.ReferralElements)
+                .Include(r => r.ReferralAmendments)
                 .SingleOrDefaultAsync();
         }
     }
