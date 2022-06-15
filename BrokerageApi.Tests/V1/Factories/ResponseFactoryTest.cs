@@ -142,6 +142,7 @@ namespace BrokerageApi.Tests.V1.Factories
             response.PendingEndDate.Should().Be(expectedReferralElement.PendingEndDate);
             response.PendingCancellation.Should().Be(expectedReferralElement.PendingCancellation);
             response.PendingComment.Should().Be(expectedReferralElement.PendingComment);
+            response.IsSuspension.Should().Be(element.IsSuspension);
         }
 
         [Test]

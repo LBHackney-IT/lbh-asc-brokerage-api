@@ -75,6 +75,7 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
                 CreatedBy = _userService.Email
             };
             element.Comment = comment;
+            referral.Elements.Add(newElement);
 
             await _elementGateway.AddElementAsync(newElement);
 

@@ -55,6 +55,11 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
                 referral.Elements.Add(element.ParentElement);
             }
 
+            if (element.SuspendedElement != null)
+            {
+                element.SuspendedElement.SuspensionElements.Remove(element);
+            }
+
             referral.Elements.Remove(element);
             referral.UpdatedAt = _clockService.Now;
 

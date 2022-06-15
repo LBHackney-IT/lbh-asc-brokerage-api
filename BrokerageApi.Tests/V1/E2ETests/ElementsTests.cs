@@ -191,9 +191,9 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             Context.ChangeTracker.Clear();
 
-            var request = new EndRequest
+            var request = new CancelRequest
             {
-                EndDate = CurrentDate
+                Comment = "here is a comment"
             };
 
             var code = await Post($"/api/v1/referrals/{referral.Id}/care-package/elements/{element.Id}/cancel", request);
@@ -239,9 +239,171 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var (carePackageCode, carePackageResponse) = await Get<CarePackageResponse>($"/api/v1/referrals/{referral.Id}/care-package");
 
             carePackageCode.Should().Be(HttpStatusCode.OK);
-            carePackageResponse.Elements.Should().HaveCount(1);
-            carePackageResponse.Elements.Should().ContainSingle(e => e.Id == element.Id);
+            carePackageResponse.Elements.Should().HaveCount(3);
+
+            var resultElement = carePackageResponse.Elements.Single(e => e.Id == element.Id);
+            resultElement.Id.Should().Be(element.Id);
+            resultElement.SuspensionElements.Should().HaveCount(2);
+            resultElement.SuspensionElements.Should().OnlyContain(e => e.IsSuspension);
         }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanDeleteSuspensionElement()
+        {
+            var provider = _fixture.BuildProvider().Create();
+            var service = _fixture.BuildService().Create();
+            var providerService = _fixture.BuildProviderService(provider.Id, service.Id).Create();
+            var elementType = _fixture.BuildElementType(service.Id).Create();
+            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
+                .With(r => r.AssignedBrokerEmail, ApiUser.Email)
+                .Create();
+            var element = _fixture.BuildElement(provider.Id, elementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .Without(e => e.EndDate)
+                .Create();
+            var referralElement = _fixture.BuildReferralElement(referral.Id, element.Id).Create();
+
+            await Context.Services.AddAsync(service);
+            await Context.ElementTypes.AddAsync(elementType);
+            await Context.Providers.AddAsync(provider);
+            await Context.ProviderServices.AddAsync(providerService);
+            await Context.Referrals.AddAsync(referral);
+            await Context.Elements.AddRangeAsync(element);
+            await Context.ReferralElements.AddAsync(referralElement);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            await RequestSuspension(element, referral, true);
+
+            var (carePackageCode, carePackageResponse) = await Get<CarePackageResponse>($"/api/v1/referrals/{referral.Id}/care-package");
+
+            carePackageCode.Should().Be(HttpStatusCode.OK);
+            carePackageResponse.Elements.Should().HaveCount(2);
+
+            var resultElement = carePackageResponse.Elements.Single(e => e.Id == element.Id);
+            resultElement.SuspensionElements.Should().HaveCount(1);
+
+            var suspensionElement = resultElement.SuspensionElements.Single();
+
+            var deleteCode = await Delete($"/api/v1/referrals/{referral.Id}/care-package/elements/{suspensionElement.Id}");
+            deleteCode.Should().Be(HttpStatusCode.OK);
+
+            var (carePackageCode2, carePackageResponse2) = await Get<CarePackageResponse>($"/api/v1/referrals/{referral.Id}/care-package");
+
+            carePackageCode2.Should().Be(HttpStatusCode.OK);
+            carePackageResponse2.Elements.Should().HaveCount(1);
+
+            var resultElement2 = carePackageResponse2.Elements.Single();
+            resultElement2.Id.Should().Be(element.Id);
+            resultElement2.SuspensionElements.Should().BeEmpty();
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanEndSuspensionElement()
+        {
+            var provider = _fixture.BuildProvider().Create();
+            var service = _fixture.BuildService().Create();
+            var providerService = _fixture.BuildProviderService(provider.Id, service.Id).Create();
+            var elementType = _fixture.BuildElementType(service.Id).Create();
+            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
+                .With(r => r.AssignedBrokerEmail, ApiUser.Email)
+                .Create();
+
+            var element = _fixture.BuildElement(provider.Id, elementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .With(e => e.StartDate, CurrentDate.PlusDays(-100))
+                .Without(e => e.EndDate)
+                .Create();
+            var referralElement = _fixture.BuildReferralElement(referral.Id, element.Id).Create();
+
+            var suspensionElement = _fixture.BuildElement(provider.Id, elementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .With(e => e.StartDate, element.StartDate.PlusDays(10))
+                .With(e => e.EndDate, CurrentDate.PlusDays(17))
+                .With(e => e.SuspendedElementId, element.Id)
+                .Create();
+            var suspensionReferralElement = _fixture.BuildReferralElement(referral.Id, suspensionElement.Id).Create();
+
+            await Context.Services.AddAsync(service);
+            await Context.ElementTypes.AddAsync(elementType);
+            await Context.Providers.AddAsync(provider);
+            await Context.ProviderServices.AddAsync(providerService);
+            await Context.Referrals.AddAsync(referral);
+            await Context.Elements.AddRangeAsync(element);
+            await Context.ReferralElements.AddAsync(referralElement);
+            await Context.Elements.AddRangeAsync(suspensionElement);
+            await Context.ReferralElements.AddAsync(suspensionReferralElement);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            var request = new EndRequest
+            {
+                EndDate = CurrentDate
+            };
+
+            var code = await Post($"/api/v1/referrals/{referral.Id}/care-package/elements/{suspensionElement.Id}/end", request);
+
+            code.Should().Be(HttpStatusCode.OK);
+
+            var resultReferralElement = await Context.ReferralElements.SingleAsync(re => re.ElementId == suspensionElement.Id && re.ReferralId == referral.Id);
+            resultReferralElement.PendingEndDate.Should().Be(request.EndDate);
+            resultReferralElement.PendingComment.Should().Be(request.Comment);
+        }
+
+        [Test, Property("AsUser", "BrokerAndApprover")]
+        public async Task CanCancelSuspensionElement()
+        {
+            var provider = _fixture.BuildProvider().Create();
+            var service = _fixture.BuildService().Create();
+            var providerService = _fixture.BuildProviderService(provider.Id, service.Id).Create();
+            var elementType = _fixture.BuildElementType(service.Id).Create();
+            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
+                .With(r => r.AssignedBrokerEmail, ApiUser.Email)
+                .Create();
+
+            var element = _fixture.BuildElement(provider.Id, elementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .Without(e => e.EndDate)
+                .Create();
+            var referralElement = _fixture.BuildReferralElement(referral.Id, element.Id).Create();
+
+            var suspensionElement = _fixture.BuildElement(provider.Id, elementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .With(e => e.StartDate, element.StartDate.PlusDays(10))
+                .With(e => e.EndDate, element.StartDate.PlusDays(17))
+                .With(e => e.SuspendedElementId, element.Id)
+                .Create();
+            var suspensionReferralElement = _fixture.BuildReferralElement(referral.Id, suspensionElement.Id).Create();
+
+            await Context.Services.AddAsync(service);
+            await Context.ElementTypes.AddAsync(elementType);
+            await Context.Providers.AddAsync(provider);
+            await Context.ProviderServices.AddAsync(providerService);
+            await Context.Referrals.AddAsync(referral);
+            await Context.Elements.AddRangeAsync(element);
+            await Context.ReferralElements.AddAsync(referralElement);
+            await Context.Elements.AddRangeAsync(suspensionElement);
+            await Context.ReferralElements.AddAsync(suspensionReferralElement);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            var request = new CancelRequest
+            {
+                Comment = "here is a comment"
+            };
+
+            var code = await Post($"/api/v1/referrals/{referral.Id}/care-package/elements/{suspensionElement.Id}/cancel", request);
+
+            code.Should().Be(HttpStatusCode.OK);
+
+            var resultReferralElement = await Context.ReferralElements.SingleAsync(re => re.ElementId == suspensionElement.Id && re.ReferralId == referral.Id);
+            resultReferralElement.PendingCancellation.Should().BeTrue();
+            resultReferralElement.PendingComment.Should().Be(request.Comment);
+        }
+
         private async Task RequestSuspension(Element element, Referral referral, bool withEndDate)
         {
             var start = element.StartDate.PlusDays(_fixture.CreateInt(1, 100));

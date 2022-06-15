@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -152,12 +153,12 @@ namespace BrokerageApi.Tests
 
                 case "Broker":
                     SetAuthorizationHeader(GenerateToken("saml-socialcarefinance-brokerage"));
-                    CreateApiUser(UserRole.Broker, withApprovalLimit);
+                    CreateApiUser(withApprovalLimit, UserRole.Broker);
                     break;
 
                 case "BrokerageAssistant":
                     SetAuthorizationHeader(GenerateToken("saml-socialcarefinance-brokerage"));
-                    CreateApiUser(UserRole.BrokerageAssistant, withApprovalLimit);
+                    CreateApiUser(withApprovalLimit, UserRole.BrokerageAssistant);
                     break;
 
                 case "NewUser":
@@ -166,7 +167,12 @@ namespace BrokerageApi.Tests
 
                 case "Approver":
                     SetAuthorizationHeader(GenerateToken("saml-socialcarefinance-brokerage"));
-                    CreateApiUser(UserRole.Approver, withApprovalLimit);
+                    CreateApiUser(withApprovalLimit, UserRole.Approver);
+                    break;
+
+                case "BrokerAndApprover":
+                    SetAuthorizationHeader(GenerateToken("saml-socialcarefinance-brokerage"));
+                    CreateApiUser(withApprovalLimit, UserRole.Broker, UserRole.Approver);
                     break;
             }
         }
@@ -176,16 +182,13 @@ namespace BrokerageApi.Tests
             Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
 
-        private void CreateApiUser(UserRole role, decimal? approvalLimit)
+        private void CreateApiUser(decimal? approvalLimit, params UserRole[] roles)
         {
             _apiUser = new User()
             {
                 Name = "Api User",
                 Email = "api.user@hackney.gov.uk",
-                Roles = new List<UserRole>()
-                {
-                    role
-                },
+                Roles = roles.ToList(),
                 IsActive = true,
                 ApprovalLimit = approvalLimit
             };
