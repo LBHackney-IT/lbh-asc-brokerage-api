@@ -76,6 +76,43 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
         }
 
         [Test]
+        public async Task StartsCarePackageWhenInProgress()
+        {
+            // Arrange
+            var currentInstant = SystemClock.Instance.GetCurrentInstant();
+            var previousInstant = currentInstant - Duration.FromMinutes(60);
+
+            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
+                .With(x => x.AssignedBrokerEmail, "a.broker@hackney.gov.uk")
+                .With(x => x.StartedAt, previousInstant)
+                .Create();
+
+            _mockReferralGateway
+                .Setup(x => x.GetByIdAsync(referral.Id))
+                .ReturnsAsync(referral);
+
+            _mockUserService
+                .SetupGet(x => x.Email)
+                .Returns("a.broker@hackney.gov.uk");
+
+            _mockClock
+                .SetupGet(x => x.Now)
+                .Returns(currentInstant);
+
+            _mockDbSaver
+                .Setup(x => x.SaveChangesAsync())
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _classUnderTest.ExecuteAsync(referral.Id);
+
+            // Assert
+            Assert.That(result.Status, Is.EqualTo(ReferralStatus.InProgress));
+            Assert.That(result.StartedAt, Is.EqualTo(previousInstant));
+            _mockDbSaver.Verify(x => x.SaveChangesAsync(), Times.Never());
+        }
+
+        [Test]
         public void ThrowsArgumentNullExceptionWhenReferralDoesntExist()
         {
             // Arrange
