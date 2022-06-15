@@ -36,7 +36,7 @@ namespace BrokerageApi.V1.UseCase.CarePackages
                 throw new ArgumentNullException(nameof(referralId), $"Referral not found for: {referralId}");
             }
 
-            if (referral.Status != ReferralStatus.Assigned)
+            if (!CanBeStarted(referral.Status))
             {
                 throw new InvalidOperationException($"Referral is not in a valid state to start editing");
             }
@@ -46,11 +46,19 @@ namespace BrokerageApi.V1.UseCase.CarePackages
                 throw new UnauthorizedAccessException($"Referral is not assigned to {_userService.Email}");
             }
 
-            referral.Status = ReferralStatus.InProgress;
-            referral.StartedAt = _clock.Now;
-            await _dbSaver.SaveChangesAsync();
+            if (referral.Status == ReferralStatus.Assigned)
+            {
+                referral.Status = ReferralStatus.InProgress;
+                referral.StartedAt = _clock.Now;
+                await _dbSaver.SaveChangesAsync();
+            }
 
             return referral;
+        }
+
+        private static bool CanBeStarted(ReferralStatus status)
+        {
+            return status == ReferralStatus.Assigned || status == ReferralStatus.InProgress;
         }
     }
 }
