@@ -17,3 +17,4 @@
 16,4,"Long Stay Residential Care",,1,FALSE,TRUE
 17,4,"Interim Residential Bed","For a period not exceeding 52 weeks",2,FALSE,TRUE
 18,4,"Short Stay Residential Home","For a period not exceeding 8 weeks",3,FALSE,TRUE
+19,,"Care Charges",,10,TRUE,FALSE
