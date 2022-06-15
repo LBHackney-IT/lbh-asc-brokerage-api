@@ -50,10 +50,9 @@ namespace BrokerageApi.V1.Infrastructure
 
         public bool NonPersonalBudget { get; set; }
 
-        public int ProviderId { get; set; }
+        public int? ProviderId { get; set; }
         public Provider Provider { get; set; }
 
-        [Required]
         public string Details { get; set; }
 
         public ElementStatus InternalStatus { get; set; }

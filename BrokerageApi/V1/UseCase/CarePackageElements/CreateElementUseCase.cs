@@ -63,11 +63,16 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
                 throw new ArgumentException($"Element type not found for: {request.ElementTypeId}");
             }
 
-            var provider = await _providerGateway.GetByIdAsync(request.ProviderId);
+            var provider = (Provider) null;
 
-            if (provider is null)
+            if (request.ProviderId != null)
             {
-                throw new ArgumentException($"Provider not found for: {request.ProviderId}");
+                provider = await _providerGateway.GetByIdAsync((int) request.ProviderId);
+
+                if (provider is null)
+                {
+                    throw new ArgumentException($"Provider not found for: {request.ProviderId}");
+                }
             }
 
             var timeNow = _clock.Now;

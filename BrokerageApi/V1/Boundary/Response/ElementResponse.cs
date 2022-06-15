@@ -17,7 +17,6 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public ProviderResponse Provider { get; set; }
 
-        [JsonProperty(Required = Required.DisallowNull)]
         public string Details { get; set; }
 
         public ElementStatus Status { get; set; }

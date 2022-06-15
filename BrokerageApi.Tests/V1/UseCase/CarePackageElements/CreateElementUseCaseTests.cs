@@ -270,7 +270,6 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .With(x => x.Elements, new List<Element> { parentElement })
                 .Create();
 
-
             var request = _fixture.Build<CreateElementRequest>()
                 .With(x => x.ElementTypeId, elementType.Id)
                 .With(x => x.ProviderId, provider.Id)
