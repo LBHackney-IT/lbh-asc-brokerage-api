@@ -10,9 +10,8 @@ namespace BrokerageApi.V1.Boundary.Request
 
         public bool NonPersonalBudget { get; set; }
 
-        public int ProviderId { get; set; }
+        public int? ProviderId { get; set; }
 
-        [Required]
         public string Details { get; set; }
 
         public ElementCost? Monday { get; set; }

@@ -93,6 +93,60 @@ namespace BrokerageApi.Tests.V1.E2ETests
         }
 
         [Test, Property("AsUser", "Broker")]
+        public async Task CanCreateElementWithoutProviderAndDetails()
+        {
+            // Arrange
+            var service = _fixture.BuildService()
+                .Create();
+
+            var elementType = _fixture.BuildElementType(service.Id)
+                .Create();
+
+            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
+                .With(r => r.AssignedBrokerEmail, ApiUser.Email)
+                .Create();
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.Services.AddAsync(service);
+            await Context.ElementTypes.AddAsync(elementType);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            var request = _fixture.Build<CreateElementRequest>()
+                .With(r => r.ElementTypeId, elementType.Id)
+                .With(r => r.StartDate, CurrentDate)
+                .Without(r => r.ProviderId)
+                .Without(r => r.Details)
+                .Without(r => r.ParentElementId)
+                .Create();
+
+            // Act
+            var (code, response) = await Post<ElementResponse>($"/api/v1/referrals/{referral.Id}/care-package/elements", request);
+            var (referralCode, referralResponse) = await Get<ReferralResponse>($"/api/v1/referrals/{referral.Id}");
+
+            // Assert
+            code.Should().Be(HttpStatusCode.OK);
+            response.ElementType.Id.Should().Be(request.ElementTypeId);
+            response.Provider.Should().BeNull();
+            response.Details.Should().BeNull();
+            response.StartDate.Should().Be(request.StartDate);
+            response.Monday.Should().BeEquivalentTo(request.Monday);
+            response.Tuesday.Should().BeEquivalentTo(request.Tuesday);
+            response.Wednesday.Should().BeEquivalentTo(request.Wednesday);
+            response.Thursday.Should().BeEquivalentTo(request.Thursday);
+            response.Friday.Should().BeEquivalentTo(request.Friday);
+            response.Quantity.Should().Be(request.Quantity);
+            response.Cost.Should().Be(request.Cost);
+            response.Status.Should().Be(ElementStatus.InProgress);
+            response.UpdatedAt.Should().Be(CurrentInstant);
+            response.CreatedBy.Should().Be("api.user@hackney.gov.uk");
+
+            referralCode.Should().Be(HttpStatusCode.OK);
+            referralResponse.UpdatedAt.Should().Be(CurrentInstant);
+        }
+
+        [Test, Property("AsUser", "Broker")]
         public async Task CanDeleteElement()
         {
             var service = _fixture.BuildService()
@@ -283,6 +337,70 @@ namespace BrokerageApi.Tests.V1.E2ETests
             response.ElementType.Id.Should().Be(request.ElementTypeId);
             response.Provider.Id.Should().Be(request.ProviderId);
             response.Details.Should().Be(request.Details);
+            response.StartDate.Should().Be(request.StartDate);
+            response.Monday.Should().BeEquivalentTo(request.Monday);
+            response.Tuesday.Should().BeEquivalentTo(request.Tuesday);
+            response.Wednesday.Should().BeEquivalentTo(request.Wednesday);
+            response.Thursday.Should().BeEquivalentTo(request.Thursday);
+            response.Friday.Should().BeEquivalentTo(request.Friday);
+            response.Quantity.Should().Be(request.Quantity);
+            response.Cost.Should().Be(request.Cost);
+            response.Status.Should().Be(ElementStatus.InProgress);
+            response.UpdatedAt.Should().Be(CurrentInstant);
+
+            referralCode.Should().Be(HttpStatusCode.OK);
+            referralResponse.UpdatedAt.Should().Be(CurrentInstant);
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanEditElementWithoutProviderAndDetails()
+        {
+            // Arrange
+            var service = _fixture.BuildService()
+                .Create();
+
+            var provider = _fixture.BuildProvider()
+                .Create();
+
+            var providerService = _fixture.BuildProviderService(provider.Id, service.Id)
+                .Create();
+
+            var elementType = _fixture.BuildElementType(service.Id)
+                .Create();
+
+            var element = _fixture.BuildElement(provider.Id, elementType.Id)
+                .Create();
+
+            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
+                .With(r => r.AssignedBrokerEmail, ApiUser.Email)
+                .With(r => r.Elements, new List<Element> { element })
+                .Create();
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.Services.AddAsync(service);
+            await Context.Providers.AddAsync(provider);
+            await Context.ProviderServices.AddAsync(providerService);
+            await Context.ElementTypes.AddAsync(elementType);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            var request = _fixture.Build<EditElementRequest>()
+                .With(r => r.ElementTypeId, elementType.Id)
+                .With(r => r.StartDate, CurrentDate)
+                .Without(r => r.ProviderId)
+                .Without(r => r.Details)
+                .Create();
+
+            // Act
+            var (code, response) = await Post<ElementResponse>($"/api/v1/referrals/{referral.Id}/care-package/elements/{element.Id}/edit", request);
+            var (referralCode, referralResponse) = await Get<ReferralResponse>($"/api/v1/referrals/{referral.Id}");
+
+            // Assert
+            code.Should().Be(HttpStatusCode.OK);
+            response.ElementType.Id.Should().Be(request.ElementTypeId);
+            response.Provider.Should().BeNull();
+            response.Details.Should().BeNull();
             response.StartDate.Should().Be(request.StartDate);
             response.Monday.Should().BeEquivalentTo(request.Monday);
             response.Tuesday.Should().BeEquivalentTo(request.Tuesday);
