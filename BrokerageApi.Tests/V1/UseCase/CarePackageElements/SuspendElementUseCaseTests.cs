@@ -94,6 +94,8 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .Excluding(e => e.CreatedBy)
             );
             element.Comment.Should().Be(expectedComment);
+            referral.Elements.Should().Contain(newElement);
+
             _dbSaver.VerifyChangesSaved();
         }
 

@@ -71,7 +71,8 @@ namespace BrokerageApi.V1.Factories
                 Comment = element.Comment,
                 PendingEndDate = referralElement?.PendingEndDate,
                 PendingCancellation = referralElement?.PendingCancellation,
-                PendingComment = referralElement?.PendingComment
+                PendingComment = referralElement?.PendingComment,
+                IsSuspension = element.IsSuspension
             };
         }
 

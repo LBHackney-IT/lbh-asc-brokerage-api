@@ -57,5 +57,7 @@ namespace BrokerageApi.V1.Boundary.Response
         public Instant UpdatedAt { get; set; }
 
         public string Comment { get; set; }
+
+        public bool IsSuspension { get; set; }
     }
 }

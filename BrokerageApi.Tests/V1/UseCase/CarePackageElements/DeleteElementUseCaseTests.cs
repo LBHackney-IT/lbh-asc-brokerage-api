@@ -166,6 +166,34 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             _mockDbSaver.VerifyChangesSaved();
         }
 
+        [Test]
+        public async Task DeletesElementRemovesSelfFromSuspended()
+        {
+            const string userName = "a.broker@hackney.gov.uk";
+
+            ReturnsUser(userName);
+
+            var suspendedElement = _fixture.BuildElement(1, 1)
+                .Create();
+            var element = _fixture.BuildElement(1, 1)
+                .With(e => e.SuspendedElementId, suspendedElement.Id)
+                .With(e => e.SuspendedElement, suspendedElement)
+                .Create();
+            suspendedElement.SuspensionElements = new List<Element>
+            {
+                element
+            };
+
+            var elements = new List<Element> { element };
+            var referral = CreateReferral(ReferralStatus.InProgress, elements, userName);
+            ReturnsReferral(referral);
+
+            await _classUnderTest.ExecuteAsync(referral.Id, element.Id);
+
+            suspendedElement.SuspensionElements.Should().NotContain(element);
+            _mockDbSaver.VerifyChangesSaved();
+        }
+
         private void ReturnsUser(string userName)
         {
 
