@@ -246,6 +246,41 @@ namespace BrokerageApi.Tests.V1.E2ETests
             response.UpdatedAt.Should().BeEquivalentTo(CurrentInstant);
         }
 
+        [Test, Property("AsUser", "ReferrerAndBroker")]
+        public async Task CanStartCarePackageWhenUserIsAReferrerAndABroker()
+        {
+            // Arrange
+            var referral = new Referral()
+            {
+                WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                Status = ReferralStatus.Assigned,
+                AssignedBrokerEmail = "api.user@hackney.gov.uk",
+                StartedAt = null,
+                CreatedAt = PreviousInstant,
+                UpdatedAt = PreviousInstant
+            };
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            // Act
+            var (code, response) = await Post<ReferralResponse>($"/api/v1/referrals/{referral.Id}/care-package/start", null);
+
+            // Assert
+            code.Should().Be(HttpStatusCode.OK);
+            response.Status.Should().Be(ReferralStatus.InProgress);
+            response.StartedAt.Should().Be(CurrentInstant);
+            response.UpdatedAt.Should().BeEquivalentTo(CurrentInstant);
+        }
+
         [Test, Property("AsUser", "Broker")]
         public async Task CanEndCarePackage()
         {

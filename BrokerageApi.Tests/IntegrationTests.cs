@@ -151,6 +151,11 @@ namespace BrokerageApi.Tests
                     SetAuthorizationHeader(GenerateToken("saml-socialcare-corepathwayspilot"));
                     break;
 
+                case "ReferrerAndBroker":
+                    SetAuthorizationHeader(GenerateToken("saml-socialcare-corepathwayspilot", "saml-socialcarefinance-brokerage"));
+                    CreateApiUser(withApprovalLimit, UserRole.Broker);
+                    break;
+
                 case "Broker":
                     SetAuthorizationHeader(GenerateToken("saml-socialcarefinance-brokerage"));
                     CreateApiUser(withApprovalLimit, UserRole.Broker);
@@ -230,16 +235,26 @@ namespace BrokerageApi.Tests
             return (int) TestContext.CurrentContext.Test.Properties.Get("WithApprovalLimit");
         }
 
-        private static string GenerateToken(string group)
+        private static string GenerateToken(params string[] groups)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("super-secret-token"));
             var tokenHandler = new JwtSecurityTokenHandler();
+
+            var claims = new List<Claim>();
+
+            claims.Add(new Claim("sub", "123456789012345678901"));
+            claims.Add(new Claim("email", "api.user@hackney.gov.uk"));
+            claims.Add(new Claim("name", "Api User"));
+            claims.Add(new Claim("groups", "HackneyAll"));
+
+            foreach (string group in groups)
+            {
+                claims.Add(new Claim("groups", group));
+            }
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim("sub", "123456789012345678901"), new Claim("email", "api.user@hackney.gov.uk"), new Claim("name", "Api User"), new Claim("groups", "HackneyAll"), new Claim("groups", group)
-                }),
+                Subject = new ClaimsIdentity(claims.ToArray()),
                 Issuer = "Hackney",
                 IssuedAt = DateTime.UtcNow,
                 SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature)
