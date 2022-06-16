@@ -17,13 +17,15 @@ namespace BrokerageApi.V1.UseCase.CarePackages
         private readonly IUserGateway _userGateway;
         private readonly IDbSaver _dbSaver;
         private readonly IAuditGateway _auditGateway;
+        private readonly IClockService _clockService;
 
         public RequestAmendmentToCarePackageUseCase(ICarePackageGateway carePackageGateway,
             IReferralGateway referralGateway,
             IUserService userService,
             IUserGateway userGateway,
             IDbSaver dbSaver,
-            IAuditGateway auditGateway)
+            IAuditGateway auditGateway,
+            IClockService clockService)
         {
             _carePackageGateway = carePackageGateway;
             _referralGateway = referralGateway;
@@ -31,6 +33,7 @@ namespace BrokerageApi.V1.UseCase.CarePackages
             _userGateway = userGateway;
             _dbSaver = dbSaver;
             _auditGateway = auditGateway;
+            _clockService = clockService;
         }
 
         public async Task ExecuteAsync(int referralId, string comment)
@@ -66,7 +69,8 @@ namespace BrokerageApi.V1.UseCase.CarePackages
             var amendment = new ReferralAmendment
             {
                 Status = AmendmentStatus.InProgress,
-                Comment = comment
+                Comment = comment,
+                RequestedAt = _clockService.Now
             };
 
             referral.ReferralAmendments ??= new List<ReferralAmendment>();

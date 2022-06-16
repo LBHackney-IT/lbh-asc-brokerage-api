@@ -765,6 +765,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var amendment = response.Amendments.Single();
             amendment.Comment.Should().Be(request.Comment);
             amendment.Status.Should().Be(AmendmentStatus.InProgress);
+            amendment.RequestedAt.Should().Be(CurrentInstant);
         }
     }
 }
