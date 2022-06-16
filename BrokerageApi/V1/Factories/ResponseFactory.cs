@@ -35,7 +35,8 @@ namespace BrokerageApi.V1.Factories
                 OneOffPayment = carePackage.OneOffPayment,
                 EstimatedYearlyCost = carePackage.EstimatedYearlyCost,
                 Elements = carePackage.ReferralElements?.Select(re => re.Element.ToResponse(re.ReferralId)).ToList(),
-                Comment = carePackage.Comment
+                Comment = carePackage.Comment,
+                Amendments = carePackage.ReferralAmendments?.Select(a => a.ToResponse()).ToList()
             };
         }
 
@@ -131,7 +132,8 @@ namespace BrokerageApi.V1.Factories
                 CreatedAt = referral.CreatedAt,
                 UpdatedAt = referral.UpdatedAt,
                 AssignedBroker = referral.AssignedBroker?.ToResponse(),
-                AssignedApprover = referral.AssignedApprover?.ToResponse()
+                AssignedApprover = referral.AssignedApprover?.ToResponse(),
+                Amendments = referral.ReferralAmendments?.Select(a => a.ToResponse()).ToList()
             };
         }
 
@@ -193,6 +195,15 @@ namespace BrokerageApi.V1.Factories
                 IsLastPage = pagedListMetaData.IsLastPage,
                 FirstItemOnPage = pagedListMetaData.FirstItemOnPage,
                 LastItemOnPage = pagedListMetaData.LastItemOnPage
+            };
+        }
+
+        public static AmendmentResponse ToResponse(this ReferralAmendment amendment)
+        {
+            return new AmendmentResponse
+            {
+                Comment = amendment.Comment,
+                Status = amendment.Status
             };
         }
     }

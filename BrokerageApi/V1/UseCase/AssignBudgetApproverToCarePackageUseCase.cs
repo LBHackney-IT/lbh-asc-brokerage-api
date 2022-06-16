@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
@@ -41,6 +42,7 @@ namespace BrokerageApi.V1.UseCase
             }
 
             var userEmail = _userService.Email;
+
             if (referral.AssignedBrokerEmail != userEmail)
             {
                 throw new UnauthorizedAccessException($"Referral is not assigned to {userEmail}");
@@ -67,6 +69,14 @@ namespace BrokerageApi.V1.UseCase
 
             referral.Status = ReferralStatus.AwaitingApproval;
             referral.AssignedApproverEmail = approver.Email;
+            var pendingAmendments = referral.ReferralAmendments?.Where(a => a.Status == AmendmentStatus.InProgress);
+            if (pendingAmendments != null)
+            {
+                foreach (var referralAmendment in pendingAmendments)
+                {
+                    referralAmendment.Status = AmendmentStatus.Resolved;
+                }
+            }
 
             await _dbSaver.SaveChangesAsync();
 

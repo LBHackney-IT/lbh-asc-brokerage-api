@@ -25,6 +25,7 @@ namespace BrokerageApi.V1.Infrastructure
             NpgsqlConnection.GlobalTypeMapper.MapEnum<WorkflowType>("workflow_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<UserRole>("user_role");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<AuditEventType>("audit_event_type");
+            NpgsqlConnection.GlobalTypeMapper.MapEnum<AmendmentStatus>("amendment_status");
         }
 
         public BrokerageContext(DbContextOptions options, IClockService clock) : base(options)
@@ -67,6 +68,7 @@ namespace BrokerageApi.V1.Infrastructure
             modelBuilder.HasPostgresEnum<WorkflowType>();
             modelBuilder.HasPostgresEnum<UserRole>();
             modelBuilder.HasPostgresEnum<AuditEventType>();
+            modelBuilder.HasPostgresEnum<AmendmentStatus>();
 
             modelBuilder.Entity<AuditEvent>()
                 .Property(ae => ae.Metadata)
@@ -109,6 +111,15 @@ namespace BrokerageApi.V1.Infrastructure
                         j.HasKey(re => new { re.ElementId, re.ReferralId });
                     });
 
+            modelBuilder.Entity<CarePackage>()
+                .HasMany(c => c.ReferralAmendments)
+                .WithOne()
+                .HasForeignKey("ReferralId");
+
+            modelBuilder.Entity<ReferralAmendment>()
+                .HasOne(a => a.Referral)
+                .WithMany(r => r.ReferralAmendments)
+                .HasForeignKey("ReferralId");
 
             modelBuilder.Entity<CarePackage>()
                 .HasOne(cp => cp.AssignedBroker)

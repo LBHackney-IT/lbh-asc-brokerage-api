@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using BrokerageApi.Tests.V1.Helpers;
@@ -95,6 +96,60 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
 
             referral.Status.Should().Be(ReferralStatus.AwaitingApproval);
             referral.AssignedApproverEmail.Should().BeEquivalentTo(approver.Email);
+            _mockDbSaver.VerifyChangesSaved();
+        }
+
+        [Test]
+        public async Task ResolvesAllInProgressAmendments()
+        {
+            const int expectedUserId = 1234;
+            const string brokerEmail = "broker@email.com";
+            const string approverEmail = "approver@email.com";
+            const decimal estimatedYearlyCost = 1000;
+
+            var amendments = _fixture.BuildReferralAmendment()
+                .With(a => a.Status, AmendmentStatus.InProgress)
+                .CreateMany();
+
+            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
+                .With(r => r.AssignedBrokerEmail, brokerEmail)
+                .With(r => r.ReferralAmendments, amendments.ToList)
+                .Create();
+
+            var carePackage = _fixture.BuildCarePackage()
+                .With(c => c.Id, referral.Id)
+                .With(c => c.Status, ReferralStatus.InProgress)
+                .With(c => c.AssignedBrokerId, brokerEmail)
+                .With(c => c.EstimatedYearlyCost, estimatedYearlyCost)
+                .Create();
+
+            var approver = _fixture.BuildUser()
+                .With(u => u.ApprovalLimit, estimatedYearlyCost + 100)
+                .Create();
+
+            _mockReferralGateway
+                .Setup(x => x.GetByIdAsync(referral.Id))
+                .ReturnsAsync(referral);
+
+            _mockCarePackageGateway
+                .Setup(x => x.GetByIdAsync(referral.Id))
+                .ReturnsAsync(carePackage);
+
+            _mockUserGateway
+                .Setup(x => x.GetByEmailAsync(approverEmail))
+                .ReturnsAsync(approver);
+
+            _mockUserService
+                .Setup(x => x.Email)
+                .Returns(brokerEmail);
+
+            _mockUserService
+                .Setup(x => x.UserId)
+                .Returns(expectedUserId);
+
+            await _classUnderTest.ExecuteAsync(referral.Id, approverEmail);
+
+            referral.ReferralAmendments.Should().OnlyContain(a => a.Status == AmendmentStatus.Resolved);
             _mockDbSaver.VerifyChangesSaved();
         }
 

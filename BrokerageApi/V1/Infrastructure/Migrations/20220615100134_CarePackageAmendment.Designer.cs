@@ -5,6 +5,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -13,9 +14,10 @@ using NpgsqlTypes;
 namespace V1.Infrastructure.Migrations
 {
     [DbContext(typeof(BrokerageContext))]
-    partial class BrokerageContextModelSnapshot : ModelSnapshot
+    [Migration("20220615100134_CarePackageAmendment")]
+    partial class CarePackageAmendment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -226,6 +228,7 @@ namespace V1.Infrastructure.Migrations
                         .HasComputedColumnSql("ARRAY[COALESCE((monday->>'Cost')::numeric, 0), COALESCE((tuesday->>'Cost')::numeric, 0), COALESCE((wednesday->>'Cost')::numeric, 0), COALESCE((thursday->>'Cost')::numeric, 0), COALESCE((friday->>'Cost')::numeric, 0), COALESCE((saturday->>'Cost')::numeric, 0), COALESCE((sunday->>'Cost')::numeric, 0)]", true);
 
                     b.Property<string>("Details")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("details");
 
@@ -265,7 +268,7 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("parent_element_id");
 
-                    b.Property<int?>("ProviderId")
+                    b.Property<int>("ProviderId")
                         .HasColumnType("integer")
                         .HasColumnName("provider_id");
 
@@ -785,7 +788,9 @@ namespace V1.Infrastructure.Migrations
                     b.HasOne("BrokerageApi.V1.Infrastructure.Provider", "Provider")
                         .WithMany("Elements")
                         .HasForeignKey("ProviderId")
-                        .HasConstraintName("fk_elements_providers_provider_id");
+                        .HasConstraintName("fk_elements_providers_provider_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("BrokerageApi.V1.Infrastructure.Element", "SuspendedElement")
                         .WithMany("SuspensionElements")

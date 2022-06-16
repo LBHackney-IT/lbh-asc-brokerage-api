@@ -28,6 +28,7 @@ namespace BrokerageApi.V1.Controllers
         private readonly IGetBudgetApproversUseCase _getBudgetApproversUseCase;
         private readonly IAssignBudgetApproverToCarePackageUseCase _assignBudgetApproverToCarePackageUseCase;
         private readonly IApproveCarePackageUseCase _approveCarePackageUseCase;
+        private readonly IRequestAmendmentToCarePackageUseCase _requestAmendmentToCarePackageUseCase;
 
         public CarePackagesController(IGetCarePackageByIdUseCase getCarePackageByIdUseCase,
             IStartCarePackageUseCase startCarePackageUseCase,
@@ -36,7 +37,8 @@ namespace BrokerageApi.V1.Controllers
             ISuspendCarePackageUseCase suspendCarePackageUseCase,
             IGetBudgetApproversUseCase getBudgetApproversUseCase,
             IAssignBudgetApproverToCarePackageUseCase assignBudgetApproverToCarePackageUseCase,
-            IApproveCarePackageUseCase approveCarePackageUseCase)
+            IApproveCarePackageUseCase approveCarePackageUseCase,
+            IRequestAmendmentToCarePackageUseCase requestAmendmentToCarePackageUseCase)
         {
             _getCarePackageByIdUseCase = getCarePackageByIdUseCase;
             _startCarePackageUseCase = startCarePackageUseCase;
@@ -46,6 +48,7 @@ namespace BrokerageApi.V1.Controllers
             _getBudgetApproversUseCase = getBudgetApproversUseCase;
             _assignBudgetApproverToCarePackageUseCase = assignBudgetApproverToCarePackageUseCase;
             _approveCarePackageUseCase = approveCarePackageUseCase;
+            _requestAmendmentToCarePackageUseCase = requestAmendmentToCarePackageUseCase;
         }
 
         [Authorize]
@@ -346,6 +349,47 @@ namespace BrokerageApi.V1.Controllers
                 return Problem(
                     e.Message,
                     $"api/v1/referrals/{referralId}/care-package/approve",
+                    StatusCodes.Status403Forbidden, "Forbidden"
+                );
+            }
+            return Ok();
+        }
+
+        [Authorize(Roles = "Approver")]
+        [HttpPost]
+        [Route("request-amendment")]
+        [ProducesResponseType(typeof(ReferralResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> RequestAmendment([FromRoute] int referralId, AmendmentRequest request)
+        {
+            try
+            {
+                await _requestAmendmentToCarePackageUseCase.ExecuteAsync(referralId, request.Comment);
+            }
+            catch (ArgumentNullException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/request-amendment",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (InvalidOperationException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/request-amendment",
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
+                );
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/request-amendment",
                     StatusCodes.Status403Forbidden, "Forbidden"
                 );
             }

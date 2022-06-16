@@ -506,7 +506,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 DirectPayments = "No",
                 Comment = "A comment",
                 Status = ReferralStatus.Unassigned,
-                AssignedBrokerEmail = user.Email
+                AssignedBrokerEmail = user.Email,
+                ReferralAmendments = new List<ReferralAmendment>()
             };
 
             await Context.Referrals.AddAsync(referral);

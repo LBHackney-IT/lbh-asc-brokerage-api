@@ -553,8 +553,13 @@ namespace BrokerageApi.Tests.V1.E2ETests
         public async Task CanAssignBudgetApprover()
         {
             // Arrange
+            var amendments = _fixture.BuildReferralAmendment()
+                .With(a => a.Status, AmendmentStatus.InProgress)
+                .CreateMany();
+
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
                 .With(r => r.AssignedBrokerEmail, ApiUser.Email)
+                .With(r => r.ReferralAmendments, amendments.ToList)
                 .Create();
 
             var expectedApprover = _fixture.BuildUser()
@@ -579,6 +584,12 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var code = await Post($"/api/v1/referrals/{referral.Id}/care-package/assign-budget-approver", request);
 
             code.Should().Be(HttpStatusCode.OK);
+
+            var (referralCode, response) = await Get<ReferralResponse>($"/api/v1/referrals/{referral.Id}");
+
+            referralCode.Should().Be(HttpStatusCode.OK);
+            response.AssignedApprover.Should().BeEquivalentTo(expectedApprover.ToResponse());
+            response.Amendments.Should().OnlyContain(a => a.Status == AmendmentStatus.Resolved);
         }
 
         [Test, Property("AsUser", "Approver"), Property("WithApprovalLimit", 1000)]
@@ -674,6 +685,51 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var endElementResult = await Context.Elements.SingleAsync(e => e.Id == endElement.Id);
             endElementResult.EndDate.Should().Be(endReferralElement.PendingEndDate);
+        }
+
+        [Test, Property("AsUser", "Approver"), Property("WithApprovalLimit", 1000)]
+        public async Task CanRequestAmendment()
+        {
+            // Arrange
+            var service = _fixture.BuildService()
+                .Create();
+
+            var provider = _fixture.BuildProvider()
+                .Create();
+
+            var providerService = _fixture.BuildProviderService(provider.Id, service.Id)
+                .Create();
+
+            var oneOffElementType = _fixture.BuildElementType(service.Id)
+                .With(et => et.CostType, ElementCostType.OneOff)
+                .Create();
+
+            var referral = _fixture.BuildReferral(ReferralStatus.AwaitingApproval)
+                .With(r => r.AssignedBrokerEmail, ApiUser.Email)
+                .Create();
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.Services.AddAsync(service);
+            await Context.Providers.AddAsync(provider);
+            await Context.ProviderServices.AddAsync(providerService);
+            await Context.ElementTypes.AddAsync(oneOffElementType);
+            await Context.Referrals.AddAsync(referral);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            var request = _fixture.Create<AmendmentRequest>();
+
+            var code = await Post($"/api/v1/referrals/{referral.Id}/care-package/request-amendment", request);
+
+            code.Should().Be(HttpStatusCode.OK);
+
+            var (carePackageCode, response) = await Get<CarePackageResponse>($"/api/v1/referrals/{referral.Id}/care-package");
+
+            carePackageCode.Should().Be((int) HttpStatusCode.OK);
+            var amendment = response.Amendments.Single();
+            amendment.Comment.Should().Be(request.Comment);
+            amendment.Status.Should().Be(AmendmentStatus.InProgress);
         }
     }
 }

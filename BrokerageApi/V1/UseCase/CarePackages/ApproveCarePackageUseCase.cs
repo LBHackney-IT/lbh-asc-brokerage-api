@@ -9,6 +9,7 @@ using BrokerageApi.V1.UseCase.Interfaces.CarePackages;
 
 namespace BrokerageApi.V1.UseCase.CarePackages
 {
+
     public class ApproveCarePackageUseCase : IApproveCarePackageUseCase
     {
         private readonly ICarePackageGateway _carePackageGateway;
