@@ -56,7 +56,7 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
                 throw new InvalidOperationException($"Element {element.Id} is not approved");
             }
 
-            var referralElement = element.ReferralElements.Single(re => re.ElementId == element.Id);
+            var referralElement = element.ReferralElements.Single(re => re.ReferralId == referral.Id);
             referralElement.PendingCancellation = true;
             referralElement.PendingComment = comment;
 
