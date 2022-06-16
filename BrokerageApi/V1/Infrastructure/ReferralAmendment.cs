@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using NodaTime;
 
 namespace BrokerageApi.V1.Infrastructure
 {
@@ -13,6 +14,8 @@ namespace BrokerageApi.V1.Infrastructure
         public string Comment { get; set; }
 
         public AmendmentStatus Status { get; set; }
+
+        public Instant RequestedAt { get; set; }
     }
 
     public enum AmendmentStatus

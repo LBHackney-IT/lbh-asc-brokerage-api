@@ -204,7 +204,8 @@ namespace BrokerageApi.V1.Factories
             return new AmendmentResponse
             {
                 Comment = amendment.Comment,
-                Status = amendment.Status
+                Status = amendment.Status,
+                RequestedAt = amendment.RequestedAt
             };
         }
     }

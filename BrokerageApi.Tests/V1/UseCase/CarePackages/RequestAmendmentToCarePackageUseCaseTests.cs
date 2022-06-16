@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using AutoFixture;
 using BrokerageApi.Tests.V1.Helpers;
@@ -12,6 +13,7 @@ using BrokerageApi.V1.Services.Interfaces;
 using BrokerageApi.V1.UseCase.CarePackages;
 using FluentAssertions;
 using Moq;
+using NodaTime;
 using NUnit.Framework;
 
 namespace BrokerageApi.Tests.V1.UseCase.CarePackages
@@ -26,6 +28,8 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
         private RequestAmendmentToCarePackageUseCase _classUnderTest;
         private Fixture _fixture;
         private MockAuditGateway _mockAuditGateway;
+        private Mock<IClockService> _mockClock;
+        private Instant _currentInstance;
 
         [SetUp]
         public void Setup()
@@ -37,6 +41,10 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             _mockUserGateway = new Mock<IUserGateway>();
             _mockDbSaver = new MockDbSaver();
             _mockAuditGateway = new MockAuditGateway();
+            _mockClock = new Mock<IClockService>();
+            _currentInstance = SystemClock.Instance.GetCurrentInstant();
+            _mockClock.Setup(x => x.Now)
+                .Returns(_currentInstance);
 
             _classUnderTest = new RequestAmendmentToCarePackageUseCase(
                 _mockCarePackageGateway.Object,
@@ -44,7 +52,8 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
                 _mockUserService.Object,
                 _mockUserGateway.Object,
                 _mockDbSaver.Object,
-                _mockAuditGateway.Object
+                _mockAuditGateway.Object,
+                _mockClock.Object
             );
         }
 
@@ -67,6 +76,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             var amendment = referral.ReferralAmendments.Single();
             amendment.Status.Should().Be(AmendmentStatus.InProgress);
             amendment.Comment.Should().Be(expectedComment);
+            amendment.RequestedAt.Should().Be(_currentInstance);
 
             _mockDbSaver.VerifyChangesSaved();
         }

@@ -248,6 +248,7 @@ namespace BrokerageApi.Tests.V1.Factories
 
             response.Comment.Should().Be(amendment.Comment);
             response.Status.Should().Be(amendment.Status);
+            response.RequestedAt.Should().Be(amendment.RequestedAt);
         }
     }
 }
