@@ -18,6 +18,7 @@ using NUnit.Framework;
 
 namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 {
+
     public class SuspendElementUseCaseTests
     {
         private Fixture _fixture;

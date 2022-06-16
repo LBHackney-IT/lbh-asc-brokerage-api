@@ -283,6 +283,14 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var resultReferralElement = await Context.ReferralElements.SingleOrDefaultAsync(re => re.ElementId == parentElement.Id && re.ReferralId == referral.Id);
             resultReferralElement.Should().BeNull();
+
+            // reset
+            var resetCode = await Post($"/api/v1/referrals/{referral.Id}/care-package/elements/{response.Id}/reset", null);
+
+            resetCode.Should().Be(HttpStatusCode.OK);
+
+            var resetReferral = await Context.Referrals.SingleAsync(r => r.Id == referral.Id);
+            resetReferral.Elements.Should().OnlyContain(e => e.Id == parentElement.Id);
         }
 
         [Test, Property("AsUser", "Broker")]
