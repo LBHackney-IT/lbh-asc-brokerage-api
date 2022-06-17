@@ -89,28 +89,33 @@ namespace BrokerageApi.Tests.V1.Factories
         public void ElementMapsCorrectly()
         {
             var expectedReferralId = 1234;
-            var grandParentElement = _fixture.Build<Element>()
+            var grandParentElement = _fixture.BuildElement(1, 1)
                 .With(e => e.InternalStatus, ElementStatus.InProgress)
                 .Create();
-            var parentElement = _fixture.Build<Element>()
+            var parentElement = _fixture.BuildElement(1, 1)
                 .With(e => e.InternalStatus, ElementStatus.InProgress)
                 .With(e => e.ParentElement, grandParentElement)
                 .With(e => e.ParentElementId, grandParentElement.Id)
                 .Create();
-            var suspensionElements = _fixture.Build<Element>()
+            var suspensionElement = _fixture.BuildElement(1, 1)
                 .With(e => e.InternalStatus, ElementStatus.Suspended)
                 .With(e => e.IsSuspension, true)
-                .CreateMany();
-            var element = _fixture.Build<Element>()
+                .Create();
+            var element = _fixture.BuildElement(1, 1)
                 .With(e => e.InternalStatus, ElementStatus.InProgress)
                 .With(e => e.ParentElement, parentElement)
                 .With(e => e.ParentElementId, parentElement.Id)
-                .With(e => e.SuspensionElements, suspensionElements.ToList)
+                .With(e => e.SuspensionElements, new List<Element> { suspensionElement })
                 .Create();
-            var expectedReferralElement = _fixture.BuildReferralElement(expectedReferralId, element.Id).Create();
+            var expectedReferralElement = _fixture.BuildReferralElement(expectedReferralId, element.Id, true).Create();
             element.ReferralElements = new List<ReferralElement>
             {
-                expectedReferralElement, _fixture.BuildReferralElement(expectedReferralId + 1, element.Id).Create()
+                expectedReferralElement, _fixture.BuildReferralElement(expectedReferralId + 1, element.Id, true).Create()
+            };
+            var expectedSuspensionReferralElement = _fixture.BuildReferralElement(expectedReferralId, suspensionElement.Id, true).Create();
+            suspensionElement.ReferralElements = new List<ReferralElement>
+            {
+                expectedSuspensionReferralElement, _fixture.BuildReferralElement(expectedReferralId + 1, suspensionElement.Id, true).Create()
             };
 
             var response = element.ToResponse(expectedReferralId);
@@ -137,12 +142,17 @@ namespace BrokerageApi.Tests.V1.Factories
             response.UpdatedAt.Should().Be(element.UpdatedAt);
             response.ParentElement.Should().BeEquivalentTo(parentElement.ToResponse(expectedReferralId, false));
             response.ParentElement.ParentElement.Should().BeNull();
-            response.SuspensionElements.Should().BeEquivalentTo(suspensionElements.Select(e => e.ToResponse()));
             response.Comment.Should().Be(element.Comment);
             response.PendingEndDate.Should().Be(expectedReferralElement.PendingEndDate);
             response.PendingCancellation.Should().Be(expectedReferralElement.PendingCancellation);
             response.PendingComment.Should().Be(expectedReferralElement.PendingComment);
             response.IsSuspension.Should().Be(element.IsSuspension);
+
+            var responseSuspensionElement = response.SuspensionElements.Single();
+            responseSuspensionElement.Should().BeEquivalentTo(suspensionElement.ToResponse(expectedReferralId));
+            responseSuspensionElement.PendingEndDate.Should().Be(expectedSuspensionReferralElement.PendingEndDate);
+            responseSuspensionElement.PendingCancellation.Should().Be(expectedSuspensionReferralElement.PendingCancellation);
+            responseSuspensionElement.PendingComment.Should().Be(expectedSuspensionReferralElement.PendingComment);
         }
 
         [Test]

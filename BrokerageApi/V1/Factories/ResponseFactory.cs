@@ -67,7 +67,7 @@ namespace BrokerageApi.V1.Factories
                 CreatedAt = element.CreatedAt,
                 UpdatedAt = element.UpdatedAt,
                 ParentElement = includeParent ? element.ParentElement?.ToResponse(referralId, false) : null,
-                SuspensionElements = element.SuspensionElements?.Select(e => e.ToResponse()).ToList(),
+                SuspensionElements = element.SuspensionElements?.Select(e => e.ToResponse(referralId)).ToList(),
                 Comment = element.Comment,
                 PendingEndDate = referralElement?.PendingEndDate,
                 PendingCancellation = referralElement?.PendingCancellation,
