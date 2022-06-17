@@ -88,6 +88,26 @@ namespace BrokerageApi.Tests.V1.Controllers
         }
 
         [Test]
+        public async Task CreateReferralHandlesInvalidOperation()
+        {
+            // Arrange
+            const string expectedMessage = "message";
+            var request = _fixture.Create<CreateReferralRequest>();
+
+            _mockCreateReferralUseCase
+                .Setup(x => x.ExecuteAsync(request))
+                .ThrowsAsync(new InvalidOperationException(expectedMessage));
+
+            // Act
+            var objectResult = await _classUnderTest.CreateReferral(request);
+            var statusCode = GetStatusCode(objectResult);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.UnprocessableEntity);
+            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.UnprocessableEntity, expectedMessage);
+        }
+
+        [Test]
         public async Task GetCurrentReferrals()
         {
             // Arrange

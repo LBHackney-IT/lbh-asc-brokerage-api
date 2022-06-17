@@ -457,6 +457,28 @@ namespace BrokerageApi.Tests.V1.Gateways
             result.Should().BeEquivalentTo(referral);
         }
 
+        [Test]
+        public async Task GetBySocialCareId()
+        {
+            const string socialCareId = "1234";
+
+            var expectedReferrals = Fixture.BuildReferral(ReferralStatus.Approved)
+                .With(r => r.SocialCareId, socialCareId)
+                .CreateMany();
+
+            var unExpectedReferrals = Fixture.BuildReferral(ReferralStatus.Approved)
+                .With(r => r.SocialCareId, "otherId")
+                .Create();
+
+            await BrokerageContext.Referrals.AddRangeAsync(expectedReferrals);
+            await BrokerageContext.Referrals.AddRangeAsync(unExpectedReferrals);
+            await BrokerageContext.SaveChangesAsync();
+
+            var result = await _classUnderTest.GetBySocialCareIdWithElementsAsync(socialCareId);
+
+            result.Should().BeEquivalentTo(expectedReferrals);
+        }
+
         private async Task<Referral> AddReferral(string workflowId)
         {
             var referral = BuildReferral(workflowId);

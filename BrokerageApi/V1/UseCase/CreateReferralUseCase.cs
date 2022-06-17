@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Factories;
@@ -21,6 +22,15 @@ namespace BrokerageApi.V1.UseCase
         public async Task<Referral> ExecuteAsync(CreateReferralRequest request)
         {
             var referral = request.ToDatabase();
+
+            var existingReferrals = await _referralGateway.GetBySocialCareIdWithElementsAsync(request.SocialCareId);
+
+            if (existingReferrals != null && existingReferrals.Any(r => r.Status == ReferralStatus.InProgress))
+            {
+                throw new InvalidOperationException("Existing in progress referral exists, please archive before raising new referral");
+            }
+
+            referral.Elements = existingReferrals?.SingleOrDefault(r => r.Status == ReferralStatus.Approved)?.Elements.Where(e => e.InternalStatus == ElementStatus.Approved).ToList();
 
             try
             {

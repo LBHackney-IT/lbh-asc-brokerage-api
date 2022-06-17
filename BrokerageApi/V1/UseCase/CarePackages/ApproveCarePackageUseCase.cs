@@ -62,17 +62,28 @@ namespace BrokerageApi.V1.UseCase.CarePackages
                 throw new UnauthorizedAccessException("Approver does not have high enough approval limit");
             }
 
-            referral.Status = ReferralStatus.Approved;
-            foreach (var e in referral.Elements)
+            var existingReferrals = await _referralGateway.GetBySocialCareIdWithElementsAsync(referral.SocialCareId);
+
+            foreach (var oldReferral in existingReferrals.Where(r => r.Status == ReferralStatus.Approved))
             {
-                e.InternalStatus = ElementStatus.Approved;
+                oldReferral.Status = ReferralStatus.Ended;
+            }
 
-                if (e.ParentElement != null)
+            referral.Status = ReferralStatus.Approved;
+
+            if (referral.Elements != null)
+            {
+                foreach (var e in referral.Elements)
                 {
-                    e.ParentElement.EndDate = e.StartDate.PlusDays(-1);
-                }
+                    e.InternalStatus = ElementStatus.Approved;
 
-                await ApplyPendingStates(e, referral);
+                    if (e.ParentElement != null)
+                    {
+                        e.ParentElement.EndDate = e.StartDate.PlusDays(-1);
+                    }
+
+                    await ApplyPendingStates(e, referral);
+                }
             }
 
             await _dbSaver.SaveChangesAsync();
