@@ -7,7 +7,7 @@ namespace BrokerageApi.V1.Infrastructure
     public class ServiceUser : BaseEntity
     {
         [Key]
-        public string MosaicId { get; set; }
+        public string SocialCareId { get; set; }
 
         [Required]
         public string ServiceUserName { get; set; }

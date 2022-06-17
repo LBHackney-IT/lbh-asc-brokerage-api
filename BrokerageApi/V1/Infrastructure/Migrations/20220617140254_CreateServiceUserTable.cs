@@ -11,7 +11,7 @@ namespace V1.Infrastructure.Migrations
                 name: "service_users",
                 columns: table => new
                 {
-                    mosaic_id = table.Column<string>(type: "text", nullable: false),
+                    social_care_id = table.Column<string>(type: "text", nullable: false),
                     service_user_name = table.Column<string>(type: "text", nullable: false),
                     date_of_birth = table.Column<LocalDate>(type: "date", nullable: false),
                     created_at = table.Column<Instant>(type: "timestamp", nullable: false),
@@ -19,7 +19,7 @@ namespace V1.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_service_users", x => x.mosaic_id);
+                    table.PrimaryKey("pk_service_users", x => x.social_care_id);
                 });
         }
 

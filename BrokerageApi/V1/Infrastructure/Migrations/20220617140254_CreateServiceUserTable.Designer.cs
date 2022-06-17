@@ -14,7 +14,7 @@ using NpgsqlTypes;
 namespace V1.Infrastructure.Migrations
 {
     [DbContext(typeof(BrokerageContext))]
-    [Migration("20220617132206_CreateServiceUserTable")]
+    [Migration("20220617140254_CreateServiceUserTable")]
     partial class CreateServiceUserTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -687,9 +687,9 @@ namespace V1.Infrastructure.Migrations
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ServiceUser", b =>
                 {
-                    b.Property<string>("MosaicId")
+                    b.Property<string>("SocialCareId")
                         .HasColumnType("text")
-                        .HasColumnName("mosaic_id");
+                        .HasColumnName("social_care_id");
 
                     b.Property<Instant>("CreatedAt")
                         .HasColumnType("timestamp")
@@ -708,7 +708,7 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("timestamp")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("MosaicId")
+                    b.HasKey("SocialCareId")
                         .HasName("pk_service_users");
 
                     b.ToTable("service_users");
