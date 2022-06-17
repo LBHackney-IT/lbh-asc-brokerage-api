@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using NodaTime;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace V1.Infrastructure.Migrations
 {
@@ -12,10 +11,9 @@ namespace V1.Infrastructure.Migrations
                 name: "service_users",
                 columns: table => new
                 {
-                    mosaic_id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    mosaic_id = table.Column<string>(type: "text", nullable: false),
                     service_user_name = table.Column<string>(type: "text", nullable: false),
-                    date_of_birth = table.Column<Instant>(type: "timestamp", nullable: false),
+                    date_of_birth = table.Column<LocalDate>(type: "date", nullable: false),
                     created_at = table.Column<Instant>(type: "timestamp", nullable: false),
                     updated_at = table.Column<Instant>(type: "timestamp", nullable: false)
                 },

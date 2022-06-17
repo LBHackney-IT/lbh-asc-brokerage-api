@@ -685,18 +685,16 @@ namespace V1.Infrastructure.Migrations
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ServiceUser", b =>
                 {
-                    b.Property<int>("MosaicId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("mosaic_id")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                    b.Property<string>("MosaicId")
+                        .HasColumnType("text")
+                        .HasColumnName("mosaic_id");
 
                     b.Property<Instant>("CreatedAt")
                         .HasColumnType("timestamp")
                         .HasColumnName("created_at");
 
-                    b.Property<Instant>("DateOfBirth")
-                        .HasColumnType("timestamp")
+                    b.Property<LocalDate>("DateOfBirth")
+                        .HasColumnType("date")
                         .HasColumnName("date_of_birth");
 
                     b.Property<string>("ServiceUserName")

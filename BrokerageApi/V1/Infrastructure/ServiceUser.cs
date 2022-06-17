@@ -7,13 +7,13 @@ namespace BrokerageApi.V1.Infrastructure
     public class ServiceUser : BaseEntity
     {
         [Key]
-        public int MosaicId { get; set; }
+        public string MosaicId { get; set; }
 
         [Required]
         public string ServiceUserName { get; set; }
 
         [Required]
-        public Instant DateOfBirth { get; set; }
+        public LocalDate DateOfBirth { get; set; }
 
 
     }
