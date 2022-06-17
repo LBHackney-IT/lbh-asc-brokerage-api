@@ -48,6 +48,8 @@ namespace BrokerageApi.V1.Infrastructure
         public DbSet<Service> Services { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<AuditEvent> AuditEvents { get; set; }
+        public DbSet<ServiceUser> ServiceUsers { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
