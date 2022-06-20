@@ -420,6 +420,14 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var resultReferralElement = await Context.ReferralElements.SingleAsync(re => re.ElementId == suspensionElement.Id && re.ReferralId == referral.Id);
             resultReferralElement.PendingCancellation.Should().BeTrue();
             resultReferralElement.PendingComment.Should().Be(request.Comment);
+
+            var (carePackageCode, carePackageResponse) = await Get<CarePackageResponse>($"/api/v1/referrals/{referral.Id}/care-package");
+
+            carePackageCode.Should().Be(HttpStatusCode.OK);
+            var resultSuspensionElement = carePackageResponse.Elements.Single(e => e.Id == suspensionElement.Id);
+            resultSuspensionElement.PendingCancellation.Should().BeTrue();
+            resultSuspensionElement.PendingComment.Should().Be(request.Comment);
+
         }
 
         private async Task RequestSuspension(Element element, Referral referral, bool withEndDate)

@@ -79,6 +79,14 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             newElement.EndDate.Should().Be(endDate);
             newElement.IsSuspension.Should().BeTrue();
             newElement.Comment.Should().Be(expectedComment);
+            newElement.Cost.Should().Be(0);
+            newElement.Monday.Should().BeNull();
+            newElement.Tuesday.Should().BeNull();
+            newElement.Wednesday.Should().BeNull();
+            newElement.Thursday.Should().BeNull();
+            newElement.Friday.Should().BeNull();
+            newElement.Saturday.Should().BeNull();
+            newElement.Sunday.Should().BeNull();
             newElement.Should().BeEquivalentTo(element, options => options
                 .Excluding(e => e.Id)
                 .Excluding(e => e.StartDate)
@@ -93,6 +101,14 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .Excluding(e => e.UpdatedAt)
                 .Excluding(e => e.IsSuspension)
                 .Excluding(e => e.CreatedBy)
+                .Excluding(e => e.Cost)
+                .Excluding(e => e.Monday)
+                .Excluding(e => e.Tuesday)
+                .Excluding(e => e.Wednesday)
+                .Excluding(e => e.Thursday)
+                .Excluding(e => e.Friday)
+                .Excluding(e => e.Saturday)
+                .Excluding(e => e.Sunday)
             );
             element.Comment.Should().Be(expectedComment);
             referral.Elements.Should().Contain(newElement);
@@ -133,7 +149,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         }
 
         [Test]
-        public async Task ThrowsInvalidOperationWhenElementNotApproved([Values] ElementStatus status)
+        public async Task ThrowsInvalidOperationWhenElementNotApprovedOrInProgress([Values] ElementStatus status)
         {
             var startDate = LocalDate.FromDateTime(DateTime.Today);
             var endDate = LocalDate.FromDateTime(DateTime.Today).PlusDays(1);
@@ -141,7 +157,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, startDate, endDate, null);
 
-            if (status != ElementStatus.Approved)
+            if (status != ElementStatus.Approved && status != ElementStatus.InProgress)
             {
                 await act.Should().ThrowAsync<InvalidOperationException>()
                     .WithMessage($"Element {element.Id} is not approved");

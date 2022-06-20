@@ -129,17 +129,24 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(e => e.DailyCosts);
         }
 
-        public static IPostprocessComposer<ReferralElement> BuildReferralElement(this IFixture fixture, int referralId, int elementId)
+        public static IPostprocessComposer<ReferralElement> BuildReferralElement(this IFixture fixture, int referralId, int elementId, bool withPending = false)
         {
-            return fixture.Build<ReferralElement>()
+            var builder = fixture.Build<ReferralElement>()
                 .Without(re => re.Element)
                 .Without(re => re.Referral)
                 .Without(re => re.CarePackage)
-                .Without(re => re.PendingCancellation)
-                .Without(re => re.PendingComment)
-                .Without(re => re.PendingEndDate)
                 .With(re => re.ReferralId, referralId)
                 .With(re => re.ElementId, elementId);
+
+            if (!withPending)
+            {
+                builder = builder
+                    .Without(re => re.PendingCancellation)
+                    .Without(re => re.PendingComment)
+                    .Without(re => re.PendingEndDate);
+            }
+
+            return builder;
         }
 
         public static IPostprocessComposer<User> BuildUser(this IFixture fixture)

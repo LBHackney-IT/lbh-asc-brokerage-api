@@ -52,7 +52,7 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
                 throw new ArgumentNullException(nameof(elementId), $"Element not found {elementId}");
             }
 
-            if (element.InternalStatus != ElementStatus.Approved)
+            if (element.InternalStatus != ElementStatus.Approved && element.InternalStatus != ElementStatus.InProgress)
             {
                 throw new InvalidOperationException($"Element {element.Id} is not approved");
             }
@@ -72,7 +72,15 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
                 EndDate = endDate,
                 IsSuspension = true,
                 Comment = comment,
-                CreatedBy = _userService.Email
+                CreatedBy = _userService.Email,
+                Cost = 0,
+                Monday = null,
+                Tuesday = null,
+                Wednesday = null,
+                Thursday = null,
+                Friday = null,
+                Saturday = null,
+                Sunday = null
             };
             element.Comment = comment;
             referral.Elements.Add(newElement);
