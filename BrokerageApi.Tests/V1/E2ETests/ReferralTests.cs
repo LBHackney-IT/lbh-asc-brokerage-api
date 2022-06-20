@@ -43,36 +43,47 @@ namespace BrokerageApi.Tests.V1.E2ETests
         public async Task CanCreateReferral()
         {
             // Arrange
-            var request = new CreateReferralRequest()
-            {
-                WorkflowId = "88114daf-788b-48af-917b-996420afbf61",
-                WorkflowType = WorkflowType.Assessment,
-                FormName = "Care act assessment",
-                SocialCareId = "33556688",
-                ResidentName = "A Service User",
-                PrimarySupportReason = "Physical Support",
-                DirectPayments = "No",
-                UrgentSince = null,
-                Note = "Some notes"
-            };
+            var provider = _fixture.BuildProvider().Create();
+            var service = _fixture.BuildService().Create();
+            var elementType = _fixture.BuildElementType(service.Id).Create();
+            var existingElements = _fixture.BuildElement(provider.Id, elementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .CreateMany();
+            var existingReferral = _fixture.BuildReferral(ReferralStatus.Approved)
+                .With(r => r.Elements, existingElements.ToList)
+                .Create();
+
+            await Context.Providers.AddAsync(provider);
+            await Context.Services.AddAsync(service);
+            await Context.ElementTypes.AddAsync(elementType);
+            await Context.Referrals.AddAsync(existingReferral);
+            await Context.SaveChangesAsync();
+
+            var request = _fixture.Build<CreateReferralRequest>()
+                .With(r => r.SocialCareId, existingReferral.SocialCareId)
+                .Create();
 
             // Act
             var (code, response) = await Post<ReferralResponse>($"/api/v1/referrals", request);
 
             // Assert
-            Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
-            Assert.That(response.WorkflowId, Is.EqualTo("88114daf-788b-48af-917b-996420afbf61"));
-            Assert.That(response.WorkflowType, Is.EqualTo(WorkflowType.Assessment));
-            Assert.That(response.SocialCareId, Is.EqualTo("33556688"));
-            Assert.That(response.ResidentName, Is.EqualTo("A Service User"));
-            Assert.That(response.PrimarySupportReason, Is.EqualTo("Physical Support"));
-            Assert.That(response.DirectPayments, Is.EqualTo("No"));
-            Assert.That(response.UrgentSince, Is.Null);
-            Assert.That(response.AssignedBroker, Is.Null);
-            Assert.That(response.Status, Is.EqualTo(ReferralStatus.Unassigned));
-            Assert.That(response.Note, Is.EqualTo("Some notes"));
-            Assert.That(response.CreatedAt, Is.EqualTo(CurrentInstant));
-            Assert.That(response.UpdatedAt, Is.EqualTo(CurrentInstant));
+            code.Should().Be(HttpStatusCode.OK);
+            response.WorkflowId.Should().Be(request.WorkflowId);
+            response.WorkflowType.Should().Be(request.WorkflowType);
+            response.SocialCareId.Should().Be(request.SocialCareId);
+            response.ResidentName.Should().Be(request.ResidentName);
+            response.PrimarySupportReason.Should().Be(request.PrimarySupportReason);
+            response.DirectPayments.Should().Be(request.DirectPayments);
+            response.UrgentSince.Should().Be(request.UrgentSince);
+            response.Note.Should().Be(request.Note);
+
+            response.AssignedBroker.Should().BeNull();
+            response.Status.Should().Be(ReferralStatus.Unassigned);
+            response.CreatedAt.Should().Be(CurrentInstant);
+            response.UpdatedAt.Should().Be(CurrentInstant);
+
+            var resultReferral = await Context.Referrals.SingleAsync(r => r.Id == response.Id);
+            resultReferral.Elements.Should().BeEquivalentTo(existingElements);
         }
 
         [Test, Property("AsUser", "Referrer")]

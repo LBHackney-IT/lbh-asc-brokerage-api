@@ -648,6 +648,10 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 .With(r => r.AssignedBrokerEmail, ApiUser.Email)
                 .Create();
 
+            var oldReferral = _fixture.BuildReferral(ReferralStatus.Approved)
+                .With(r => r.SocialCareId, referral.SocialCareId)
+                .Create();
+
             var newElement = _fixture.BuildElement(provider.Id, oneOffElementType.Id)
                 .With(e => e.InternalStatus, ElementStatus.AwaitingApproval)
                 .With(e => e.Cost, 100)
@@ -688,6 +692,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 .Create();
 
             await Context.Referrals.AddAsync(referral);
+            await Context.Referrals.AddAsync(oldReferral);
             await Context.Services.AddAsync(service);
             await Context.Providers.AddAsync(provider);
             await Context.ProviderServices.AddAsync(providerService);
@@ -720,6 +725,9 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var endElementResult = await Context.Elements.SingleAsync(e => e.Id == endElement.Id);
             endElementResult.EndDate.Should().Be(endReferralElement.PendingEndDate);
+
+            var resultOldReferral = Context.Referrals.Single(r => r.Id == oldReferral.Id);
+            resultOldReferral.Status.Should().Be(ReferralStatus.Ended);
         }
 
         [Test, Property("AsUser", "Approver"), Property("WithApprovalLimit", 1000)]

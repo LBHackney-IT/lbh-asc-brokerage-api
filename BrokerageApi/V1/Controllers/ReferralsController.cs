@@ -66,15 +66,15 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     "The request was invalid",
-                    $"/api/v1/referrals",
+                    "/api/v1/referrals",
                     StatusCodes.Status400BadRequest, "Bad Request"
                 );
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException e)
             {
                 return Problem(
-                    "The workflow has already been referred",
-                    $"/api/v1/referrals",
+                    e.Message,
+                    "/api/v1/referrals",
                     StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }

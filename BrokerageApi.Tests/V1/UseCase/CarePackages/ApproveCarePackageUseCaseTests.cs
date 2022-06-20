@@ -98,6 +98,30 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
         }
 
         [Test]
+        public async Task UpdatesStatusOfOldReferral()
+        {
+
+            var (referral, carePackage) = SetupReferralAndCarePackage(ReferralStatus.AwaitingApproval, 1000);
+
+            var oldApprovedReferral = _fixture.BuildReferral(ReferralStatus.Approved).Create();
+            var oldEndedReferral = _fixture.BuildReferral(ReferralStatus.Ended).Create();
+            var oldArchivedReferral = _fixture.BuildReferral(ReferralStatus.Archived).Create();
+            _mockReferralGateway
+                .Setup(x => x.GetBySocialCareIdWithElementsAsync(referral.SocialCareId))
+                .ReturnsAsync(new List<Referral> { oldApprovedReferral, oldEndedReferral, oldArchivedReferral });
+
+            SetupUser(carePackage.EstimatedYearlyCost + 100);
+
+            await _classUnderTest.ExecuteAsync(referral.Id);
+
+            oldApprovedReferral.Status.Should().Be(ReferralStatus.Ended);
+            oldEndedReferral.Status.Should().Be(ReferralStatus.Ended);
+            oldArchivedReferral.Status.Should().Be(ReferralStatus.Archived);
+
+            _mockDbSaver.VerifyChangesSaved();
+        }
+
+        [Test]
         public async Task ThrowsArgumentNullExceptionWhenReferralNotFound()
         {
             const int unknownReferralId = 1234;
