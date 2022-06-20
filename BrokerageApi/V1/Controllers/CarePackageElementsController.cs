@@ -24,14 +24,15 @@ namespace BrokerageApi.V1.Controllers
         private readonly ICancelElementUseCase _cancelElementUseCase;
         private readonly ISuspendElementUseCase _suspendElementUseCase;
         private readonly IEditElementUseCase _editElementUseCase;
+        private readonly IResetElementUseCase _resetElementUseCase;
 
-        public CarePackageElementsController(
-            ICreateElementUseCase createElementUseCase,
+        public CarePackageElementsController(ICreateElementUseCase createElementUseCase,
             IDeleteElementUseCase deleteElementUseCase,
             IEndElementUseCase endElementUseCase,
             ICancelElementUseCase cancelElementUseCase,
             ISuspendElementUseCase suspendElementUseCase,
-            IEditElementUseCase editElementUseCase)
+            IEditElementUseCase editElementUseCase,
+            IResetElementUseCase resetElementUseCase)
         {
             _createElementUseCase = createElementUseCase;
             _deleteElementUseCase = deleteElementUseCase;
@@ -39,6 +40,7 @@ namespace BrokerageApi.V1.Controllers
             _cancelElementUseCase = cancelElementUseCase;
             _suspendElementUseCase = suspendElementUseCase;
             _editElementUseCase = editElementUseCase;
+            _resetElementUseCase = resetElementUseCase;
         }
 
         [Authorize(Roles = "Broker")]
@@ -289,6 +291,37 @@ namespace BrokerageApi.V1.Controllers
                     StatusCodes.Status403Forbidden, "Forbidden"
                 );
             }
+        }
+
+        [HttpPost]
+        [Route("{elementId}/reset")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ResetElement([FromRoute] int referralId, [FromRoute] int elementId)
+        {
+            try
+            {
+                await _resetElementUseCase.ExecuteAsync(referralId, elementId);
+            }
+            catch (ArgumentNullException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/elements/{elementId}/reset",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (InvalidOperationException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/elements/{elementId}/reset",
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
+                );
+            }
+            return Ok();
         }
     }
 }

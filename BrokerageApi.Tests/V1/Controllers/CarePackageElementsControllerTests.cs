@@ -31,6 +31,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Mock<ISuspendElementUseCase> _mockSuspendElementUseCase;
         private Mock<ICancelElementUseCase> _mockCancelElementUseCase;
         private Mock<IEditElementUseCase> _mockEditElementUseCase;
+        private Mock<IResetElementUseCase> _mockResetElementUseCase;
 
         private CarePackageElementsController _classUnderTest;
 
@@ -45,13 +46,15 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockSuspendElementUseCase = new Mock<ISuspendElementUseCase>();
             _mockCancelElementUseCase = new Mock<ICancelElementUseCase>();
             _mockEditElementUseCase = new Mock<IEditElementUseCase>();
+            _mockResetElementUseCase = new Mock<IResetElementUseCase>();
 
             _classUnderTest = new CarePackageElementsController(_mockCreateElementUseCase.Object,
                 _mockDeleteElementUseCase.Object,
                 _mockEndElementUseCase.Object,
                 _mockCancelElementUseCase.Object,
                 _mockSuspendElementUseCase.Object,
-                _mockEditElementUseCase.Object
+                _mockEditElementUseCase.Object,
+                _mockResetElementUseCase.Object
             );
 
             // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
@@ -358,6 +361,47 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ThrowsAsync(exception);
 
             var response = await _classUnderTest.SuspendElement(referralId, elementId, request);
+            var statusCode = GetStatusCode(response);
+
+            statusCode.Should().Be((int) expectedStatusCode);
+            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+        }
+        [Test]
+        public async Task CanResetElement()
+        {
+            const int referralId = 1234;
+            const int elementId = 1234;
+
+            var response = await _classUnderTest.ResetElement(referralId, elementId);
+            var statusCode = GetStatusCode(response);
+
+            _mockResetElementUseCase.Verify(x => x.ExecuteAsync(referralId, elementId));
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+        }
+
+        private static readonly object[] _resetElementErrors =
+        {
+            new object[]
+            {
+                new ArgumentNullException(null, "message"), HttpStatusCode.NotFound
+            },
+            new object[]
+            {
+                new InvalidOperationException("message"), HttpStatusCode.UnprocessableEntity
+            }
+        };
+
+
+        [TestCaseSource(nameof(_resetElementErrors)), Property("AsUser", "Broker")]
+        public async Task ResetElementMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            const int referralId = 1234;
+            const int elementId = 1234;
+            var request = _fixture.Create<CancelRequest>();
+            _mockResetElementUseCase.Setup(x => x.ExecuteAsync(referralId, elementId))
+                .ThrowsAsync(exception);
+
+            var response = await _classUnderTest.ResetElement(referralId, elementId);
             var statusCode = GetStatusCode(response);
 
             statusCode.Should().Be((int) expectedStatusCode);

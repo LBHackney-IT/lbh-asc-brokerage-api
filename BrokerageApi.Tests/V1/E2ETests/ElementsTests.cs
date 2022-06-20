@@ -203,6 +203,15 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var resultReferralElement = await Context.ReferralElements.SingleAsync(re => re.ElementId == element.Id && re.ReferralId == referral.Id);
             resultReferralElement.PendingCancellation.Should().BeTrue();
             resultReferralElement.PendingComment.Should().Be(request.Comment);
+
+            // reset
+            var resetCode = await Post($"/api/v1/referrals/{referral.Id}/care-package/elements/{element.Id}/reset", null);
+
+            resetCode.Should().Be(HttpStatusCode.OK);
+
+            var resetReferralElement = await Context.ReferralElements.SingleAsync(re => re.ElementId == element.Id && re.ReferralId == referral.Id);
+            resetReferralElement.PendingCancellation.Should().BeNull();
+            resetReferralElement.PendingComment.Should().BeNull();
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -245,6 +254,15 @@ namespace BrokerageApi.Tests.V1.E2ETests
             resultElement.Id.Should().Be(element.Id);
             resultElement.SuspensionElements.Should().HaveCount(2);
             resultElement.SuspensionElements.Should().OnlyContain(e => e.IsSuspension);
+
+            // reset
+            var resetCode = await Post($"/api/v1/referrals/{referral.Id}/care-package/elements/{element.Id}/reset", null);
+
+            resetCode.Should().Be(HttpStatusCode.OK);
+
+            var resetElement = Context.Elements.Single(e => e.Id == element.Id);
+            resetElement.Id.Should().Be(element.Id);
+            resetElement.SuspensionElements.Should().BeEmpty();
         }
 
         [Test, Property("AsUser", "Broker")]
