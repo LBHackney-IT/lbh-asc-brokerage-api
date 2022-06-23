@@ -62,10 +62,10 @@ namespace BrokerageApi.V1.Controllers
                 var referral = await _createReferralUseCase.ExecuteAsync(request);
                 return Ok(referral.ToResponse());
             }
-            catch (ArgumentException)
+            catch (ArgumentException e)
             {
                 return Problem(
-                    "The request was invalid",
+                    e.Message,
                     "/api/v1/referrals",
                     StatusCodes.Status400BadRequest, "Bad Request"
                 );
@@ -113,10 +113,10 @@ namespace BrokerageApi.V1.Controllers
                 var referral = await _getReferralByIdUseCase.ExecuteAsync(id);
                 return Ok(referral.ToResponse());
             }
-            catch (ArgumentNullException)
+            catch (ArgumentNullException e)
             {
                 return Problem(
-                    "The requested referral was not found",
+                    e.Message,
                     $"/api/v1/referrals/{id}",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
@@ -136,18 +136,18 @@ namespace BrokerageApi.V1.Controllers
                 var referral = await _assignBrokerToReferralUseCase.ExecuteAsync(id, request);
                 return Ok(referral.ToResponse());
             }
-            catch (ArgumentNullException)
+            catch (ArgumentNullException e)
             {
                 return Problem(
-                    "The requested referral was not found",
+                    e.Message,
                     $"/api/v1/referrals/{id}/assign",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException e)
             {
                 return Problem(
-                    "The requested referral was in an invalid state for assignment",
+                    e.Message,
                     $"/api/v1/referrals/{id}/assign",
                     StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
@@ -167,18 +167,18 @@ namespace BrokerageApi.V1.Controllers
                 var referral = await _reassignBrokerToReferralUseCase.ExecuteAsync(id, request);
                 return Ok(referral.ToResponse());
             }
-            catch (ArgumentNullException)
+            catch (ArgumentNullException e)
             {
                 return Problem(
-                    "The requested referral was not found",
+                    e.Message,
                     $"/api/v1/referrals/{id}/reassign",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException e)
             {
                 return Problem(
-                    "The requested referral was in an invalid state for reassignment",
+                    e.Message,
                     $"/api/v1/referrals/{id}/reassign",
                     StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );

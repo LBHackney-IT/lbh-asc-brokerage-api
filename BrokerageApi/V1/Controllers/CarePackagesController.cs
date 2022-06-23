@@ -88,26 +88,26 @@ namespace BrokerageApi.V1.Controllers
                 var referral = await _startCarePackageUseCase.ExecuteAsync(referralId);
                 return Ok(referral.ToResponse());
             }
-            catch (ArgumentNullException)
+            catch (ArgumentNullException e)
             {
                 return Problem(
-                    "The requested referral was not found",
+                    e.Message,
                     $"/api/v1/referrals/{referralId}/care-package/start",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException e)
             {
                 return Problem(
-                    "The requested referral was in an invalid state to start editing",
+                    e.Message,
                     $"/api/v1/referrals/{referralId}/care-package/start",
                     StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException e)
             {
                 return Problem(
-                    "The requested referral is not assigned to the user",
+                    e.Message,
                     $"/api/v1/referrals/{referralId}/care-package/start",
                     StatusCodes.Status403Forbidden, "Forbidden"
                 );
