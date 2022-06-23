@@ -175,11 +175,11 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
         public async Task ThrowsUnauthorizedAccessExceptionWhenCarePackageNotAssignedToUser()
         {
             const string brokerEmail = "broker@email.com";
-            const string AssignedBrokerEmailEmail = "another.broker@email.com";
+            const string assignedBrokerEmailEmail = "another.broker@email.com";
             const string approverEmail = "approver@email.com";
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
-                .With(r => r.AssignedBrokerEmail, AssignedBrokerEmailEmail)
+                .With(r => r.AssignedBrokerEmail, assignedBrokerEmailEmail)
                 .Create();
 
             _mockReferralGateway
