@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using AutoFixture;
-using BrokerageApi.Tests.V1.Controllers.Mocks;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Controllers;
@@ -22,7 +22,6 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Mock<IGetServiceOverviewUseCase> _mockGetServiceOverviewUseCase;
         private ServiceUserController _classUnderTest;
         private Fixture _fixture;
-        private MockProblemDetailsFactory _mockProblemDetailsFactory;
         private Mock<IGetCarePackagesByServiceUserIdUseCase> _mockGetCarePackagesByServiceUserIdUseCase;
 
         [SetUp]
@@ -31,15 +30,13 @@ namespace BrokerageApi.Tests.V1.Controllers
             _fixture = FixtureHelpers.Fixture;
             _mockGetServiceOverviewUseCase = new Mock<IGetServiceOverviewUseCase>();
             _mockGetCarePackagesByServiceUserIdUseCase = new Mock<IGetCarePackagesByServiceUserIdUseCase>();
-            _mockProblemDetailsFactory = new MockProblemDetailsFactory();
 
             _classUnderTest = new ServiceUserController(
                 _mockGetServiceOverviewUseCase.Object,
                 _mockGetCarePackagesByServiceUserIdUseCase.Object
-                );
-            _classUnderTest.ProblemDetailsFactory = _mockProblemDetailsFactory.Object;
-            SetupAuthentication(_classUnderTest);
+            );
 
+            SetupAuthentication(_classUnderTest);
         }
 
         [Test]
@@ -69,9 +66,11 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             var response = await _classUnderTest.GetServiceOverview(socialCareId);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound);
+            result.Status.Should().Be((int) HttpStatusCode.NotFound);
+            result.Detail.Should().Be("test");
         }
         [Test]
         public async Task CanGetCarePackagesByServiceUserId()
@@ -110,10 +109,12 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Act
             var response = await _classUnderTest.GetServiceUserCarePackages("unexpectedId");
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound);
+            result.Status.Should().Be((int) HttpStatusCode.NotFound);
+            result.Detail.Should().Be("No care packages found for this service user (Parameter 'socialCareId')");
         }
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using AutoFixture;
-using BrokerageApi.Tests.V1.Controllers.Mocks;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Controllers;
@@ -14,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BrokerageApi.Tests.V1.Controllers
 {
@@ -22,7 +22,6 @@ namespace BrokerageApi.Tests.V1.Controllers
     {
         private Fixture _fixture;
         private Mock<IGetAllUsersUseCase> _mockGetAllUsersUseCase;
-        private MockProblemDetailsFactory _mockProblemDetailsFactory;
 
         private UsersController _classUnderTest;
         private Mock<IGetCurrentUserUseCase> _mockCurrentUserUseCase;
@@ -33,15 +32,11 @@ namespace BrokerageApi.Tests.V1.Controllers
             _fixture = FixtureHelpers.Fixture;
             _mockGetAllUsersUseCase = new Mock<IGetAllUsersUseCase>();
             _mockCurrentUserUseCase = new Mock<IGetCurrentUserUseCase>();
-            _mockProblemDetailsFactory = new MockProblemDetailsFactory();
 
             _classUnderTest = new UsersController(
                 _mockGetAllUsersUseCase.Object,
                 _mockCurrentUserUseCase.Object
             );
-
-            // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
-            _classUnderTest.ProblemDetailsFactory = _mockProblemDetailsFactory.Object;
         }
 
         [Test]
@@ -102,7 +97,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         }
 
         [Test]
-        public async Task Rerturns404WhenUserNotFound()
+        public async Task Returns404WhenUserNotFound()
         {
             // Arrange
             const string expectedMessage = "message";
@@ -113,10 +108,12 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Act
             var response = await _classUnderTest.GetCurrentUser();
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound, expectedMessage);
+            result.Status.Should().Be((int) HttpStatusCode.NotFound);
+            result.Detail.Should().Be(expectedMessage);
         }
     }
 }

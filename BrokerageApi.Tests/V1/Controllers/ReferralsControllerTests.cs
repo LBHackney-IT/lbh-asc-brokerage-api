@@ -1,5 +1,4 @@
 using AutoFixture;
-using BrokerageApi.Tests.V1.Controllers.Mocks;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Boundary.Response;
@@ -15,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BrokerageApi.Tests.V1.Controllers
 {
@@ -30,7 +30,6 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Mock<IAssignBrokerToReferralUseCase> _mockAssignBrokerToReferralUseCase;
         private Mock<IReassignBrokerToReferralUseCase> _mockReassignBrokerToReferralUseCase;
         private Mock<IGetBudgetApprovalsUseCase> _mockGetBudgetApprovalsUseCase;
-        private MockProblemDetailsFactory _mockProblemDetailsFactory;
 
         private ReferralsController _classUnderTest;
         private Mock<IArchiveReferralUseCase> _mockArchiveReferralUseCase;
@@ -45,7 +44,6 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockGetReferralByIdUseCase = new Mock<IGetReferralByIdUseCase>();
             _mockAssignBrokerToReferralUseCase = new Mock<IAssignBrokerToReferralUseCase>();
             _mockReassignBrokerToReferralUseCase = new Mock<IReassignBrokerToReferralUseCase>();
-            _mockProblemDetailsFactory = new MockProblemDetailsFactory();
             _mockArchiveReferralUseCase = new Mock<IArchiveReferralUseCase>();
             _mockGetBudgetApprovalsUseCase = new Mock<IGetBudgetApprovalsUseCase>();
 
@@ -59,9 +57,6 @@ namespace BrokerageApi.Tests.V1.Controllers
                 _mockArchiveReferralUseCase.Object,
                 _mockGetBudgetApprovalsUseCase.Object
             );
-
-            // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
-            _classUnderTest.ProblemDetailsFactory = _mockProblemDetailsFactory.Object;
 
             SetupAuthentication(_classUnderTest);
         }
@@ -101,10 +96,12 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Act
             var response = await _classUnderTest.CreateReferral(request);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.UnprocessableEntity);
-            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.UnprocessableEntity, expectedMessage);
+            result.Status.Should().Be((int) HttpStatusCode.UnprocessableEntity);
+            result.Detail.Should().Be(expectedMessage);
         }
 
         [Test]
@@ -214,10 +211,12 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Act
             var response = await _classUnderTest.GetReferral(123456);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound);
+            result.Status.Should().Be((int) HttpStatusCode.NotFound);
+            result.Detail.Should().Be("Referral not found for: 123456 (Parameter 'id')");
         }
 
         [Test]
@@ -261,10 +260,12 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Act
             var response = await _classUnderTest.AssignBroker(123456, request);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound);
+            result.Status.Should().Be((int) HttpStatusCode.NotFound);
+            result.Detail.Should().Be("Referral not found for: 123456 (Parameter 'referralId')");
         }
 
         [Test]
@@ -285,10 +286,12 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Act
             var response = await _classUnderTest.AssignBroker(referral.Id, request);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.UnprocessableEntity);
-            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.UnprocessableEntity);
+            result.Status.Should().Be((int) HttpStatusCode.UnprocessableEntity);
+            result.Detail.Should().Be("Referral is not in a valid state for assignment");
         }
 
         [Test]
@@ -332,10 +335,12 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Act
             var response = await _classUnderTest.ReassignBroker(123456, request);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound);
+            result.Status.Should().Be((int) HttpStatusCode.NotFound);
+            result.Detail.Should().Be("Referral not found for: 123456 (Parameter 'referralId')");
         }
 
         [Test]
@@ -356,10 +361,12 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Act
             var response = await _classUnderTest.ReassignBroker(referral.Id, request);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.UnprocessableEntity);
-            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.UnprocessableEntity);
+            result.Status.Should().Be((int) HttpStatusCode.UnprocessableEntity);
+            result.Detail.Should().Be("Referral is not in a valid state for assignment");
         }
 
         [Test]
@@ -404,10 +411,12 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Act
             var response = await _classUnderTest.ArchiveReferral(referralId, request);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             // Assert
             statusCode.Should().Be((int) expectedStatusCode);
-            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
         }
 
         [Test, Property("AsUser", "Approver")]
@@ -448,10 +457,12 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Act
             var response = await _classUnderTest.GetBudgetApprovals();
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             // Assert
             statusCode.Should().Be((int) expectedStatusCode);
-            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
         }
     }
 }

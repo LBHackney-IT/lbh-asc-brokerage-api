@@ -1,5 +1,4 @@
 using AutoFixture;
-using BrokerageApi.Tests.V1.Controllers.Mocks;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Boundary.Response;
@@ -13,6 +12,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using BrokerageApi.V1.UseCase.Interfaces;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackages;
 
@@ -24,7 +24,6 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Fixture _fixture;
         private Mock<IGetCarePackageByIdUseCase> _mockGetCarePackageByIdUseCase;
         private Mock<IStartCarePackageUseCase> _mockStartCarePackageUseCase;
-        private MockProblemDetailsFactory _mockProblemDetailsFactory;
 
         private CarePackagesController _classUnderTest;
         private Mock<IEndCarePackageUseCase> _mockEndCarePackageUseCase;
@@ -41,7 +40,6 @@ namespace BrokerageApi.Tests.V1.Controllers
             _fixture = FixtureHelpers.Fixture;
             _mockGetCarePackageByIdUseCase = new Mock<IGetCarePackageByIdUseCase>();
             _mockStartCarePackageUseCase = new Mock<IStartCarePackageUseCase>();
-            _mockProblemDetailsFactory = new MockProblemDetailsFactory();
             _mockEndCarePackageUseCase = new Mock<IEndCarePackageUseCase>();
             _mockCancelCarePackageUseCase = new Mock<ICancelCarePackageUseCase>();
             _mockSuspendCarePackageUseCase = new Mock<ISuspendCarePackageUseCase>();
@@ -61,9 +59,6 @@ namespace BrokerageApi.Tests.V1.Controllers
                 _mockApproveCarePackageUseCase.Object,
                 _mockRequestAmendmentUseCase.Object
             );
-
-            // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
-            _classUnderTest.ProblemDetailsFactory = _mockProblemDetailsFactory.Object;
 
             SetupAuthentication(_classUnderTest);
         }
@@ -99,10 +94,12 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Act
             var response = await _classUnderTest.GetCarePackage(123456);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound);
+            result.Status.Should().Be((int) HttpStatusCode.NotFound);
+            result.Detail.Should().Be("Care package not found for: 123456 (Parameter 'id')");
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -139,10 +136,12 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Act
             var response = await _classUnderTest.StartCarePackage(123456);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound);
+            result.Status.Should().Be((int) HttpStatusCode.NotFound);
+            result.Detail.Should().Be("Referral not found for: 123456 (Parameter 'referralId')");
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -159,10 +158,12 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Act
             var response = await _classUnderTest.StartCarePackage(referral.Id);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.UnprocessableEntity);
-            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.UnprocessableEntity);
+            result.Status.Should().Be((int) HttpStatusCode.UnprocessableEntity);
+            result.Detail.Should().Be("Referral is not in a valid state to start editing");
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -180,10 +181,12 @@ namespace BrokerageApi.Tests.V1.Controllers
             // Act
             var response = await _classUnderTest.StartCarePackage(referral.Id);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.Forbidden);
-            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.Forbidden);
+            result.Status.Should().Be((int) HttpStatusCode.Forbidden);
+            result.Detail.Should().Be("Referral is not assigned to a.broker@hackney.gov.uk");
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -259,9 +262,11 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             var response = await _classUnderTest.EndCarePackage(referralId, request);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             statusCode.Should().Be((int) expectedStatusCode);
-            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
         }
 
         [TestCaseSource(nameof(_errorList)), Property("AsUser", "Broker")]
@@ -274,9 +279,11 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             var response = await _classUnderTest.CancelCarePackage(referralId, request);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             statusCode.Should().Be((int) expectedStatusCode);
-            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
         }
 
         [TestCaseSource(nameof(_errorList)), Property("AsUser", "Broker")]
@@ -289,9 +296,11 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             var response = await _classUnderTest.SuspendCarePackage(referralId, request);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             statusCode.Should().Be((int) expectedStatusCode);
-            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
         }
 
         [Test]
@@ -337,9 +346,11 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             var response = await _classUnderTest.GetBudgetApprovers(referralId);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             statusCode.Should().Be((int) expectedStatusCode);
-            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -383,9 +394,11 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             var response = await _classUnderTest.AssignBudgetApprover(referralId, request);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             statusCode.Should().Be((int) expectedStatusCode);
-            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
         }
 
         [Test, Property("AsUser", "Approver")]
@@ -410,9 +423,11 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             var response = await _classUnderTest.ApproveCarePackage(referralId);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             statusCode.Should().Be((int) expectedStatusCode);
-            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
         }
 
         [Test, Property("AsUser", "Approver")]
@@ -439,9 +454,11 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             var response = await _classUnderTest.RequestAmendment(referralId, request);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             statusCode.Should().Be((int) expectedStatusCode);
-            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
         }
     }
 }
