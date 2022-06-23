@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using BrokerageApi.Tests.V1.Controllers.Mocks;
 using BrokerageApi.Tests.V1.Helpers;
+using Microsoft.AspNetCore.Mvc;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Controllers;
 using BrokerageApi.V1.Factories;
@@ -14,6 +15,7 @@ using BrokerageApi.V1.UseCase.Interfaces;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using NodaTime;
 
 namespace BrokerageApi.Tests.V1.Controllers
 {
@@ -118,5 +120,26 @@ namespace BrokerageApi.Tests.V1.Controllers
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
             _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound);
         }
+        [Test]
+        public async Task CanGetServiceUserByRequest()
+        {
+            //Arrange
+
+            var serviceUser = _fixture.BuildServiceUser()
+            .With(su => su.SocialCareId, "myUsrId")
+            .With(su => su.ServiceUserName, "fake name")
+            .With(su => su.DateOfBirth, new LocalDate(2001, 1, 13))
+            .Create();
+
+            var serviceUserRequest =  _fixture.BuildServiceUserRequest(serviceUser.SocialCareId)
+            .Create();
+
+            //Act
+            var objectResult = await _classUnderTest.GetServiceUser(serviceUserRequest);
+            var statusCode = GetStatusCode(objectResult);
+            
+            //Assert
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+        }
     }
-}
+} 
