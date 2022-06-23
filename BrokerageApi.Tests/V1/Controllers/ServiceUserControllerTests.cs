@@ -134,12 +134,18 @@ namespace BrokerageApi.Tests.V1.Controllers
             var serviceUserRequest =  _fixture.BuildServiceUserRequest(serviceUser.SocialCareId)
             .Create();
 
+            _mockGetServiceUserByRequestUseCase.Setup(x => x.ExecuteAsync(serviceUserRequest))
+                .ReturnsAsync(serviceUser);
             //Act
             var objectResult = await _classUnderTest.GetServiceUser(serviceUserRequest);
             var statusCode = GetStatusCode(objectResult);
+            var result = GetResultData<ServiceUserResponse>(objectResult);
+
             
             //Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
+            result.Should().BeEquivalentTo(serviceUser.ToResponse());
+
         }
     }
 } 
