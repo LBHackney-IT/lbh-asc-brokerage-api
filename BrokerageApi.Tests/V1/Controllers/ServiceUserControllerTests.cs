@@ -126,12 +126,9 @@ namespace BrokerageApi.Tests.V1.Controllers
             //Arrange
 
             var serviceUser = _fixture.BuildServiceUser()
-            .With(su => su.SocialCareId, "myUsrId")
-            .With(su => su.ServiceUserName, "fake name")
-            .With(su => su.DateOfBirth, new LocalDate(2001, 1, 13))
             .Create();
 
-            var serviceUserRequest =  _fixture.BuildServiceUserRequest(serviceUser.SocialCareId)
+            var serviceUserRequest = _fixture.BuildServiceUserRequest(serviceUser.SocialCareId)
             .Create();
 
             _mockGetServiceUserByRequestUseCase.Setup(x => x.ExecuteAsync(serviceUserRequest))
@@ -141,11 +138,11 @@ namespace BrokerageApi.Tests.V1.Controllers
             var statusCode = GetStatusCode(objectResult);
             var result = GetResultData<ServiceUserResponse>(objectResult);
 
-            
+
             //Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
             result.Should().BeEquivalentTo(serviceUser.ToResponse());
 
         }
     }
-} 
+}
