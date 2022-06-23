@@ -78,9 +78,9 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ReturnsAsync(carePackage);
 
             // Act
-            var objectResult = await _classUnderTest.GetCarePackage(carePackage.Id);
-            var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<CarePackageResponse>(objectResult);
+            var response = await _classUnderTest.GetCarePackage(carePackage.Id);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<CarePackageResponse>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
@@ -97,8 +97,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .Returns(Task.FromResult(new CarePackage()));
 
             // Act
-            var objectResult = await _classUnderTest.GetCarePackage(123456);
-            var statusCode = GetStatusCode(objectResult);
+            var response = await _classUnderTest.GetCarePackage(123456);
+            var statusCode = GetStatusCode(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
@@ -118,9 +118,9 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ReturnsAsync(referral);
 
             // Act
-            var objectResult = await _classUnderTest.StartCarePackage(referral.Id);
-            var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<ReferralResponse>(objectResult);
+            var response = await _classUnderTest.StartCarePackage(referral.Id);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ReferralResponse>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
@@ -137,8 +137,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .Returns(Task.FromResult(new Referral()));
 
             // Act
-            var objectResult = await _classUnderTest.StartCarePackage(123456);
-            var statusCode = GetStatusCode(objectResult);
+            var response = await _classUnderTest.StartCarePackage(123456);
+            var statusCode = GetStatusCode(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
@@ -157,8 +157,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ThrowsAsync(new InvalidOperationException("Referral is not in a valid state to start editing"));
 
             // Act
-            var objectResult = await _classUnderTest.StartCarePackage(referral.Id);
-            var statusCode = GetStatusCode(objectResult);
+            var response = await _classUnderTest.StartCarePackage(referral.Id);
+            var statusCode = GetStatusCode(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.UnprocessableEntity);
@@ -178,8 +178,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ThrowsAsync(new UnauthorizedAccessException("Referral is not assigned to a.broker@hackney.gov.uk"));
 
             // Act
-            var objectResult = await _classUnderTest.StartCarePackage(referral.Id);
-            var statusCode = GetStatusCode(objectResult);
+            var response = await _classUnderTest.StartCarePackage(referral.Id);
+            var statusCode = GetStatusCode(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.Forbidden);
@@ -305,9 +305,9 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .Setup(x => x.ExecuteAsync(referralId))
                 .ReturnsAsync((expectedApprovers, expectedEstimatedYearlyCost));
 
-            var objectResult = await _classUnderTest.GetBudgetApprovers(referralId);
-            var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<GetApproversResponse>(objectResult);
+            var response = await _classUnderTest.GetBudgetApprovers(referralId);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<GetApproversResponse>(response);
 
             statusCode.Should().Be((int) HttpStatusCode.OK);
             result.EstimatedYearlyCost.Should().Be(expectedEstimatedYearlyCost);
@@ -335,8 +335,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .Setup(x => x.ExecuteAsync(referralId))
                 .ThrowsAsync(exception);
 
-            var objectResult = await _classUnderTest.GetBudgetApprovers(referralId);
-            var statusCode = GetStatusCode(objectResult);
+            var response = await _classUnderTest.GetBudgetApprovers(referralId);
+            var statusCode = GetStatusCode(response);
 
             statusCode.Should().Be((int) expectedStatusCode);
             _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);

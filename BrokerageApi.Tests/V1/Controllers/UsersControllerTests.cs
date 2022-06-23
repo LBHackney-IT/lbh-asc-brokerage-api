@@ -54,9 +54,9 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ReturnsAsync(users);
 
             // Act
-            var objectResult = await _classUnderTest.GetAllUsers(null);
-            var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<List<UserResponse>>(objectResult);
+            var response = await _classUnderTest.GetAllUsers(null);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<List<UserResponse>>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
@@ -73,9 +73,9 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ReturnsAsync(users);
 
             // Act
-            var objectResult = await _classUnderTest.GetAllUsers(UserRole.Broker);
-            var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<List<UserResponse>>(objectResult);
+            var response = await _classUnderTest.GetAllUsers(UserRole.Broker);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<List<UserResponse>>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
@@ -92,9 +92,9 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ReturnsAsync(user);
 
             // Act
-            var objectResult = await _classUnderTest.GetCurrentUser();
-            var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<UserResponse>(objectResult);
+            var response = await _classUnderTest.GetCurrentUser();
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<UserResponse>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
@@ -111,8 +111,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ThrowsAsync(new ArgumentException(expectedMessage));
 
             // Act
-            var objectResult = await _classUnderTest.GetCurrentUser();
-            var statusCode = GetStatusCode(objectResult);
+            var response = await _classUnderTest.GetCurrentUser();
+            var statusCode = GetStatusCode(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);

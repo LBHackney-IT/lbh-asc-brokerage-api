@@ -78,9 +78,9 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ReturnsAsync(request.ToDatabase());
 
             // Act
-            var objectResult = await _classUnderTest.CreateElement(referral.Id, request);
-            var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<ElementResponse>(objectResult);
+            var response = await _classUnderTest.CreateElement(referral.Id, request);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ElementResponse>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
@@ -122,8 +122,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .Throws(exception);
 
             // Act
-            var objectResult = await _classUnderTest.CreateElement(referral.Id, request);
-            var statusCode = GetStatusCode(objectResult);
+            var response = await _classUnderTest.CreateElement(referral.Id, request);
+            var statusCode = GetStatusCode(response);
 
             // Assert
             statusCode.Should().Be((int) expectedStatusCode);
@@ -142,8 +142,8 @@ namespace BrokerageApi.Tests.V1.Controllers
             var elementId = referral.Elements.First().Id;
 
             // Act
-            var objectResult = await _classUnderTest.DeleteElement(referral.Id, elementId);
-            var statusCode = GetStatusCode(objectResult);
+            var response = await _classUnderTest.DeleteElement(referral.Id, elementId);
+            var statusCode = GetStatusCode(response);
 
             // Assert
             _mockDeleteElementUseCase.Verify(x => x.ExecuteAsync(referral.Id, elementId));
@@ -179,8 +179,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .Throws(exception);
 
             // Act
-            var objectResult = await _classUnderTest.DeleteElement(referral.Id, 1);
-            var statusCode = GetStatusCode(objectResult);
+            var response = await _classUnderTest.DeleteElement(referral.Id, 1);
+            var statusCode = GetStatusCode(response);
 
             // Assert
             statusCode.Should().Be(expectedStatusCode);
@@ -293,9 +293,9 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ReturnsAsync(request.ToDatabase(element));
 
             // Act
-            var objectResult = await _classUnderTest.EditElement(referral.Id, element.Id, request);
-            var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<ElementResponse>(objectResult);
+            var response = await _classUnderTest.EditElement(referral.Id, element.Id, request);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ElementResponse>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
@@ -321,8 +321,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .Throws(exception);
 
             // Act
-            var objectResult = await _classUnderTest.EditElement(referral.Id, element.Id, request);
-            var statusCode = GetStatusCode(objectResult);
+            var response = await _classUnderTest.EditElement(referral.Id, element.Id, request);
+            var statusCode = GetStatusCode(response);
 
             // Assert
             statusCode.Should().Be((int) expectedStatusCode);

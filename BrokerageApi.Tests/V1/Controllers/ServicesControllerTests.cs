@@ -57,9 +57,9 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ReturnsAsync(services);
 
             // Act
-            var objectResult = await _classUnderTest.GetAllServices();
-            var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<List<ServiceResponse>>(objectResult);
+            var response = await _classUnderTest.GetAllServices();
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<List<ServiceResponse>>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
@@ -76,9 +76,9 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ReturnsAsync(service);
 
             // Act
-            var objectResult = await _classUnderTest.GetService(service.Id);
-            var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<ServiceResponse>(objectResult);
+            var response = await _classUnderTest.GetService(service.Id);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ServiceResponse>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
@@ -95,8 +95,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .Returns(Task.FromResult(new Service()));
 
             // Act
-            var objectResult = await _classUnderTest.GetService(123456);
-            var statusCode = GetStatusCode(objectResult);
+            var response = await _classUnderTest.GetService(123456);
+            var statusCode = GetStatusCode(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
@@ -114,9 +114,9 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ReturnsAsync(providers);
 
             // Act
-            var objectResult = await _classUnderTest.FindProvidersByService(service.Id, "Acme");
-            var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<List<ProviderResponse>>(objectResult);
+            var response = await _classUnderTest.FindProvidersByService(service.Id, "Acme");
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<List<ProviderResponse>>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
@@ -133,8 +133,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .Returns(Task.FromResult(new List<Provider>() as IEnumerable<Provider>));
 
             // Act
-            var objectResult = await _classUnderTest.FindProvidersByService(123456, "Acme");
-            var statusCode = GetStatusCode(objectResult);
+            var response = await _classUnderTest.FindProvidersByService(123456, "Acme");
+            var statusCode = GetStatusCode(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);

@@ -52,9 +52,9 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockGetServiceOverviewUseCase.Setup(x => x.ExecuteAsync(socialCareId))
                 .ReturnsAsync(elements);
 
-            var objectResult = await _classUnderTest.GetServiceOverview(socialCareId);
-            var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<List<ElementResponse>>(objectResult);
+            var response = await _classUnderTest.GetServiceOverview(socialCareId);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<List<ElementResponse>>(response);
 
             statusCode.Should().Be((int) HttpStatusCode.OK);
             result.Should().BeEquivalentTo(elements.Select(e => e.ToResponse()));
@@ -67,8 +67,8 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockGetServiceOverviewUseCase.Setup(x => x.ExecuteAsync(socialCareId))
                 .ThrowsAsync(new ArgumentException("test"));
 
-            var objectResult = await _classUnderTest.GetServiceOverview(socialCareId);
-            var statusCode = GetStatusCode(objectResult);
+            var response = await _classUnderTest.GetServiceOverview(socialCareId);
+            var statusCode = GetStatusCode(response);
 
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
             _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound);
@@ -88,9 +88,10 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .Setup(x => x.ExecuteAsync(socialCareId))
                 .ReturnsAsync(carePackages);
             // Act
-            var objectResult = await _classUnderTest.GetServiceUserCarePackages(socialCareId);
-            var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<List<CarePackageResponse>>(objectResult);
+            var response = await _classUnderTest.GetServiceUserCarePackages(socialCareId);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<List<CarePackageResponse>>(response);
+
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
             result.Should().BeEquivalentTo(carePackages.Select(r => r.ToResponse()).ToList());
@@ -107,8 +108,8 @@ namespace BrokerageApi.Tests.V1.Controllers
 
 
             // Act
-            var objectResult = await _classUnderTest.GetServiceUserCarePackages("unexpectedId");
-            var statusCode = GetStatusCode(objectResult);
+            var response = await _classUnderTest.GetServiceUserCarePackages("unexpectedId");
+            var statusCode = GetStatusCode(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
