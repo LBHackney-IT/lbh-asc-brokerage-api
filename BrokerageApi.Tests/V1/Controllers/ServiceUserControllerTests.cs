@@ -25,17 +25,21 @@ namespace BrokerageApi.Tests.V1.Controllers
         private MockProblemDetailsFactory _mockProblemDetailsFactory;
         private Mock<IGetCarePackagesByServiceUserIdUseCase> _mockGetCarePackagesByServiceUserIdUseCase;
 
+        private Mock<IGetServiceUserByRequestUseCase> _mockGetServiceUserByRequestUseCase;
+
         [SetUp]
         public void SetUp()
         {
             _fixture = FixtureHelpers.Fixture;
             _mockGetServiceOverviewUseCase = new Mock<IGetServiceOverviewUseCase>();
             _mockGetCarePackagesByServiceUserIdUseCase = new Mock<IGetCarePackagesByServiceUserIdUseCase>();
+            _mockGetServiceUserByRequestUseCase = new Mock<IGetServiceUserByRequestUseCase>();
             _mockProblemDetailsFactory = new MockProblemDetailsFactory();
 
             _classUnderTest = new ServiceUserController(
                 _mockGetServiceOverviewUseCase.Object,
-                _mockGetCarePackagesByServiceUserIdUseCase.Object
+                _mockGetCarePackagesByServiceUserIdUseCase.Object,
+                _mockGetServiceUserByRequestUseCase.Object
                 );
             _classUnderTest.ProblemDetailsFactory = _mockProblemDetailsFactory.Object;
             SetupAuthentication(_classUnderTest);
