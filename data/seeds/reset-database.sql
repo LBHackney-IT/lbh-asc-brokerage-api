@@ -24,6 +24,9 @@ SELECT current_database() = 'brokerage_api_db_production' AS is_production;
   \quit
 \endif
 
+-- All timestamps are recorded as UTC
+SET TimeZone='UTC';
+
 -- Wrap in a transaction so that if it fails the database is still in a consistent state
 BEGIN;
 

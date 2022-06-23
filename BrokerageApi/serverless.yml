@@ -23,6 +23,7 @@ functions:
     role: lambdaExecutionRole
     environment:
       CONNECTION_STRING: Host=${ssm:/brokerage-api/${self:provider.stage}/postgres-hostname};Port=${ssm:/brokerage-api/${self:provider.stage}/postgres-port};Database=${ssm:/brokerage-api/${self:provider.stage}/postgres-database};Username=${ssm:/brokerage-api/${self:provider.stage}/postgres-username};Password=${ssm:/brokerage-api/${self:provider.stage}/postgres-password}
+      PGTZ: UTC
     events:
       - http:
           path: /{proxy+}
