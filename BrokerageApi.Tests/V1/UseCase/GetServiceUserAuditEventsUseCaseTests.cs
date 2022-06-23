@@ -27,12 +27,12 @@ namespace BrokerageApi.Tests.V1.UseCase
         [Test]
         public void CanGetEvents()
         {
-            const string SocialCareId = "socialCareId";
+            const string socialCareId = "socialCareId";
             var expectedEvents = _fixture.BuildAuditEvent().CreateMany().AsQueryable().ToPagedList(1, 100);
-            _auditGatewayMock.Setup(x => x.GetServiceUserAuditEvents(SocialCareId, It.IsAny<int>(), It.IsAny<int>()))
+            _auditGatewayMock.Setup(x => x.GetServiceUserAuditEvents(socialCareId, It.IsAny<int>(), It.IsAny<int>()))
                 .Returns(expectedEvents);
 
-            var events = _classUnderTest.Execute(SocialCareId, 1, 100);
+            var events = _classUnderTest.Execute(socialCareId, 1, 100);
 
             events.Should().BeEquivalentTo(expectedEvents);
         }
