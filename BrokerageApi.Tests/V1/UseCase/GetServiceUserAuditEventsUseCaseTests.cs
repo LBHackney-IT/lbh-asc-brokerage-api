@@ -2,7 +2,6 @@ using System.Linq;
 using AutoFixture;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Gateways.Interfaces;
-using BrokerageApi.V1.Infrastructure.AuditEvents;
 using BrokerageApi.V1.UseCase;
 using FluentAssertions;
 using Moq;
