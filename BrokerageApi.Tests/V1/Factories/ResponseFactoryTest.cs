@@ -260,5 +260,18 @@ namespace BrokerageApi.Tests.V1.Factories
             response.Status.Should().Be(amendment.Status);
             response.RequestedAt.Should().Be(amendment.RequestedAt);
         }
+
+        [Test]
+        public void ServiceUserMapsCorrectly()
+        {
+            var serviceUser = _fixture.BuildServiceUser().Create();
+
+            var response = serviceUser.ToResponse();
+
+            response.SocialCareId.Should().Be(serviceUser.SocialCareId);
+            response.ServiceUserName.Should().Be(serviceUser.ServiceUserName);
+            response.DateOfBirth.Should().Be(serviceUser.DateOfBirth);
+        }
+
     }
 }

@@ -32,7 +32,8 @@ namespace BrokerageApi.V1.Gateways
                    .Where(u => u.SocialCareId == socialCareId)
                    .ToListAsync();
             }
-            else if (dateOfBirth != null && serviceUserName != null){
+            else if (dateOfBirth != null && serviceUserName != null)
+            {
                 return await _context.ServiceUsers
                     .Where(u => u.DateOfBirth == dateOfBirth)
                     .Where(u => u.ServiceUserName.Contains(serviceUserName))
@@ -50,7 +51,8 @@ namespace BrokerageApi.V1.Gateways
                     .Where(u => u.ServiceUserName.Contains(serviceUserName))
                     .ToListAsync();
             }
-            else {                
+            else
+            {
                 return null;
             }
         }

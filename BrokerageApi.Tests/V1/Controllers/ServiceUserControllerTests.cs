@@ -165,6 +165,6 @@ namespace BrokerageApi.Tests.V1.Controllers
             statusCode.Should().Be((int) HttpStatusCode.BadRequest);
             _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.BadRequest);
 
-        }        
+        }
     }
 }
