@@ -1,10 +1,11 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.UseCase.Interfaces;
+using System.Collections.Generic;
+
 
 namespace BrokerageApi.V1.UseCase
 {
@@ -17,7 +18,7 @@ namespace BrokerageApi.V1.UseCase
             _serviceUserGateway = serviceUserGateway;
         }
 
-        public async Task<ServiceUser> ExecuteAsync(GetServiceUserRequest request)
+        public async Task<IEnumerable<ServiceUser>> ExecuteAsync(GetServiceUserRequest request)
         {
 
             var serviceUser = await _serviceUserGateway.GetByRequestAsync(request);

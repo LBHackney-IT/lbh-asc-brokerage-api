@@ -32,17 +32,26 @@ namespace BrokerageApi.V1.Gateways
                    .Where(u => u.SocialCareId == socialCareId)
                    .ToListAsync();
             }
+            else if (dateOfBirth != null && serviceUserName != null){
+                return await _context.ServiceUsers
+                    .Where(u => u.DateOfBirth == dateOfBirth)
+                    .Where(u => u.ServiceUserName.Contains(serviceUserName))
+                    .ToListAsync();
+            }
             else if (dateOfBirth != null)
             {
                 return await _context.ServiceUsers
                     .Where(u => u.DateOfBirth == dateOfBirth)
                     .ToListAsync();
             }
-            else
+            else if (serviceUserName != null)
             {
                 return await _context.ServiceUsers
                     .Where(u => u.ServiceUserName.Contains(serviceUserName))
                     .ToListAsync();
+            }
+            else {                
+                return null;
             }
         }
 

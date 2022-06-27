@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using BrokerageApi.Tests.V1.Controllers.Mocks;
 using BrokerageApi.Tests.V1.Helpers;
-using Microsoft.AspNetCore.Mvc;
+using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Controllers;
 using BrokerageApi.V1.Factories;
@@ -124,25 +124,47 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task CanGetServiceUserByRequest()
         {
             //Arrange
+            var serviceUsers = _fixture.BuildServiceUser()
+            .CreateMany();
 
-            var serviceUser = _fixture.BuildServiceUser()
+            var serviceUserRequest = _fixture.BuildServiceUserRequest(serviceUsers.ElementAt(0).SocialCareId)
             .Create();
 
-            var serviceUserRequest = _fixture.BuildServiceUserRequest(serviceUser.SocialCareId)
-            .Create();
-
-            _mockGetServiceUserByRequestUseCase.Setup(x => x.ExecuteAsync(serviceUserRequest))
-                .ReturnsAsync(serviceUser);
+            _mockGetServiceUserByRequestUseCase
+                .Setup(x => x.ExecuteAsync(serviceUserRequest))
+                .ReturnsAsync(serviceUsers);
             //Act
             var objectResult = await _classUnderTest.GetServiceUser(serviceUserRequest);
             var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<ServiceUserResponse>(objectResult);
-
+            var result = GetResultData<List<ServiceUserResponse>>(objectResult);
 
             //Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
-            result.Should().BeEquivalentTo(serviceUser.ToResponse());
+            result.Should().BeEquivalentTo(serviceUsers.Select(su => su.ToResponse()));
 
         }
+
+        [Test]
+        public async Task GetsExceptionWhenBadRequest()
+        {
+            //Arrange
+            var serviceUsers = _fixture.BuildServiceUser()
+            .CreateMany();
+
+            var serviceUserRequest = _fixture.BuildServiceUserRequest("notThatServiceUser")
+            .Create();
+
+            _mockGetServiceUserByRequestUseCase
+                .Setup(x => x.ExecuteAsync(serviceUserRequest))
+                .ThrowsAsync(new ArgumentException("Nope"));
+            //Act
+            var objectResult = await _classUnderTest.GetServiceUser(serviceUserRequest);
+            var statusCode = GetStatusCode(objectResult);
+
+            //Assert
+            statusCode.Should().Be((int) HttpStatusCode.BadRequest);
+            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.BadRequest);
+
+        }        
     }
 }
