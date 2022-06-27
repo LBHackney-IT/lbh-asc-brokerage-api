@@ -25,6 +25,7 @@ namespace BrokerageApi.V1.Gateways
             var socialCareId = request.SocialCareId;
             var serviceUserName = request.ServiceUserName;
             var dateOfBirth = request.DateOfBirth;
+            var isValidDate = (dateOfBirth.ToString() == "01 January 0001" ? false : true);
 
             if (socialCareId != null)
             {
@@ -32,14 +33,14 @@ namespace BrokerageApi.V1.Gateways
                    .Where(u => u.SocialCareId == socialCareId)
                    .ToListAsync();
             }
-            else if (dateOfBirth != null && serviceUserName != null)
+            else if (isValidDate && serviceUserName != null)
             {
                 return await _context.ServiceUsers
                     .Where(u => u.DateOfBirth == dateOfBirth)
                     .Where(u => u.ServiceUserName.Contains(serviceUserName))
                     .ToListAsync();
             }
-            else if (dateOfBirth != null)
+            else if (isValidDate)
             {
                 return await _context.ServiceUsers
                     .Where(u => u.DateOfBirth == dateOfBirth)
