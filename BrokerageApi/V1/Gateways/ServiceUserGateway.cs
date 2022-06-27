@@ -1,10 +1,10 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Boundary.Request;
-
 
 
 namespace BrokerageApi.V1.Gateways
@@ -20,7 +20,7 @@ namespace BrokerageApi.V1.Gateways
 
 
 
-        public async Task<ServiceUser> GetByRequestAsync(GetServiceUserRequest request)
+        public async Task<IEnumerable<ServiceUser>> GetByRequestAsync(GetServiceUserRequest request)
         {
             var socialCareId = request.SocialCareId;
             var serviceUserName = request.ServiceUserName;
@@ -30,19 +30,19 @@ namespace BrokerageApi.V1.Gateways
             {
                 return await _context.ServiceUsers
                    .Where(u => u.SocialCareId == socialCareId)
-                   .SingleOrDefaultAsync();
+                   .ToListAsync();
             }
             else if (dateOfBirth != null)
             {
                 return await _context.ServiceUsers
                     .Where(u => u.DateOfBirth == dateOfBirth)
-                    .SingleOrDefaultAsync();
+                    .ToListAsync();
             }
             else
             {
                 return await _context.ServiceUsers
                     .Where(u => u.ServiceUserName.Contains(serviceUserName))
-                    .SingleOrDefaultAsync();
+                    .ToListAsync();
             }
         }
 

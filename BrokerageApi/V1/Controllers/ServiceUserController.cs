@@ -87,7 +87,7 @@ namespace BrokerageApi.V1.Controllers
 
         [HttpGet]
         [Route("service-users")]
-        [ProducesResponseType(typeof(ServiceUserResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<ServiceUserResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
@@ -97,7 +97,7 @@ namespace BrokerageApi.V1.Controllers
             try
             {
                 var serviceUser = await _serviceUserByRequestUseCase.ExecuteAsync(request);
-                return Ok(serviceUser.ToResponse());
+                return Ok(serviceUser.Select(r => r.ToResponse()).ToList());
             }
             catch (ArgumentException)
             {
