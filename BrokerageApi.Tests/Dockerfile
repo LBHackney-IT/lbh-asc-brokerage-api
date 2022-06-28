@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0
 
-# disable microsoft telematry
+# disable microsoft telemetry
 ENV DOTNET_CLI_TELEMETRY_OPTOUT='true'
 
 ARG LBHPACKAGESTOKEN
@@ -9,7 +9,7 @@ ENV LBHPACKAGESTOKEN=$LBHPACKAGESTOKEN
 WORKDIR /app
 
 # Install dotnet-ef tool to run migrations
-RUN dotnet tool install --global dotnet-ef --version 6.0.5
+RUN dotnet tool install --global dotnet-ef --version 6.0.6
 
 # Ensure dotnet tools are in the path
 ENV PATH="$PATH:/root/.dotnet/tools"
@@ -27,5 +27,6 @@ RUN dotnet restore ./BrokerageApi.Tests/BrokerageApi.Tests.csproj
 COPY . .
 
 RUN dotnet build -c debug -o out BrokerageApi.Tests/BrokerageApi.Tests.csproj
+RUN dotnet build -c Release -o out BrokerageApi/BrokerageApi.csproj
 
 CMD dotnet test
