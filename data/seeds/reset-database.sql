@@ -1,10 +1,10 @@
 -- Connect to the database using the psql client:
 --
---   $ psql postgresql://localhost/bonuscalc
+--   $ psql postgresql://localhost/brokerage_api
 --
 -- Use the correct url for your database and then run this file:
 --
---   bonuscalc=# \i seed-database.sql
+--   brokerage_api=# \i reset-database.sql
 --
 -- The API can then be started using `dotnet run`
 
