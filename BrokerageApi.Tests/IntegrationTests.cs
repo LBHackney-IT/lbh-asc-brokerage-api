@@ -93,6 +93,12 @@ namespace BrokerageApi.Tests
             return result.StatusCode;
         }
 
+        public async Task<HttpStatusCode> Get(string address, object request)
+        {
+            var result = await InternalGetRequest(address, request);
+            return result.StatusCode;
+        }
+
         public async Task<(HttpStatusCode statusCode, TResponse response)> Post<TResponse>(string address, object data)
         {
             HttpResponseMessage result = await InternalPost(address, data);
@@ -124,6 +130,16 @@ namespace BrokerageApi.Tests
         private async Task<HttpResponseMessage> InternalGet(string uri)
         {
             var result = await Client.GetAsync(new Uri(uri, UriKind.Relative));
+            return result;
+        }
+
+        private async Task<HttpResponseMessage> InternalGetRequest(string uri, object request)
+        {
+            var serializedContent = JsonConvert.SerializeObject(request);
+            var content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
+
+            var result = await Client.GetAsync(new Uri(uri, UriKind.Relative), content);
+            content.Dispose();
             return result;
         }
 

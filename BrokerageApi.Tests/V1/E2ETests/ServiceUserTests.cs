@@ -3,15 +3,22 @@ using System.Net;
 using System.Threading.Tasks;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Infrastructure;
+using BrokerageApi.Tests.V1.Helpers;
 using NUnit.Framework;
+using AutoFixture;
+
 
 namespace BrokerageApi.Tests.V1.E2ETests
 {
     public class ServiceUserTests : IntegrationTests<Startup>
     {
+
+        private Fixture _fixture;
+
         [SetUp]
         public void Setup()
         {
+            _fixture = FixtureHelpers.Fixture;
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -208,6 +215,21 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response[0].AssignedBroker.Email, Is.EqualTo("some.email@hackney.gov.uk"));
             Assert.That(response[0].AssignedApprover.Name, Is.EqualTo("Another Username"));
             Assert.That(response[0].AssignedApprover.Email, Is.EqualTo("some.otheremail@hackney.gov.uk"));
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanGetServiceUsersByRequest()
+        {
+            //Arrange
+            var serviceUser = _fixture.BuildServiceUser().Create();
+            await Context.ServiceUsers.AddAsync(serviceUser);
+            var serviceUserRequest = _fixture.BuildServiceUserRequest(serviceUser.SocialCareId).Create();
+            await Context.SaveChangesAsync();
+            Context.ChangeTracker.Clear();
+            //Act 
+            var code = await Get<List<ServiceUserResponse>>($"/api/v1/service-user//service-users", serviceUserRequest);
+            // Assert
+            Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
         }
     }
 }
