@@ -8,6 +8,7 @@ namespace BrokerageApi.V1.Infrastructure
     {
         Service,
         ProvisionalCareCharge,
-        ConfirmedCareCharge
+        ConfirmedCareCharge,
+        NursingCare
     }
 }
