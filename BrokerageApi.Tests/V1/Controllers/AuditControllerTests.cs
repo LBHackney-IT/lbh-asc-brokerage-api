@@ -63,9 +63,9 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockAuditUseCase.Setup(x => x.Execute(socialCareId, pageNumber, pageSize))
                 .Returns(auditEvents);
 
-            var objectResult = _classUnderTest.GetAuditEvents(socialCareId, pageNumber, pageSize);
-            var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<GetServiceUserAuditEventsResponse>(objectResult);
+            var response = _classUnderTest.GetAuditEvents(socialCareId, pageNumber, pageSize);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<GetServiceUserAuditEventsResponse>(response);
 
             statusCode.Should().Be((int) HttpStatusCode.OK);
             var expectedResult = auditEvents.Select(ae => ae.ToResponse());

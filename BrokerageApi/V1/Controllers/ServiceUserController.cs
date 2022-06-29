@@ -43,10 +43,10 @@ namespace BrokerageApi.V1.Controllers
                 var result = await _serviceOverviewUseCase.ExecuteAsync(socialCareId);
                 return Ok(result.Select(e => e.ToResponse()).ToList());
             }
-            catch (ArgumentException)
+            catch (ArgumentException e)
             {
                 return Problem(
-                    "The requested service user was not found",
+                    e.Message,
                     $"api/v1/service-user/{socialCareId}/serviceOverview",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
@@ -68,10 +68,10 @@ namespace BrokerageApi.V1.Controllers
                 var carePackages = await _getCarePackagesByServiceUserIdUseCase.ExecuteAsync(socialCareId);
                 return Ok(carePackages.Select(r => r.ToResponse()).ToList());
             }
-            catch (ArgumentNullException)
+            catch (ArgumentNullException e)
             {
                 return Problem(
-                    "No care packages found for this service user",
+                    e.Message,
                     $"/api/v1/service-user/{socialCareId}",
                     StatusCodes.Status404NotFound, "Not Found"
                 );

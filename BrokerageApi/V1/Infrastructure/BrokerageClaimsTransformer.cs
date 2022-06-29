@@ -30,7 +30,7 @@ namespace BrokerageApi.V1.Infrastructure
 
             if (user is null)
             {
-                var name = principal.FindFirst("name").Value;
+                var name = principal.FindFirst(ClaimTypes.Name).Value;
                 user = await _userGateway.CreateUser(email, name);
             }
 

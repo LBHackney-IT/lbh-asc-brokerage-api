@@ -107,26 +107,26 @@ namespace BrokerageApi.V1.Controllers
             {
                 await _deleteElementUseCase.ExecuteAsync(referralId, elementId);
             }
-            catch (ArgumentNullException)
+            catch (ArgumentNullException e)
             {
                 return Problem(
-                    "The requested referral was not found",
+                    e.Message,
                     $"/api/v1/referrals/{referralId}/care-package/elements/{elementId}",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException e)
             {
                 return Problem(
-                    "The requested referral was in an invalid state to remove elements",
+                    e.Message,
                     $"/api/v1/referrals/{referralId}/care-package/elements/{elementId}",
                     StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException e)
             {
                 return Problem(
-                    "The requested referral is not assigned to the user",
+                    e.Message,
                     $"/api/v1/referrals/{referralId}/care-package/elements/{elementId}",
                     StatusCodes.Status403Forbidden, "Forbidden"
                 );

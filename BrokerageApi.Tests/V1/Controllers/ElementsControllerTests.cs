@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoFixture;
-using BrokerageApi.Tests.V1.Controllers.Mocks;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Boundary.Response;
@@ -14,6 +13,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.UseCase.Interfaces;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 
@@ -26,7 +26,6 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Mock<IGetCurrentElementsUseCase> _mockGetCurrentElementUseCase;
         private Mock<IGetElementByIdUseCase> _mockGetElementByIdUseCase;
         private ElementsController _classUnderTest;
-        private MockProblemDetailsFactory _mockProblemDetailsFactory;
 
         [SetUp]
         public void Setup()
@@ -34,13 +33,11 @@ namespace BrokerageApi.Tests.V1.Controllers
             _fixture = FixtureHelpers.Fixture;
             _mockGetCurrentElementUseCase = new Mock<IGetCurrentElementsUseCase>();
             _mockGetElementByIdUseCase = new Mock<IGetElementByIdUseCase>();
-            _mockProblemDetailsFactory = new MockProblemDetailsFactory();
 
             _classUnderTest = new ElementsController(
                 _mockGetCurrentElementUseCase.Object,
                 _mockGetElementByIdUseCase.Object
             );
-            _classUnderTest.ProblemDetailsFactory = _mockProblemDetailsFactory.Object;
         }
 
         [Test]
@@ -50,9 +47,9 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockGetCurrentElementUseCase.Setup(x => x.ExecuteAsync())
                 .ReturnsAsync(elements);
 
-            var objectResult = await _classUnderTest.GetCurrentElements();
-            var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<List<ElementResponse>>(objectResult);
+            var response = await _classUnderTest.GetCurrentElements();
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<List<ElementResponse>>(response);
 
             statusCode.Should().Be((int) HttpStatusCode.OK);
             result.Should().BeEquivalentTo(elements.Select(e => e.ToResponse()));
@@ -65,9 +62,9 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockGetElementByIdUseCase.Setup(x => x.ExecuteAsync(element.Id))
                 .ReturnsAsync(element);
 
-            var objectResult = await _classUnderTest.GetElement(element.Id);
-            var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<ElementResponse>(objectResult);
+            var response = await _classUnderTest.GetElement(element.Id);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ElementResponse>(response);
 
             statusCode.Should().Be((int) HttpStatusCode.OK);
             result.Should().BeEquivalentTo(element.ToResponse());
@@ -82,12 +79,14 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ThrowsAsync(new ArgumentException("test"));
 
             // Act
-            var objectResult = await _classUnderTest.GetElement(elementId);
-            var statusCode = GetStatusCode(objectResult);
+            var response = await _classUnderTest.GetElement(elementId);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound);
+            result.Status.Should().Be((int) HttpStatusCode.NotFound);
+            result.Detail.Should().Be("test");
         }
     }
 }
