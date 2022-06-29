@@ -89,5 +89,67 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response, Contains.Item(provider.ToResponse()).Using(comparer));
             Assert.That(response, Does.Not.Contain(otherProvider.ToResponse()).Using(comparer));
         }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanFindProvidersByServiceAndPartialName()
+        {
+            // Arrange
+            var comparer = new ProviderResponseComparer();
+
+            var service = new Service()
+            {
+                Id = 1,
+                Name = "Home Care",
+                Position = 1
+            };
+
+            var provider = new Provider()
+            {
+                Id = 1,
+                Name = "Hartwig Care Limited",
+                Address = "1 Knowhere Road",
+                Type = ProviderType.Framework
+            };
+
+            var providerService = new ProviderService()
+            {
+                ProviderId = 1,
+                ServiceId = 1,
+                SubjectiveCode = "599999"
+            };
+
+            var otherProvider = new Provider()
+            {
+                Id = 2,
+                Name = "Better Homes",
+                Address = "99 Knowhere Road",
+                Type = ProviderType.Framework
+            };
+
+            var otherProviderService = new ProviderService()
+            {
+                ProviderId = 2,
+                ServiceId = 1,
+                SubjectiveCode = "599999"
+            };
+
+            await Context.Services.AddAsync(service);
+            await Context.Providers.AddAsync(provider);
+            await Context.Providers.AddAsync(otherProvider);
+            await Context.ProviderServices.AddAsync(providerService);
+            await Context.ProviderServices.AddAsync(otherProviderService);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            // Act
+            var (code, response) = await Get<List<ProviderResponse>>($"/api/v1/services/1/providers?query=hart+care");
+
+            // Assert
+            Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(response, Has.Count.EqualTo(1));
+            Assert.That(response, Contains.Item(provider.ToResponse()).Using(comparer));
+            Assert.That(response, Does.Not.Contain(otherProvider.ToResponse()).Using(comparer));
+        }
     }
 }
