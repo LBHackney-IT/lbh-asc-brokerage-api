@@ -2,14 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BrokerageApi.V1.Boundary.Request;
+using BrokerageApi.V1.Controllers.Parameters;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.UseCase.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using BrokerageApi.V1.Infrastructure;
 
 namespace BrokerageApi.V1.Controllers
 {
@@ -92,7 +91,7 @@ namespace BrokerageApi.V1.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
 
-        public async Task<IActionResult> GetServiceUser([FromBody] GetServiceUserRequest request)
+        public async Task<IActionResult> GetServiceUser([FromQuery] GetServiceUserRequest request)
         {
             try
             {

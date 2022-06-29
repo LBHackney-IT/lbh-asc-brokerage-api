@@ -1,6 +1,6 @@
 using NodaTime;
 
-namespace BrokerageApi.V1.Boundary.Request
+namespace BrokerageApi.V1.Controllers.Parameters
 {
     public class GetServiceUserRequest
     {

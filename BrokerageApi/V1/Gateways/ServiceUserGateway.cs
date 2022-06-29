@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
-using BrokerageApi.V1.Boundary.Request;
+using BrokerageApi.V1.Controllers.Parameters;
 
 
 namespace BrokerageApi.V1.Gateways

@@ -32,7 +32,6 @@ namespace BrokerageApi.Tests
         protected Instant PreviousInstant => _clock.Now - Duration.FromHours(2);
         protected LocalDate CurrentDate => _clock.Today;
         protected User ApiUser => _apiUser;
-
         private MockWebApplicationFactory<TStartup> _factory;
         private IDbContextTransaction _transaction;
         private DbContextOptionsBuilder _builder;
@@ -93,12 +92,6 @@ namespace BrokerageApi.Tests
             return result.StatusCode;
         }
 
-        public async Task<HttpStatusCode> Get(string address, object request)
-        {
-            var result = await InternalGetRequest(address, request);
-            return result.StatusCode;
-        }
-
         public async Task<(HttpStatusCode statusCode, TResponse response)> Post<TResponse>(string address, object data)
         {
             HttpResponseMessage result = await InternalPost(address, data);
@@ -132,17 +125,6 @@ namespace BrokerageApi.Tests
             var result = await Client.GetAsync(new Uri(uri, UriKind.Relative));
             return result;
         }
-
-        private async Task<HttpResponseMessage> InternalGetRequest(string uri, object request)
-        {
-            var serializedContent = JsonConvert.SerializeObject(request);
-            var content = new StringContent(serializedContent, Encoding.UTF8, "application/json");
-
-            var result = await Client.GetAsync(new Uri(uri, UriKind.Relative), content);
-            content.Dispose();
-            return result;
-        }
-
         private async Task<HttpResponseMessage> InternalPost(string uri, object data)
         {
             var serializedContent = JsonConvert.SerializeObject(data);

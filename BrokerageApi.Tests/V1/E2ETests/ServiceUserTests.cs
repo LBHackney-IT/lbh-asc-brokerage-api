@@ -223,13 +223,15 @@ namespace BrokerageApi.Tests.V1.E2ETests
             //Arrange
             var serviceUser = _fixture.BuildServiceUser().Create();
             await Context.ServiceUsers.AddAsync(serviceUser);
-            var serviceUserRequest = _fixture.BuildServiceUserRequest(serviceUser.SocialCareId).Create();
+
             await Context.SaveChangesAsync();
             Context.ChangeTracker.Clear();
             //Act 
-            var code = await Get<List<ServiceUserResponse>>($"/api/v1/service-user//service-users", serviceUserRequest);
+            var (code, response) = await Get<List<ServiceUserResponse>>($"/api/v1/service-user/service-users?SocialCareId={serviceUser.SocialCareId}");
             // Assert
+            Assert.That(response, Has.Count.EqualTo(1));
             Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
+
         }
     }
 }
