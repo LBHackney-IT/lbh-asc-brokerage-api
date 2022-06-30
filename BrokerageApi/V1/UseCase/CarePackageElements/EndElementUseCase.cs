@@ -36,7 +36,7 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
             _clockService = clockService;
         }
 
-        public async Task ExecuteAsync(int referralId, int elementId, LocalDate endDate, string comment)
+        public async Task ExecuteAsync(int referralId, int elementId, LocalDate endDate)
         {
             var referral = await _referralGateway.GetByIdAsync(referralId);
 
@@ -64,7 +64,6 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
 
             var referralElement = element.ReferralElements.Single(re => re.ReferralId == referral.Id);
             referralElement.PendingEndDate = endDate;
-            referralElement.PendingComment = comment;
 
             await _dbSaver.SaveChangesAsync();
         }

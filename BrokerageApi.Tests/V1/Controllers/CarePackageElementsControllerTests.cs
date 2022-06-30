@@ -196,7 +196,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             var response = await _classUnderTest.EndElement(referralId, elementId, request);
             var statusCode = GetStatusCode(response);
 
-            _mockEndElementUseCase.Verify(x => x.ExecuteAsync(referralId, elementId, request.EndDate, request.Comment));
+            _mockEndElementUseCase.Verify(x => x.ExecuteAsync(referralId, elementId, request.EndDate));
             statusCode.Should().Be((int) HttpStatusCode.OK);
         }
 
@@ -222,7 +222,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             const int referralId = 1234;
             const int elementId = 1234;
             var request = _fixture.Create<EndRequest>();
-            _mockEndElementUseCase.Setup(x => x.ExecuteAsync(referralId, elementId, request.EndDate, It.IsAny<string>()))
+            _mockEndElementUseCase.Setup(x => x.ExecuteAsync(referralId, elementId, request.EndDate))
                 .ThrowsAsync(exception);
 
             var response = await _classUnderTest.EndElement(referralId, elementId, request);
