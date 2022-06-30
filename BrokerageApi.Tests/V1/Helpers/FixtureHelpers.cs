@@ -98,7 +98,7 @@ namespace BrokerageApi.Tests.V1.Helpers
 
             return builder;
         }
-        public static IPostprocessComposer<Element> BuildElement(this IFixture fixture, int providerId, int elementTypeId)
+        public static IPostprocessComposer<Element> BuildElement(this IFixture fixture, int elementTypeId, int? providerId = null)
         {
             return fixture.Build<Element>()
                 .Without(e => e.CarePackages)

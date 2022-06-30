@@ -279,7 +279,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             var provider = _fixture.BuildProvider()
                 .Create();
 
-            var element = _fixture.BuildElement(provider.Id, elementType.Id)
+            var element = _fixture.BuildElement(elementType.Id, provider.Id)
                 .Create();
 
             var referral = _fixture.BuildReferral(referralStatus)

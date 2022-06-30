@@ -39,10 +39,10 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var elementType = _fixture.BuildElementType(service.Id)
                 .Create();
 
-            var parentElement = _fixture.BuildElement(provider.Id, elementType.Id)
+            var parentElement = _fixture.BuildElement(elementType.Id, provider.Id)
                 .Create();
 
-            var element = _fixture.BuildElement(provider.Id, elementType.Id)
+            var element = _fixture.BuildElement(elementType.Id, provider.Id)
                 .With(e => e.ParentElement, parentElement)
                 .Create();
 
@@ -161,10 +161,10 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var elementType = _fixture.BuildElementType(service.Id)
                 .Create();
 
-            var parentElement = _fixture.BuildElement(provider.Id, elementType.Id)
+            var parentElement = _fixture.BuildElement(elementType.Id, provider.Id)
                 .Create();
 
-            var element = _fixture.BuildElement(provider.Id, elementType.Id)
+            var element = _fixture.BuildElement(elementType.Id, provider.Id)
                 .With(e => e.ParentElement, parentElement)
                 .Create();
 
@@ -211,7 +211,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var elementType = _fixture.BuildElementType(service.Id)
                 .Create();
 
-            var parentElement = _fixture.BuildElement(provider.Id, elementType.Id)
+            var parentElement = _fixture.BuildElement(elementType.Id, provider.Id)
                 .Create();
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
@@ -309,10 +309,10 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var elementType = _fixture.BuildElementType(service.Id)
                 .Create();
 
-            var parentElement = _fixture.BuildElement(provider.Id, elementType.Id)
+            var parentElement = _fixture.BuildElement(elementType.Id, provider.Id)
                 .Create();
 
-            var element = _fixture.BuildElement(provider.Id, elementType.Id)
+            var element = _fixture.BuildElement(elementType.Id, provider.Id)
                 .With(e => e.ParentElement, parentElement)
                 .Create();
 
@@ -376,7 +376,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var elementType = _fixture.BuildElementType(service.Id)
                 .Create();
 
-            var element = _fixture.BuildElement(provider.Id, elementType.Id)
+            var element = _fixture.BuildElement(elementType.Id, provider.Id)
                 .Create();
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)

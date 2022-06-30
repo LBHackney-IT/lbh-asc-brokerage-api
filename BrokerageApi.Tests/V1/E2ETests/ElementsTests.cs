@@ -52,7 +52,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var service = _fixture.BuildService().Create();
             var providerService = _fixture.BuildProviderService(provider.Id, service.Id).Create();
             var elementType = _fixture.BuildElementType(service.Id).Create();
-            var elements = _fixture.BuildElement(provider.Id, elementType.Id).CreateMany();
+            var elements = _fixture.BuildElement(elementType.Id, provider.Id).CreateMany();
 
             await Context.Services.AddAsync(service);
             await Context.ElementTypes.AddAsync(elementType);
@@ -77,8 +77,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var service = _fixture.BuildService().Create();
             var providerService = _fixture.BuildProviderService(provider.Id, service.Id).Create();
             var elementType = _fixture.BuildElementType(service.Id).Create();
-            var parentElement = _fixture.BuildElement(provider.Id, elementType.Id).Create();
-            var childElement = _fixture.BuildElement(provider.Id, elementType.Id)
+            var parentElement = _fixture.BuildElement(elementType.Id, provider.Id).Create();
+            var childElement = _fixture.BuildElement(elementType.Id, provider.Id)
                 .With(e => e.ParentElementId, parentElement.Id)
                 .Create();
 
@@ -106,8 +106,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var service = _fixture.BuildService().Create();
             var providerService = _fixture.BuildProviderService(provider.Id, service.Id).Create();
             var elementType = _fixture.BuildElementType(service.Id).Create();
-            var parentElement = _fixture.BuildElement(provider.Id, elementType.Id).Create();
-            var childElement = _fixture.BuildElement(provider.Id, elementType.Id)
+            var parentElement = _fixture.BuildElement(elementType.Id, provider.Id).Create();
+            var childElement = _fixture.BuildElement(elementType.Id, provider.Id)
                 .With(e => e.ParentElementId, parentElement.Id)
                 .Create();
 
@@ -135,7 +135,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var providerService = _fixture.BuildProviderService(provider.Id, service.Id).Create();
             var elementType = _fixture.BuildElementType(service.Id).Create();
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress).Create();
-            var element = _fixture.BuildElement(provider.Id, elementType.Id)
+            var element = _fixture.BuildElement(elementType.Id, provider.Id)
                 .With(e => e.InternalStatus, ElementStatus.Approved)
                 .Without(e => e.EndDate)
                 .Create();
@@ -174,7 +174,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var providerService = _fixture.BuildProviderService(provider.Id, service.Id).Create();
             var elementType = _fixture.BuildElementType(service.Id).Create();
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress).Create();
-            var element = _fixture.BuildElement(provider.Id, elementType.Id)
+            var element = _fixture.BuildElement(elementType.Id, provider.Id)
                 .With(e => e.InternalStatus, ElementStatus.Approved)
                 .Without(e => e.EndDate)
                 .Create();
@@ -222,7 +222,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var providerService = _fixture.BuildProviderService(provider.Id, service.Id).Create();
             var elementType = _fixture.BuildElementType(service.Id).Create();
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress).Create();
-            var element = _fixture.BuildElement(provider.Id, elementType.Id)
+            var element = _fixture.BuildElement(elementType.Id, provider.Id)
                 .With(e => e.InternalStatus, ElementStatus.Approved)
                 .Without(e => e.EndDate)
                 .Create();
@@ -275,7 +275,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
                 .With(r => r.AssignedBrokerEmail, ApiUser.Email)
                 .Create();
-            var element = _fixture.BuildElement(provider.Id, elementType.Id)
+            var element = _fixture.BuildElement(elementType.Id, provider.Id)
                 .With(e => e.InternalStatus, ElementStatus.Approved)
                 .Without(e => e.EndDate)
                 .Create();
@@ -328,14 +328,14 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 .With(r => r.AssignedBrokerEmail, ApiUser.Email)
                 .Create();
 
-            var element = _fixture.BuildElement(provider.Id, elementType.Id)
+            var element = _fixture.BuildElement(elementType.Id, provider.Id)
                 .With(e => e.InternalStatus, ElementStatus.Approved)
                 .With(e => e.StartDate, CurrentDate.PlusDays(-100))
                 .Without(e => e.EndDate)
                 .Create();
             var referralElement = _fixture.BuildReferralElement(referral.Id, element.Id).Create();
 
-            var suspensionElement = _fixture.BuildElement(provider.Id, elementType.Id)
+            var suspensionElement = _fixture.BuildElement(elementType.Id, provider.Id)
                 .With(e => e.InternalStatus, ElementStatus.Approved)
                 .With(e => e.StartDate, element.StartDate.PlusDays(10))
                 .With(e => e.EndDate, CurrentDate.PlusDays(17))
@@ -381,13 +381,13 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 .With(r => r.AssignedBrokerEmail, ApiUser.Email)
                 .Create();
 
-            var element = _fixture.BuildElement(provider.Id, elementType.Id)
+            var element = _fixture.BuildElement(elementType.Id, provider.Id)
                 .With(e => e.InternalStatus, ElementStatus.Approved)
                 .Without(e => e.EndDate)
                 .Create();
             var referralElement = _fixture.BuildReferralElement(referral.Id, element.Id).Create();
 
-            var suspensionElement = _fixture.BuildElement(provider.Id, elementType.Id)
+            var suspensionElement = _fixture.BuildElement(elementType.Id, provider.Id)
                 .With(e => e.InternalStatus, ElementStatus.Approved)
                 .With(e => e.StartDate, element.StartDate.PlusDays(10))
                 .With(e => e.EndDate, element.StartDate.PlusDays(17))

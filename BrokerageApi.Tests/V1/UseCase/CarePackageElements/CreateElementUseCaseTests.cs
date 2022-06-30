@@ -263,7 +263,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             var elementType = _fixture.BuildElementType(1).Create();
             var provider = _fixture.BuildProvider().Create();
 
-            var parentElement = _fixture.BuildElement(provider.Id, elementType.Id).Create();
+            var parentElement = _fixture.BuildElement(elementType.Id, provider.Id).Create();
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
                 .With(x => x.AssignedBrokerEmail, "a.broker@hackney.gov.uk")
