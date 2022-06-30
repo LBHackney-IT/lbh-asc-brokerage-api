@@ -8,7 +8,6 @@ using BrokerageApi.V1.UseCase.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using BrokerageApi.V1.Infrastructure;
 
 namespace BrokerageApi.V1.Controllers
 {

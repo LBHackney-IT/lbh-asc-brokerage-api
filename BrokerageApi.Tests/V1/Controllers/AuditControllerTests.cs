@@ -6,7 +6,6 @@ using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Controllers;
 using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Infrastructure;
-using BrokerageApi.V1.Infrastructure.AuditEvents;
 using BrokerageApi.V1.UseCase.Interfaces;
 using FluentAssertions;
 using Moq;

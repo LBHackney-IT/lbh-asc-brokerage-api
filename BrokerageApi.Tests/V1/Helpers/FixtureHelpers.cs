@@ -3,7 +3,6 @@ using AutoFixture.AutoMoq;
 using AutoFixture.Dsl;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
-using FluentAssertions;
 using MicroElements.AutoFixture.NodaTime;
 
 namespace BrokerageApi.Tests.V1.Helpers

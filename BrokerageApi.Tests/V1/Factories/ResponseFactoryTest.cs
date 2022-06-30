@@ -5,7 +5,6 @@ using BrokerageApi.Tests.V1.E2ETests;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Infrastructure;
-using BrokerageApi.V1.Infrastructure.AuditEvents;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
