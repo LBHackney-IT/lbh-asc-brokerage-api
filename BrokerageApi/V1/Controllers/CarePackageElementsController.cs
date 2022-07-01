@@ -144,7 +144,7 @@ namespace BrokerageApi.V1.Controllers
         {
             try
             {
-                await _endElementUseCase.ExecuteAsync(referralId, elementId, request.EndDate, request.Comment);
+                await _endElementUseCase.ExecuteAsync(referralId, elementId, request.EndDate);
             }
             catch (ArgumentNullException e)
             {
