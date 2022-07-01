@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
 using NodaTime;
 
-namespace BrokerageApi.V1.UseCase.Interfaces.CarePackageElements
+namespace BrokerageApi.V1.UseCase.Interfaces.CarePackageCareCharges
 {
-    public interface IEndElementUseCase
+    public interface IEndCareChargeUseCase
     {
         public Task ExecuteAsync(int referralId, int elementId, LocalDate endDate);
     }

@@ -24,6 +24,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Fixture _fixture;
         private Mock<ICreateCareChargeUseCase> _mockCreateCareChargeUseCase;
         private Mock<IDeleteCareChargeUseCase> _mockDeleteCareChargeUseCase;
+        private Mock<IEndCareChargeUseCase> _mockEndCareChargeUseCase;
 
         private CarePackageCareChargesController _classUnderTest;
 
@@ -33,9 +34,11 @@ namespace BrokerageApi.Tests.V1.Controllers
             _fixture = FixtureHelpers.Fixture;
             _mockCreateCareChargeUseCase = new Mock<ICreateCareChargeUseCase>();
             _mockDeleteCareChargeUseCase = new Mock<IDeleteCareChargeUseCase>();
+            _mockEndCareChargeUseCase = new Mock<IEndCareChargeUseCase>();
 
             _classUnderTest = new CarePackageCareChargesController(_mockCreateCareChargeUseCase.Object,
-                _mockDeleteCareChargeUseCase.Object);
+                _mockDeleteCareChargeUseCase.Object,
+                _mockEndCareChargeUseCase.Object);
 
             SetupAuthentication(_classUnderTest);
         }
@@ -150,6 +153,53 @@ namespace BrokerageApi.Tests.V1.Controllers
             var result = GetResultData<ProblemDetails>(response);
 
             // Assert
+            statusCode.Should().Be((int) expectedStatusCode);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
+        }
+        [Test]
+        public async Task EndsCareCharge()
+        {
+            const int referralId = 1234;
+            const int elementId = 1234;
+            var request = _fixture.Create<EndRequest>();
+
+            var response = await _classUnderTest.EndCareCharge(referralId, elementId, request);
+            var statusCode = GetStatusCode(response);
+
+            _mockEndCareChargeUseCase.Verify(x => x.ExecuteAsync(referralId, elementId, request.EndDate));
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+        }
+
+        private static readonly object[] _endCareChargeErrors =
+        {
+            new object[]
+            {
+                new ArgumentNullException(null, "message"), HttpStatusCode.NotFound
+            },
+            new object[]
+            {
+                new ArgumentException("message"), HttpStatusCode.BadRequest
+            },
+            new object[]
+            {
+                new InvalidOperationException("message"), HttpStatusCode.UnprocessableEntity
+            }
+        };
+
+        [TestCaseSource(nameof(_endCareChargeErrors)), Property("AsUser", "CareChargesOfficer")]
+        public async Task EndCareChargeMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            const int referralId = 1234;
+            const int elementId = 1234;
+            var request = _fixture.Create<EndRequest>();
+            _mockEndCareChargeUseCase.Setup(x => x.ExecuteAsync(referralId, elementId, request.EndDate))
+                .ThrowsAsync(exception);
+
+            var response = await _classUnderTest.EndCareCharge(referralId, elementId, request);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
+
             statusCode.Should().Be((int) expectedStatusCode);
             result.Status.Should().Be((int) expectedStatusCode);
             result.Detail.Should().Be(exception.Message);

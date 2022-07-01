@@ -9,20 +9,20 @@ using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Services;
 using BrokerageApi.V1.Services.Interfaces;
-using BrokerageApi.V1.UseCase.CarePackageElements;
+using BrokerageApi.V1.UseCase.CarePackageCareCharges;
 using FluentAssertions;
 using Moq;
 using NodaTime;
 using NodaTime.Testing;
 using NUnit.Framework;
 
-namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
+namespace BrokerageApi.Tests.V1.UseCase.CarePackageCareCharges
 {
-    public class EndElementUseCaseTests
+    public class EndCareChargeUseCaseTests
     {
         private Fixture _fixture;
         private Mock<IElementGateway> _mockElementGateway;
-        private EndElementUseCase _classUnderTest;
+        private EndCareChargeUseCase _classUnderTest;
         private MockDbSaver _dbSaver;
         private ClockService _clock;
         private Mock<IReferralGateway> _mockReferralGateway;
@@ -43,7 +43,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             var fakeClock = new FakeClock(currentTime);
             _clock = new ClockService(fakeClock);
 
-            _classUnderTest = new EndElementUseCase(
+            _classUnderTest = new EndCareChargeUseCase(
                 _mockReferralGateway.Object,
                 _mockElementGateway.Object,
                 _mockAuditGateway.Object,
@@ -54,7 +54,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         }
 
         [Test]
-        public async Task CanEndElementWithoutEndDate()
+        public async Task CanEndCareChargeWithoutEndDate()
         {
             var endDate = LocalDate.FromDateTime(DateTime.Today);
             var (referral, element) = CreateReferralAndElement();
@@ -74,7 +74,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         }
 
         [Test]
-        public async Task CanEndElementWithEndDate()
+        public async Task CanEndCareChargeWithEndDate()
         {
             var endDate = LocalDate.FromDateTime(DateTime.Today);
             var (referral, element) = CreateReferralAndElement(ElementStatus.Approved, endDate.PlusDays(5));
@@ -161,7 +161,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
         private (Referral referral, Element element) CreateReferralAndElement(ElementStatus status = ElementStatus.Approved, LocalDate? endDate = null)
         {
-            var builder = _fixture.BuildElement(1, 1)
+            var builder = _fixture.BuildElement(1)
                 .With(e => e.InternalStatus, status)
                 .Without(e => e.EndDate);
 
@@ -172,7 +172,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             var element = builder.Create();
 
-            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
+            var referral = _fixture.BuildReferral(ReferralStatus.Approved)
                 .With(r => r.Elements, new List<Element>
                 {
                     element
