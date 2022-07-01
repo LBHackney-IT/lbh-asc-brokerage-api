@@ -3,18 +3,18 @@ using System.Threading.Tasks;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Services.Interfaces;
-using BrokerageApi.V1.UseCase.Interfaces.CarePackageElements;
+using BrokerageApi.V1.UseCase.Interfaces.CarePackageCareCharges;
 
-namespace BrokerageApi.V1.UseCase.CarePackageElements
+namespace BrokerageApi.V1.UseCase.CarePackageCareCharges
 {
-    public class DeleteElementUseCase : IDeleteElementUseCase
+    public class DeleteCareChargeUseCase : IDeleteCareChargeUseCase
     {
         private readonly IReferralGateway _referralGateway;
         private readonly IUserService _userService;
         private readonly IDbSaver _dbSaver;
         private readonly IClockService _clockService;
 
-        public DeleteElementUseCase(IReferralGateway referralGateway,
+        public DeleteCareChargeUseCase(IReferralGateway referralGateway,
             IUserService userService,
             IDbSaver dbSaver,
             IClockService clockService)
@@ -34,14 +34,9 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
                 throw new ArgumentNullException(nameof(referralId), $"Referral not found for: {referralId}");
             }
 
-            if (referral.AssignedBrokerEmail != _userService.Email)
+            if (referral.Status != ReferralStatus.Approved)
             {
-                throw new UnauthorizedAccessException($"Referral is not assigned to {_userService.Email}");
-            }
-
-            if (referral.Status != ReferralStatus.InProgress)
-            {
-                throw new InvalidOperationException("Referral is not in a valid state for editing");
+                throw new InvalidOperationException("Referral is not in a valid state for deleting care charges");
             }
 
             var element = referral.Elements.Find(e => e.Id == elementId);

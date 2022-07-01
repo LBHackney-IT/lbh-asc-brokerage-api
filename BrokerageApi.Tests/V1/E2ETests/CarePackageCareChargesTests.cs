@@ -7,6 +7,7 @@ using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Infrastructure;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
 namespace BrokerageApi.Tests.V1.E2ETests
@@ -79,6 +80,46 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             referralCode.Should().Be(HttpStatusCode.OK);
             referralResponse.UpdatedAt.Should().Be(CurrentInstant);
+        }
+
+        [Test, Property("AsUser", "CareChargesOfficer")]
+        public async Task CanDeleteCareCharge()
+        {
+            var service = _fixture.BuildService()
+                .Create();
+
+            var elementType = _fixture.BuildElementType(service.Id, ElementTypeType.ConfirmedCareCharge)
+                .Create();
+
+            var parentElement = _fixture.BuildElement(elementType.Id)
+                .Create();
+
+            var element = _fixture.BuildElement(elementType.Id)
+                .With(e => e.ParentElement, parentElement)
+                .Create();
+
+            var referral = _fixture.BuildReferral(ReferralStatus.Approved)
+                .With(r => r.Elements, new List<Element> { element })
+                .Create();
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.Services.AddAsync(service);
+            await Context.ElementTypes.AddAsync(elementType);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            // Act
+            var code = await Delete($"/api/v1/referrals/{referral.Id}/care-package/care-charges/{element.Id}");
+
+            // Assert
+            code.Should().Be(HttpStatusCode.OK);
+            Context.ReferralElements.Should().NotContain(re => re.ReferralId == referral.Id && re.ElementId == element.Id);
+            Context.ReferralElements.Should().Contain(re => re.ReferralId == referral.Id && re.ElementId == parentElement.Id);
+
+            var resultReferral = await Context.Referrals.SingleAsync(r => r.Id == referral.Id);
+            resultReferral.Elements.Should().NotContain(e => e.Id == element.Id);
+            resultReferral.Elements.Should().Contain(e => e.Id == parentElement.Id);
         }
     }
 }

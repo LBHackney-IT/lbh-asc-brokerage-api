@@ -18,10 +18,13 @@ namespace BrokerageApi.V1.Controllers
     public class CarePackageCareChargesController : BaseController
     {
         private readonly ICreateCareChargeUseCase _createCareChargeUseCase;
+        private readonly IDeleteCareChargeUseCase _deleteCareChargeUseCase;
 
-        public CarePackageCareChargesController(ICreateCareChargeUseCase createCareChargeUseCase)
+        public CarePackageCareChargesController(ICreateCareChargeUseCase createCareChargeUseCase,
+            IDeleteCareChargeUseCase deleteCareChargeUseCase)
         {
             _createCareChargeUseCase = createCareChargeUseCase;
+            _deleteCareChargeUseCase = deleteCareChargeUseCase;
         }
 
         [Authorize(Roles = "CareChargesOfficer")]
@@ -63,6 +66,40 @@ namespace BrokerageApi.V1.Controllers
                     StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }
+        }
+
+        [Authorize(Roles = "CareChargesOfficer")]
+        [HttpDelete]
+        [Route("{elementId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteCareCharge([FromRoute] int referralId, [FromRoute] int elementId)
+        {
+            try
+            {
+                await _deleteCareChargeUseCase.ExecuteAsync(referralId, elementId);
+            }
+            catch (ArgumentNullException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"/api/v1/referrals/{referralId}/care-package/care-charges/{elementId}",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (InvalidOperationException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"/api/v1/referrals/{referralId}/care-package/care-charges/{elementId}",
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
+                );
+            }
+            return Ok();
         }
     }
 }

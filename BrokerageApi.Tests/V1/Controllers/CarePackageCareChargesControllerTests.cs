@@ -9,6 +9,7 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackageCareCharges;
@@ -22,6 +23,7 @@ namespace BrokerageApi.Tests.V1.Controllers
     {
         private Fixture _fixture;
         private Mock<ICreateCareChargeUseCase> _mockCreateCareChargeUseCase;
+        private Mock<IDeleteCareChargeUseCase> _mockDeleteCareChargeUseCase;
 
         private CarePackageCareChargesController _classUnderTest;
 
@@ -30,8 +32,10 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             _fixture = FixtureHelpers.Fixture;
             _mockCreateCareChargeUseCase = new Mock<ICreateCareChargeUseCase>();
+            _mockDeleteCareChargeUseCase = new Mock<IDeleteCareChargeUseCase>();
 
-            _classUnderTest = new CarePackageCareChargesController(_mockCreateCareChargeUseCase.Object);
+            _classUnderTest = new CarePackageCareChargesController(_mockCreateCareChargeUseCase.Object,
+                _mockDeleteCareChargeUseCase.Object);
 
             SetupAuthentication(_classUnderTest);
         }
@@ -90,6 +94,58 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             // Act
             var response = await _classUnderTest.CreateCareCharge(referral.Id, request);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
+
+            // Assert
+            statusCode.Should().Be((int) expectedStatusCode);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
+        }
+
+        public async Task DeletesCareCharge()
+        {
+            // Arrange
+            var elements = _fixture.BuildElement(1, 1).CreateMany();
+            var referral = _fixture.BuildReferral(ReferralStatus.Approved)
+                .With(x => x.Elements, elements.ToList)
+                .Create();
+            var elementId = referral.Elements.First().Id;
+
+            // Act
+            var response = await _classUnderTest.DeleteCareCharge(referral.Id, elementId);
+            var statusCode = GetStatusCode(response);
+
+            // Assert
+            _mockDeleteCareChargeUseCase.Verify(x => x.ExecuteAsync(referral.Id, elementId));
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+        }
+
+        private static readonly object[] _deleteCareChargeErrors =
+        {
+            new object[]
+            {
+                new ArgumentNullException(null, "message"), StatusCodes.Status404NotFound
+            },
+            new object[]
+            {
+                new InvalidOperationException("message"), StatusCodes.Status422UnprocessableEntity
+            }
+        };
+
+        [TestCaseSource(nameof(_deleteCareChargeErrors)), Property("AsUser", "CareChargesOfficer")]
+        public async Task DeleteCareChargeMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            // Arrange
+            var referral = _fixture.BuildReferral(ReferralStatus.Approved)
+                .Create();
+
+            _mockDeleteCareChargeUseCase
+                .Setup(x => x.ExecuteAsync(referral.Id, It.IsAny<int>()))
+                .Throws(exception);
+
+            // Act
+            var response = await _classUnderTest.DeleteCareCharge(referral.Id, 1);
             var statusCode = GetStatusCode(response);
             var result = GetResultData<ProblemDetails>(response);
 
