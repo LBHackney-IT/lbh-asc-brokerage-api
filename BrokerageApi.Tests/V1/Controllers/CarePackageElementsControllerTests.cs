@@ -1,5 +1,4 @@
 using AutoFixture;
-using BrokerageApi.Tests.V1.Controllers.Mocks;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Boundary.Response;
@@ -17,6 +16,7 @@ using System.Net;
 using System.Threading.Tasks;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackageElements;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BrokerageApi.Tests.V1.Controllers
 {
@@ -25,7 +25,6 @@ namespace BrokerageApi.Tests.V1.Controllers
     {
         private Fixture _fixture;
         private Mock<ICreateElementUseCase> _mockCreateElementUseCase;
-        private MockProblemDetailsFactory _mockProblemDetailsFactory;
         private Mock<IDeleteElementUseCase> _mockDeleteElementUseCase;
         private Mock<IEndElementUseCase> _mockEndElementUseCase;
         private Mock<ISuspendElementUseCase> _mockSuspendElementUseCase;
@@ -40,7 +39,6 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             _fixture = FixtureHelpers.Fixture;
             _mockCreateElementUseCase = new Mock<ICreateElementUseCase>();
-            _mockProblemDetailsFactory = new MockProblemDetailsFactory();
             _mockDeleteElementUseCase = new Mock<IDeleteElementUseCase>();
             _mockEndElementUseCase = new Mock<IEndElementUseCase>();
             _mockSuspendElementUseCase = new Mock<ISuspendElementUseCase>();
@@ -56,9 +54,6 @@ namespace BrokerageApi.Tests.V1.Controllers
                 _mockEditElementUseCase.Object,
                 _mockResetElementUseCase.Object
             );
-
-            // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
-            _classUnderTest.ProblemDetailsFactory = _mockProblemDetailsFactory.Object;
 
             SetupAuthentication(_classUnderTest);
         }
@@ -78,9 +73,9 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ReturnsAsync(request.ToDatabase());
 
             // Act
-            var objectResult = await _classUnderTest.CreateElement(referral.Id, request);
-            var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<ElementResponse>(objectResult);
+            var response = await _classUnderTest.CreateElement(referral.Id, request);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ElementResponse>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
@@ -122,12 +117,14 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .Throws(exception);
 
             // Act
-            var objectResult = await _classUnderTest.CreateElement(referral.Id, request);
-            var statusCode = GetStatusCode(objectResult);
+            var response = await _classUnderTest.CreateElement(referral.Id, request);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             // Assert
             statusCode.Should().Be((int) expectedStatusCode);
-            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -142,8 +139,8 @@ namespace BrokerageApi.Tests.V1.Controllers
             var elementId = referral.Elements.First().Id;
 
             // Act
-            var objectResult = await _classUnderTest.DeleteElement(referral.Id, elementId);
-            var statusCode = GetStatusCode(objectResult);
+            var response = await _classUnderTest.DeleteElement(referral.Id, elementId);
+            var statusCode = GetStatusCode(response);
 
             // Assert
             _mockDeleteElementUseCase.Verify(x => x.ExecuteAsync(referral.Id, elementId));
@@ -167,7 +164,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         };
 
         [TestCaseSource(nameof(_deleteElementErrors)), Property("AsUser", "Broker")]
-        public async Task DeleteElementMapsErrors(Exception exception, int expectedStatusCode)
+        public async Task DeleteElementMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
         {
             // Arrange
             var referral = _fixture.BuildReferral(ReferralStatus.Assigned)
@@ -179,11 +176,14 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .Throws(exception);
 
             // Act
-            var objectResult = await _classUnderTest.DeleteElement(referral.Id, 1);
-            var statusCode = GetStatusCode(objectResult);
+            var response = await _classUnderTest.DeleteElement(referral.Id, 1);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             // Assert
-            statusCode.Should().Be(expectedStatusCode);
+            statusCode.Should().Be((int) expectedStatusCode);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
         }
 
         [Test]
@@ -196,7 +196,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             var response = await _classUnderTest.EndElement(referralId, elementId, request);
             var statusCode = GetStatusCode(response);
 
-            _mockEndElementUseCase.Verify(x => x.ExecuteAsync(referralId, elementId, request.EndDate, request.Comment));
+            _mockEndElementUseCase.Verify(x => x.ExecuteAsync(referralId, elementId, request.EndDate));
             statusCode.Should().Be((int) HttpStatusCode.OK);
         }
 
@@ -222,14 +222,16 @@ namespace BrokerageApi.Tests.V1.Controllers
             const int referralId = 1234;
             const int elementId = 1234;
             var request = _fixture.Create<EndRequest>();
-            _mockEndElementUseCase.Setup(x => x.ExecuteAsync(referralId, elementId, request.EndDate, It.IsAny<string>()))
+            _mockEndElementUseCase.Setup(x => x.ExecuteAsync(referralId, elementId, request.EndDate))
                 .ThrowsAsync(exception);
 
             var response = await _classUnderTest.EndElement(referralId, elementId, request);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             statusCode.Should().Be((int) expectedStatusCode);
-            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
         }
 
         [Test]
@@ -269,9 +271,11 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             var response = await _classUnderTest.CancelElement(referralId, elementId, request);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             statusCode.Should().Be((int) expectedStatusCode);
-            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -293,9 +297,9 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ReturnsAsync(request.ToDatabase(element));
 
             // Act
-            var objectResult = await _classUnderTest.EditElement(referral.Id, element.Id, request);
-            var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<ElementResponse>(objectResult);
+            var response = await _classUnderTest.EditElement(referral.Id, element.Id, request);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ElementResponse>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
@@ -321,12 +325,14 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .Throws(exception);
 
             // Act
-            var objectResult = await _classUnderTest.EditElement(referral.Id, element.Id, request);
-            var statusCode = GetStatusCode(objectResult);
+            var response = await _classUnderTest.EditElement(referral.Id, element.Id, request);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             // Assert
             statusCode.Should().Be((int) expectedStatusCode);
-            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
         }
 
         [Test]
@@ -362,9 +368,11 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             var response = await _classUnderTest.SuspendElement(referralId, elementId, request);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             statusCode.Should().Be((int) expectedStatusCode);
-            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
         }
         [Test]
         public async Task CanResetElement()
@@ -403,9 +411,11 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             var response = await _classUnderTest.ResetElement(referralId, elementId);
             var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             statusCode.Should().Be((int) expectedStatusCode);
-            _mockProblemDetailsFactory.VerifyProblem(expectedStatusCode, exception.Message);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
         }
     }
 }

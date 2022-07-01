@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace BrokerageApi.V1.Gateways
             return await _context.Providers
                 .Where(p => p.IsArchived == false)
                 .Where(p => p.Services.Any(s => s.Id == serviceId))
-                .Where(p => p.SearchVector.Matches(EF.Functions.PlainToTsQuery("simple", query)))
+                .Where(p => p.SearchVector.Matches(EF.Functions.ToTsQuery("simple", ParsedQuery(query))))
                 .OrderBy(p => p.Name)
                 .ToListAsync();
         }
@@ -30,6 +31,17 @@ namespace BrokerageApi.V1.Gateways
         {
             return await _context.Providers
                 .SingleOrDefaultAsync(p => p.Id == id);
+        }
+
+        private static string ParsedQuery(string query)
+        {
+            var separators = new[] { " " };
+            var options = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries;
+
+            var words = query.Split(separators, options).ToList();
+            var terms = words.ConvertAll(w => $"{w}:*");
+
+            return String.Join(" & ", terms);
         }
     }
 }

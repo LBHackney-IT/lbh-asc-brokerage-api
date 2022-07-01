@@ -134,6 +134,45 @@ namespace BrokerageApi.Tests.V1.Gateways
         }
 
         [Test]
+        public async Task FindsProvidersByPartialName()
+        {
+            // Arrange
+            var service = new Service()
+            {
+                Id = 1,
+                Name = "Home Care",
+                Position = 1
+            };
+
+            var provider = new Provider()
+            {
+                Id = 1,
+                Name = "Hartwig Care Limited",
+                Address = "1 Knowhere Road",
+                Type = ProviderType.Framework
+            };
+
+            var providerService = new ProviderService()
+            {
+                ProviderId = 1,
+                ServiceId = 1,
+                SubjectiveCode = "599999"
+            };
+
+            await BrokerageContext.Services.AddAsync(service);
+            await BrokerageContext.Providers.AddAsync(provider);
+            await BrokerageContext.ProviderServices.AddAsync(providerService);
+            await BrokerageContext.SaveChangesAsync();
+
+            // Act
+            var result = await _classUnderTest.FindByServiceIdAsync(service.Id, "hart care");
+
+            // Assert
+            Assert.That(result, Has.Count.EqualTo(1));
+            Assert.That(result, Contains.Item(provider));
+        }
+
+        [Test]
         public async Task DoesNotFindArchivedProviders()
         {
             // Arrange

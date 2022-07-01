@@ -11,7 +11,7 @@ The ASB Brokerage API is the backend for the Adult Social Care Broker tool and p
     - [Installation](#installation)
   - [Usage](#usage)
     - [Running the application](#running-the-application)
-    - [Databases](#databases)    
+    - [Databases](#databases)
     - [Running the tests](#running-the-tests)
   - [Documentation](#documentation)
     - [API design](#api-design)
@@ -25,7 +25,7 @@ The ASB Brokerage API is the backend for the Adult Social Care Broker tool and p
 ### Prerequisites
 
 - [Docker](https://www.docker.com/products/docker-desktop)
-- [.NET Core 3.1](https://dotnet.microsoft.com/download)
+- [.NET 6.0](https://dotnet.microsoft.com/download)
 
 ### Dockerised dependencies
 
@@ -41,7 +41,7 @@ $ git clone git@github.com:LBHackney-IT/lbh-asc-brokerage-api.git
 
 ## Usage
 
-### Running the application 
+### Running the application
 
 To serve the API locally with dotnet,
 run `dotnet run` from within the [BrokerageApi](./BrokerageApi) project directory, i.e:
@@ -103,9 +103,9 @@ Having your test db up and running on Docker will allow you to run the tests as 
 
 We use [SwaggerHub](https://swagger.io/tools/swaggerhub/) to document the API design:
 
-- [Staging](https://wadss19f8f.execute-api.eu-west-2.amazonaws.com/staging/swagger/index.html) 
+- [Staging](https://wadss19f8f.execute-api.eu-west-2.amazonaws.com/staging/swagger/index.html)
 
-- [Production](https://3mhm6sj5o2.execute-api.eu-west-2.amazonaws.com/production/swagger/index.html) 
+- [Production](https://3mhm6sj5o2.execute-api.eu-west-2.amazonaws.com/production/swagger/index.html)
 
 ### Deployment
 

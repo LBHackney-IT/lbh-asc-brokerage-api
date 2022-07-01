@@ -55,10 +55,10 @@ namespace BrokerageApi.V1.Controllers
                 var service = await _getServiceByIdUseCase.ExecuteAsync(id);
                 return Ok(service.ToResponse());
             }
-            catch (ArgumentNullException)
+            catch (ArgumentNullException e)
             {
                 return Problem(
-                    "The requested service was not found",
+                    e.Message,
                     $"/api/v1/services/{id}",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
@@ -78,10 +78,10 @@ namespace BrokerageApi.V1.Controllers
                 var providers = await _findProvidersByServiceIdUseCase.ExecuteAsync(id, query);
                 return Ok(providers.Select(s => s.ToResponse()).ToList());
             }
-            catch (ArgumentNullException)
+            catch (ArgumentNullException e)
             {
                 return Problem(
-                    "The requested service was not found",
+                    e.Message,
                     $"/api/v1/services/{id}",
                     StatusCodes.Status404NotFound, "Not Found"
                 );

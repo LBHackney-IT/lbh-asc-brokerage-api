@@ -75,7 +75,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
 
             foreach (var element in elements)
             {
-                _mockEndElementUseCase.Verify(x => x.ExecuteAsync(referral.Id, element.Id, baseDate, It.IsAny<string>()), Times.Once);
+                _mockEndElementUseCase.Verify(x => x.ExecuteAsync(referral.Id, element.Id, baseDate), Times.Once);
             }
             referral.UpdatedAt.Should().Be(_currentInstance);
             referral.Comment.Should().Be(expectedComment);

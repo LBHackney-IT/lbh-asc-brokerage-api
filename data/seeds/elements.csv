@@ -1,0 +1,16 @@
+"id","social_care_id","element_type_id","non_personal_budget","provider_id","details","internal_status","parent_element_id","start_date","end_date","monday","tuesday","wednesday","thursday","friday","saturday","sunday","quantity","cost","cost_centre","is_suspension","suspended_element_id","comment","created_by","created_at","updated_at"
+1,"1",71,TRUE,9,,"approved",,"2022-05-06","2022-06-23","{""Cost"": 103.18, ""Quantity"": 1}","{""Cost"": 103.18, ""Quantity"": 1}","{""Cost"": 103.18, ""Quantity"": 1}","{""Cost"": 103.18, ""Quantity"": 1}","{""Cost"": 103.18, ""Quantity"": 1}","{""Cost"": 103.18, ""Quantity"": 1}","{""Cost"": 103.23, ""Quantity"": 1}",7,722.31,"D0822",FALSE,,,"andrew.white@hackney.gov.uk","2022-06-15 15:48:50.391827","2022-06-15 15:48:50.391827"
+2,"3",31,FALSE,8,"Morning Call - 60mins (£16.80) - 2 Care Workers - daily
+Lunch Time Call - 30mins (£9.45) - 1 Care Worker - daily
+Tea Time Call - 30mins (£9.45) - 1 Care Worker - daily
+Night Time Call - 45mins (£13.50) - 2 Care Workers - daily
+Monday - Sunday 165mins / £49.20 per day
+","approved",,"2021-12-01","2022-06-23","{""Cost"": 49.20, ""Quantity"": 2.75}","{""Cost"": 49.20, ""Quantity"": 2.75}","{""Cost"": 49.20, ""Quantity"": 2.75}","{""Cost"": 49.20, ""Quantity"": 2.75}","{""Cost"": 49.20, ""Quantity"": 2.75}","{""Cost"": 49.20, ""Quantity"": 2.75}","{""Cost"": 49.20, ""Quantity"": 2.75}",19.25,344.4,"D0822",FALSE,,,"andrew.white@hackney.gov.uk","2022-06-15 15:48:50.391827","2022-06-15 15:48:50.391827"
+3,"3",33,FALSE,8,"Morning Call - 60mins (£16.80) - 2 Care Workers - daily
+Night Time Call - 45mins (£13.50) - 2 Care Workers - daily
+Monday - Sunday 105mins / £30.30 per day
+","approved",,"2021-12-01",,"{""Cost"": 30.30, ""Quantity"": 1.75}","{""Cost"": 30.30, ""Quantity"": 1.75}","{""Cost"": 30.30, ""Quantity"": 1.75}","{""Cost"": 30.30, ""Quantity"": 1.75}","{""Cost"": 30.30, ""Quantity"": 1.75}","{""Cost"": 30.30, ""Quantity"": 1.75}","{""Cost"": 30.30, ""Quantity"": 1.75}",12.25,212.1,"D0822",FALSE,,,"andrew.white@hackney.gov.uk","2022-06-15 15:48:50.391827","2022-06-15 15:48:50.391827"
+4,"15",31,FALSE,8,"Morning Call - 60mins (£16.80)
+Night Time Call - 45mins (£13.50)
+Monday, Wednesday, Friday 105mins / £30.30 per day
+","approved",,"2021-12-01",,"{""Cost"": 30.30, ""Quantity"": 1.75}",,"{""Cost"": 30.30, ""Quantity"": 1.75}",,"{""Cost"": 30.30, ""Quantity"": 1.75}",,,5.25,90.9,"D0822",FALSE,,,"andrew.white@hackney.gov.uk","2022-06-15 15:48:50.391827","2022-06-15 15:48:50.391827"

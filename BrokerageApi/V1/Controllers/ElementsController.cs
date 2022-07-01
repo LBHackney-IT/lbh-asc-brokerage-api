@@ -56,10 +56,10 @@ namespace BrokerageApi.V1.Controllers
                 var element = await _getElementByIdUseCase.ExecuteAsync(id);
                 return Ok(element.ToResponse());
             }
-            catch (ArgumentException)
+            catch (ArgumentException e)
             {
                 return Problem(
-                    "The requested element was not found",
+                    e.Message,
                     $"/api/v1/elements/{id}",
                     StatusCodes.Status404NotFound, "Not Found"
                 );

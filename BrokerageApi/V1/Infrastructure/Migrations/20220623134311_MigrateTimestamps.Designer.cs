@@ -5,6 +5,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -15,21 +16,22 @@ using NpgsqlTypes;
 namespace V1.Infrastructure.Migrations
 {
     [DbContext(typeof(BrokerageContext))]
-    partial class BrokerageContextModelSnapshot : ModelSnapshot
+    [Migration("20220623134311_MigrateTimestamps")]
+    partial class MigrateTimestamps
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.6")
+                .HasAnnotation("ProductVersion", "6.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "amendment_status", new[] { "in_progress", "resolved" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "audit_event_type", new[] { "referral_broker_assignment", "referral_broker_reassignment", "element_ended", "element_cancelled", "element_suspended", "care_package_ended", "care_package_cancelled", "care_package_suspended", "referral_archived", "import_note", "care_package_budget_approver_assigned", "care_package_approved", "amendment_requested" });
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_billing_type", new[] { "supplier", "customer", "none", "ccg" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_billing_type", new[] { "supplier", "customer", "none" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_cost_type", new[] { "hourly", "daily", "weekly", "transport", "one_off" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_status", new[] { "in_progress", "awaiting_approval", "approved", "inactive", "active", "ended", "suspended", "cancelled" });
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_type_type", new[] { "service", "provisional_care_charge", "confirmed_care_charge", "nursing_care" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_type_type", new[] { "service", "provisional_care_charge", "confirmed_care_charge" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "provider_type", new[] { "framework", "spot" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "referral_status", new[] { "unassigned", "in_review", "assigned", "on_hold", "archived", "in_progress", "awaiting_approval", "approved", "active", "ended", "cancelled" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "user_role", new[] { "brokerage_assistant", "broker", "approver", "care_charges_officer", "referrer" });

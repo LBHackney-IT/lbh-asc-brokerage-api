@@ -4,7 +4,7 @@ frameworkVersion: '2'
 
 provider:
   name: aws
-  runtime: dotnetcore3.1
+  runtime: dotnet6
   memorySize: 2048
   tracing:
     lambda: true
@@ -14,7 +14,7 @@ provider:
   region: eu-west-2
 
 package:
-  artifact: ./bin/release/netcoreapp3.1/brokerage-api.zip
+  artifact: ./bin/release/net6.0/brokerage-api.zip
 
 functions:
   BrokerageApi:
@@ -23,6 +23,7 @@ functions:
     role: lambdaExecutionRole
     environment:
       CONNECTION_STRING: Host=${ssm:/brokerage-api/${self:provider.stage}/postgres-hostname};Port=${ssm:/brokerage-api/${self:provider.stage}/postgres-port};Database=${ssm:/brokerage-api/${self:provider.stage}/postgres-database};Username=${ssm:/brokerage-api/${self:provider.stage}/postgres-username};Password=${ssm:/brokerage-api/${self:provider.stage}/postgres-password}
+      PGTZ: UTC
     events:
       - http:
           path: /{proxy+}

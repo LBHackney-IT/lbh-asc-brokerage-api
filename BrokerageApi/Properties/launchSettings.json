@@ -15,6 +15,7 @@
       "launchUrl": "swagger/index.html",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
+        "PGTZ": "UTC",
         "REQUIRED_GOOGL_GROUPS": "saml-socialcarefinance-brokerage"
       },
       "applicationUrl": "http://localhost:5100"

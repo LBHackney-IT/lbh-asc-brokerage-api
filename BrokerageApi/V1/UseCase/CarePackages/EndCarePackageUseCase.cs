@@ -45,7 +45,7 @@ namespace BrokerageApi.V1.UseCase.CarePackages
 
             foreach (var element in referral.Elements)
             {
-                await _endElementUseCase.ExecuteAsync(referral.Id, element.Id, endDate, comment);
+                await _endElementUseCase.ExecuteAsync(referral.Id, element.Id, endDate);
             }
 
             referral.UpdatedAt = _clockService.Now;

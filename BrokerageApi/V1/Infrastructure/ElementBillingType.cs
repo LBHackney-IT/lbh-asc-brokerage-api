@@ -8,6 +8,7 @@ namespace BrokerageApi.V1.Infrastructure
     {
         Supplier,
         Customer,
-        None
+        None,
+        Ccg
     }
 }

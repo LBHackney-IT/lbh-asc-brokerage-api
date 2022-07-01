@@ -1,5 +1,4 @@
 using AutoFixture;
-using BrokerageApi.Tests.V1.Controllers.Mocks;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Controllers;
@@ -14,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BrokerageApi.Tests.V1.Controllers
 {
@@ -24,7 +24,6 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Mock<IGetAllServicesUseCase> _mockGetAllServicesUseCase;
         private Mock<IGetServiceByIdUseCase> _mockGetServiceByIdUseCase;
         private Mock<IFindProvidersByServiceIdUseCase> _mockFindProvidersByServiceUseCase;
-        private MockProblemDetailsFactory _mockProblemDetailsFactory;
 
         private ServicesController _classUnderTest;
 
@@ -35,16 +34,12 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockGetAllServicesUseCase = new Mock<IGetAllServicesUseCase>();
             _mockGetServiceByIdUseCase = new Mock<IGetServiceByIdUseCase>();
             _mockFindProvidersByServiceUseCase = new Mock<IFindProvidersByServiceIdUseCase>();
-            _mockProblemDetailsFactory = new MockProblemDetailsFactory();
 
             _classUnderTest = new ServicesController(
                 _mockGetAllServicesUseCase.Object,
                 _mockGetServiceByIdUseCase.Object,
                 _mockFindProvidersByServiceUseCase.Object
             );
-
-            // .NET 3.1 doesn't set ProblemDetailsFactory so we need to mock it
-            _classUnderTest.ProblemDetailsFactory = _mockProblemDetailsFactory.Object;
         }
 
         [Test]
@@ -57,9 +52,9 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ReturnsAsync(services);
 
             // Act
-            var objectResult = await _classUnderTest.GetAllServices();
-            var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<List<ServiceResponse>>(objectResult);
+            var response = await _classUnderTest.GetAllServices();
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<List<ServiceResponse>>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
@@ -76,9 +71,9 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ReturnsAsync(service);
 
             // Act
-            var objectResult = await _classUnderTest.GetService(service.Id);
-            var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<ServiceResponse>(objectResult);
+            var response = await _classUnderTest.GetService(service.Id);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ServiceResponse>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
@@ -95,12 +90,14 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .Returns(Task.FromResult(new Service()));
 
             // Act
-            var objectResult = await _classUnderTest.GetService(123456);
-            var statusCode = GetStatusCode(objectResult);
+            var response = await _classUnderTest.GetService(123456);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound);
+            result.Status.Should().Be((int) HttpStatusCode.NotFound);
+            result.Detail.Should().Be("Service not found for: 123456 (Parameter 'id')");
         }
 
         [Test]
@@ -114,9 +111,9 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ReturnsAsync(providers);
 
             // Act
-            var objectResult = await _classUnderTest.FindProvidersByService(service.Id, "Acme");
-            var statusCode = GetStatusCode(objectResult);
-            var result = GetResultData<List<ProviderResponse>>(objectResult);
+            var response = await _classUnderTest.FindProvidersByService(service.Id, "Acme");
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<List<ProviderResponse>>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
@@ -133,12 +130,14 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .Returns(Task.FromResult(new List<Provider>() as IEnumerable<Provider>));
 
             // Act
-            var objectResult = await _classUnderTest.FindProvidersByService(123456, "Acme");
-            var statusCode = GetStatusCode(objectResult);
+            var response = await _classUnderTest.FindProvidersByService(123456, "Acme");
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
 
             // Assert
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
-            _mockProblemDetailsFactory.VerifyProblem(HttpStatusCode.NotFound);
+            result.Status.Should().Be((int) HttpStatusCode.NotFound);
+            result.Detail.Should().Be("Service not found for: 123456 (Parameter 'serviceId')");
         }
     }
 }

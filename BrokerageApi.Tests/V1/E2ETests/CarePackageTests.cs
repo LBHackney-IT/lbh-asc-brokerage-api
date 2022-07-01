@@ -332,7 +332,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
             response.UpdatedAt.Should().BeEquivalentTo(CurrentInstant);
 
             response.Elements.Should().OnlyContain(e => e.PendingEndDate == endDate);
-            response.Elements.Should().OnlyContain(e => e.PendingComment == request.Comment);
             Context.AuditEvents.Should().ContainSingle(ae => ae.EventType == AuditEventType.CarePackageEnded);
         }
 
