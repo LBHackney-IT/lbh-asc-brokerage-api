@@ -26,6 +26,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Mock<IDeleteCareChargeUseCase> _mockDeleteCareChargeUseCase;
         private Mock<IEndCareChargeUseCase> _mockEndCareChargeUseCase;
         private Mock<ICancelCareChargeUseCase> _mockCancelCareChargeUseCase;
+        private Mock<IResetCareChargeUseCase> _mockResetCareChargeUseCase;
 
         private CarePackageCareChargesController _classUnderTest;
 
@@ -37,11 +38,13 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockDeleteCareChargeUseCase = new Mock<IDeleteCareChargeUseCase>();
             _mockEndCareChargeUseCase = new Mock<IEndCareChargeUseCase>();
             _mockCancelCareChargeUseCase = new Mock<ICancelCareChargeUseCase>();
+            _mockResetCareChargeUseCase = new Mock<IResetCareChargeUseCase>();
 
             _classUnderTest = new CarePackageCareChargesController(_mockCreateCareChargeUseCase.Object,
                 _mockDeleteCareChargeUseCase.Object,
                 _mockEndCareChargeUseCase.Object,
-                _mockCancelCareChargeUseCase.Object);
+                _mockCancelCareChargeUseCase.Object,
+                _mockResetCareChargeUseCase.Object);
 
             SetupAuthentication(_classUnderTest);
         }
@@ -244,6 +247,50 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ThrowsAsync(exception);
 
             var response = await _classUnderTest.CancelCareCharge(referralId, elementId, request);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
+
+            statusCode.Should().Be((int) expectedStatusCode);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
+        }
+
+        [Test]
+        public async Task ResetsCareCharge()
+        {
+            const int referralId = 1234;
+            const int elementId = 1234;
+
+            var response = await _classUnderTest.ResetCareCharge(referralId, elementId);
+            var statusCode = GetStatusCode(response);
+
+            _mockResetCareChargeUseCase.Verify(x => x.ExecuteAsync(referralId, elementId));
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+        }
+
+        private static readonly object[] _resetCareChargeErrors =
+        {
+            new object[]
+            {
+                new ArgumentNullException(null, "message"), HttpStatusCode.NotFound
+            },
+            new object[]
+            {
+                new InvalidOperationException("message"), HttpStatusCode.UnprocessableEntity
+            }
+        };
+
+
+        [TestCaseSource(nameof(_resetCareChargeErrors)), Property("AsUser", "CareChargesOfficer")]
+        public async Task ResetCareChargeMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            const int referralId = 1234;
+            const int elementId = 1234;
+
+            _mockResetCareChargeUseCase.Setup(x => x.ExecuteAsync(referralId, elementId))
+                .ThrowsAsync(exception);
+
+            var response = await _classUnderTest.ResetCareCharge(referralId, elementId);
             var statusCode = GetStatusCode(response);
             var result = GetResultData<ProblemDetails>(response);
 

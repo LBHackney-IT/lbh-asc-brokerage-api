@@ -190,6 +190,15 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var resultReferralElement = await Context.ReferralElements.SingleAsync(re => re.ElementId == element.Id && re.ReferralId == referral.Id);
             resultReferralElement.PendingCancellation.Should().BeTrue();
             resultReferralElement.PendingComment.Should().Be(request.Comment);
+
+            // reset
+            var resetCode = await Post($"/api/v1/referrals/{referral.Id}/care-package/care-charges/{element.Id}/reset", null);
+
+            resetCode.Should().Be(HttpStatusCode.OK);
+
+            var resetReferralElement = await Context.ReferralElements.SingleAsync(re => re.ElementId == element.Id && re.ReferralId == referral.Id);
+            resetReferralElement.PendingCancellation.Should().BeNull();
+            resetReferralElement.PendingComment.Should().BeNull();
         }
     }
 }

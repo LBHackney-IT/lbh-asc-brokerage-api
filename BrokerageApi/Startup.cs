@@ -259,6 +259,7 @@ namespace BrokerageApi
             services.AddTransient<IGetBudgetApprovalsUseCase, GetBudgetApprovalsUseCase>();
             services.AddTransient<IApproveCarePackageUseCase, ApproveCarePackageUseCase>();
             services.AddTransient<IRequestAmendmentToCarePackageUseCase, RequestAmendmentToCarePackageUseCase>();
+            services.AddTransient<IResetCareChargeUseCase, ResetCareChargeUseCase>();
             services.AddTransient<IResetElementUseCase, ResetElementUseCase>();
         }
 
