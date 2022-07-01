@@ -13,9 +13,11 @@ using BrokerageApi.V1.Services;
 using BrokerageApi.V1.Services.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.UseCase;
+using BrokerageApi.V1.UseCase.CarePackageCareCharges;
 using BrokerageApi.V1.UseCase.CarePackageElements;
 using BrokerageApi.V1.UseCase.CarePackages;
 using BrokerageApi.V1.UseCase.Interfaces;
+using BrokerageApi.V1.UseCase.Interfaces.CarePackageCareCharges;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackageElements;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackages;
 using BrokerageApi.Versioning;
@@ -219,6 +221,7 @@ namespace BrokerageApi
 
         private static void RegisterUseCases(IServiceCollection services)
         {
+            services.AddTransient<ICreateCareChargeUseCase, CreateCareChargeUseCase>();
             services.AddTransient<ICreateElementUseCase, CreateElementUseCase>();
             services.AddTransient<ICreateReferralUseCase, CreateReferralUseCase>();
             services.AddTransient<IFindProvidersByServiceIdUseCase, FindProvidersByServiceIdUseCase>();

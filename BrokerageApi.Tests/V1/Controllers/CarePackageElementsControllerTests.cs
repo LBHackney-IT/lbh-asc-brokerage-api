@@ -186,7 +186,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         }
 
         [Test]
-        public async Task CanEndElement()
+        public async Task EndsElement()
         {
             const int referralId = 1234;
             const int elementId = 1234;
@@ -234,7 +234,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         }
 
         [Test]
-        public async Task CanCancelElement()
+        public async Task CancelsElement()
         {
             const int referralId = 1234;
             const int elementId = 1234;
@@ -335,7 +335,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         }
 
         [Test]
-        public async Task CanSuspendElement([Values] bool withEndDate)
+        public async Task SuspendsElement([Values] bool withEndDate)
         {
             const int referralId = 1234;
             const int elementId = 1234;
@@ -373,8 +373,9 @@ namespace BrokerageApi.Tests.V1.Controllers
             result.Status.Should().Be((int) expectedStatusCode);
             result.Detail.Should().Be(exception.Message);
         }
+
         [Test]
-        public async Task CanResetElement()
+        public async Task ResetsElement()
         {
             const int referralId = 1234;
             const int elementId = 1234;
@@ -404,7 +405,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         {
             const int referralId = 1234;
             const int elementId = 1234;
-            var request = _fixture.Create<CancelRequest>();
+
             _mockResetElementUseCase.Setup(x => x.ExecuteAsync(referralId, elementId))
                 .ThrowsAsync(exception);
 

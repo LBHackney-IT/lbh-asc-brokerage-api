@@ -1,0 +1,102 @@
+using AutoFixture;
+using BrokerageApi.Tests.V1.Helpers;
+using BrokerageApi.V1.Boundary.Request;
+using BrokerageApi.V1.Boundary.Response;
+using BrokerageApi.V1.Controllers;
+using BrokerageApi.V1.Factories;
+using BrokerageApi.V1.Infrastructure;
+using FluentAssertions;
+using Moq;
+using NUnit.Framework;
+using System;
+using System.Net;
+using System.Threading.Tasks;
+using BrokerageApi.V1.UseCase.Interfaces.CarePackageCareCharges;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+namespace BrokerageApi.Tests.V1.Controllers
+{
+    [TestFixture]
+    public class CarePackageCareChargesControllerTests : ControllerTests
+    {
+        private Fixture _fixture;
+        private Mock<ICreateCareChargeUseCase> _mockCreateCareChargeUseCase;
+
+        private CarePackageCareChargesController _classUnderTest;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _fixture = FixtureHelpers.Fixture;
+            _mockCreateCareChargeUseCase = new Mock<ICreateCareChargeUseCase>();
+
+            _classUnderTest = new CarePackageCareChargesController(_mockCreateCareChargeUseCase.Object);
+
+            SetupAuthentication(_classUnderTest);
+        }
+
+        [Test, Property("AsUser", "CareChargesOfficer")]
+        public async Task CreatesCareCharge()
+        {
+            // Arrange
+            var referral = _fixture.BuildReferral(ReferralStatus.Approved)
+                .Create();
+
+            var request = _fixture.Create<CreateCareChargeRequest>();
+
+            _mockCreateCareChargeUseCase
+                .Setup(x => x.ExecuteAsync(referral.Id, request))
+                .ReturnsAsync(request.ToDatabase());
+
+            // Act
+            var response = await _classUnderTest.CreateCareCharge(referral.Id, request);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ElementResponse>(response);
+
+            // Assert
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            result.Should().BeEquivalentTo(request.ToDatabase().ToResponse());
+        }
+
+        private static readonly object[] _createOrEditCareChargeErrors =
+        {
+            new object[]
+            {
+                new ArgumentNullException(null, "message"), StatusCodes.Status404NotFound
+            },
+            new object[]
+            {
+                new ArgumentException("message"), StatusCodes.Status400BadRequest
+            },
+            new object[]
+            {
+                new InvalidOperationException("message"), StatusCodes.Status422UnprocessableEntity
+            }
+        };
+
+        [TestCaseSource(nameof(_createOrEditCareChargeErrors)), Property("AsUser", "CareChargesOfficer")]
+        public async Task CreateCareChargeMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            // Arrange
+            var referral = _fixture.BuildReferral(ReferralStatus.Assigned)
+                .Create();
+
+            var request = _fixture.Create<CreateCareChargeRequest>();
+
+            _mockCreateCareChargeUseCase
+                .Setup(x => x.ExecuteAsync(referral.Id, request))
+                .Throws(exception);
+
+            // Act
+            var response = await _classUnderTest.CreateCareCharge(referral.Id, request);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
+
+            // Assert
+            statusCode.Should().Be((int) expectedStatusCode);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
+        }
+    }
+}

@@ -1,0 +1,84 @@
+using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
+using AutoFixture;
+using BrokerageApi.Tests.V1.Helpers;
+using BrokerageApi.V1.Boundary.Request;
+using BrokerageApi.V1.Boundary.Response;
+using BrokerageApi.V1.Infrastructure;
+using FluentAssertions;
+using NUnit.Framework;
+
+namespace BrokerageApi.Tests.V1.E2ETests
+{
+    public class CarePackageCareChargesTests : IntegrationTests<Startup>
+    {
+        private Fixture _fixture;
+        [SetUp]
+        public void Setup()
+        {
+            AssertionOptions.EquivalencySteps.Insert<InstantComparer>();
+            _fixture = FixtureHelpers.Fixture;
+        }
+
+        [Test, Property("AsUser", "CareChargesOfficer")]
+        public async Task CanCreateCareCharge()
+        {
+            // Arrange
+            var service = _fixture.BuildService()
+                .Create();
+
+            var elementType = _fixture.BuildElementType(service.Id, ElementTypeType.ConfirmedCareCharge)
+                .Create();
+
+            var parentElement = _fixture.BuildElement(elementType.Id)
+                .Create();
+
+            var element = _fixture.BuildElement(elementType.Id)
+                .With(e => e.ParentElement, parentElement)
+                .Create();
+
+            var referral = _fixture.BuildReferral(ReferralStatus.Approved)
+                .With(r => r.AssignedBrokerEmail, ApiUser.Email)
+                .With(r => r.Elements, new List<Element> { element })
+                .Create();
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.Services.AddAsync(service);
+            await Context.ElementTypes.AddAsync(elementType);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            var request = _fixture.Build<CreateCareChargeRequest>()
+                .With(r => r.ElementTypeId, elementType.Id)
+                .With(r => r.StartDate, CurrentDate)
+                .Without(r => r.ParentElementId)
+                .Create();
+
+            // Act
+            var (code, response) = await Post<ElementResponse>($"/api/v1/referrals/{referral.Id}/care-package/care-charges", request);
+            var (referralCode, referralResponse) = await Get<ReferralResponse>($"/api/v1/referrals/{referral.Id}");
+
+            // Assert
+            code.Should().Be(HttpStatusCode.OK);
+            response.ElementType.Id.Should().Be(request.ElementTypeId);
+            response.Provider.Should().BeNull();
+            response.Details.Should().BeNull();
+            response.StartDate.Should().Be(request.StartDate);
+            response.Monday.Should().BeEquivalentTo(request.Monday);
+            response.Tuesday.Should().BeEquivalentTo(request.Tuesday);
+            response.Wednesday.Should().BeEquivalentTo(request.Wednesday);
+            response.Thursday.Should().BeEquivalentTo(request.Thursday);
+            response.Friday.Should().BeEquivalentTo(request.Friday);
+            response.Quantity.Should().Be(request.Quantity);
+            response.Cost.Should().Be(request.Cost);
+            response.Status.Should().Be(ElementStatus.InProgress);
+            response.UpdatedAt.Should().Be(CurrentInstant);
+            response.CreatedBy.Should().Be("api.user@hackney.gov.uk");
+
+            referralCode.Should().Be(HttpStatusCode.OK);
+            referralResponse.UpdatedAt.Should().Be(CurrentInstant);
+        }
+    }
+}
