@@ -20,14 +20,17 @@ namespace BrokerageApi.V1.Controllers
         private readonly ICreateCareChargeUseCase _createCareChargeUseCase;
         private readonly IDeleteCareChargeUseCase _deleteCareChargeUseCase;
         private readonly IEndCareChargeUseCase _endCareChargeUseCase;
+        private readonly ICancelCareChargeUseCase _cancelCareChargeUseCase;
 
         public CarePackageCareChargesController(ICreateCareChargeUseCase createCareChargeUseCase,
             IDeleteCareChargeUseCase deleteCareChargeUseCase,
-            IEndCareChargeUseCase endCareChargeUseCase)
+            IEndCareChargeUseCase endCareChargeUseCase,
+            ICancelCareChargeUseCase cancelCareChargeUseCase)
         {
             _createCareChargeUseCase = createCareChargeUseCase;
             _deleteCareChargeUseCase = deleteCareChargeUseCase;
             _endCareChargeUseCase = endCareChargeUseCase;
+            _cancelCareChargeUseCase = cancelCareChargeUseCase;
         }
 
         [Authorize(Roles = "CareChargesOfficer")]
@@ -139,6 +142,37 @@ namespace BrokerageApi.V1.Controllers
                     e.Message,
                     $"api/v1/referrals/{referralId}/care-package/care-charges/{elementId}/end",
                     StatusCodes.Status400BadRequest, "Bad Request"
+                );
+            }
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("{elementId}/cancel")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> CancelCareCharge([FromRoute] int referralId, [FromRoute] int elementId, CancelRequest cancelRequest)
+        {
+            try
+            {
+                await _cancelCareChargeUseCase.ExecuteAsync(referralId, elementId, cancelRequest.Comment);
+            }
+            catch (ArgumentNullException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/care-charges/{elementId}/cancel",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (InvalidOperationException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/care-charges/{elementId}/cancel",
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }
             return Ok();

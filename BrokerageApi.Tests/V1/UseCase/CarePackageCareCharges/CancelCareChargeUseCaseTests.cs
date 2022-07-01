@@ -9,20 +9,20 @@ using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Services;
 using BrokerageApi.V1.Services.Interfaces;
-using BrokerageApi.V1.UseCase.CarePackageElements;
+using BrokerageApi.V1.UseCase.CarePackageCareCharges;
 using FluentAssertions;
 using Moq;
 using NodaTime;
 using NodaTime.Testing;
 using NUnit.Framework;
 
-namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
+namespace BrokerageApi.Tests.V1.UseCase.CarePackageCareCharges
 {
-    public class CancelElementUseCaseTests
+    public class CancelCareChargeUseCaseTests
     {
         private Fixture _fixture;
         private Mock<IElementGateway> _mockElementGateway;
-        private CancelElementUseCase _classUnderTest;
+        private CancelCareChargeUseCase _classUnderTest;
         private MockDbSaver _dbSaver;
         private ClockService _clock;
         private Mock<IReferralGateway> _mockReferralGateway;
@@ -43,7 +43,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             var fakeClock = new FakeClock(currentTime);
             _clock = new ClockService(fakeClock);
 
-            _classUnderTest = new CancelElementUseCase(
+            _classUnderTest = new CancelCareChargeUseCase(
                 _mockReferralGateway.Object,
                 _mockElementGateway.Object,
                 _mockAuditGateway.Object,
@@ -54,7 +54,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         }
 
         [Test]
-        public async Task CanCancelElement()
+        public async Task CanCancelCareCharge()
         {
             const string expectedComment = "commentHere";
             var (referral, element) = CreateReferralAndElement();
@@ -92,7 +92,6 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             await act.Should().ThrowAsync<ArgumentNullException>()
                 .WithMessage($"Referral not found {unknownReferralId} (Parameter 'referralId')");
-
             _dbSaver.VerifyChangesNotSaved();
         }
 
@@ -108,7 +107,6 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             await act.Should().ThrowAsync<ArgumentNullException>()
                 .WithMessage($"Element not found {unknownElementId} (Parameter 'elementId')");
-
             _dbSaver.VerifyChangesNotSaved();
         }
 
@@ -123,7 +121,6 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             {
                 await act.Should().ThrowAsync<InvalidOperationException>()
                     .WithMessage($"Element {element.Id} is not approved");
-
                 _dbSaver.VerifyChangesNotSaved();
             }
         }
@@ -141,7 +138,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             var element = builder.Create();
 
-            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
+            var referral = _fixture.BuildReferral(ReferralStatus.Approved)
                 .With(r => r.Elements, new List<Element>
                 {
                     element

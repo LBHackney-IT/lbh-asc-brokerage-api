@@ -156,5 +156,40 @@ namespace BrokerageApi.Tests.V1.E2ETests
             resultReferralElement.PendingEndDate.Should().Be(request.EndDate);
             resultReferralElement.PendingComment.Should().Be(request.Comment);
         }
+
+        [Test, Property("AsUser", "CareChargesOfficer")]
+        public async Task CanCancelCareCharge()
+        {
+            var service = _fixture.BuildService().Create();
+            var elementType = _fixture.BuildElementType(service.Id, ElementTypeType.ConfirmedCareCharge).Create();
+            var referral = _fixture.BuildReferral(ReferralStatus.Approved).Create();
+            var element = _fixture.BuildElement(elementType.Id)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .Without(e => e.EndDate)
+                .Create();
+            var referralElement = _fixture.BuildReferralElement(referral.Id, element.Id).Create();
+
+            await Context.Services.AddAsync(service);
+            await Context.ElementTypes.AddAsync(elementType);
+            await Context.Referrals.AddAsync(referral);
+            await Context.Elements.AddRangeAsync(element);
+            await Context.ReferralElements.AddAsync(referralElement);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            var request = new CancelRequest
+            {
+                Comment = "here is a comment"
+            };
+
+            var code = await Post($"/api/v1/referrals/{referral.Id}/care-package/care-charges/{element.Id}/cancel", request);
+
+            code.Should().Be(HttpStatusCode.OK);
+
+            var resultReferralElement = await Context.ReferralElements.SingleAsync(re => re.ElementId == element.Id && re.ReferralId == referral.Id);
+            resultReferralElement.PendingCancellation.Should().BeTrue();
+            resultReferralElement.PendingComment.Should().Be(request.Comment);
+        }
     }
 }

@@ -188,7 +188,7 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     e.Message,
-                    $"api/v1/referrals/{referralId}/care-package/elements/{elementId}/end",
+                    $"api/v1/referrals/{referralId}/care-package/elements/{elementId}/cancel",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
@@ -196,7 +196,7 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     e.Message,
-                    $"api/v1/referrals/{referralId}/care-package/elements/{elementId}/end",
+                    $"api/v1/referrals/{referralId}/care-package/elements/{elementId}/cancel",
                     StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }
