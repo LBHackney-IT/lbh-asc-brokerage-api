@@ -26,6 +26,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Mock<IDeleteCareChargeUseCase> _mockDeleteCareChargeUseCase;
         private Mock<IEndCareChargeUseCase> _mockEndCareChargeUseCase;
         private Mock<ICancelCareChargeUseCase> _mockCancelCareChargeUseCase;
+        private Mock<IEditCareChargeUseCase> _mockEditCareChargeUseCase;
         private Mock<IResetCareChargeUseCase> _mockResetCareChargeUseCase;
 
         private CarePackageCareChargesController _classUnderTest;
@@ -38,12 +39,14 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockDeleteCareChargeUseCase = new Mock<IDeleteCareChargeUseCase>();
             _mockEndCareChargeUseCase = new Mock<IEndCareChargeUseCase>();
             _mockCancelCareChargeUseCase = new Mock<ICancelCareChargeUseCase>();
+            _mockEditCareChargeUseCase = new Mock<IEditCareChargeUseCase>();
             _mockResetCareChargeUseCase = new Mock<IResetCareChargeUseCase>();
 
             _classUnderTest = new CarePackageCareChargesController(_mockCreateCareChargeUseCase.Object,
                 _mockDeleteCareChargeUseCase.Object,
                 _mockEndCareChargeUseCase.Object,
                 _mockCancelCareChargeUseCase.Object,
+                _mockEditCareChargeUseCase.Object,
                 _mockResetCareChargeUseCase.Object);
 
             SetupAuthentication(_classUnderTest);

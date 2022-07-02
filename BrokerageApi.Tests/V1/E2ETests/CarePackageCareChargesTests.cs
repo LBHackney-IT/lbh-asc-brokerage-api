@@ -158,6 +158,67 @@ namespace BrokerageApi.Tests.V1.E2ETests
         }
 
         [Test, Property("AsUser", "CareChargesOfficer")]
+        public async Task CanEditCareCharge()
+        {
+            // Arrange
+            var service = _fixture.BuildService()
+                .Create();
+
+            var elementType = _fixture.BuildElementType(service.Id, ElementTypeType.ConfirmedCareCharge)
+                .Create();
+
+            var parentElement = _fixture.BuildElement(elementType.Id)
+                .Without(e => e.Details)
+                .Without(e => e.ProviderId)
+                .Create();
+
+            var element = _fixture.BuildElement(elementType.Id)
+                .With(e => e.ParentElement, parentElement)
+                .Without(e => e.Details)
+                .Without(e => e.ProviderId)
+                .Create();
+
+            var referral = _fixture.BuildReferral(ReferralStatus.Approved)
+                .With(r => r.Elements, new List<Element> { element })
+                .Create();
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.Services.AddAsync(service);
+            await Context.ElementTypes.AddAsync(elementType);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            var request = _fixture.Build<EditCareChargeRequest>()
+                .With(r => r.ElementTypeId, elementType.Id)
+                .With(r => r.StartDate, CurrentDate)
+                .Create();
+
+            // Act
+            var (code, response) = await Post<ElementResponse>($"/api/v1/referrals/{referral.Id}/care-package/care-charges/{element.Id}/edit", request);
+            var (referralCode, referralResponse) = await Get<ReferralResponse>($"/api/v1/referrals/{referral.Id}");
+
+            // Assert
+            code.Should().Be(HttpStatusCode.OK);
+            response.ElementType.Id.Should().Be(request.ElementTypeId);
+            response.Provider.Should().BeNull();
+            response.Details.Should().BeNull();
+            response.StartDate.Should().Be(request.StartDate);
+            response.Monday.Should().BeEquivalentTo(request.Monday);
+            response.Tuesday.Should().BeEquivalentTo(request.Tuesday);
+            response.Wednesday.Should().BeEquivalentTo(request.Wednesday);
+            response.Thursday.Should().BeEquivalentTo(request.Thursday);
+            response.Friday.Should().BeEquivalentTo(request.Friday);
+            response.Quantity.Should().Be(request.Quantity);
+            response.Cost.Should().Be(request.Cost);
+            response.Status.Should().Be(ElementStatus.InProgress);
+            response.UpdatedAt.Should().Be(CurrentInstant);
+
+            referralCode.Should().Be(HttpStatusCode.OK);
+            referralResponse.UpdatedAt.Should().Be(CurrentInstant);
+        }
+
+        [Test, Property("AsUser", "CareChargesOfficer")]
         public async Task CanCancelCareCharge()
         {
             var service = _fixture.BuildService().Create();

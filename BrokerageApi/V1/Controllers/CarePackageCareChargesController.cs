@@ -21,18 +21,21 @@ namespace BrokerageApi.V1.Controllers
         private readonly IDeleteCareChargeUseCase _deleteCareChargeUseCase;
         private readonly IEndCareChargeUseCase _endCareChargeUseCase;
         private readonly ICancelCareChargeUseCase _cancelCareChargeUseCase;
+        private readonly IEditCareChargeUseCase _editCareChargeUseCase;
         private readonly IResetCareChargeUseCase _resetCareChargeUseCase;
 
         public CarePackageCareChargesController(ICreateCareChargeUseCase createCareChargeUseCase,
             IDeleteCareChargeUseCase deleteCareChargeUseCase,
             IEndCareChargeUseCase endCareChargeUseCase,
             ICancelCareChargeUseCase cancelCareChargeUseCase,
+            IEditCareChargeUseCase editCareChargeUseCase,
             IResetCareChargeUseCase resetCareChargeUseCase)
         {
             _createCareChargeUseCase = createCareChargeUseCase;
             _deleteCareChargeUseCase = deleteCareChargeUseCase;
             _endCareChargeUseCase = endCareChargeUseCase;
             _cancelCareChargeUseCase = cancelCareChargeUseCase;
+            _editCareChargeUseCase = editCareChargeUseCase;
             _resetCareChargeUseCase = resetCareChargeUseCase;
         }
 
@@ -179,6 +182,48 @@ namespace BrokerageApi.V1.Controllers
                 );
             }
             return Ok();
+        }
+
+        [Authorize(Roles = "CareChargesOfficer")]
+        [HttpPost]
+        [Route("{elementId}/edit")]
+        [ProducesResponseType(typeof(ElementResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> EditCareCharge([FromRoute] int referralId, [FromRoute] int elementId, [FromBody] EditCareChargeRequest request)
+        {
+            try
+            {
+                var element = await _editCareChargeUseCase.ExecuteAsync(referralId, elementId, request);
+                return Ok(element.ToResponse());
+            }
+            catch (ArgumentNullException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"/api/v1/referrals/{referralId}/care-package/care-charges/{elementId}/edit",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (ArgumentException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"/api/v1/referrals/{referralId}/care-package/care-charges/{elementId}/edit",
+                    StatusCodes.Status400BadRequest, "Bad Request"
+                );
+            }
+            catch (InvalidOperationException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"/api/v1/referrals/{referralId}/care-package/care-charges/{elementId}/edit",
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
+                );
+            }
         }
 
         [HttpPost]
