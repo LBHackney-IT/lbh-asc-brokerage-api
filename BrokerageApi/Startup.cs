@@ -50,7 +50,7 @@ namespace BrokerageApi
             AWSSDKHandler.RegisterXRayForAllServices();
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
         private static List<ApiVersionDescription> ApiVersions { get; set; }
         private const string ApiName = "ASC Brokerage";
 
@@ -122,10 +122,10 @@ namespace BrokerageApi
                     });
                 }
 
-                c.MapType<NodaTime.Instant>(() => new OpenApiSchema { Type = "string", Format = "date-time" });
-                c.MapType<NodaTime.Instant?>(() => new OpenApiSchema { Type = "string", Format = "date-time", Nullable = true });
-                c.MapType<NodaTime.LocalDate>(() => new OpenApiSchema { Type = "string", Format = "date" });
-                c.MapType<NodaTime.LocalDate?>(() => new OpenApiSchema { Type = "string", Format = "date", Nullable = true });
+                c.MapType<Instant>(() => new OpenApiSchema { Type = "string", Format = "date-time" });
+                c.MapType<Instant?>(() => new OpenApiSchema { Type = "string", Format = "date-time", Nullable = true });
+                c.MapType<LocalDate>(() => new OpenApiSchema { Type = "string", Format = "date" });
+                c.MapType<LocalDate?>(() => new OpenApiSchema { Type = "string", Format = "date", Nullable = true });
 
                 c.CustomSchemaIds(x => x.Name);
 
@@ -151,10 +151,7 @@ namespace BrokerageApi
                         ValidateAudience = false,
                         RequireAudience = false,
                         RequireExpirationTime = false,
-                        SignatureValidator = delegate (string token, TokenValidationParameters parameters)
-                        {
-                            return new JwtSecurityToken(token);
-                        }
+                        SignatureValidator = (token, _) => new JwtSecurityToken(token)
                     };
                 });
 
@@ -281,7 +278,7 @@ namespace BrokerageApi
 
             // Get All ApiVersions,
             var api = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();
-            ApiVersions = api.ApiVersionDescriptions.ToList();
+            ApiVersions = api?.ApiVersionDescriptions.ToList() ?? new List<ApiVersionDescription>();
 
             // Swagger ui to view the swagger.json file
             app.UseSwaggerUI(c =>
