@@ -727,7 +727,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var resultSuspensionElement = carePackageResponse.Elements.Single(e => e.Id == suspensionElement.Id);
             resultSuspensionElement.PendingCancellation.Should().BeTrue();
             resultSuspensionElement.PendingComment.Should().Be(request.Comment);
-
         }
 
         private async Task RequestSuspension(Element element, Referral referral, bool withEndDate)

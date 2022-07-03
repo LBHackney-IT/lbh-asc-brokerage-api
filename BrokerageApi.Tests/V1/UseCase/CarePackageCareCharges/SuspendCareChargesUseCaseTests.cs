@@ -9,20 +9,20 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using BrokerageApi.V1.Services;
 using BrokerageApi.V1.Services.Interfaces;
-using BrokerageApi.V1.UseCase.CarePackageElements;
+using BrokerageApi.V1.UseCase.CarePackageCareCharges;
 using FluentAssertions;
 using Moq;
 using NodaTime;
 using NodaTime.Testing;
 using NUnit.Framework;
 
-namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
+namespace BrokerageApi.Tests.V1.UseCase.CarePackageCareCharges
 {
 
-    public class SuspendElementUseCaseTests
+    public class SuspendCareChargeUseCaseTests
     {
         private Fixture _fixture;
-        private SuspendElementUseCase _classUnderTest;
+        private SuspendCareChargeUseCase _classUnderTest;
         private MockDbSaver _dbSaver;
         private ClockService _clock;
         private Mock<IReferralGateway> _mockReferralGateway;
@@ -44,7 +44,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             var fakeClock = new FakeClock(currentTime);
             _clock = new ClockService(fakeClock);
 
-            _classUnderTest = new SuspendElementUseCase(
+            _classUnderTest = new SuspendCareChargeUseCase(
                 _mockReferralGateway.Object,
                 _mockAuditGateway.Object,
                 _mockUserService.Object,
@@ -55,7 +55,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         }
 
         [Test]
-        public async Task CanSuspendElement([Values] bool withEndDate)
+        public async Task CanSuspendCareCharge([Values] bool withEndDate)
         {
             const string expectedComment = "commentHere";
             var baseDate = LocalDate.FromDateTime(DateTime.Today);
@@ -149,7 +149,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         }
 
         [Test]
-        public async Task ThrowsInvalidOperationWhenElementNotApprovedOrInProgress([Values] ElementStatus status)
+        public async Task ThrowsInvalidOperationWhenCareChargeNotApprovedOrInProgress([Values] ElementStatus status)
         {
             var startDate = LocalDate.FromDateTime(DateTime.Today);
             var endDate = LocalDate.FromDateTime(DateTime.Today).PlusDays(1);
@@ -171,7 +171,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         [TestCase(0, null, -1, 10, true)] // Element end is NULL AND Suspend start < Element start
         [TestCase(0, 10, 0, 10, false)] // Suspend start = Element start AND Suspend end = Element end (doesn't throw)
         [TestCase(0, null, 0, 10, false)] // Element end is NULL (doesn't throw)
-        public async Task ThrowsWhenDatesNotWithinElementDates(int elementStartOffset, int? elementEndOffset, int suspendStartOffset, int suspendEndOffset, bool shouldThrow)
+        public async Task ThrowsWhenDatesNotWithinCareChargeDates(int elementStartOffset, int? elementEndOffset, int suspendStartOffset, int suspendEndOffset, bool shouldThrow)
         {
             var baseDate = LocalDate.FromDateTime(DateTime.Today);
             var startDate = baseDate.PlusDays(suspendStartOffset);
@@ -239,7 +239,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             var elements = builder.CreateMany();
 
-            var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
+            var referral = _fixture.BuildReferral(ReferralStatus.Approved)
                 .With(r => r.Elements, elements.ToList).Create();
 
             _mockReferralGateway.Setup(x => x.GetByIdWithElementsAsync(referral.Id))

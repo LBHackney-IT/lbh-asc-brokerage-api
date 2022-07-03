@@ -21,6 +21,7 @@ namespace BrokerageApi.V1.Controllers
         private readonly IDeleteCareChargeUseCase _deleteCareChargeUseCase;
         private readonly IEndCareChargeUseCase _endCareChargeUseCase;
         private readonly ICancelCareChargeUseCase _cancelCareChargeUseCase;
+        private readonly ISuspendCareChargeUseCase _suspendCareChargeUseCase;
         private readonly IEditCareChargeUseCase _editCareChargeUseCase;
         private readonly IResetCareChargeUseCase _resetCareChargeUseCase;
 
@@ -28,6 +29,7 @@ namespace BrokerageApi.V1.Controllers
             IDeleteCareChargeUseCase deleteCareChargeUseCase,
             IEndCareChargeUseCase endCareChargeUseCase,
             ICancelCareChargeUseCase cancelCareChargeUseCase,
+            ISuspendCareChargeUseCase suspendCareChargeUseCase,
             IEditCareChargeUseCase editCareChargeUseCase,
             IResetCareChargeUseCase resetCareChargeUseCase)
         {
@@ -35,6 +37,7 @@ namespace BrokerageApi.V1.Controllers
             _deleteCareChargeUseCase = deleteCareChargeUseCase;
             _endCareChargeUseCase = endCareChargeUseCase;
             _cancelCareChargeUseCase = cancelCareChargeUseCase;
+            _suspendCareChargeUseCase = suspendCareChargeUseCase;
             _editCareChargeUseCase = editCareChargeUseCase;
             _resetCareChargeUseCase = resetCareChargeUseCase;
         }
@@ -182,6 +185,45 @@ namespace BrokerageApi.V1.Controllers
                 );
             }
             return Ok();
+        }
+
+        [HttpPost]
+        [Route("{elementId}/suspend")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> SuspendCareCharge(int referralId, int elementId, SuspendRequest request)
+        {
+            try
+            {
+                await _suspendCareChargeUseCase.ExecuteAsync(referralId, elementId, request.StartDate, request.EndDate, request.Comment);
+                return Ok();
+            }
+            catch (ArgumentNullException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/care-charges/{elementId}/suspend",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (InvalidOperationException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/care-charges/{elementId}/suspend",
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
+                );
+            }
+            catch (ArgumentException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/referrals/{referralId}/care-package/care-charges/{elementId}/suspend",
+                    StatusCodes.Status400BadRequest, "Bad Request"
+                );
+            }
         }
 
         [Authorize(Roles = "CareChargesOfficer")]

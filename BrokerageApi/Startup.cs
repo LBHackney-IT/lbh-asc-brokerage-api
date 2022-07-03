@@ -244,6 +244,7 @@ namespace BrokerageApi
             services.AddTransient<IGetCarePackagesByServiceUserIdUseCase, GetCarePackagesByServiceUserIdUseCase>();
             services.AddTransient<ICancelCareChargeUseCase, CancelCareChargeUseCase>();
             services.AddTransient<ICancelElementUseCase, CancelElementUseCase>();
+            services.AddTransient<ISuspendCareChargeUseCase, SuspendCareChargeUseCase>();
             services.AddTransient<ISuspendElementUseCase, SuspendElementUseCase>();
             services.AddTransient<IEndCarePackageUseCase, EndCarePackageUseCase>();
             services.AddTransient<ICancelCarePackageUseCase, CancelCarePackageUseCase>();
