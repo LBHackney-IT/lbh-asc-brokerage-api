@@ -3,8 +3,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using BrokerageApi.V1.Gateways.Interfaces;
+using BrokerageApi.Tests.V1.Gateways.Helpers;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Controllers.Parameters;
+
 
 
 namespace BrokerageApi.V1.Gateways
@@ -37,7 +39,7 @@ namespace BrokerageApi.V1.Gateways
             {
                 return await _context.ServiceUsers
                     .Where(u => u.DateOfBirth == dateOfBirth)
-                    .Where(p => p.NameSearchVector.Matches(EF.Functions.ToTsQuery("simple", ProviderGateway.ParsedQuery(serviceUserName))))
+                    .Where(p => p.NameSearchVector.Matches(EF.Functions.ToTsQuery("simple", ParsingHelpers.ParsedQuery(serviceUserName))))
                     .ToListAsync();
             }
             else if (isValidDate)
@@ -49,7 +51,7 @@ namespace BrokerageApi.V1.Gateways
             else if (serviceUserName != null)
             {
                 return await _context.ServiceUsers
-                    .Where(p => p.NameSearchVector.Matches(EF.Functions.ToTsQuery("simple", ProviderGateway.ParsedQuery(serviceUserName))))
+                    .Where(p => p.NameSearchVector.Matches(EF.Functions.ToTsQuery("simple", ParsingHelpers.ParsedQuery(serviceUserName))))
                     .ToListAsync();
             }
             else
