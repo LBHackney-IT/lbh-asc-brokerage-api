@@ -89,7 +89,7 @@ namespace BrokerageApi.V1.Controllers
 
         [Authorize(Roles = "CareChargesOfficer")]
         [HttpPost]
-        [Route("{elementId}")]
+        [Route("confirm")]
         [ProducesResponseType(typeof(ElementResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
