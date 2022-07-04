@@ -37,7 +37,7 @@ namespace BrokerageApi.V1.Gateways
             {
                 return await _context.ServiceUsers
                     .Where(u => u.DateOfBirth == dateOfBirth)
-                    .Where(u => u.ServiceUserName.Contains(serviceUserName))
+                    .Where(p => p.NameSearchVector.Matches(EF.Functions.ToTsQuery("simple", ProviderGateway.ParsedQuery(serviceUserName))))
                     .ToListAsync();
             }
             else if (isValidDate)
@@ -49,7 +49,7 @@ namespace BrokerageApi.V1.Gateways
             else if (serviceUserName != null)
             {
                 return await _context.ServiceUsers
-                    .Where(u => u.ServiceUserName.Contains(serviceUserName))
+                    .Where(p => p.NameSearchVector.Matches(EF.Functions.ToTsQuery("simple", ProviderGateway.ParsedQuery(serviceUserName))))
                     .ToListAsync();
             }
             else

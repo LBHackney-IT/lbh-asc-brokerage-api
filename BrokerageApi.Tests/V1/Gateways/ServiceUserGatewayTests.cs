@@ -66,6 +66,32 @@ namespace BrokerageApi.Tests.V1.Gateways
             Assert.That(result, Has.Count.EqualTo(1));
             Assert.That(result, Contains.Item(anotherServiceUser));
         }
+
+        [Test]
+        public async Task GetsExpectedServiceUsersByPartialName()
+        {
+            // Arrange
+            var serviceUser = Fixture.BuildServiceUser().Create();
+            var anotherServiceUser = Fixture.BuildServiceUser()
+            .With(su => su.ServiceUserName, "Fake Person")
+            .Create();
+
+            await BrokerageContext.ServiceUsers.AddAsync(serviceUser);
+            await BrokerageContext.ServiceUsers.AddAsync(anotherServiceUser);
+            await BrokerageContext.SaveChangesAsync();
+
+            var request = Fixture.BuildServiceUserRequest(null)
+            .With(sur => sur.ServiceUserName, "ke Pers")
+            .Without(sur => sur.DateOfBirth)
+            .Create();
+            // Act
+            var result = await _classUnderTest.GetByRequestAsync(request);
+
+            // Assert
+            Assert.That(result, Has.Count.EqualTo(1));
+            Assert.That(result, Contains.Item(anotherServiceUser));
+        }
+
         [Test]
         public async Task GetsExpectedServiceUsersByDoB()
         {

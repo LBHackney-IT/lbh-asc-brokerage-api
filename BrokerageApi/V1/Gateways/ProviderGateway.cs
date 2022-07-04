@@ -33,7 +33,7 @@ namespace BrokerageApi.V1.Gateways
                 .SingleOrDefaultAsync(p => p.Id == id);
         }
 
-        private static string ParsedQuery(string query)
+        public static string ParsedQuery(string query)
         {
             var separators = new[] { " " };
             var options = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries;
