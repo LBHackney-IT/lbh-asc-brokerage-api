@@ -25,7 +25,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
         private Mock<ICancelElementUseCase> _mockEndElementUseCase;
         private MockDbSaver _mockDbSaver;
         private Mock<IClockService> _mockClock;
-        private Instant _currentInstance;
+        private Instant _currentInstant;
         private MockAuditGateway _mockAuditGateway;
         private Mock<IUserService> _mockUserService;
 
@@ -37,9 +37,9 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             _mockEndElementUseCase = new Mock<ICancelElementUseCase>();
             _mockDbSaver = new MockDbSaver();
             _mockClock = new Mock<IClockService>();
-            _currentInstance = SystemClock.Instance.GetCurrentInstant();
+            _currentInstant = SystemClock.Instance.GetCurrentInstant();
             _mockClock.Setup(x => x.Now)
-                .Returns(_currentInstance);
+                .Returns(_currentInstant);
             _mockAuditGateway = new MockAuditGateway();
             _mockUserService = new Mock<IUserService>();
 
@@ -78,7 +78,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
                 _mockEndElementUseCase.Verify(x => x.ExecuteAsync(referral.Id, element.Id, It.IsAny<string>()), Times.Once);
             }
             referral.Status.Should().Be(ReferralStatus.Cancelled);
-            referral.UpdatedAt.Should().Be(_currentInstance);
+            referral.UpdatedAt.Should().Be(_currentInstant);
             referral.Comment.Should().Be(expectedComment);
             _mockDbSaver.VerifyChangesSaved();
         }

@@ -28,7 +28,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
         private Fixture _fixture;
         private MockAuditGateway _mockAuditGateway;
         private Mock<IClockService> _mockClock;
-        private Instant _currentInstance;
+        private Instant _currentInstant;
 
         [SetUp]
         public void Setup()
@@ -41,9 +41,9 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             _mockDbSaver = new MockDbSaver();
             _mockAuditGateway = new MockAuditGateway();
             _mockClock = new Mock<IClockService>();
-            _currentInstance = SystemClock.Instance.GetCurrentInstant();
+            _currentInstant = SystemClock.Instance.GetCurrentInstant();
             _mockClock.Setup(x => x.Now)
-                .Returns(_currentInstance);
+                .Returns(_currentInstant);
 
             _classUnderTest = new RequestAmendmentToCarePackageUseCase(
                 _mockCarePackageGateway.Object,
@@ -75,7 +75,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             var amendment = referral.ReferralAmendments.Single();
             amendment.Status.Should().Be(AmendmentStatus.InProgress);
             amendment.Comment.Should().Be(expectedComment);
-            amendment.RequestedAt.Should().Be(_currentInstance);
+            amendment.RequestedAt.Should().Be(_currentInstant);
 
             _mockDbSaver.VerifyChangesSaved();
         }
