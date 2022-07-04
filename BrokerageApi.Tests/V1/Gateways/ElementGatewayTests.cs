@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -71,7 +70,7 @@ namespace BrokerageApi.Tests.V1.Gateways
 
             var provider = _fixture.BuildProvider().Create();
 
-            var newElement = _fixture.BuildElement(provider.Id, elementType.Id)
+            var newElement = _fixture.BuildElement(elementType.Id, provider.Id)
                 .Create();
 
             await BrokerageContext.Services.AddAsync(service);
@@ -96,7 +95,7 @@ namespace BrokerageApi.Tests.V1.Gateways
         {
             var (provider, service) = await SeedProviderAndService();
             var elementType = await SeedElementType(service.Id);
-            return _fixture.BuildElement(provider.Id, elementType.Id);
+            return _fixture.BuildElement(elementType.Id, provider.Id);
         }
     }
 }

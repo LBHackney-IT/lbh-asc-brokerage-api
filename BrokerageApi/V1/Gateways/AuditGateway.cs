@@ -60,6 +60,7 @@ namespace BrokerageApi.V1.Gateways
                 AuditEventType.CarePackageApproved => "Care Package Approved",
                 AuditEventType.ImportNote => "Import Note",
                 AuditEventType.AmendmentRequested => "Amendment Requested",
+                AuditEventType.CareChargesConfirmed => "Care Charges Confirmed",
                 _ => throw new ArgumentOutOfRangeException(nameof(auditEventType), auditEventType, null)
             };
         }

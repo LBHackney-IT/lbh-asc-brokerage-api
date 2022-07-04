@@ -46,7 +46,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var provider = _fixture.BuildProvider().Create();
             var service = _fixture.BuildService().Create();
             var elementType = _fixture.BuildElementType(service.Id).Create();
-            var existingElements = _fixture.BuildElement(provider.Id, elementType.Id)
+            var existingElements = _fixture.BuildElement(elementType.Id, provider.Id)
                 .With(e => e.InternalStatus, ElementStatus.Approved)
                 .CreateMany();
             var existingReferral = _fixture.BuildReferral(ReferralStatus.Approved)
@@ -717,11 +717,11 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 .With(et => et.CostType, ElementCostType.OneOff)
                 .Create();
 
-            var belowLimitElement = _fixture.BuildElement(provider.Id, elementType.Id)
+            var belowLimitElement = _fixture.BuildElement(elementType.Id, provider.Id)
                 .With(e => e.Cost, approvalLimit - 1)
                 .Create();
 
-            var aboveLimitElement = _fixture.BuildElement(provider.Id, elementType.Id)
+            var aboveLimitElement = _fixture.BuildElement(elementType.Id, provider.Id)
                 .With(e => e.Cost, approvalLimit + 1)
                 .Create();
 

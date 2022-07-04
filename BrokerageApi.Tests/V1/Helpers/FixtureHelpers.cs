@@ -3,7 +3,6 @@ using AutoFixture.AutoMoq;
 using AutoFixture.Dsl;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
-using FluentAssertions;
 using MicroElements.AutoFixture.NodaTime;
 
 namespace BrokerageApi.Tests.V1.Helpers
@@ -71,12 +70,13 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .With(ps => ps.ProviderId, providerId)
                 .With(ps => ps.ServiceId, serviceId);
         }
-        public static IPostprocessComposer<ElementType> BuildElementType(this IFixture fixture, int serviceId)
+        public static IPostprocessComposer<ElementType> BuildElementType(this IFixture fixture, int serviceId, ElementTypeType type = ElementTypeType.Service)
         {
             return fixture.Build<ElementType>()
                 .Without(et => et.Service)
                 .Without(et => et.Elements)
                 .With(et => et.ServiceId, serviceId)
+                .With(et => et.Type, type)
                 .With(et => et.IsArchived, false);
         }
         public static IPostprocessComposer<Referral> BuildReferral(this IFixture fixture, ReferralStatus? status = null)
@@ -98,7 +98,7 @@ namespace BrokerageApi.Tests.V1.Helpers
 
             return builder;
         }
-        public static IPostprocessComposer<Element> BuildElement(this IFixture fixture, int providerId, int elementTypeId)
+        public static IPostprocessComposer<Element> BuildElement(this IFixture fixture, int elementTypeId, int? providerId = null)
         {
             return fixture.Build<Element>()
                 .Without(e => e.CarePackages)

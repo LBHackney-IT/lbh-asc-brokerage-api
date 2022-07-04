@@ -179,7 +179,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             var (referral, element) = CreateReferralAndElement(
                 ElementStatus.Approved,
                 baseDate.PlusDays(elementStartOffset),
-                elementEndOffset is null ? (LocalDate?) null : baseDate.PlusDays(elementEndOffset.Value));
+                elementEndOffset is null ? null : baseDate.PlusDays(elementEndOffset.Value));
 
             Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, startDate, endDate, null);
 

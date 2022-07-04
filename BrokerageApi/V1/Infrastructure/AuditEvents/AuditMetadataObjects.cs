@@ -27,4 +27,8 @@ namespace BrokerageApi.V1.Infrastructure.AuditEvents
     {
         public int ReferralId { get; set; }
     }
+    public class CareChargesConfirmedAuditEventMetadata : AuditMetadataBase
+    {
+        public int ReferralId { get; set; }
+    }
 }

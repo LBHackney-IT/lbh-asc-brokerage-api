@@ -2,7 +2,6 @@ using AutoFixture;
 using System.Threading.Tasks;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Gateways.Interfaces;
-using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.UseCase;
 using FluentAssertions;
 using Moq;

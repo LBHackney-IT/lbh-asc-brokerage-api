@@ -13,6 +13,7 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
         private readonly IUserService _userService;
         private readonly IDbSaver _dbSaver;
         private readonly IClockService _clockService;
+
         public DeleteElementUseCase(IReferralGateway referralGateway,
             IUserService userService,
             IDbSaver dbSaver,

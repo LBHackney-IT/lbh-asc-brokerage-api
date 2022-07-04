@@ -7,7 +7,6 @@ using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.Tests.V1.UseCase.Mocks;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
-using BrokerageApi.V1.Infrastructure.AuditEvents;
 using BrokerageApi.V1.Services;
 using BrokerageApi.V1.Services.Interfaces;
 using BrokerageApi.V1.UseCase.CarePackageElements;
@@ -81,7 +80,6 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             var (referral, element) = CreateReferralAndElement(ElementStatus.Approved, endDate.PlusDays(5));
             var elementEndDate = element.EndDate;
             var elementUpdatedAt = element.UpdatedAt;
-            var elementComment = element.Comment;
 
             await _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate);
 
@@ -90,6 +88,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             var referralElement = element.ReferralElements.Single(re => re.ElementId == element.Id);
             referralElement.PendingEndDate.Should().Be(endDate);
+
             _dbSaver.VerifyChangesSaved();
         }
 
@@ -104,10 +103,11 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             _mockElementGateway.Setup(x => x.GetByIdAsync(unknownElementId))
                 .ReturnsAsync((Element) null);
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(unknownReferralId, unknownElementId, endDate);
+            var act = () => _classUnderTest.ExecuteAsync(unknownReferralId, unknownElementId, endDate);
 
             await act.Should().ThrowAsync<ArgumentNullException>()
                 .WithMessage($"Referral not found {unknownReferralId} (Parameter 'referralId')");
+
             _dbSaver.VerifyChangesNotSaved();
         }
 
@@ -120,10 +120,11 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             _mockElementGateway.Setup(x => x.GetByIdAsync(unknownElementId))
                 .ReturnsAsync((Element) null);
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, unknownElementId, endDate);
+            var act = () => _classUnderTest.ExecuteAsync(referral.Id, unknownElementId, endDate);
 
             await act.Should().ThrowAsync<ArgumentNullException>()
                 .WithMessage($"Element not found {unknownElementId} (Parameter 'elementId')");
+
             _dbSaver.VerifyChangesNotSaved();
         }
 
@@ -133,12 +134,13 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             var endDate = LocalDate.FromDateTime(DateTime.Today);
             var (referral, element) = CreateReferralAndElement(status);
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate);
+            var act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate);
 
             if (status != ElementStatus.Approved)
             {
                 await act.Should().ThrowAsync<InvalidOperationException>()
                     .WithMessage($"Element {element.Id} is not approved");
+
                 _dbSaver.VerifyChangesNotSaved();
             }
         }
@@ -149,10 +151,11 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             var endDate = LocalDate.FromDateTime(DateTime.Today);
             var (referral, element) = CreateReferralAndElement(ElementStatus.Approved, endDate.PlusDays(-5));
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate);
+            var act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, endDate);
 
             await act.Should().ThrowAsync<ArgumentException>()
                 .WithMessage($"Element {element.Id} has an end date before the requested end date");
+
             _dbSaver.VerifyChangesNotSaved();
         }
 

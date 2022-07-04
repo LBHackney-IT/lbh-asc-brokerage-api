@@ -13,9 +13,11 @@ using BrokerageApi.V1.Services;
 using BrokerageApi.V1.Services.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.UseCase;
+using BrokerageApi.V1.UseCase.CarePackageCareCharges;
 using BrokerageApi.V1.UseCase.CarePackageElements;
 using BrokerageApi.V1.UseCase.CarePackages;
 using BrokerageApi.V1.UseCase.Interfaces;
+using BrokerageApi.V1.UseCase.Interfaces.CarePackageCareCharges;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackageElements;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackages;
 using BrokerageApi.Versioning;
@@ -48,7 +50,7 @@ namespace BrokerageApi
             AWSSDKHandler.RegisterXRayForAllServices();
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
         private static List<ApiVersionDescription> ApiVersions { get; set; }
         private const string ApiName = "ASC Brokerage";
 
@@ -120,10 +122,10 @@ namespace BrokerageApi
                     });
                 }
 
-                c.MapType<NodaTime.Instant>(() => new OpenApiSchema { Type = "string", Format = "date-time" });
-                c.MapType<NodaTime.Instant?>(() => new OpenApiSchema { Type = "string", Format = "date-time", Nullable = true });
-                c.MapType<NodaTime.LocalDate>(() => new OpenApiSchema { Type = "string", Format = "date" });
-                c.MapType<NodaTime.LocalDate?>(() => new OpenApiSchema { Type = "string", Format = "date", Nullable = true });
+                c.MapType<Instant>(() => new OpenApiSchema { Type = "string", Format = "date-time" });
+                c.MapType<Instant?>(() => new OpenApiSchema { Type = "string", Format = "date-time", Nullable = true });
+                c.MapType<LocalDate>(() => new OpenApiSchema { Type = "string", Format = "date" });
+                c.MapType<LocalDate?>(() => new OpenApiSchema { Type = "string", Format = "date", Nullable = true });
 
                 c.CustomSchemaIds(x => x.Name);
 
@@ -149,10 +151,7 @@ namespace BrokerageApi
                         ValidateAudience = false,
                         RequireAudience = false,
                         RequireExpirationTime = false,
-                        SignatureValidator = delegate (string token, TokenValidationParameters parameters)
-                        {
-                            return new JwtSecurityToken(token);
-                        }
+                        SignatureValidator = (token, _) => new JwtSecurityToken(token)
                     };
                 });
 
@@ -219,6 +218,8 @@ namespace BrokerageApi
 
         private static void RegisterUseCases(IServiceCollection services)
         {
+            services.AddTransient<IConfirmCareChargesUseCase, ConfirmCareChargesUseCase>();
+            services.AddTransient<ICreateCareChargeUseCase, CreateCareChargeUseCase>();
             services.AddTransient<ICreateElementUseCase, CreateElementUseCase>();
             services.AddTransient<ICreateReferralUseCase, CreateReferralUseCase>();
             services.AddTransient<IFindProvidersByServiceIdUseCase, FindProvidersByServiceIdUseCase>();
@@ -235,16 +236,21 @@ namespace BrokerageApi
             services.AddTransient<IStartCarePackageUseCase, StartCarePackageUseCase>();
             services.AddTransient<IGetCarePackageByIdUseCase, GetCarePackageByIdUseCase>();
             services.AddTransient<IGetCarePackagesByServiceUserIdUseCase, GetCarePackagesByServiceUserIdUseCase>();
+            services.AddTransient<IDeleteCareChargeUseCase, DeleteCareChargeUseCase>();
             services.AddTransient<IDeleteElementUseCase, DeleteElementUseCase>();
             services.AddTransient<IGetServiceUserAuditEventsUseCase, GetServiceUserAuditEventsUseCase>();
+            services.AddTransient<IEndCareChargeUseCase, EndCareChargeUseCase>();
             services.AddTransient<IEndElementUseCase, EndElementUseCase>();
             services.AddTransient<IGetServiceOverviewUseCase, GetServiceOverviewUseCase>();
             services.AddTransient<IGetCarePackagesByServiceUserIdUseCase, GetCarePackagesByServiceUserIdUseCase>();
+            services.AddTransient<ICancelCareChargeUseCase, CancelCareChargeUseCase>();
             services.AddTransient<ICancelElementUseCase, CancelElementUseCase>();
+            services.AddTransient<ISuspendCareChargeUseCase, SuspendCareChargeUseCase>();
             services.AddTransient<ISuspendElementUseCase, SuspendElementUseCase>();
             services.AddTransient<IEndCarePackageUseCase, EndCarePackageUseCase>();
             services.AddTransient<ICancelCarePackageUseCase, CancelCarePackageUseCase>();
             services.AddTransient<ISuspendCarePackageUseCase, SuspendCarePackageUseCase>();
+            services.AddTransient<IEditCareChargeUseCase, EditCareChargeUseCase>();
             services.AddTransient<IEditElementUseCase, EditElementUseCase>();
             services.AddTransient<IArchiveReferralUseCase, ArchiveReferralUseCase>();
             services.AddTransient<IGetCurrentUserUseCase, GetCurrentUserUseCase>();
@@ -253,6 +259,7 @@ namespace BrokerageApi
             services.AddTransient<IGetBudgetApprovalsUseCase, GetBudgetApprovalsUseCase>();
             services.AddTransient<IApproveCarePackageUseCase, ApproveCarePackageUseCase>();
             services.AddTransient<IRequestAmendmentToCarePackageUseCase, RequestAmendmentToCarePackageUseCase>();
+            services.AddTransient<IResetCareChargeUseCase, ResetCareChargeUseCase>();
             services.AddTransient<IResetElementUseCase, ResetElementUseCase>();
         }
 
@@ -274,7 +281,7 @@ namespace BrokerageApi
 
             // Get All ApiVersions,
             var api = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();
-            ApiVersions = api.ApiVersionDescriptions.ToList();
+            ApiVersions = api?.ApiVersionDescriptions.ToList() ?? new List<ApiVersionDescription>();
 
             // Swagger ui to view the swagger.json file
             app.UseSwaggerUI(c =>

@@ -65,5 +65,43 @@ namespace BrokerageApi.V1.Factories
 
             return existingElement;
         }
+
+        public static Element ToDatabase(this CreateCareChargeRequest request)
+        {
+            return new Element
+            {
+                ElementTypeId = request.ElementTypeId,
+                ParentElementId = request.ParentElementId,
+                StartDate = request.StartDate,
+                EndDate = request.EndDate,
+                Monday = request.Monday,
+                Tuesday = request.Tuesday,
+                Wednesday = request.Wednesday,
+                Thursday = request.Thursday,
+                Friday = request.Friday,
+                Saturday = request.Saturday,
+                Sunday = request.Sunday,
+                Quantity = request.Quantity,
+                Cost = request.Cost
+            };
+        }
+
+        public static Element ToDatabase(this EditCareChargeRequest request, Element existingElement)
+        {
+            existingElement.ElementTypeId = request.ElementTypeId;
+            existingElement.StartDate = request.StartDate;
+            existingElement.EndDate = request.EndDate;
+            existingElement.Monday = request.Monday;
+            existingElement.Tuesday = request.Tuesday;
+            existingElement.Wednesday = request.Wednesday;
+            existingElement.Thursday = request.Thursday;
+            existingElement.Friday = request.Friday;
+            existingElement.Saturday = request.Saturday;
+            existingElement.Sunday = request.Sunday;
+            existingElement.Quantity = request.Quantity;
+            existingElement.Cost = request.Cost;
+
+            return existingElement;
+        }
     }
 }
