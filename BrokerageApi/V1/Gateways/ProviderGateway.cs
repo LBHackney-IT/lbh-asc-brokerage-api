@@ -17,14 +17,20 @@ namespace BrokerageApi.V1.Gateways
             _context = context;
         }
 
-        public async Task<IEnumerable<Provider>> FindByServiceIdAsync(int serviceId, string query)
+        public async Task<IEnumerable<Provider>> FindAsync(string query)
         {
-            return await _context.Providers
-                .Where(p => p.IsArchived == false)
-                .Where(p => p.Services.Any(s => s.Id == serviceId))
-                .Where(p => p.SearchVector.Matches(EF.Functions.ToTsQuery("simple", ParsedQuery(query))))
-                .OrderBy(p => p.Name)
-                .ToListAsync();
+            if (String.IsNullOrWhiteSpace(query))
+            {
+                return new List<Provider>();
+            }
+            else
+            {
+                return await _context.Providers
+                    .Where(p => p.IsArchived == false)
+                    .Where(p => p.SearchVector.Matches(EF.Functions.ToTsQuery("simple", ParsedQuery(query))))
+                    .OrderBy(p => p.Name)
+                    .ToListAsync();
+            }
         }
 
         public async Task<Provider> GetByIdAsync(int id)

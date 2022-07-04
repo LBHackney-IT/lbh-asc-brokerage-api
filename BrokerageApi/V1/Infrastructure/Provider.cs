@@ -25,10 +25,6 @@ namespace BrokerageApi.V1.Infrastructure
 
         public NpgsqlTsVector SearchVector { get; set; }
 
-        public List<ProviderService> ProviderServices { get; set; }
-
-        public List<Service> Services { get; set; }
-
         public List<Element> Elements { get; set; }
     }
 }

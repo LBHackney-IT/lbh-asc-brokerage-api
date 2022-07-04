@@ -17,16 +17,9 @@ namespace BrokerageApi.Tests.V1.Gateways
         }
 
         [Test]
-        public async Task FindsProvidersByServiceAndName()
+        public async Task FindsProvidersByName()
         {
             // Arrange
-            var service = new Service()
-            {
-                Id = 1,
-                Name = "Shared Lives",
-                Position = 1
-            };
-
             var provider = new Provider()
             {
                 Id = 1,
@@ -35,20 +28,11 @@ namespace BrokerageApi.Tests.V1.Gateways
                 Type = ProviderType.Framework
             };
 
-            var providerService = new ProviderService()
-            {
-                ProviderId = 1,
-                ServiceId = 1,
-                SubjectiveCode = "599999"
-            };
-
-            await BrokerageContext.Services.AddAsync(service);
             await BrokerageContext.Providers.AddAsync(provider);
-            await BrokerageContext.ProviderServices.AddAsync(providerService);
             await BrokerageContext.SaveChangesAsync();
 
             // Act
-            var result = await _classUnderTest.FindByServiceIdAsync(service.Id, "Acme");
+            var result = await _classUnderTest.FindAsync("Acme");
 
             // Assert
             Assert.That(result, Has.Count.EqualTo(1));
@@ -56,16 +40,9 @@ namespace BrokerageApi.Tests.V1.Gateways
         }
 
         [Test]
-        public async Task FindsProvidersByServiceAndAddress()
+        public async Task FindsProvidersByAddress()
         {
             // Arrange
-            var service = new Service()
-            {
-                Id = 1,
-                Name = "Shared Lives",
-                Position = 1
-            };
-
             var provider = new Provider()
             {
                 Id = 1,
@@ -74,20 +51,11 @@ namespace BrokerageApi.Tests.V1.Gateways
                 Type = ProviderType.Framework
             };
 
-            var providerService = new ProviderService()
-            {
-                ProviderId = 1,
-                ServiceId = 1,
-                SubjectiveCode = "599999"
-            };
-
-            await BrokerageContext.Services.AddAsync(service);
             await BrokerageContext.Providers.AddAsync(provider);
-            await BrokerageContext.ProviderServices.AddAsync(providerService);
             await BrokerageContext.SaveChangesAsync();
 
             // Act
-            var result = await _classUnderTest.FindByServiceIdAsync(service.Id, "Knowhere");
+            var result = await _classUnderTest.FindAsync("Knowhere");
 
             // Assert
             Assert.That(result, Has.Count.EqualTo(1));
@@ -95,16 +63,9 @@ namespace BrokerageApi.Tests.V1.Gateways
         }
 
         [Test]
-        public async Task FindsProvidersByServiceNameAndAddress()
+        public async Task FindsProvidersByNameAndAddress()
         {
             // Arrange
-            var service = new Service()
-            {
-                Id = 1,
-                Name = "Shared Lives",
-                Position = 1
-            };
-
             var provider = new Provider()
             {
                 Id = 1,
@@ -113,20 +74,11 @@ namespace BrokerageApi.Tests.V1.Gateways
                 Type = ProviderType.Framework
             };
 
-            var providerService = new ProviderService()
-            {
-                ProviderId = 1,
-                ServiceId = 1,
-                SubjectiveCode = "599999"
-            };
-
-            await BrokerageContext.Services.AddAsync(service);
             await BrokerageContext.Providers.AddAsync(provider);
-            await BrokerageContext.ProviderServices.AddAsync(providerService);
             await BrokerageContext.SaveChangesAsync();
 
             // Act
-            var result = await _classUnderTest.FindByServiceIdAsync(service.Id, "Acme Knowhere");
+            var result = await _classUnderTest.FindAsync("Acme Knowhere");
 
             // Assert
             Assert.That(result, Has.Count.EqualTo(1));
@@ -137,13 +89,6 @@ namespace BrokerageApi.Tests.V1.Gateways
         public async Task FindsProvidersByPartialName()
         {
             // Arrange
-            var service = new Service()
-            {
-                Id = 1,
-                Name = "Home Care",
-                Position = 1
-            };
-
             var provider = new Provider()
             {
                 Id = 1,
@@ -152,20 +97,11 @@ namespace BrokerageApi.Tests.V1.Gateways
                 Type = ProviderType.Framework
             };
 
-            var providerService = new ProviderService()
-            {
-                ProviderId = 1,
-                ServiceId = 1,
-                SubjectiveCode = "599999"
-            };
-
-            await BrokerageContext.Services.AddAsync(service);
             await BrokerageContext.Providers.AddAsync(provider);
-            await BrokerageContext.ProviderServices.AddAsync(providerService);
             await BrokerageContext.SaveChangesAsync();
 
             // Act
-            var result = await _classUnderTest.FindByServiceIdAsync(service.Id, "hart care");
+            var result = await _classUnderTest.FindAsync("hart care");
 
             // Assert
             Assert.That(result, Has.Count.EqualTo(1));
@@ -176,13 +112,6 @@ namespace BrokerageApi.Tests.V1.Gateways
         public async Task DoesNotFindArchivedProviders()
         {
             // Arrange
-            var service = new Service()
-            {
-                Id = 1,
-                Name = "Shared Lives",
-                Position = 1
-            };
-
             var provider = new Provider()
             {
                 Id = 1,
@@ -192,20 +121,11 @@ namespace BrokerageApi.Tests.V1.Gateways
                 IsArchived = true
             };
 
-            var providerService = new ProviderService()
-            {
-                ProviderId = 1,
-                ServiceId = 1,
-                SubjectiveCode = "599999"
-            };
-
-            await BrokerageContext.Services.AddAsync(service);
             await BrokerageContext.Providers.AddAsync(provider);
-            await BrokerageContext.ProviderServices.AddAsync(providerService);
             await BrokerageContext.SaveChangesAsync();
 
             // Act
-            var result = await _classUnderTest.FindByServiceIdAsync(service.Id, "Acme");
+            var result = await _classUnderTest.FindAsync("Acme");
 
             // Assert
             Assert.That(result, Has.Count.EqualTo(0));
@@ -215,13 +135,6 @@ namespace BrokerageApi.Tests.V1.Gateways
         public async Task DoesNotFindProvidersWithOtherName()
         {
             // Arrange
-            var service = new Service()
-            {
-                Id = 1,
-                Name = "Shared Lives",
-                Position = 1,
-            };
-
             var provider = new Provider()
             {
                 Id = 1,
@@ -230,67 +143,77 @@ namespace BrokerageApi.Tests.V1.Gateways
                 Type = ProviderType.Framework
             };
 
-            var providerService = new ProviderService()
-            {
-                ProviderId = 1,
-                ServiceId = 1,
-                SubjectiveCode = "599999"
-            };
-
-            await BrokerageContext.Services.AddAsync(service);
             await BrokerageContext.Providers.AddAsync(provider);
-            await BrokerageContext.ProviderServices.AddAsync(providerService);
             await BrokerageContext.SaveChangesAsync();
 
             // Act
-            var result = await _classUnderTest.FindByServiceIdAsync(service.Id, "FooBar");
+            var result = await _classUnderTest.FindAsync("FooBar");
 
             // Assert
             Assert.That(result, Has.Count.EqualTo(0));
         }
 
         [Test]
-        public async Task DoesNotFindProvidersForOtherServices()
+        public async Task ReturnsEmptyListIfNullQuery()
         {
             // Arrange
-            var service = new Service()
-            {
-                Id = 1,
-                Name = "Shared Lives",
-                Position = 1,
-            };
-
-            var otherService = new Service()
-            {
-                Id = 2,
-                Name = "Supported Living",
-                Position = 2,
-            };
-
             var provider = new Provider()
             {
                 Id = 1,
                 Name = "Acme Homes",
                 Address = "1 Knowhere Road",
-                Type = ProviderType.Framework,
-                IsArchived = true
+                Type = ProviderType.Framework
             };
 
-            var providerService = new ProviderService()
-            {
-                ProviderId = 1,
-                ServiceId = 2,
-                SubjectiveCode = "599999"
-            };
-
-            await BrokerageContext.Services.AddAsync(service);
-            await BrokerageContext.Services.AddAsync(otherService);
             await BrokerageContext.Providers.AddAsync(provider);
-            await BrokerageContext.ProviderServices.AddAsync(providerService);
             await BrokerageContext.SaveChangesAsync();
 
             // Act
-            var result = await _classUnderTest.FindByServiceIdAsync(service.Id, "Acme");
+            var result = await _classUnderTest.FindAsync(null);
+
+            // Assert
+            Assert.That(result, Has.Count.EqualTo(0));
+        }
+
+        [Test]
+        public async Task ReturnsEmptyListIfEmptyQuery()
+        {
+            // Arrange
+            var provider = new Provider()
+            {
+                Id = 1,
+                Name = "Acme Homes",
+                Address = "1 Knowhere Road",
+                Type = ProviderType.Framework
+            };
+
+            await BrokerageContext.Providers.AddAsync(provider);
+            await BrokerageContext.SaveChangesAsync();
+
+            // Act
+            var result = await _classUnderTest.FindAsync("");
+
+            // Assert
+            Assert.That(result, Has.Count.EqualTo(0));
+        }
+
+        [Test]
+        public async Task ReturnsEmptyListIfWhitespaceQuery()
+        {
+            // Arrange
+            var provider = new Provider()
+            {
+                Id = 1,
+                Name = "Acme Homes",
+                Address = "1 Knowhere Road",
+                Type = ProviderType.Framework
+            };
+
+            await BrokerageContext.Providers.AddAsync(provider);
+            await BrokerageContext.SaveChangesAsync();
+
+            // Act
+            var result = await _classUnderTest.FindAsync("  ");
 
             // Assert
             Assert.That(result, Has.Count.EqualTo(0));
