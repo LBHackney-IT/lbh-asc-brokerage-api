@@ -26,6 +26,53 @@ namespace BrokerageApi.Tests.V1.E2ETests
         }
 
         [Test, Property("AsUser", "CareChargesOfficer")]
+        public async Task CanConfirmCareCharges()
+        {
+            // Arrange
+            var service = _fixture.BuildService()
+                .Create();
+
+            var elementType = _fixture.BuildElementType(service.Id, ElementTypeType.ConfirmedCareCharge)
+                .Create();
+
+            var element = _fixture.BuildElement(elementType.Id)
+                .With(e => e.CreatedAt, PreviousInstant)
+                .With(e => e.UpdatedAt, PreviousInstant)
+                .Create();
+
+            var referral = _fixture.BuildReferral(ReferralStatus.Approved)
+                .Without(r => r.CareChargesConfirmedAt)
+                .With(r => r.CreatedAt, PreviousInstant)
+                .With(r => r.UpdatedAt, PreviousInstant)
+                .With(r => r.Elements, new List<Element> { element })
+                .Create();
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.Services.AddAsync(service);
+            await Context.ElementTypes.AddAsync(elementType);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            // Act
+            var code = await Post($"/api/v1/referrals/{referral.Id}/care-package/care-charges/confirm", null);
+
+            // Assert
+            code.Should().Be(HttpStatusCode.OK);
+
+            var resultReferral = await Context.Referrals.SingleAsync(r => r.Id == referral.Id);
+            resultReferral.Status.Should().Be(ReferralStatus.Approved);
+            resultReferral.CareChargesConfirmedAt.Should().BeEquivalentTo(CurrentInstant);
+            resultReferral.CreatedAt.Should().BeEquivalentTo(PreviousInstant);
+            resultReferral.UpdatedAt.Should().BeEquivalentTo(CurrentInstant);
+
+            var resultElement = await Context.Elements.SingleAsync(e => e.Id == element.Id);
+            resultElement.InternalStatus.Should().Be(ElementStatus.Approved);
+            resultElement.CreatedAt.Should().BeEquivalentTo(PreviousInstant);
+            resultElement.UpdatedAt.Should().BeEquivalentTo(CurrentInstant);
+        }
+
+        [Test, Property("AsUser", "CareChargesOfficer")]
         public async Task CanCreateCareCharge()
         {
             // Arrange

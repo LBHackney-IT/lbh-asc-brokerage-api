@@ -17,6 +17,7 @@ namespace BrokerageApi.V1.Controllers
     [ApiVersion("1.0")]
     public class CarePackageCareChargesController : BaseController
     {
+        private readonly IConfirmCareChargesUseCase _confirmCareChargesUseCase;
         private readonly ICreateCareChargeUseCase _createCareChargeUseCase;
         private readonly IDeleteCareChargeUseCase _deleteCareChargeUseCase;
         private readonly IEndCareChargeUseCase _endCareChargeUseCase;
@@ -25,7 +26,9 @@ namespace BrokerageApi.V1.Controllers
         private readonly IEditCareChargeUseCase _editCareChargeUseCase;
         private readonly IResetCareChargeUseCase _resetCareChargeUseCase;
 
-        public CarePackageCareChargesController(ICreateCareChargeUseCase createCareChargeUseCase,
+        public CarePackageCareChargesController(
+            IConfirmCareChargesUseCase confirmCareChargesUseCase,
+            ICreateCareChargeUseCase createCareChargeUseCase,
             IDeleteCareChargeUseCase deleteCareChargeUseCase,
             IEndCareChargeUseCase endCareChargeUseCase,
             ICancelCareChargeUseCase cancelCareChargeUseCase,
@@ -33,6 +36,7 @@ namespace BrokerageApi.V1.Controllers
             IEditCareChargeUseCase editCareChargeUseCase,
             IResetCareChargeUseCase resetCareChargeUseCase)
         {
+            _confirmCareChargesUseCase = confirmCareChargesUseCase;
             _createCareChargeUseCase = createCareChargeUseCase;
             _deleteCareChargeUseCase = deleteCareChargeUseCase;
             _endCareChargeUseCase = endCareChargeUseCase;
@@ -81,6 +85,39 @@ namespace BrokerageApi.V1.Controllers
                     StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }
+        }
+
+        [Authorize(Roles = "CareChargesOfficer")]
+        [HttpPost]
+        [Route("{elementId}")]
+        [ProducesResponseType(typeof(ElementResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ConfirmCareCharges([FromRoute] int referralId)
+        {
+            try
+            {
+                await _confirmCareChargesUseCase.ExecuteAsync(referralId);
+            }
+            catch (ArgumentNullException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"/api/v1/referrals/{referralId}/care-package/care-charges/confirm",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (InvalidOperationException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"/api/v1/referrals/{referralId}/care-package/care-charges/confirm",
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
+                );
+            }
+            return Ok();
         }
 
         [Authorize(Roles = "CareChargesOfficer")]

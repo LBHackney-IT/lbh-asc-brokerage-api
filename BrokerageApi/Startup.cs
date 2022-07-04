@@ -218,6 +218,7 @@ namespace BrokerageApi
 
         private static void RegisterUseCases(IServiceCollection services)
         {
+            services.AddTransient<IConfirmCareChargesUseCase, ConfirmCareChargesUseCase>();
             services.AddTransient<ICreateCareChargeUseCase, CreateCareChargeUseCase>();
             services.AddTransient<ICreateElementUseCase, CreateElementUseCase>();
             services.AddTransient<ICreateReferralUseCase, CreateReferralUseCase>();

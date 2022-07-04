@@ -181,6 +181,7 @@ namespace BrokerageApi.Tests.V1.Factories
             response.Note.Should().Be(referral.Note);
             response.Comment.Should().Be(referral.Comment);
             response.StartedAt.Should().Be(referral.StartedAt);
+            response.CareChargesConfirmedAt.Should().Be(referral.CareChargesConfirmedAt);
             response.CreatedAt.Should().Be(referral.CreatedAt);
             response.UpdatedAt.Should().Be(referral.UpdatedAt);
             response.AssignedBroker.Should().BeEquivalentTo(referral.AssignedBroker?.ToResponse());
@@ -216,6 +217,7 @@ namespace BrokerageApi.Tests.V1.Factories
             response.Status.Should().Be(carePackage.Status);
             response.Note.Should().Be(carePackage.Note);
             response.StartedAt.Should().Be(carePackage.StartedAt);
+            response.CareChargesConfirmedAt.Should().Be(carePackage.CareChargesConfirmedAt);
             response.CreatedAt.Should().Be(carePackage.CreatedAt);
             response.UpdatedAt.Should().Be(carePackage.UpdatedAt);
             response.StartDate.Should().Be(carePackage.StartDate);

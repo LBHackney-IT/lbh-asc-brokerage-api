@@ -44,6 +44,8 @@ namespace BrokerageApi.V1.Infrastructure
 
         public Instant? StartedAt { get; set; }
 
+        public Instant? CareChargesConfirmedAt { get; set; }
+
         public Instant CreatedAt { get; set; }
 
         public Instant UpdatedAt { get; set; }

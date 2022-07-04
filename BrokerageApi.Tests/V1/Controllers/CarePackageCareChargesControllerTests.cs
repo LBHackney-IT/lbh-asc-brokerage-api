@@ -22,6 +22,7 @@ namespace BrokerageApi.Tests.V1.Controllers
     public class CarePackageCareChargesControllerTests : ControllerTests
     {
         private Fixture _fixture;
+        private Mock<IConfirmCareChargesUseCase> _mockConfirmCareChargesUseCase;
         private Mock<ICreateCareChargeUseCase> _mockCreateCareChargeUseCase;
         private Mock<IDeleteCareChargeUseCase> _mockDeleteCareChargeUseCase;
         private Mock<IEndCareChargeUseCase> _mockEndCareChargeUseCase;
@@ -36,6 +37,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         public void SetUp()
         {
             _fixture = FixtureHelpers.Fixture;
+            _mockConfirmCareChargesUseCase = new Mock<IConfirmCareChargesUseCase>();
             _mockCreateCareChargeUseCase = new Mock<ICreateCareChargeUseCase>();
             _mockDeleteCareChargeUseCase = new Mock<IDeleteCareChargeUseCase>();
             _mockEndCareChargeUseCase = new Mock<IEndCareChargeUseCase>();
@@ -44,7 +46,9 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockEditCareChargeUseCase = new Mock<IEditCareChargeUseCase>();
             _mockResetCareChargeUseCase = new Mock<IResetCareChargeUseCase>();
 
-            _classUnderTest = new CarePackageCareChargesController(_mockCreateCareChargeUseCase.Object,
+            _classUnderTest = new CarePackageCareChargesController(
+                _mockConfirmCareChargesUseCase.Object,
+                _mockCreateCareChargeUseCase.Object,
                 _mockDeleteCareChargeUseCase.Object,
                 _mockEndCareChargeUseCase.Object,
                 _mockCancelCareChargeUseCase.Object,
@@ -297,6 +301,48 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ThrowsAsync(exception);
 
             var response = await _classUnderTest.ResetCareCharge(referralId, elementId);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
+
+            statusCode.Should().Be((int) expectedStatusCode);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
+        }
+
+
+        [Test, Property("AsUser", "CareChargesOfficer")]
+        public async Task ConfirmsCareCharges()
+        {
+            const int referralId = 1234;
+
+            var response = await _classUnderTest.ConfirmCareCharges(referralId);
+            var statusCode = GetStatusCode(response);
+
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            _mockConfirmCareChargesUseCase.Verify(x => x.ExecuteAsync(referralId));
+        }
+
+        private static readonly object[] _confirmCareChargesErrorList =
+        {
+            new object[]
+            {
+                new ArgumentNullException(null, "message"), HttpStatusCode.NotFound
+            },
+            new object[]
+            {
+                new InvalidOperationException("message"), HttpStatusCode.UnprocessableEntity
+            }
+        };
+
+        [TestCaseSource(nameof(_confirmCareChargesErrorList)), Property("AsUser", "CareChargesOfficer")]
+        public async Task ConfirmCareChargesMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            const int referralId = 1234;
+            _mockConfirmCareChargesUseCase
+                .Setup(x => x.ExecuteAsync(referralId))
+                .ThrowsAsync(exception);
+
+            var response = await _classUnderTest.ConfirmCareCharges(referralId);
             var statusCode = GetStatusCode(response);
             var result = GetResultData<ProblemDetails>(response);
 
