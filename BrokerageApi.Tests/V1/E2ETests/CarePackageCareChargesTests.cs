@@ -70,6 +70,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
             resultElement.InternalStatus.Should().Be(ElementStatus.Approved);
             resultElement.CreatedAt.Should().BeEquivalentTo(PreviousInstant);
             resultElement.UpdatedAt.Should().BeEquivalentTo(CurrentInstant);
+
+            Context.AuditEvents.Should().ContainSingle(ae => ae.EventType == AuditEventType.CareChargesConfirmed);
         }
 
         [Test, Property("AsUser", "CareChargesOfficer")]

@@ -2,9 +2,9 @@ using System;
 using System.Threading.Tasks;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
+using BrokerageApi.V1.Infrastructure.AuditEvents;
 using BrokerageApi.V1.Services.Interfaces;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackageCareCharges;
-using NodaTime;
 
 namespace BrokerageApi.V1.UseCase.CarePackageCareCharges
 {
@@ -12,16 +12,23 @@ namespace BrokerageApi.V1.UseCase.CarePackageCareCharges
     {
         private readonly IReferralGateway _referralGateway;
         private readonly IClockService _clock;
+        private readonly IUserService _userService;
         private readonly IDbSaver _dbSaver;
+        private readonly IAuditGateway _auditGateway;
 
         public ConfirmCareChargesUseCase(
             IReferralGateway referralGateway,
             IClockService clockService,
-            IDbSaver dbSaver)
+            IUserService userService,
+            IDbSaver dbSaver,
+            IAuditGateway auditGateway
+        )
         {
             _referralGateway = referralGateway;
             _clock = clockService;
+            _userService = userService;
             _dbSaver = dbSaver;
+            _auditGateway = auditGateway;
         }
 
         public async Task ExecuteAsync(int referralId)
@@ -61,6 +68,13 @@ namespace BrokerageApi.V1.UseCase.CarePackageCareCharges
             referral.UpdatedAt = timeNow;
 
             await _dbSaver.SaveChangesAsync();
+
+            var metadata = new CareChargesConfirmedAuditEventMetadata
+            {
+                ReferralId = referral.Id,
+            };
+
+            await _auditGateway.AddAuditEvent(AuditEventType.CareChargesConfirmed, referral.SocialCareId, _userService.UserId, metadata);
         }
 
         private static bool IsInProgressCareCharge(Element element)

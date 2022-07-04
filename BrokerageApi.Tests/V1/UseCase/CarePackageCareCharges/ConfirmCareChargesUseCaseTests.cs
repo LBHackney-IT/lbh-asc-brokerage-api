@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoFixture;
 using BrokerageApi.Tests.V1.Helpers;
+using BrokerageApi.Tests.V1.UseCase.Mocks;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
+using BrokerageApi.V1.Infrastructure.AuditEvents;
 using BrokerageApi.V1.Services.Interfaces;
 using BrokerageApi.V1.UseCase.CarePackageCareCharges;
 using FluentAssertions;
@@ -20,7 +22,9 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageCareCharges
         private Fixture _fixture;
         private Mock<IReferralGateway> _mockReferralGateway;
         private Mock<IClockService> _mockClock;
+        private Mock<IUserService> _mockUserService;
         private MockDbSaver _mockDbSaver;
+        private MockAuditGateway _mockAuditGateway;
 
         [SetUp]
         public void Setup()
@@ -28,12 +32,16 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageCareCharges
             _fixture = FixtureHelpers.Fixture;
             _mockReferralGateway = new Mock<IReferralGateway>();
             _mockClock = new Mock<IClockService>();
+            _mockUserService = new Mock<IUserService>();
             _mockDbSaver = new MockDbSaver();
+            _mockAuditGateway = new MockAuditGateway();
 
             _classUnderTest = new ConfirmCareChargesUseCase(
                 _mockReferralGateway.Object,
                 _mockClock.Object,
-                _mockDbSaver.Object
+                _mockUserService.Object,
+                _mockDbSaver.Object,
+                _mockAuditGateway.Object
             );
         }
 
@@ -43,6 +51,15 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageCareCharges
             // Arrange
             var currentInstant = SystemClock.Instance.GetCurrentInstant();
             var previousInstant = currentInstant - Duration.FromMinutes(60);
+
+            var user = _fixture.BuildUser()
+                .Create();
+
+            _mockUserService.Setup(x => x.UserId)
+                .Returns(user.Id);
+
+            _mockUserService.Setup(x => x.Email)
+                .Returns(user.Email);
 
             var service = _fixture.BuildService()
                 .Create();
@@ -83,6 +100,13 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageCareCharges
             element.UpdatedAt.Should().Be(currentInstant);
 
             _mockDbSaver.VerifyChangesSaved();
+
+            _mockAuditGateway.VerifyAuditEventAdded(AuditEventType.CareChargesConfirmed);
+            _mockAuditGateway.LastUserId.Should().Be(user.Id);
+            _mockAuditGateway.LastSocialCareId.Should().Be(referral.SocialCareId);
+
+            var metadata = _mockAuditGateway.LastMetadata.Should().BeOfType<CareChargesConfirmedAuditEventMetadata>().Which;
+            metadata.ReferralId.Should().Be(referral.Id);
         }
 
         [Test]
