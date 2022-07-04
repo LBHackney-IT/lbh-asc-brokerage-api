@@ -9,7 +9,6 @@ using BrokerageApi.V1.UseCase.Interfaces.CarePackages;
 
 namespace BrokerageApi.V1.UseCase.CarePackages
 {
-
     public class ApproveCarePackageUseCase : IApproveCarePackageUseCase
     {
         private readonly ICarePackageGateway _carePackageGateway;
@@ -93,8 +92,8 @@ namespace BrokerageApi.V1.UseCase.CarePackages
                 ReferralId = referral.Id,
             };
             await _auditGateway.AddAuditEvent(AuditEventType.CarePackageApproved, referral.SocialCareId, _userService.UserId, metadata);
-
         }
+
         private async Task ApplyPendingStates(Element e, Referral referral)
         {
             var referralElement = e.ReferralElements?.SingleOrDefault(re => re.ReferralId == referral.Id);
@@ -128,7 +127,6 @@ namespace BrokerageApi.V1.UseCase.CarePackages
                 referralElement.PendingCancellation = null;
                 await _auditGateway.AddAuditEvent(AuditEventType.ElementCancelled, referral.SocialCareId, _userService.UserId, metadata);
             }
-
         }
     }
 }

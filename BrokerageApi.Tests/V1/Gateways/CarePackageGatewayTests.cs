@@ -52,17 +52,17 @@ namespace BrokerageApi.Tests.V1.Gateways
 
             var startDate = CurrentDate.PlusDays(1);
 
-            var hourlyElement = Fixture.BuildElement(provider.Id, hourlyElementType.Id)
+            var hourlyElement = Fixture.BuildElement(hourlyElementType.Id, provider.Id)
                 .With(e => e.StartDate, startDate)
                 .With(e => e.Cost, Fixture.CreateInt(1, 1000))
                 .Create();
 
-            var dailyElement = Fixture.BuildElement(provider.Id, dailyElementType.Id)
+            var dailyElement = Fixture.BuildElement(dailyElementType.Id, provider.Id)
                 .With(e => e.StartDate, startDate)
                 .With(e => e.Cost, Fixture.CreateInt(-1000, -1))
                 .Create();
 
-            var oneOffElement = Fixture.BuildElement(provider.Id, oneOffElementType.Id)
+            var oneOffElement = Fixture.BuildElement(oneOffElementType.Id, provider.Id)
                 .With(e => e.StartDate, startDate)
                 .Create();
 
@@ -317,11 +317,11 @@ namespace BrokerageApi.Tests.V1.Gateways
                 .With(et => et.CostType, ElementCostType.OneOff)
                 .Create();
 
-            var belowLimitElement = Fixture.BuildElement(provider.Id, elementType.Id)
+            var belowLimitElement = Fixture.BuildElement(elementType.Id, provider.Id)
                 .With(e => e.Cost, approvalLimit - 1)
                 .Create();
 
-            var aboveLimitElement = Fixture.BuildElement(provider.Id, elementType.Id)
+            var aboveLimitElement = Fixture.BuildElement(elementType.Id, provider.Id)
                 .With(e => e.Cost, approvalLimit + 1)
                 .Create();
 
@@ -367,7 +367,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 .With(et => et.CostType, ElementCostType.OneOff)
                 .Create();
 
-            var element = Fixture.BuildElement(provider.Id, elementType.Id)
+            var element = Fixture.BuildElement(elementType.Id, provider.Id)
                 .With(e => e.Cost, approvalLimit - 1)
                 .Create();
 

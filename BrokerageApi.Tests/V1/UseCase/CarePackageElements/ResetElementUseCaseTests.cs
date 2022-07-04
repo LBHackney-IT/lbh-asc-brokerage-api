@@ -12,7 +12,6 @@ using FluentAssertions;
 using Moq;
 using NodaTime;
 using NUnit.Framework;
-using X.PagedList;
 
 namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 {

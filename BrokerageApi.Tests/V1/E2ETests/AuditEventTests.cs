@@ -6,7 +6,6 @@ using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Infrastructure;
-using BrokerageApi.V1.Infrastructure.AuditEvents;
 using FluentAssertions;
 using NUnit.Framework;
 using X.PagedList;

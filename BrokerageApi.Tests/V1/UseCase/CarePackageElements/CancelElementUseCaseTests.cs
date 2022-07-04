@@ -7,7 +7,6 @@ using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.Tests.V1.UseCase.Mocks;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
-using BrokerageApi.V1.Infrastructure.AuditEvents;
 using BrokerageApi.V1.Services;
 using BrokerageApi.V1.Services.Interfaces;
 using BrokerageApi.V1.UseCase.CarePackageElements;
@@ -89,10 +88,11 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             _mockElementGateway.Setup(x => x.GetByIdAsync(unknownElementId))
                 .ReturnsAsync((Element) null);
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(unknownReferralId, unknownElementId, null);
+            var act = () => _classUnderTest.ExecuteAsync(unknownReferralId, unknownElementId, null);
 
             await act.Should().ThrowAsync<ArgumentNullException>()
                 .WithMessage($"Referral not found {unknownReferralId} (Parameter 'referralId')");
+
             _dbSaver.VerifyChangesNotSaved();
         }
 
@@ -104,10 +104,11 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             _mockElementGateway.Setup(x => x.GetByIdAsync(unknownElementId))
                 .ReturnsAsync((Element) null);
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, unknownElementId, null);
+            var act = () => _classUnderTest.ExecuteAsync(referral.Id, unknownElementId, null);
 
             await act.Should().ThrowAsync<ArgumentNullException>()
                 .WithMessage($"Element not found {unknownElementId} (Parameter 'elementId')");
+
             _dbSaver.VerifyChangesNotSaved();
         }
 
@@ -116,12 +117,13 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         {
             var (referral, element) = CreateReferralAndElement(status);
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, null);
+            var act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, null);
 
             if (status != ElementStatus.Approved)
             {
                 await act.Should().ThrowAsync<InvalidOperationException>()
                     .WithMessage($"Element {element.Id} is not approved");
+
                 _dbSaver.VerifyChangesNotSaved();
             }
         }

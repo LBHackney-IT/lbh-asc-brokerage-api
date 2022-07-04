@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using Newtonsoft.Json;
 using NodaTime;
 using BrokerageApi.V1.Infrastructure;
 using JetBrains.Annotations;

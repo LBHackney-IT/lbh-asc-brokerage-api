@@ -6,5 +6,4 @@ namespace BrokerageApi.V1.UseCase.Interfaces.CarePackageElements
     {
         public Task ExecuteAsync(int referralId, int elementId);
     }
-
 }

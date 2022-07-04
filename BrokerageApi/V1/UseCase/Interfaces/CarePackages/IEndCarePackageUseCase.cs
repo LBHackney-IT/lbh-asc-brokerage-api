@@ -7,5 +7,4 @@ namespace BrokerageApi.V1.UseCase.Interfaces.CarePackages
     {
         public Task ExecuteAsync(int referralId, LocalDate endDate, string comment);
     }
-
 }

@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using AutoFixture;
-using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Infrastructure;
 using FluentAssertions;
 using NUnit.Framework;

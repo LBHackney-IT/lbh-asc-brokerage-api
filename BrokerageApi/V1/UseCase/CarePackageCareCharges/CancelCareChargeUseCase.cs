@@ -1,0 +1,65 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using BrokerageApi.V1.Gateways.Interfaces;
+using BrokerageApi.V1.Infrastructure;
+using BrokerageApi.V1.Services.Interfaces;
+using BrokerageApi.V1.UseCase.Interfaces.CarePackageCareCharges;
+
+namespace BrokerageApi.V1.UseCase.CarePackageCareCharges
+{
+    public class CancelCareChargeUseCase : ICancelCareChargeUseCase
+    {
+        private readonly IReferralGateway _referralGateway;
+        private readonly IElementGateway _elementGateway;
+        private readonly IAuditGateway _auditGateway;
+        private readonly IUserService _userService;
+        private readonly IDbSaver _dbSaver;
+        private readonly IClockService _clockService;
+
+        public CancelCareChargeUseCase(
+            IReferralGateway referralGateway,
+            IElementGateway elementGateway,
+            IAuditGateway auditGateway,
+            IUserService userService,
+            IDbSaver dbSaver,
+            IClockService clockService
+        )
+        {
+            _referralGateway = referralGateway;
+            _elementGateway = elementGateway;
+            _auditGateway = auditGateway;
+            _userService = userService;
+            _dbSaver = dbSaver;
+            _clockService = clockService;
+        }
+
+        public async Task ExecuteAsync(int referralId, int elementId, string comment)
+        {
+            var referral = await _referralGateway.GetByIdAsync(referralId);
+
+            if (referral is null)
+            {
+                throw new ArgumentNullException(nameof(referralId), $"Referral not found {referralId}");
+            }
+
+            var element = await _elementGateway.GetByIdAsync(elementId);
+
+            if (element is null)
+            {
+                throw new ArgumentNullException(nameof(elementId), $"Element not found {elementId}");
+            }
+
+            if (element.InternalStatus != ElementStatus.Approved)
+            {
+                throw new InvalidOperationException($"Element {element.Id} is not approved");
+            }
+
+            var referralElement = element.ReferralElements.Single(re => re.ReferralId == referral.Id);
+            referralElement.PendingCancellation = true;
+            referralElement.PendingComment = comment;
+
+            await _dbSaver.SaveChangesAsync();
+        }
+    }
+}

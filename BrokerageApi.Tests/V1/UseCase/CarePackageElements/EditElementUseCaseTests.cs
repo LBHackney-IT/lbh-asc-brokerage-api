@@ -112,7 +112,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .Returns("a.broker@hackney.gov.uk");
 
             // Act
-            Func<Task<Element>> act = () => _classUnderTest.ExecuteAsync(referralId, 78910, request);
+            var act = () => _classUnderTest.ExecuteAsync(referralId, 78910, request);
 
             // Assert
             await act.Should().ThrowAsync<ArgumentNullException>()
@@ -142,7 +142,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .Returns(referral.AssignedBrokerEmail);
 
             // Act
-            Func<Task<Element>> act = () => _classUnderTest.ExecuteAsync(referral.Id, elementId, request);
+            var act = () => _classUnderTest.ExecuteAsync(referral.Id, elementId, request);
 
             // Assert
             await act.Should().ThrowAsync<ArgumentNullException>()
@@ -168,7 +168,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .Returns(referral.AssignedBrokerEmail);
 
             // Act
-            Func<Task<Element>> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, request);
+            var act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, request);
 
             // Assert
             await act.Should().ThrowAsync<InvalidOperationException>()
@@ -194,7 +194,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .Returns(userEmail);
 
             // Act
-            Func<Task<Element>> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, request);
+            var act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, request);
 
             // Assert
             await act.Should().ThrowAsync<UnauthorizedAccessException>()
@@ -226,7 +226,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .ReturnsAsync(null as ElementType);
 
             // Act
-            Func<Task<Element>> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, request);
+            var act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, request);
 
             // Assert
             await act.Should().ThrowAsync<ArgumentException>()
@@ -263,13 +263,14 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .ReturnsAsync(null as Provider);
 
             // Act
-            Func<Task<Element>> act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, request);
+            var act = () => _classUnderTest.ExecuteAsync(referral.Id, element.Id, request);
 
             // Assert
             await act.Should().ThrowAsync<ArgumentException>()
                 .WithMessage($"Provider not found for: {providerId}");
             _mockDbSaver.VerifyChangesNotSaved();
         }
+
         private (Provider provider, ElementType elementType, Element element, Referral referral) CreateReferralWithElement(ReferralStatus referralStatus = ReferralStatus.InProgress)
         {
 
@@ -279,7 +280,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             var provider = _fixture.BuildProvider()
                 .Create();
 
-            var element = _fixture.BuildElement(provider.Id, elementType.Id)
+            var element = _fixture.BuildElement(elementType.Id, provider.Id)
                 .Create();
 
             var referral = _fixture.BuildReferral(referralStatus)

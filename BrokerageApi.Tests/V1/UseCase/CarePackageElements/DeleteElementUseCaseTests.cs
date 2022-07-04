@@ -72,7 +72,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
 
             ReturnsReferral(null);
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(referralId, 456);
+            var act = () => _classUnderTest.ExecuteAsync(referralId, 456);
 
             await act.Should().ThrowAsync<ArgumentNullException>()
                 .WithMessage($"Referral not found for: {referralId} (Parameter 'referralId')");
@@ -90,7 +90,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             var referral = CreateReferral(ReferralStatus.InProgress, elements.ToList(), userName);
             ReturnsReferral(referral);
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, elementId);
+            var act = () => _classUnderTest.ExecuteAsync(referral.Id, elementId);
 
             await act.Should().ThrowAsync<ArgumentNullException>()
                 .WithMessage($"Element not found for: {elementId} (Parameter 'elementId')");
@@ -107,7 +107,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             var referral = CreateReferral(status, null, userName);
             ReturnsReferral(referral);
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, elementId);
+            var act = () => _classUnderTest.ExecuteAsync(referral.Id, elementId);
 
             if (status != ReferralStatus.InProgress)
             {
@@ -135,14 +135,14 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             }, "assigned@to.com");
             ReturnsReferral(referral);
 
-            Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, elementId);
+            var act = () => _classUnderTest.ExecuteAsync(referral.Id, elementId);
 
             await act.Should().ThrowAsync<UnauthorizedAccessException>()
                 .WithMessage($"Referral is not assigned to {userName}");
         }
 
         [Test]
-        public async Task DeletesElementReLinksParent()
+        public async Task DeleteElementRelinksParent()
         {
             const string userName = "a.broker@hackney.gov.uk";
 
@@ -167,7 +167,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
         }
 
         [Test]
-        public async Task DeletesElementRemovesSelfFromSuspended()
+        public async Task DeleteElementRemovesSelfFromSuspended()
         {
             const string userName = "a.broker@hackney.gov.uk";
 
@@ -227,6 +227,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
                 .CreateMany();
             return elements;
         }
+
         private Element CreateElement(int elementId)
         {
             var element = _fixture.BuildElement(1, 1)
@@ -235,5 +236,4 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageElements
             return element;
         }
     }
-
 }

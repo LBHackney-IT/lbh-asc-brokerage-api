@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.ComponentModel.DataAnnotations.Schema;
 using JetBrains.Annotations;
 using NodaTime;
 
@@ -45,6 +43,8 @@ namespace BrokerageApi.V1.Infrastructure
         public string Note { get; set; }
 
         public Instant? StartedAt { get; set; }
+
+        public Instant? CareChargesConfirmedAt { get; set; }
 
         public Instant CreatedAt { get; set; }
 

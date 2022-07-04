@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Factories;
-using BrokerageApi.V1.UseCase.Interfaces;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackageElements;
 
 namespace BrokerageApi.V1.Controllers
@@ -189,7 +188,7 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     e.Message,
-                    $"api/v1/referrals/{referralId}/care-package/elements/{elementId}/end",
+                    $"api/v1/referrals/{referralId}/care-package/elements/{elementId}/cancel",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
@@ -197,7 +196,7 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     e.Message,
-                    $"api/v1/referrals/{referralId}/care-package/elements/{elementId}/end",
+                    $"api/v1/referrals/{referralId}/care-package/elements/{elementId}/cancel",
                     StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }

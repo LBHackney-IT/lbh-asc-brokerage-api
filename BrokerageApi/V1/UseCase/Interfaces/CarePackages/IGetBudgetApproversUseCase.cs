@@ -8,5 +8,4 @@ namespace BrokerageApi.V1.UseCase.Interfaces.CarePackages
     {
         public Task<(IEnumerable<User> approvers, decimal estimatedYearlyCost)> ExecuteAsync(int referralId);
     }
-
 }
