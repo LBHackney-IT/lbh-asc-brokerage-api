@@ -81,7 +81,7 @@ namespace BrokerageApi.Tests.V1.Gateways
             await BrokerageContext.SaveChangesAsync();
 
             var request = Fixture.BuildServiceUserRequest(null)
-            .With(sur => sur.ServiceUserName, "ke Pers")
+            .With(sur => sur.ServiceUserName, "fa pers")
             .Without(sur => sur.DateOfBirth)
             .Create();
             // Act
