@@ -46,9 +46,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var provider = _fixture.BuildProvider()
                 .Create();
 
-            var providerService = _fixture.BuildProviderService(provider.Id, service.Id)
-                .Create();
-
             var previousStartDate = CurrentDate.PlusDays(-100);
             var startDate = CurrentDate.PlusDays(1);
 
@@ -147,7 +144,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Elements.AddAsync(parentElement);
             await Context.Elements.AddRangeAsync(suspensions);
             await Context.Providers.AddAsync(provider);
-            await Context.ProviderServices.AddAsync(providerService);
             await Context.Referrals.AddAsync(referral);
             await Context.Elements.AddRangeAsync(new List<Element>
             {
@@ -288,9 +284,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var provider = _fixture.BuildProvider()
                 .Create();
 
-            var providerService = _fixture.BuildProviderService(provider.Id, service.Id)
-                .Create();
-
             var elementType = _fixture.BuildElementType(service.Id)
                 .Create();
 
@@ -308,7 +301,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Referrals.AddAsync(referral);
             await Context.Services.AddAsync(service);
             await Context.Providers.AddAsync(provider);
-            await Context.ProviderServices.AddAsync(providerService);
             await Context.ElementTypes.AddAsync(elementType);
             await Context.SaveChangesAsync();
 
@@ -341,9 +333,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var provider = _fixture.BuildProvider()
                 .Create();
 
-            var providerService = _fixture.BuildProviderService(provider.Id, service.Id)
-                .Create();
-
             var elementType = _fixture.BuildElementType(service.Id)
                 .Create();
 
@@ -359,7 +348,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Referrals.AddAsync(referral);
             await Context.Services.AddAsync(service);
             await Context.Providers.AddAsync(provider);
-            await Context.ProviderServices.AddAsync(providerService);
             await Context.ElementTypes.AddAsync(elementType);
             await Context.SaveChangesAsync();
 
@@ -395,9 +383,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var provider = _fixture.BuildProvider()
                 .Create();
 
-            var providerService = _fixture.BuildProviderService(provider.Id, service.Id)
-                .Create();
-
             var elementType = _fixture.BuildElementType(service.Id)
                 .Create();
 
@@ -415,7 +400,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Referrals.AddAsync(referral);
             await Context.Services.AddAsync(service);
             await Context.Providers.AddAsync(provider);
-            await Context.ProviderServices.AddAsync(providerService);
             await Context.ElementTypes.AddAsync(elementType);
             await Context.SaveChangesAsync();
 
@@ -455,9 +439,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var provider = _fixture.BuildProvider()
                 .Create();
 
-            var providerService = _fixture.BuildProviderService(provider.Id, service.Id)
-                .Create();
-
             var elementType = _fixture.BuildElementType(service.Id)
                 .Create();
 
@@ -475,7 +456,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Referrals.AddAsync(referral);
             await Context.Services.AddAsync(service);
             await Context.Providers.AddAsync(provider);
-            await Context.ProviderServices.AddAsync(providerService);
             await Context.ElementTypes.AddAsync(elementType);
             await Context.SaveChangesAsync();
 
@@ -512,9 +492,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 .Create();
 
             var provider = _fixture.BuildProvider()
-                .Create();
-
-            var providerService = _fixture.BuildProviderService(provider.Id, service.Id)
                 .Create();
 
             var dailyElementType = _fixture.BuildElementType(service.Id)
@@ -565,7 +542,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Referrals.AddAsync(referral);
             await Context.Services.AddAsync(service);
             await Context.Providers.AddAsync(provider);
-            await Context.ProviderServices.AddAsync(providerService);
             await Context.ElementTypes.AddAsync(dailyElementType);
             await Context.ElementTypes.AddAsync(oneOffElementType);
             await Context.SaveChangesAsync();
@@ -632,9 +608,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var provider = _fixture.BuildProvider()
                 .Create();
 
-            var providerService = _fixture.BuildProviderService(provider.Id, service.Id)
-                .Create();
-
             var oneOffElementType = _fixture.BuildElementType(service.Id)
                 .With(et => et.CostType, ElementCostType.OneOff)
                 .Create();
@@ -690,7 +663,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Referrals.AddAsync(oldReferral);
             await Context.Services.AddAsync(service);
             await Context.Providers.AddAsync(provider);
-            await Context.ProviderServices.AddAsync(providerService);
             await Context.ElementTypes.AddAsync(oneOffElementType);
             await Context.Referrals.AddAsync(referral);
             await Context.Elements.AddRangeAsync(newElement, parentElement, childElement, cancelElement, endElement);
@@ -735,9 +707,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
             var provider = _fixture.BuildProvider()
                 .Create();
 
-            var providerService = _fixture.BuildProviderService(provider.Id, service.Id)
-                .Create();
-
             var oneOffElementType = _fixture.BuildElementType(service.Id)
                 .With(et => et.CostType, ElementCostType.OneOff)
                 .Create();
@@ -749,7 +718,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Referrals.AddAsync(referral);
             await Context.Services.AddAsync(service);
             await Context.Providers.AddAsync(provider);
-            await Context.ProviderServices.AddAsync(providerService);
             await Context.ElementTypes.AddAsync(oneOffElementType);
             await Context.Referrals.AddAsync(referral);
             await Context.SaveChangesAsync();

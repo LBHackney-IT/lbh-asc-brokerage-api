@@ -42,7 +42,6 @@ namespace BrokerageApi.V1.Infrastructure
         public DbSet<Element> Elements { get; set; }
         public DbSet<ElementType> ElementTypes { get; set; }
         public DbSet<Provider> Providers { get; set; }
-        public DbSet<ProviderService> ProviderServices { get; set; }
         public DbSet<Referral> Referrals { get; set; }
         public DbSet<ReferralElement> ReferralElements { get; set; }
         public DbSet<Service> Services { get; set; }
@@ -196,23 +195,6 @@ namespace BrokerageApi.V1.Infrastructure
             modelBuilder.Entity<ElementType>()
                 .HasIndex(et => new { et.ServiceId, et.Name })
                 .IsUnique();
-
-            modelBuilder.Entity<Provider>()
-                .HasMany(p => p.Services)
-                .WithMany(s => s.Providers)
-                .UsingEntity<ProviderService>(
-                    j => j
-                        .HasOne(ps => ps.Service)
-                        .WithMany(s => s.ProviderServices)
-                        .HasForeignKey(ps => ps.ServiceId),
-                    j => j
-                        .HasOne(ps => ps.Provider)
-                        .WithMany(p => p.ProviderServices)
-                        .HasForeignKey(ps => ps.ProviderId),
-                    j =>
-                    {
-                        j.HasKey(ps => new { ps.ProviderId, ps.ServiceId });
-                    });
 
             modelBuilder.Entity<Provider>()
                 .HasIndex(p => new { p.CedarNumber, p.CedarSite })

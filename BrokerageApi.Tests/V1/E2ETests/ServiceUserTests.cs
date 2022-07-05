@@ -70,20 +70,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 Type = ProviderType.Framework
             };
 
-            var providerService = new ProviderService()
-            {
-                ProviderId = 1,
-                ServiceId = 1,
-                SubjectiveCode = "599999"
-            };
-
-            var anotherProviderService = new ProviderService()
-            {
-                ProviderId = 2,
-                ServiceId = 2,
-                SubjectiveCode = "599998"
-            };
-
             var previousStartDate = CurrentDate.PlusDays(-100);
             var startDate = CurrentDate.PlusDays(1);
 
@@ -168,9 +154,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.ElementTypes.AddAsync(dailyElementType);
             await Context.Providers.AddAsync(provider);
             await Context.Providers.AddAsync(anotherProvider);
-
-            await Context.ProviderServices.AddAsync(providerService);
-            await Context.ProviderServices.AddAsync(anotherProviderService);
 
             await Context.Referrals.AddAsync(referral);
             await Context.Users.AddAsync(assignedBrokerEmail);
