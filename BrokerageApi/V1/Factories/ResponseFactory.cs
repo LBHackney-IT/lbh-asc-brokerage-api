@@ -210,5 +210,14 @@ namespace BrokerageApi.V1.Factories
                 RequestedAt = amendment.RequestedAt
             };
         }
+        public static ServiceUserResponse ToResponse(this ServiceUser serviceUser)
+        {
+            return new ServiceUserResponse
+            {
+                SocialCareId = serviceUser.SocialCareId,
+                ServiceUserName = serviceUser.ServiceUserName,
+                DateOfBirth = serviceUser.DateOfBirth
+            };
+        }
     }
 }

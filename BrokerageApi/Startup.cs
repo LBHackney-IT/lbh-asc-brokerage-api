@@ -214,6 +214,8 @@ namespace BrokerageApi
             services.AddScoped<IServiceGateway, ServiceGateway>();
             services.AddScoped<IUserGateway, UserGateway>();
             services.AddScoped<IAuditGateway, AuditGateway>();
+            services.AddScoped<IServiceUserGateway, ServiceUserGateway>();
+
         }
 
         private static void RegisterUseCases(IServiceCollection services)
@@ -239,6 +241,7 @@ namespace BrokerageApi
             services.AddTransient<IDeleteCareChargeUseCase, DeleteCareChargeUseCase>();
             services.AddTransient<IDeleteElementUseCase, DeleteElementUseCase>();
             services.AddTransient<IGetServiceUserAuditEventsUseCase, GetServiceUserAuditEventsUseCase>();
+            services.AddTransient<IGetServiceUserByRequestUseCase, GetServiceUserByRequestUseCase>();
             services.AddTransient<IEndCareChargeUseCase, EndCareChargeUseCase>();
             services.AddTransient<IEndElementUseCase, EndElementUseCase>();
             services.AddTransient<IGetServiceOverviewUseCase, GetServiceOverviewUseCase>();

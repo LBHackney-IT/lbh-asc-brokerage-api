@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
-
+using BrokerageApi.Tests.V1.Gateways.Helpers;
 namespace BrokerageApi.V1.Gateways
 {
     public class ProviderGateway : IProviderGateway
@@ -27,7 +27,7 @@ namespace BrokerageApi.V1.Gateways
             {
                 return await _context.Providers
                     .Where(p => p.IsArchived == false)
-                    .Where(p => p.SearchVector.Matches(EF.Functions.ToTsQuery("simple", ParsedQuery(query))))
+                    .Where(p => p.SearchVector.Matches(EF.Functions.ToTsQuery("simple", ParsingHelpers.ParsedQuery(query))))
                     .OrderBy(p => p.Name)
                     .ToListAsync();
             }
@@ -39,15 +39,5 @@ namespace BrokerageApi.V1.Gateways
                 .SingleOrDefaultAsync(p => p.Id == id);
         }
 
-        private static string ParsedQuery(string query)
-        {
-            var separators = new[] { " " };
-            var options = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries;
-
-            var words = query.Split(separators, options).ToList();
-            var terms = words.ConvertAll(w => $"{w}:*");
-
-            return String.Join(" & ", terms);
-        }
     }
 }

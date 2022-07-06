@@ -2,6 +2,7 @@ using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoFixture.Dsl;
 using BrokerageApi.V1.Infrastructure;
+using BrokerageApi.V1.Controllers.Parameters;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using MicroElements.AutoFixture.NodaTime;
 
@@ -157,6 +158,16 @@ namespace BrokerageApi.Tests.V1.Helpers
             return fixture.Build<ReferralAmendment>()
                 .Without(a => a.Referral)
                 .Without(a => a.ReferralId);
+        }
+        public static IPostprocessComposer<ServiceUser> BuildServiceUser(this IFixture fixture)
+        {
+            return fixture.Build<ServiceUser>();
+        }
+        public static IPostprocessComposer<GetServiceUserRequest> BuildServiceUserRequest(this IFixture fixture, string socialCareId)
+        {
+
+            return fixture.Build<GetServiceUserRequest>()
+            .With(su => su.SocialCareId, socialCareId);
         }
     }
 }

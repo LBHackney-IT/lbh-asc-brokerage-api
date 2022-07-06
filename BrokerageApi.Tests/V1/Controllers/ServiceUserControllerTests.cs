@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using AutoFixture;
 using BrokerageApi.Tests.V1.Helpers;
+using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Controllers;
 using BrokerageApi.V1.Factories;
@@ -14,6 +15,7 @@ using BrokerageApi.V1.UseCase.Interfaces;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using NodaTime;
 
 namespace BrokerageApi.Tests.V1.Controllers
 {
@@ -24,17 +26,22 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Fixture _fixture;
         private Mock<IGetCarePackagesByServiceUserIdUseCase> _mockGetCarePackagesByServiceUserIdUseCase;
 
+        private Mock<IGetServiceUserByRequestUseCase> _mockGetServiceUserByRequestUseCase;
+
         [SetUp]
         public void SetUp()
         {
             _fixture = FixtureHelpers.Fixture;
             _mockGetServiceOverviewUseCase = new Mock<IGetServiceOverviewUseCase>();
             _mockGetCarePackagesByServiceUserIdUseCase = new Mock<IGetCarePackagesByServiceUserIdUseCase>();
+            _mockGetServiceUserByRequestUseCase = new Mock<IGetServiceUserByRequestUseCase>();
 
             _classUnderTest = new ServiceUserController(
                 _mockGetServiceOverviewUseCase.Object,
-                _mockGetCarePackagesByServiceUserIdUseCase.Object
-            );
+                _mockGetCarePackagesByServiceUserIdUseCase.Object,
+                _mockGetServiceUserByRequestUseCase.Object
+                );
+            SetupAuthentication(_classUnderTest);
 
             SetupAuthentication(_classUnderTest);
         }
@@ -115,6 +122,51 @@ namespace BrokerageApi.Tests.V1.Controllers
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
             result.Status.Should().Be((int) HttpStatusCode.NotFound);
             result.Detail.Should().Be("No care packages found for this service user (Parameter 'socialCareId')");
+        }
+        [Test]
+        public async Task CanGetServiceUserByRequest()
+        {
+            //Arrange
+            var serviceUsers = _fixture.BuildServiceUser()
+            .CreateMany();
+
+            var serviceUserRequest = _fixture.BuildServiceUserRequest(serviceUsers.ElementAt(0).SocialCareId)
+            .Create();
+
+            _mockGetServiceUserByRequestUseCase
+                .Setup(x => x.ExecuteAsync(serviceUserRequest))
+                .ReturnsAsync(serviceUsers);
+            //Act
+            var objectResult = await _classUnderTest.GetServiceUser(serviceUserRequest);
+            var statusCode = GetStatusCode(objectResult);
+            var result = GetResultData<List<ServiceUserResponse>>(objectResult);
+
+            //Assert
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            result.Should().BeEquivalentTo(serviceUsers.Select(su => su.ToResponse()));
+
+        }
+
+        [Test]
+        public async Task GetsExceptionWhenBadRequest()
+        {
+            //Arrange
+            var serviceUsers = _fixture.BuildServiceUser()
+            .CreateMany();
+
+            var serviceUserRequest = _fixture.BuildServiceUserRequest("notThatServiceUser")
+            .Create();
+
+            _mockGetServiceUserByRequestUseCase
+                .Setup(x => x.ExecuteAsync(serviceUserRequest))
+                .ThrowsAsync(new ArgumentException("Nope"));
+            //Act
+            var objectResult = await _classUnderTest.GetServiceUser(serviceUserRequest);
+            var statusCode = GetStatusCode(objectResult);
+
+            //Assert
+            statusCode.Should().Be((int) HttpStatusCode.BadRequest);
+
         }
     }
 }

@@ -5,6 +5,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -15,9 +16,10 @@ using NpgsqlTypes;
 namespace V1.Infrastructure.Migrations
 {
     [DbContext(typeof(BrokerageContext))]
-    partial class BrokerageContextModelSnapshot : ModelSnapshot
+    [Migration("20220701134424_AddNameSearchVectorToServiceUser")]
+    partial class AddNameSearchVectorToServiceUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,7 +27,7 @@ namespace V1.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "amendment_status", new[] { "in_progress", "resolved" });
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "audit_event_type", new[] { "referral_broker_assignment", "referral_broker_reassignment", "element_ended", "element_cancelled", "element_suspended", "care_package_ended", "care_package_cancelled", "care_package_suspended", "referral_archived", "import_note", "care_package_budget_approver_assigned", "care_package_approved", "amendment_requested", "care_charges_confirmed" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "audit_event_type", new[] { "referral_broker_assignment", "referral_broker_reassignment", "element_ended", "element_cancelled", "element_suspended", "care_package_ended", "care_package_cancelled", "care_package_suspended", "referral_archived", "import_note", "care_package_budget_approver_assigned", "care_package_approved", "amendment_requested" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_billing_type", new[] { "supplier", "customer", "none", "ccg" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_cost_type", new[] { "hourly", "daily", "weekly", "transport", "one_off" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_status", new[] { "in_progress", "awaiting_approval", "approved", "inactive", "active", "ended", "suspended", "cancelled" });
@@ -102,10 +104,6 @@ namespace V1.Infrastructure.Migrations
                     b.Property<string>("AssignedBrokerId")
                         .HasColumnType("text")
                         .HasColumnName("assigned_broker_id");
-
-                    b.Property<Instant?>("CareChargesConfirmedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("care_charges_confirmed_at");
 
                     b.Property<string>("CarePackageName")
                         .HasColumnType("text")
@@ -355,10 +353,6 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("element_cost_type")
                         .HasColumnName("cost_type");
 
-                    b.Property<string>("FrameworkSubjectiveCode")
-                        .HasColumnType("text")
-                        .HasColumnName("framework_subjective_code");
-
                     b.Property<bool>("IsArchived")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -477,6 +471,29 @@ namespace V1.Infrastructure.Migrations
                     b.ToTable("providers", (string)null);
                 });
 
+            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ProviderService", b =>
+                {
+                    b.Property<int>("ProviderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("provider_id");
+
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("integer")
+                        .HasColumnName("service_id");
+
+                    b.Property<string>("SubjectiveCode")
+                        .HasColumnType("text")
+                        .HasColumnName("subjective_code");
+
+                    b.HasKey("ProviderId", "ServiceId")
+                        .HasName("pk_provider_services");
+
+                    b.HasIndex("ServiceId")
+                        .HasDatabaseName("ix_provider_services_service_id");
+
+                    b.ToTable("provider_services", (string)null);
+                });
+
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Referral", b =>
                 {
                     b.Property<int>("Id")
@@ -493,10 +510,6 @@ namespace V1.Infrastructure.Migrations
                     b.Property<string>("AssignedBrokerEmail")
                         .HasColumnType("text")
                         .HasColumnName("assigned_broker_email");
-
-                    b.Property<Instant?>("CareChargesConfirmedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("care_charges_confirmed_at");
 
                     b.Property<string>("Comment")
                         .HasColumnType("text")
@@ -851,6 +864,27 @@ namespace V1.Infrastructure.Migrations
                     b.Navigation("Service");
                 });
 
+            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ProviderService", b =>
+                {
+                    b.HasOne("BrokerageApi.V1.Infrastructure.Provider", "Provider")
+                        .WithMany("ProviderServices")
+                        .HasForeignKey("ProviderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_provider_services_providers_provider_id");
+
+                    b.HasOne("BrokerageApi.V1.Infrastructure.Service", "Service")
+                        .WithMany("ProviderServices")
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_provider_services_services_service_id");
+
+                    b.Navigation("Provider");
+
+                    b.Navigation("Service");
+                });
+
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Referral", b =>
                 {
                     b.HasOne("BrokerageApi.V1.Infrastructure.User", "AssignedApprover")
@@ -953,6 +987,8 @@ namespace V1.Infrastructure.Migrations
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Provider", b =>
                 {
                     b.Navigation("Elements");
+
+                    b.Navigation("ProviderServices");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Referral", b =>
@@ -965,6 +1001,8 @@ namespace V1.Infrastructure.Migrations
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Service", b =>
                 {
                     b.Navigation("ElementTypes");
+
+                    b.Navigation("ProviderServices");
 
                     b.Navigation("Services");
                 });

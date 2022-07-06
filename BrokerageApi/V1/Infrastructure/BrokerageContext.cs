@@ -244,6 +244,11 @@ namespace BrokerageApi.V1.Infrastructure
                 .Property(s => s.HasProvisionalClientContributions)
                 .HasDefaultValue(false);
 
+            modelBuilder.Entity<ServiceUser>()
+                .HasGeneratedTsVectorColumn(
+                    s => s.NameSearchVector, "simple",
+                    s => new { s.ServiceUserName });
+
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
