@@ -15,6 +15,8 @@ namespace BrokerageApi.V1.Infrastructure
 
         public string SubjectiveCode { get; set; }
 
+        public string FrameworkSubjectiveCode { get; set; }
+
         public ElementTypeType Type { get; set; }
 
         public ElementCostType CostType { get; set; }

@@ -47,9 +47,6 @@ namespace BrokerageApi.Tests.V1.Gateways
             var provider = Fixture.BuildProvider()
                 .Create();
 
-            var providerService = Fixture.BuildProviderService(provider.Id, service.Id)
-                .Create();
-
             var startDate = CurrentDate.PlusDays(1);
 
             var hourlyElement = Fixture.BuildElement(hourlyElementType.Id, provider.Id)
@@ -82,7 +79,6 @@ namespace BrokerageApi.Tests.V1.Gateways
             await BrokerageContext.ElementTypes.AddAsync(dailyElementType);
             await BrokerageContext.ElementTypes.AddAsync(oneOffElementType);
             await BrokerageContext.Providers.AddAsync(provider);
-            await BrokerageContext.ProviderServices.AddAsync(providerService);
             await BrokerageContext.Referrals.AddAsync(referral);
             await BrokerageContext.SaveChangesAsync();
 
@@ -162,20 +158,6 @@ namespace BrokerageApi.Tests.V1.Gateways
                 Name = "Testington Homes",
                 Address = "1 Mystery Place",
                 Type = ProviderType.Framework
-            };
-
-            var providerService = new ProviderService()
-            {
-                ProviderId = 1,
-                ServiceId = 1,
-                SubjectiveCode = "599999"
-            };
-
-            var anotherProviderService = new ProviderService()
-            {
-                ProviderId = 2,
-                ServiceId = 2,
-                SubjectiveCode = "599998"
             };
 
             var assignedBroker = new User()
@@ -264,9 +246,6 @@ namespace BrokerageApi.Tests.V1.Gateways
             await BrokerageContext.ElementTypes.AddAsync(dailyElementType);
             await BrokerageContext.Providers.AddAsync(provider);
             await BrokerageContext.Providers.AddAsync(anotherProvider);
-
-            await BrokerageContext.ProviderServices.AddAsync(providerService);
-            await BrokerageContext.ProviderServices.AddAsync(anotherProviderService);
 
             await BrokerageContext.Referrals.AddAsync(referral);
             await BrokerageContext.Users.AddAsync(assignedBroker);

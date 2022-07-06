@@ -57,11 +57,9 @@ namespace BrokerageApi.Tests
         {
             var provider = Fixture.BuildProvider().Create();
             var service = Fixture.BuildService().Create();
-            var providerService = Fixture.BuildProviderService(provider.Id, service.Id).Create();
 
             await BrokerageContext.Services.AddAsync(service);
             await BrokerageContext.Providers.AddAsync(provider);
-            await BrokerageContext.ProviderServices.AddAsync(providerService);
             await BrokerageContext.SaveChangesAsync();
 
             return (provider, service);

@@ -4,8 +4,8 @@ using BrokerageApi.V1.Infrastructure;
 
 namespace BrokerageApi.V1.UseCase.Interfaces
 {
-    public interface IFindProvidersByServiceIdUseCase
+    public interface IFindProvidersUseCase
     {
-        public Task<IEnumerable<Provider>> ExecuteAsync(int serviceId, string query);
+        public Task<IEnumerable<Provider>> ExecuteAsync(string query);
     }
 }

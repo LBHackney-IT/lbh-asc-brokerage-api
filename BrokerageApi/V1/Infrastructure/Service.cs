@@ -26,9 +26,5 @@ namespace BrokerageApi.V1.Infrastructure
         public List<Service> Services { get; set; }
 
         public List<ElementType> ElementTypes { get; set; }
-
-        public List<ProviderService> ProviderServices { get; set; }
-
-        public List<Provider> Providers { get; set; }
     }
 }

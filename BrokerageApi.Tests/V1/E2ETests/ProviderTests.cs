@@ -49,13 +49,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 Type = ProviderType.Framework
             };
 
-            var providerService = new ProviderService()
-            {
-                ProviderId = 1,
-                ServiceId = 1,
-                SubjectiveCode = "599999"
-            };
-
             var otherProvider = new Provider()
             {
                 Id = 2,
@@ -64,18 +57,9 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 Type = ProviderType.Framework
             };
 
-            var otherProviderService = new ProviderService()
-            {
-                ProviderId = 2,
-                ServiceId = 1,
-                SubjectiveCode = "599999"
-            };
-
             await Context.Services.AddAsync(service);
             await Context.Providers.AddAsync(provider);
             await Context.Providers.AddAsync(otherProvider);
-            await Context.ProviderServices.AddAsync(providerService);
-            await Context.ProviderServices.AddAsync(otherProviderService);
             await Context.SaveChangesAsync();
 
             Context.ChangeTracker.Clear();
@@ -111,13 +95,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 Type = ProviderType.Framework
             };
 
-            var providerService = new ProviderService()
-            {
-                ProviderId = 1,
-                ServiceId = 1,
-                SubjectiveCode = "599999"
-            };
-
             var otherProvider = new Provider()
             {
                 Id = 2,
@@ -126,18 +103,9 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 Type = ProviderType.Framework
             };
 
-            var otherProviderService = new ProviderService()
-            {
-                ProviderId = 2,
-                ServiceId = 1,
-                SubjectiveCode = "599999"
-            };
-
             await Context.Services.AddAsync(service);
             await Context.Providers.AddAsync(provider);
             await Context.Providers.AddAsync(otherProvider);
-            await Context.ProviderServices.AddAsync(providerService);
-            await Context.ProviderServices.AddAsync(otherProviderService);
             await Context.SaveChangesAsync();
 
             Context.ChangeTracker.Clear();

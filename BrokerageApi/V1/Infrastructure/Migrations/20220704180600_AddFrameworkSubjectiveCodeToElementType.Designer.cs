@@ -5,6 +5,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -15,9 +16,10 @@ using NpgsqlTypes;
 namespace V1.Infrastructure.Migrations
 {
     [DbContext(typeof(BrokerageContext))]
-    partial class BrokerageContextModelSnapshot : ModelSnapshot
+    [Migration("20220704180600_AddFrameworkSubjectiveCodeToElementType")]
+    partial class AddFrameworkSubjectiveCodeToElementType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -696,10 +698,6 @@ namespace V1.Infrastructure.Migrations
                     b.Property<LocalDate>("DateOfBirth")
                         .HasColumnType("date")
                         .HasColumnName("date_of_birth");
-
-                    b.Property<NpgsqlTsVector>("NameSearchVector")
-                        .HasColumnType("tsvector")
-                        .HasColumnName("name_search_vector");
 
                     b.Property<string>("ServiceUserName")
                         .IsRequired()

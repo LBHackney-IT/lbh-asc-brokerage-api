@@ -44,14 +44,12 @@ namespace BrokerageApi.Tests.V1.E2ETests
         {
             var provider = _fixture.BuildProvider().Create();
             var service = _fixture.BuildService().Create();
-            var providerService = _fixture.BuildProviderService(provider.Id, service.Id).Create();
             var elementType = _fixture.BuildElementType(service.Id).Create();
             var elements = _fixture.BuildElement(elementType.Id, provider.Id).CreateMany();
 
             await Context.Services.AddAsync(service);
             await Context.ElementTypes.AddAsync(elementType);
             await Context.Providers.AddAsync(provider);
-            await Context.ProviderServices.AddAsync(providerService);
             await Context.Elements.AddRangeAsync(elements);
             await Context.SaveChangesAsync();
 
@@ -69,7 +67,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
         {
             var provider = _fixture.BuildProvider().Create();
             var service = _fixture.BuildService().Create();
-            var providerService = _fixture.BuildProviderService(provider.Id, service.Id).Create();
             var elementType = _fixture.BuildElementType(service.Id).Create();
             var parentElement = _fixture.BuildElement(elementType.Id, provider.Id).Create();
             var childElement = _fixture.BuildElement(elementType.Id, provider.Id)
@@ -79,7 +76,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Services.AddAsync(service);
             await Context.ElementTypes.AddAsync(elementType);
             await Context.Providers.AddAsync(provider);
-            await Context.ProviderServices.AddAsync(providerService);
             await Context.Elements.AddRangeAsync(parentElement, childElement);
             await Context.SaveChangesAsync();
 
@@ -98,7 +94,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
         {
             var provider = _fixture.BuildProvider().Create();
             var service = _fixture.BuildService().Create();
-            var providerService = _fixture.BuildProviderService(provider.Id, service.Id).Create();
             var elementType = _fixture.BuildElementType(service.Id).Create();
             var parentElement = _fixture.BuildElement(elementType.Id, provider.Id).Create();
             var childElement = _fixture.BuildElement(elementType.Id, provider.Id)
@@ -108,7 +103,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.Services.AddAsync(service);
             await Context.ElementTypes.AddAsync(elementType);
             await Context.Providers.AddAsync(provider);
-            await Context.ProviderServices.AddAsync(providerService);
             await Context.Elements.AddRangeAsync(parentElement, childElement);
             await Context.SaveChangesAsync();
 

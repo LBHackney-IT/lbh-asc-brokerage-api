@@ -48,28 +48,16 @@ namespace BrokerageApi.Tests.V1.Helpers
         {
             return fixture.Build<Provider>()
                 .Without(p => p.Elements)
-                .Without(p => p.Services)
-                .Without(p => p.ProviderServices)
                 .With(p => p.Type, ProviderType.Framework);
         }
         public static IPostprocessComposer<Service> BuildService(this IFixture fixture)
         {
             return fixture.Build<Service>()
-                .Without(s => s.Providers)
                 .Without(s => s.Services)
                 .Without(s => s.ElementTypes)
-                .Without(s => s.ProviderServices)
                 .Without(s => s.Parent)
                 .Without(s => s.ParentId)
                 .With(s => s.IsArchived, false);
-        }
-        public static IPostprocessComposer<ProviderService> BuildProviderService(this IFixture fixture, int providerId, int serviceId)
-        {
-            return fixture.Build<ProviderService>()
-                .Without(ps => ps.Provider)
-                .Without(ps => ps.Service)
-                .With(ps => ps.ProviderId, providerId)
-                .With(ps => ps.ServiceId, serviceId);
         }
         public static IPostprocessComposer<ElementType> BuildElementType(this IFixture fixture, int serviceId, ElementTypeType type = ElementTypeType.Service)
         {

@@ -20,17 +20,17 @@ namespace BrokerageApi.V1.Controllers
     {
         private readonly IGetAllServicesUseCase _getAllServicesUseCase;
         private readonly IGetServiceByIdUseCase _getServiceByIdUseCase;
-        private readonly IFindProvidersByServiceIdUseCase _findProvidersByServiceIdUseCase;
+        private readonly IFindProvidersUseCase _findProvidersUseCase;
 
         public ServicesController(
             IGetAllServicesUseCase getAllServicesUseCase,
             IGetServiceByIdUseCase getServiceByIdUseCase,
-            IFindProvidersByServiceIdUseCase findProvidersByServiceIdUseCase
+            IFindProvidersUseCase findProvidersUseCase
         )
         {
             _getAllServicesUseCase = getAllServicesUseCase;
             _getServiceByIdUseCase = getServiceByIdUseCase;
-            _findProvidersByServiceIdUseCase = findProvidersByServiceIdUseCase;
+            _findProvidersUseCase = findProvidersUseCase;
         }
 
         [HttpGet]
@@ -75,14 +75,14 @@ namespace BrokerageApi.V1.Controllers
         {
             try
             {
-                var providers = await _findProvidersByServiceIdUseCase.ExecuteAsync(id, query);
+                var providers = await _findProvidersUseCase.ExecuteAsync(query);
                 return Ok(providers.Select(s => s.ToResponse()).ToList());
             }
             catch (ArgumentNullException e)
             {
                 return Problem(
                     e.Message,
-                    $"/api/v1/services/{id}",
+                    $"/api/v1/services/{id}/providers",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
