@@ -32,7 +32,7 @@ namespace BrokerageApi.V1.UseCase
                 throw new ArgumentNullException(nameof(referralId), $"Referral not found for: {referralId}");
             }
 
-            if (referral.Status != ReferralStatus.InProgress)
+            if (!(referral.Status == ReferralStatus.InProgress || referral.Status == ReferralStatus.Assigned || referral.Status == ReferralStatus.Unassigned))
             {
                 throw new InvalidOperationException("Referral is not in a valid state for archive");
             }
