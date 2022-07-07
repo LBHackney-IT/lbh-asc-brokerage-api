@@ -14,7 +14,7 @@ namespace BrokerageApi.V1.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/v1/service-user/{socialCareId}")]
+    [Route("api/v1/service-user")]
     [Produces("application/json")]
     [ApiVersion("1.0")]
     public class ServiceUserController : BaseController
@@ -37,7 +37,7 @@ namespace BrokerageApi.V1.Controllers
 
         [Authorize]
         [HttpGet]
-        [Route("serviceOverview")]
+        [Route("{socialCareId}/serviceOverview")]
         [ProducesResponseType(typeof(List<ElementResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -60,7 +60,7 @@ namespace BrokerageApi.V1.Controllers
 
         [Authorize(Roles = "Broker")]
         [HttpGet]
-        [Route("care-packages")]
+        [Route("{socialCareId}/care-packages")]
         [ProducesResponseType(typeof(List<CarePackageResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
