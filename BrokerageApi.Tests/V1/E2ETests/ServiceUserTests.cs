@@ -170,7 +170,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Context.ChangeTracker.Clear();
 
             // Act
-            var (code, response) = await Get<List<CarePackageResponse>>($"/api/v1/service-user/{referral.SocialCareId}/care-packages");
+            var (code, response) = await Get<List<CarePackageResponse>>($"/api/v1/service-users/{referral.SocialCareId}/care-packages");
             // Assert
             Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
 
@@ -210,7 +210,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             await Context.SaveChangesAsync();
             Context.ChangeTracker.Clear();
             //Act 
-            var (code, response) = await Get<List<ServiceUserResponse>>($"/api/v1/service-user/service-users?SocialCareId={serviceUser.SocialCareId}");
+            var (code, response) = await Get<List<ServiceUserResponse>>($"/api/v1/service-users/?SocialCareId={serviceUser.SocialCareId}");
             // Assert
             Assert.That(response, Has.Count.EqualTo(1));
             Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
