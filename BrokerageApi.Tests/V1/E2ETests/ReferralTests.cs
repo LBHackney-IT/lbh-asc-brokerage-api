@@ -678,11 +678,61 @@ namespace BrokerageApi.Tests.V1.E2ETests
         }
 
         [Test, Property("AsUser", "Broker")]
-        public async Task CanArchiveReferral()
+        public async Task CanArchiveInProgressReferral()
         {
             var request = _fixture.Create<ArchiveReferralRequest>();
 
             var referral = _fixture.BuildReferral(ReferralStatus.InProgress)
+                .Create();
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            // Act
+            var code = await Post($"/api/v1/referrals/{referral.Id}/archive", request);
+
+            // Assert
+            code.Should().Be(HttpStatusCode.OK);
+            var resultReferral = await Context.Referrals.SingleAsync(r => r.Id == referral.Id);
+            resultReferral.Status.Should().Be(ReferralStatus.Archived);
+
+            var auditEvent = await Context.AuditEvents.SingleOrDefaultAsync(ae => ae.EventType == AuditEventType.ReferralArchived && ae.CreatedAt == Context.Clock.Now);
+            auditEvent.Should().NotBeNull();
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanArchiveAssignedReferral()
+        {
+            var request = _fixture.Create<ArchiveReferralRequest>();
+
+            var referral = _fixture.BuildReferral(ReferralStatus.Assigned)
+                .Create();
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            // Act
+            var code = await Post($"/api/v1/referrals/{referral.Id}/archive", request);
+
+            // Assert
+            code.Should().Be(HttpStatusCode.OK);
+            var resultReferral = await Context.Referrals.SingleAsync(r => r.Id == referral.Id);
+            resultReferral.Status.Should().Be(ReferralStatus.Archived);
+
+            var auditEvent = await Context.AuditEvents.SingleOrDefaultAsync(ae => ae.EventType == AuditEventType.ReferralArchived && ae.CreatedAt == Context.Clock.Now);
+            auditEvent.Should().NotBeNull();
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanArchiveUnassignedReferral()
+        {
+            var request = _fixture.Create<ArchiveReferralRequest>();
+
+            var referral = _fixture.BuildReferral(ReferralStatus.Unassigned)
                 .Create();
 
             await Context.Referrals.AddAsync(referral);
