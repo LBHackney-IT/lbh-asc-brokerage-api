@@ -14,7 +14,7 @@ namespace BrokerageApi.V1.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/v1/service-user")]
+    [Route("api/v1/service-users")]
     [Produces("application/json")]
     [ApiVersion("1.0")]
     public class ServiceUserController : BaseController
@@ -52,7 +52,7 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     e.Message,
-                    $"api/v1/service-user/{socialCareId}/serviceOverview",
+                    $"api/v1/service-users/{socialCareId}/serviceOverview",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
@@ -77,7 +77,7 @@ namespace BrokerageApi.V1.Controllers
             {
                 return Problem(
                     e.Message,
-                    $"/api/v1/service-user/{socialCareId}",
+                    $"/api/v1/service-users/{socialCareId}",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
