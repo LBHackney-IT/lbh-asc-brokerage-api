@@ -94,7 +94,7 @@ namespace BrokerageApi.Tests.V1.UseCase
         }
 
         [Test]
-        public async Task ThrowsInvalidOperationExceptionWhenReferralNotInProgress([Values] ReferralStatus status)
+        public async Task ThrowsInvalidOperationExceptionWhenReferralNotInProgressAssignedOrUnassigned([Values] ReferralStatus status)
         {
             var referral = _fixture.BuildReferral(status)
                 .Create();
@@ -103,7 +103,7 @@ namespace BrokerageApi.Tests.V1.UseCase
 
             Func<Task> act = () => _classUnderTest.ExecuteAsync(referral.Id, "");
 
-            if (status != ReferralStatus.InProgress)
+            if (!(status == ReferralStatus.InProgress || status == ReferralStatus.Assigned || status == ReferralStatus.Unassigned))
             {
                 await act.Should().ThrowAsync<InvalidOperationException>()
                     .WithMessage("Referral is not in a valid state for archive");
