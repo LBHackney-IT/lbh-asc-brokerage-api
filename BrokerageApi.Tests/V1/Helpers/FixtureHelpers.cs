@@ -4,6 +4,7 @@ using AutoFixture.Dsl;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Controllers.Parameters;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
+using BrokerageApi.V1.Services.Interfaces;
 using MicroElements.AutoFixture.NodaTime;
 
 namespace BrokerageApi.Tests.V1.Helpers

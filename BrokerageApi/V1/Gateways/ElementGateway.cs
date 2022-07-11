@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
+using BrokerageApi.V1.Services.Interfaces;
 
 namespace BrokerageApi.V1.Gateways
 {
@@ -11,10 +12,12 @@ namespace BrokerageApi.V1.Gateways
     {
         private readonly BrokerageContext _context;
         private readonly IOrderedQueryable<Element> _currentElements;
+        private readonly IClockService _clock;
 
         public ElementGateway(BrokerageContext context)
         {
             _context = context;
+            _clock = context.Clock;
 
             _currentElements = _context.Elements
                 .Include(e => e.ElementType)
@@ -33,6 +36,15 @@ namespace BrokerageApi.V1.Gateways
         {
             return await _currentElements
                 .Where(e => e.SocialCareId == socialCareId)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Element>> GetCurrentBySocialCareId(string socialCareId)
+        {
+            return await _currentElements
+                .Where(e => e.SocialCareId == socialCareId)
+                .Where(e => e.InternalStatus == ElementStatus.Approved)
+                .Where(e => e.EndDate >= _clock.Today || e.EndDate == null)
                 .ToListAsync();
         }
 

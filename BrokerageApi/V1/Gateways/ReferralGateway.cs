@@ -93,6 +93,7 @@ namespace BrokerageApi.V1.Gateways
                 .Include(r => r.AssignedBroker)
                 .Include(r => r.AssignedApprover)
                 .Include(r => r.ReferralAmendments)
+                .Include(r => r.ReferralElements)
                 .SingleOrDefaultAsync();
         }
 

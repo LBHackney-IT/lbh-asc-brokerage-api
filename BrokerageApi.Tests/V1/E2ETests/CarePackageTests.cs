@@ -180,6 +180,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             ValidateElementResponse(responseElement3, elementWithSuspensions, hourlyElementType, service, provider, null, referral.Id);
             responseElement3.SuspensionElements.Should().BeEquivalentTo(suspensions.Select(e => e.ToResponse()));
         }
+
         private static void ValidateElementResponse(ElementResponse elementResponse,
             Element element,
             ElementType elementType,
@@ -207,6 +208,22 @@ namespace BrokerageApi.Tests.V1.E2ETests
         public async Task CanStartCarePackage()
         {
             // Arrange
+            var service = _fixture.BuildService()
+                .Create();
+
+            var elementType = _fixture.BuildElementType(service.Id)
+                .With(et => et.CostType, ElementCostType.Hourly)
+                .With(et => et.NonPersonalBudget, false)
+                .Create();
+
+            var provider = _fixture.BuildProvider()
+                .Create();
+
+            var startDate = CurrentDate.PlusDays(-100);
+
+            var parentElement = _fixture.BuildElement(elementType.Id, provider.Id)
+                .Create();
+
             var referral = new Referral()
             {
                 WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
@@ -223,6 +240,32 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 UpdatedAt = PreviousInstant
             };
 
+            var element = new Element
+            {
+                Id = 111,
+                SocialCareId = "33556688",
+                ElementTypeId = elementType.Id,
+                NonPersonalBudget = false,
+                ProviderId = provider.Id,
+                Details = "Some notes",
+                InternalStatus = ElementStatus.Approved,
+                ParentElementId = null,
+                StartDate = startDate,
+                EndDate = null,
+                Monday = new ElementCost(3, 75),
+                Tuesday = new ElementCost(3, 75),
+                Thursday = new ElementCost(3, 75),
+                Quantity = 6,
+                Cost = 225,
+                CreatedAt = CurrentInstant,
+                UpdatedAt = CurrentInstant,
+                ParentElement = parentElement
+            };
+
+            await Context.Services.AddAsync(service);
+            await Context.ElementTypes.AddAsync(elementType);
+            await Context.Providers.AddAsync(provider);
+            await Context.Elements.AddAsync(element);
             await Context.Referrals.AddAsync(referral);
             await Context.SaveChangesAsync();
 
@@ -236,6 +279,9 @@ namespace BrokerageApi.Tests.V1.E2ETests
             response.Status.Should().Be(ReferralStatus.InProgress);
             response.StartedAt.Should().Be(CurrentInstant);
             response.UpdatedAt.Should().BeEquivalentTo(CurrentInstant);
+
+            var referralElements = await Context.ReferralElements.Where(re => re.ReferralId == referral.Id).ToListAsync();
+            referralElements.Count.Should().Be(1);
         }
 
         [Test, Property("AsUser", "ReferrerAndBroker")]
