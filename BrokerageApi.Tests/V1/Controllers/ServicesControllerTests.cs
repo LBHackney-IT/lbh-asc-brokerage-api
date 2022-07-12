@@ -99,25 +99,5 @@ namespace BrokerageApi.Tests.V1.Controllers
             result.Status.Should().Be((int) HttpStatusCode.NotFound);
             result.Detail.Should().Be("Service not found for: 123456 (Parameter 'id')");
         }
-
-        [Test]
-        public async Task FindProvidersByService()
-        {
-            // Arrange
-            var service = _fixture.BuildService().Create();
-            var providers = _fixture.BuildProvider().CreateMany();
-            _mockFindProvidersUseCase
-                .Setup(x => x.ExecuteAsync("Acme"))
-                .ReturnsAsync(providers);
-
-            // Act
-            var response = await _classUnderTest.FindProvidersByService(service.Id, "Acme");
-            var statusCode = GetStatusCode(response);
-            var result = GetResultData<List<ProviderResponse>>(response);
-
-            // Assert
-            statusCode.Should().Be((int) HttpStatusCode.OK);
-            result.Should().BeEquivalentTo(providers.Select(s => s.ToResponse()).ToList());
-        }
     }
 }

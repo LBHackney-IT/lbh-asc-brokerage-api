@@ -64,28 +64,5 @@ namespace BrokerageApi.V1.Controllers
                 );
             }
         }
-
-        [HttpGet]
-        [Route("{id}/providers")]
-        [ProducesResponseType(typeof(List<ProviderResponse>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> FindProvidersByService([FromRoute] int id, [FromQuery] string query)
-        {
-            try
-            {
-                var providers = await _findProvidersUseCase.ExecuteAsync(query);
-                return Ok(providers.Select(s => s.ToResponse()).ToList());
-            }
-            catch (ArgumentNullException e)
-            {
-                return Problem(
-                    e.Message,
-                    $"/api/v1/services/{id}/providers",
-                    StatusCodes.Status404NotFound, "Not Found"
-                );
-            }
-        }
     }
 }
