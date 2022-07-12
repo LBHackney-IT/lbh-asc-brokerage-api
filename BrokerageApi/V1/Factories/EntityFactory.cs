@@ -18,7 +18,8 @@ namespace BrokerageApi.V1.Factories
                 DirectPayments = request.DirectPayments,
                 UrgentSince = request.UrgentSince,
                 Status = ReferralStatus.Unassigned,
-                Note = request.Note
+                Note = request.Note,
+                Workflows = request.Workflows
             };
         }
 

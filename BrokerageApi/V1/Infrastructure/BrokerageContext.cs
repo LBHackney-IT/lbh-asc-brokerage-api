@@ -48,6 +48,7 @@ namespace BrokerageApi.V1.Infrastructure
         public DbSet<User> Users { get; set; }
         public DbSet<AuditEvent> AuditEvents { get; set; }
         public DbSet<ServiceUser> ServiceUsers { get; set; }
+        public DbSet<Workflow> Workflows { get; set; }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

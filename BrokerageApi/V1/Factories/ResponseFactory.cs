@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Infrastructure;
@@ -136,7 +137,8 @@ namespace BrokerageApi.V1.Factories
                 UpdatedAt = referral.UpdatedAt,
                 AssignedBroker = referral.AssignedBroker?.ToResponse(),
                 AssignedApprover = referral.AssignedApprover?.ToResponse(),
-                Amendments = referral.ReferralAmendments?.Select(a => a.ToResponse()).ToList()
+                Amendments = referral.ReferralAmendments?.Select(a => a.ToResponse()).ToList(),
+                Workflows = referral.Workflows
             };
         }
 

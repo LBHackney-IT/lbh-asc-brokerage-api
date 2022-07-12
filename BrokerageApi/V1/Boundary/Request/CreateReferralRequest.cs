@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using NodaTime;
 using BrokerageApi.V1.Infrastructure;
+using System.Collections.Generic;
 
 namespace BrokerageApi.V1.Boundary.Request
 {
@@ -20,6 +21,8 @@ namespace BrokerageApi.V1.Boundary.Request
 
         [Required]
         public string ResidentName { get; set; }
+
+        public List<Workflow> Workflows { get; set; }
 
         public string PrimarySupportReason { get; set; }
 
