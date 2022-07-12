@@ -27,11 +27,11 @@ lint:
 	dotnet format
 
 .PHONY: migrate-dev-db
-migrate-dev-db: dev-db
+migrate-dev-db: build dev-db
 	docker-compose run --rm brokerage-api dotnet ef database update -p BrokerageApi -c BrokerageApi.V1.Infrastructure.BrokerageContext
 
 .PHONY: migrate-test-db
-migrate-test-db: test-db
+migrate-test-db: build-test test-db
 	docker-compose run --rm brokerage-api-test dotnet ef database update -p BrokerageApi -c BrokerageApi.V1.Infrastructure.BrokerageContext
 
 .PHONY: stop
