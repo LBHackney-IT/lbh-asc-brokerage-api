@@ -107,9 +107,9 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ParentElementId = null,
                 StartDate = startDate,
                 EndDate = null,
-                Wednesday = new ElementCost(1, -100),
+                Wednesday = new ElementCost(1, 100),
                 Quantity = 1,
-                Cost = -100,
+                Cost = 100,
                 CreatedAt = CurrentInstant,
                 UpdatedAt = CurrentInstant,
                 ParentElement = parentElement
@@ -164,8 +164,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             response.Id.Should().Be(referral.Id);
             response.StartDate.Should().Be(previousStartDate);
-            response.WeeklyCost.Should().Be(225);
-            response.WeeklyPayment.Should().Be(125);
+            response.WeeklyCost.Should().Be(325);
+            response.WeeklyPayment.Should().Be(325);
             response.Elements.Should().HaveCount(3);
 
             var responseElement1 = response.Elements.Single(e => e.Id == element1.Id);
@@ -546,6 +546,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var oneOffElementType = _fixture.BuildElementType(service.Id)
                 .With(et => et.CostType, ElementCostType.OneOff)
+                .With(et => et.CostOperation, MathOperation.Ignore)
+                .With(et => et.PaymentOperation, MathOperation.Ignore)
                 .Create();
 
             var dailyElements = _fixture.BuildElement(dailyElementType.Id, provider.Id)
@@ -656,6 +658,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var oneOffElementType = _fixture.BuildElementType(service.Id)
                 .With(et => et.CostType, ElementCostType.OneOff)
+                .With(et => et.CostOperation, MathOperation.Ignore)
+                .With(et => et.PaymentOperation, MathOperation.Ignore)
                 .Create();
 
             var referral = _fixture.BuildReferral(ReferralStatus.AwaitingApproval)

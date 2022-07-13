@@ -67,6 +67,8 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(et => et.Elements)
                 .With(et => et.ServiceId, serviceId)
                 .With(et => et.Type, type)
+                .With(et => et.CostOperation, MathOperation.Add)
+                .With(et => et.PaymentOperation, MathOperation.Add)
                 .With(et => et.IsArchived, false);
         }
         public static IPostprocessComposer<Referral> BuildReferral(this IFixture fixture, ReferralStatus? status = null)
@@ -101,6 +103,7 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(e => e.SuspensionElements)
                 .Without(e => e.Provider)
                 .Without(e => e.ElementType)
+                .Without(e => e.EndDate)
                 .With(e => e.ProviderId, providerId)
                 .With(e => e.ElementTypeId, elementTypeId)
                 .With(e => e.InternalStatus, ElementStatus.InProgress)

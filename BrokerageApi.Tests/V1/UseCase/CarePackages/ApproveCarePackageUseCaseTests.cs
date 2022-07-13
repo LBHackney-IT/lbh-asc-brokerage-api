@@ -267,7 +267,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             if (expectedCancellation.HasValue && expectedCancellation.Value)
             {
                 element.InternalStatus.Should().Be(ElementStatus.Cancelled);
-                referralElement.PendingCancellation.Should().BeNull();
+                referralElement.PendingCancellation.Should().BeFalse();
             }
 
             referralElement.PendingEndDate.Should().BeNull();

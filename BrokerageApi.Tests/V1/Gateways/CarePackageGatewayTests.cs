@@ -42,6 +42,8 @@ namespace BrokerageApi.Tests.V1.Gateways
             var oneOffElementType = Fixture.BuildElementType(service.Id)
                 .With(et => et.CostType, ElementCostType.OneOff)
                 .With(et => et.NonPersonalBudget, false)
+                .With(et => et.CostOperation, MathOperation.Ignore)
+                .With(et => et.PaymentOperation, MathOperation.Ignore)
                 .Create();
 
             var provider = Fixture.BuildProvider()
@@ -56,7 +58,7 @@ namespace BrokerageApi.Tests.V1.Gateways
 
             var dailyElement = Fixture.BuildElement(dailyElementType.Id, provider.Id)
                 .With(e => e.StartDate, startDate)
-                .With(e => e.Cost, Fixture.CreateInt(-1000, -1))
+                .With(e => e.Cost, Fixture.CreateInt(1, 1000))
                 .Create();
 
             var oneOffElement = Fixture.BuildElement(oneOffElementType.Id, provider.Id)
@@ -70,7 +72,7 @@ namespace BrokerageApi.Tests.V1.Gateways
                 })
                 .Create();
 
-            var expectedWeeklyCost = hourlyElement.Cost;
+            var expectedWeeklyCost = hourlyElement.Cost + dailyElement.Cost;
             var expectedWeeklyPayment = hourlyElement.Cost + dailyElement.Cost;
             var expectedYearlyPayment = (expectedWeeklyPayment * 52) + oneOffElement.Cost;
 
@@ -129,6 +131,8 @@ namespace BrokerageApi.Tests.V1.Gateways
                 ServiceId = 1,
                 Name = "Day Opportunities (hourly)",
                 CostType = ElementCostType.Hourly,
+                CostOperation = MathOperation.Add,
+                PaymentOperation = MathOperation.Add,
                 NonPersonalBudget = false,
                 IsArchived = false
             };
@@ -139,6 +143,8 @@ namespace BrokerageApi.Tests.V1.Gateways
                 ServiceId = 2,
                 Name = "Day Opportunities (daily)",
                 CostType = ElementCostType.Daily,
+                CostOperation = MathOperation.Add,
+                PaymentOperation = MathOperation.Add,
                 NonPersonalBudget = false,
                 IsArchived = false
             };
@@ -230,9 +236,9 @@ namespace BrokerageApi.Tests.V1.Gateways
                         ParentElementId = null,
                         StartDate = startDate,
                         EndDate = null,
-                        Wednesday = new ElementCost(1, -100),
+                        Wednesday = new ElementCost(1, 100),
                         Quantity = 1,
-                        Cost = -100,
+                        Cost = 100,
                         CreatedAt = CurrentInstant,
                         UpdatedAt = CurrentInstant
                     },
@@ -258,8 +264,8 @@ namespace BrokerageApi.Tests.V1.Gateways
             // Assert
             Assert.That(result.ElementAt(0).Id, Is.EqualTo(referral.Id));
             Assert.That(result.ElementAt(0).StartDate, Is.EqualTo(startDate));
-            Assert.That(result.ElementAt(0).WeeklyCost, Is.EqualTo(225));
-            Assert.That(result.ElementAt(0).WeeklyPayment, Is.EqualTo(125));
+            Assert.That(result.ElementAt(0).WeeklyCost, Is.EqualTo(325));
+            Assert.That(result.ElementAt(0).WeeklyPayment, Is.EqualTo(325));
             Assert.That(result.ElementAt(0).Elements.Count, Is.EqualTo(2));
             Assert.That(result.ElementAt(0).CarePackageName, Is.EqualTo("A Different Service, Supported Living"));
 
@@ -294,6 +300,8 @@ namespace BrokerageApi.Tests.V1.Gateways
 
             var elementType = Fixture.BuildElementType(service.Id)
                 .With(et => et.CostType, ElementCostType.OneOff)
+                .With(et => et.CostOperation, MathOperation.Ignore)
+                .With(et => et.PaymentOperation, MathOperation.Ignore)
                 .Create();
 
             var belowLimitElement = Fixture.BuildElement(elementType.Id, provider.Id)

@@ -486,7 +486,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             resetCode.Should().Be(HttpStatusCode.OK);
 
             var resetReferralElement = await Context.ReferralElements.SingleAsync(re => re.ElementId == element.Id && re.ReferralId == referral.Id);
-            resetReferralElement.PendingCancellation.Should().BeNull();
+            resetReferralElement.PendingCancellation.Should().BeFalse();
             resetReferralElement.PendingComment.Should().BeNull();
         }
 

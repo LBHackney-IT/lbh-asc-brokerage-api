@@ -75,7 +75,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageCareCharges
             await _classUnderTest.ExecuteAsync(referral.Id, element.Id);
 
             referralElement.PendingEndDate.Should().BeNull();
-            referralElement.PendingCancellation.Should().BeNull();
+            referralElement.PendingCancellation.Should().BeFalse();
             referralElement.PendingComment.Should().BeNull();
             _dbSaver.VerifyChangesSaved();
             _mockDeleteCareChargeUseCase.Verify(x => x.ExecuteAsync(referral.Id, element.Id), Times.Never);

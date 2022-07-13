@@ -121,10 +121,10 @@ namespace BrokerageApi.V1.UseCase.CarePackages
                 await _auditGateway.AddAuditEvent(AuditEventType.ElementEnded, referral.SocialCareId, _userService.UserId, metadata);
             }
 
-            if (referralElement.PendingCancellation != null)
+            if (referralElement.PendingCancellation)
             {
                 e.InternalStatus = ElementStatus.Cancelled;
-                referralElement.PendingCancellation = null;
+                referralElement.PendingCancellation = false;
                 await _auditGateway.AddAuditEvent(AuditEventType.ElementCancelled, referral.SocialCareId, _userService.UserId, metadata);
             }
         }

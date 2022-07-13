@@ -5,6 +5,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -15,9 +16,10 @@ using NpgsqlTypes;
 namespace V1.Infrastructure.Migrations
 {
     [DbContext(typeof(BrokerageContext))]
-    partial class BrokerageContextModelSnapshot : ModelSnapshot
+    [Migration("20220713110739_UpdateWeeklyCostAndPaymentViews")]
+    partial class UpdateWeeklyCostAndPaymentViews
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -630,10 +632,8 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("referral_id");
 
-                    b.Property<bool>("PendingCancellation")
-                        .ValueGeneratedOnAdd()
+                    b.Property<bool?>("PendingCancellation")
                         .HasColumnType("boolean")
-                        .HasDefaultValue(false)
                         .HasColumnName("pending_cancellation");
 
                     b.Property<string>("PendingComment")
