@@ -177,6 +177,14 @@ namespace BrokerageApi.V1.Infrastructure
                 .HasDefaultValue(ElementBillingType.Supplier);
 
             modelBuilder.Entity<ElementType>()
+                .Property(et => et.CostOperation)
+                .HasDefaultValue(MathOperation.Ignore);
+
+            modelBuilder.Entity<ElementType>()
+                .Property(et => et.PaymentOperation)
+                .HasDefaultValue(MathOperation.Ignore);
+
+            modelBuilder.Entity<ElementType>()
                 .Property(et => et.NonPersonalBudget)
                 .HasDefaultValue(false);
 
@@ -231,6 +239,10 @@ namespace BrokerageApi.V1.Infrastructure
                     {
                         j.HasKey(re => new { re.ElementId, re.ReferralId });
                     });
+
+            modelBuilder.Entity<ReferralElement>()
+                .Property(re => re.PendingCancellation)
+                .HasDefaultValue(false);
 
             modelBuilder.Entity<Service>()
                 .Property(s => s.Id)
