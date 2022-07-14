@@ -22,6 +22,7 @@ namespace BrokerageApi.V1.Gateways
                 .Include(r => r.AssignedBroker)
                 .Include(r => r.AssignedApprover)
                 .Include(r => r.ReferralAmendments)
+                .Include(r => r.Workflows)
                 .OrderBy(r => r.Id);
         }
 
@@ -83,6 +84,7 @@ namespace BrokerageApi.V1.Gateways
                 .Include(r => r.AssignedBroker)
                 .Include(r => r.AssignedApprover)
                 .Include(r => r.ReferralAmendments)
+                .Include(r => r.Workflows)
                 .Where(r => r.SocialCareId == socialCareId);
 
             return await referrals.ToListAsync();
@@ -94,6 +96,7 @@ namespace BrokerageApi.V1.Gateways
                 .Include(r => r.AssignedBroker)
                 .Include(r => r.AssignedApprover)
                 .Include(r => r.ReferralAmendments)
+                .Include(r => r.Workflows)
                 .Where(r => r.WorkflowId == workflowId)
                 .SingleOrDefaultAsync();
         }
@@ -106,6 +109,7 @@ namespace BrokerageApi.V1.Gateways
                 .Include(r => r.AssignedApprover)
                 .Include(r => r.ReferralAmendments)
                 .Include(r => r.ReferralElements)
+                .Include(r => r.Workflows)
                 .SingleOrDefaultAsync();
         }
 
@@ -120,6 +124,7 @@ namespace BrokerageApi.V1.Gateways
                 .Include(r => r.Elements)
                     .ThenInclude(e => e.ReferralElements)
                 .Include(r => r.ReferralAmendments)
+                .Include(r => r.Workflows)
                 .SingleOrDefaultAsync();
         }
     }

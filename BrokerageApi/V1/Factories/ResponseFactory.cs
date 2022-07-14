@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Infrastructure;
@@ -37,7 +38,8 @@ namespace BrokerageApi.V1.Factories
                 EstimatedYearlyCost = carePackage.EstimatedYearlyCost,
                 Elements = carePackage.ReferralElements?.Select(re => re.Element.ToResponse(re.ReferralId)).ToList(),
                 Comment = carePackage.Comment,
-                Amendments = carePackage.ReferralAmendments?.Select(a => a.ToResponse()).ToList()
+                Amendments = carePackage.ReferralAmendments?.Select(a => a.ToResponse()).ToList(),
+                Workflows = carePackage.Workflows
             };
         }
 
@@ -136,7 +138,8 @@ namespace BrokerageApi.V1.Factories
                 UpdatedAt = referral.UpdatedAt,
                 AssignedBroker = referral.AssignedBroker?.ToResponse(),
                 AssignedApprover = referral.AssignedApprover?.ToResponse(),
-                Amendments = referral.ReferralAmendments?.Select(a => a.ToResponse()).ToList()
+                Amendments = referral.ReferralAmendments?.Select(a => a.ToResponse()).ToList(),
+                Workflows = referral.Workflows
             };
         }
 

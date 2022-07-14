@@ -5,6 +5,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -15,9 +16,10 @@ using NpgsqlTypes;
 namespace V1.Infrastructure.Migrations
 {
     [DbContext(typeof(BrokerageContext))]
-    partial class BrokerageContextModelSnapshot : ModelSnapshot
+    [Migration("20220712170429_AddWorkflowTable")]
+    partial class AddWorkflowTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -351,12 +353,6 @@ namespace V1.Infrastructure.Migrations
                         .HasDefaultValue(ElementBillingType.Supplier)
                         .HasColumnName("billing");
 
-                    b.Property<int>("CostOperation")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("cost_operation");
-
                     b.Property<ElementCostType>("CostType")
                         .HasColumnType("element_cost_type")
                         .HasColumnName("cost_type");
@@ -387,12 +383,6 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(false)
                         .HasColumnName("non_personal_budget");
-
-                    b.Property<int>("PaymentOperation")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("payment_operation");
 
                     b.Property<int>("Position")
                         .HasColumnType("integer")
@@ -579,11 +569,6 @@ namespace V1.Infrastructure.Migrations
                     b.HasIndex("AssignedBrokerEmail")
                         .HasDatabaseName("ix_referrals_assigned_broker_email");
 
-                    b.HasIndex("SocialCareId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_referrals_social_care_id")
-                        .HasFilter("status = 'in_progress' OR status = 'awaiting_approval'");
-
                     b.HasIndex("WorkflowId")
                         .IsUnique()
                         .HasDatabaseName("ix_referrals_workflow_id");
@@ -635,10 +620,8 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("referral_id");
 
-                    b.Property<bool>("PendingCancellation")
-                        .ValueGeneratedOnAdd()
+                    b.Property<bool?>("PendingCancellation")
                         .HasColumnType("boolean")
-                        .HasDefaultValue(false)
                         .HasColumnName("pending_cancellation");
 
                     b.Property<string>("PendingComment")
@@ -1005,21 +988,12 @@ namespace V1.Infrastructure.Migrations
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Workflow", b =>
                 {
-                    b.HasOne("BrokerageApi.V1.Infrastructure.CarePackage", null)
-                        .WithMany("Workflows")
-                        .HasForeignKey("ReferralId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_workflows_care_packages_care_package_id");
-
-                    b.HasOne("BrokerageApi.V1.Infrastructure.Referral", "Referral")
+                    b.HasOne("BrokerageApi.V1.Infrastructure.Referral", null)
                         .WithMany("Workflows")
                         .HasForeignKey("ReferralId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_workflows_referrals_referral_id");
-
-                    b.Navigation("Referral");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.CarePackage", b =>
@@ -1027,8 +1001,6 @@ namespace V1.Infrastructure.Migrations
                     b.Navigation("ReferralAmendments");
 
                     b.Navigation("ReferralElements");
-
-                    b.Navigation("Workflows");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Element", b =>

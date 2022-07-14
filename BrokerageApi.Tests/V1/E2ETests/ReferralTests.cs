@@ -676,6 +676,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             {
                 WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
                 WorkflowType = WorkflowType.Assessment,
+                Workflows = new List<Workflow>(),
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
