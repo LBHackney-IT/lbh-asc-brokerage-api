@@ -167,7 +167,8 @@ namespace BrokerageApi.Tests.V1.Helpers
         {
 
             return fixture.Build<GetServiceUserRequest>()
-            .With(su => su.SocialCareId, socialCareId);
+            .With(su => su.SocialCareId, socialCareId)
+            .Without(su => su.Provider);
         }
     }
 }

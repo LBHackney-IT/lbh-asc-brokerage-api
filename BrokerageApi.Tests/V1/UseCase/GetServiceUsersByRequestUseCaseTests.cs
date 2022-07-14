@@ -12,6 +12,8 @@ namespace BrokerageApi.Tests.V1.UseCase
     public class GetServiceUsersByRequestUseCaseTests
     {
         private Mock<IServiceUserGateway> _mockServiceUserGateway;
+        private Mock<IElementGateway> _mockElementGateway;
+
         private GetServiceUserByRequestUseCase _classUnderTest;
         private Fixture _fixture;
 
@@ -20,7 +22,9 @@ namespace BrokerageApi.Tests.V1.UseCase
         {
             _fixture = FixtureHelpers.Fixture;
             _mockServiceUserGateway = new Mock<IServiceUserGateway>();
-            _classUnderTest = new GetServiceUserByRequestUseCase(_mockServiceUserGateway.Object);
+            _mockElementGateway = new Mock<IElementGateway>();
+
+            _classUnderTest = new GetServiceUserByRequestUseCase(_mockServiceUserGateway.Object, _mockElementGateway.Object);
         }
 
         [Test]
