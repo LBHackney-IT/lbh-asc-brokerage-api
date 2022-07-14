@@ -4,6 +4,7 @@ using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Services.Interfaces;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackages;
+using Npgsql;
 
 namespace BrokerageApi.V1.UseCase.CarePackages
 {
@@ -63,7 +64,24 @@ namespace BrokerageApi.V1.UseCase.CarePackages
 
                 referral.Status = ReferralStatus.InProgress;
                 referral.StartedAt = _clock.Now;
-                await _dbSaver.SaveChangesAsync();
+
+                try
+                {
+                    await _dbSaver.SaveChangesAsync();
+                }
+                catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
+                {
+                    PostgresException innerEx = ex.InnerException as PostgresException;
+
+                    if (innerEx?.SqlState == PostgresErrorCodes.UniqueViolation && innerEx.ConstraintName == "ix_referrals_social_care_id")
+                    {
+                        throw new InvalidOperationException($"A referral for {referral.ResidentName} is already in progress or awaiting approval");
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
             }
 
             return referral;
