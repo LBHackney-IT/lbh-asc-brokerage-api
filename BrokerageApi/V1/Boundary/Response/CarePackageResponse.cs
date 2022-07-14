@@ -62,6 +62,8 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public List<AmendmentResponse> Amendments { get; set; }
 
+        public List<Workflow> Workflows { get; set; }
+
         public string Comment { get; set; }
     }
 }

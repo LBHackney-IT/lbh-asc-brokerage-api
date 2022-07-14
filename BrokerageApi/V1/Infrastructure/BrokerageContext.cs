@@ -135,6 +135,16 @@ namespace BrokerageApi.V1.Infrastructure
                 .HasForeignKey("AssignedApproverId")
                 .HasPrincipalKey("Email");
 
+            modelBuilder.Entity<CarePackage>()
+              .HasMany(cp => cp.Workflows)
+              .WithOne()
+              .HasForeignKey("ReferralId");
+
+            modelBuilder.Entity<Workflow>()
+              .HasOne(a => a.Referral)
+              .WithMany(r => r.Workflows)
+              .HasForeignKey("ReferralId");
+
             modelBuilder.Entity<Referral>()
                 .HasOne(cp => cp.AssignedBroker)
                 .WithMany()

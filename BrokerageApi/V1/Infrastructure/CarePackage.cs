@@ -15,6 +15,8 @@ namespace BrokerageApi.V1.Infrastructure
 
         public WorkflowType WorkflowType { get; set; }
 
+        public List<Workflow> Workflows { get; set; }
+
         [Required]
         public string FormName { get; set; }
 

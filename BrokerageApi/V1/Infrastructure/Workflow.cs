@@ -1,6 +1,6 @@
+using Newtonsoft.Json;
 using NodaTime;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 
 namespace BrokerageApi.V1.Infrastructure
 {
@@ -16,5 +16,7 @@ namespace BrokerageApi.V1.Infrastructure
         public string PrimarySupportReason { get; set; }
         public string DirectPayments { get; set; }
         public Instant? UrgentSince { get; set; }
+        [JsonIgnore]
+        public Referral Referral { get; set; }
     }
 }

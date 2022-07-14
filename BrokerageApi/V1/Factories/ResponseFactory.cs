@@ -38,7 +38,8 @@ namespace BrokerageApi.V1.Factories
                 EstimatedYearlyCost = carePackage.EstimatedYearlyCost,
                 Elements = carePackage.ReferralElements?.Select(re => re.Element.ToResponse(re.ReferralId)).ToList(),
                 Comment = carePackage.Comment,
-                Amendments = carePackage.ReferralAmendments?.Select(a => a.ToResponse()).ToList()
+                Amendments = carePackage.ReferralAmendments?.Select(a => a.ToResponse()).ToList(),
+                Workflows = carePackage.Workflows
             };
         }
 

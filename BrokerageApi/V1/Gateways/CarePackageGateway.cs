@@ -31,6 +31,7 @@ namespace BrokerageApi.V1.Gateways
                 .Include(cp => cp.AssignedBroker)
                 .Include(cp => cp.AssignedApprover)
                 .Include(cp => cp.ReferralAmendments)
+                .Include(cp => cp.Workflows)
                 .SingleOrDefaultAsync(cp => cp.Id == id);
         }
         public async Task<IEnumerable<CarePackage>> GetByServiceUserIdAsync(string serviceUserId)
@@ -45,6 +46,7 @@ namespace BrokerageApi.V1.Gateways
                 .Include(cp => cp.AssignedBroker)
                 .Include(cp => cp.AssignedApprover)
                 .Include(cp => cp.ReferralAmendments)
+                .Include(cp => cp.Workflows)
                 .ToListAsync();
         }
 
@@ -61,6 +63,7 @@ namespace BrokerageApi.V1.Gateways
                 .Include(cp => cp.AssignedBroker)
                 .Include(cp => cp.AssignedApprover)
                 .Include(cp => cp.ReferralAmendments)
+                .Include(cp => cp.Workflows)
                 .ToListAsync();
         }
 
