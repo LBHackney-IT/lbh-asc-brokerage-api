@@ -44,6 +44,13 @@ namespace BrokerageApi.V1.Gateways
                 .SingleOrDefaultAsync();
         }
 
+        public async Task<IEnumerable<Element>> GetByProviderIdAsync(int? id)
+        {
+            return await _currentElements
+                .Where(e => e.ProviderId == id)
+                .ToListAsync();
+        }
+
         public async Task AddElementAsync(Element element)
         {
             await _context.Elements.AddAsync(element);

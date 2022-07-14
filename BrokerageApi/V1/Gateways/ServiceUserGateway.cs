@@ -15,6 +15,8 @@ namespace BrokerageApi.V1.Gateways
     {
         private readonly BrokerageContext _context;
 
+
+
         public ServiceUserGateway(BrokerageContext context)
         {
             _context = context;
@@ -24,35 +26,37 @@ namespace BrokerageApi.V1.Gateways
 
         public async Task<IEnumerable<ServiceUser>> GetByRequestAsync(GetServiceUserRequest request)
         {
-            var socialCareId = request.SocialCareId;
-            var serviceUserName = request.ServiceUserName;
-            var dateOfBirth = request.DateOfBirth;
+            var requestSocialCareId = request.SocialCareId;
+            var requestServiceUserName = request.ServiceUserName;
+            var requestDateOfBirth = request.DateOfBirth;
+            var requestProvider = request.Provider;
 
-            if (socialCareId != null)
+            if (requestSocialCareId != null)
             {
                 return await _context.ServiceUsers
-                   .Where(u => u.SocialCareId == socialCareId)
+                   .Where(u => u.SocialCareId == requestSocialCareId)
                    .ToListAsync();
             }
-            else if (dateOfBirth != null && serviceUserName != null)
+            else if (requestDateOfBirth != null && requestServiceUserName != null)
             {
                 return await _context.ServiceUsers
-                    .Where(u => u.DateOfBirth == dateOfBirth)
-                    .Where(p => p.NameSearchVector.Matches(EF.Functions.ToTsQuery("simple", ParsingHelpers.ParsedQuery(serviceUserName))))
+                    .Where(u => u.DateOfBirth == requestDateOfBirth)
+                    .Where(p => p.NameSearchVector.Matches(EF.Functions.ToTsQuery("simple", ParsingHelpers.ParsedQuery(requestServiceUserName))))
                     .ToListAsync();
             }
-            else if (dateOfBirth != null)
+            else if (requestDateOfBirth != null)
             {
                 return await _context.ServiceUsers
-                    .Where(u => u.DateOfBirth == dateOfBirth)
+                    .Where(u => u.DateOfBirth == requestDateOfBirth)
                     .ToListAsync();
             }
-            else if (serviceUserName != null)
+            else if (requestServiceUserName != null)
             {
                 return await _context.ServiceUsers
-                    .Where(p => p.NameSearchVector.Matches(EF.Functions.ToTsQuery("simple", ParsingHelpers.ParsedQuery(serviceUserName))))
+                    .Where(p => p.NameSearchVector.Matches(EF.Functions.ToTsQuery("simple", ParsingHelpers.ParsedQuery(requestServiceUserName))))
                     .ToListAsync();
             }
+
             else
             {
                 return null;
