@@ -225,6 +225,7 @@ namespace BrokerageApi
             services.AddTransient<ICreateElementUseCase, CreateElementUseCase>();
             services.AddTransient<ICreateReferralUseCase, CreateReferralUseCase>();
             services.AddTransient<IFindProvidersUseCase, FindProvidersUseCase>();
+            services.AddTransient<IGetApprovedReferralsUseCase, GetApprovedReferralsUseCase>();
             services.AddTransient<IGetAssignedReferralsUseCase, GetAssignedReferralsUseCase>();
             services.AddTransient<IGetCurrentReferralsUseCase, GetCurrentReferralsUseCase>();
             services.AddTransient<IGetCurrentElementsUseCase, GetCurrentElementsUseCase>();

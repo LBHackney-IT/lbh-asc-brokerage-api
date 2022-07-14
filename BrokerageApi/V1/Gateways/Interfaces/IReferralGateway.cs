@@ -12,6 +12,7 @@ namespace BrokerageApi.V1.Gateways.Interfaces
         public Task<Referral> GetByIdAsync(int id);
         public Task<Referral> GetByIdWithElementsAsync(int id);
         public Task<IEnumerable<Referral>> GetAssignedAsync(string email, ReferralStatus? status = null);
+        public Task<IEnumerable<Referral>> GetApprovedAsync();
         public Task<IEnumerable<Referral>> GetBySocialCareIdWithElementsAsync(string socialCareId);
     }
 }

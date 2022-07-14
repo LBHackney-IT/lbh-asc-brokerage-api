@@ -22,6 +22,7 @@ namespace BrokerageApi.V1.Controllers
     public class ReferralsController : BaseController
     {
         private readonly ICreateReferralUseCase _createReferralUseCase;
+        private readonly IGetApprovedReferralsUseCase _getApprovedReferralsUseCase;
         private readonly IGetAssignedReferralsUseCase _getAssignedReferralsUseCase;
         private readonly IGetCurrentReferralsUseCase _getCurrentReferralsUseCase;
         private readonly IGetReferralByIdUseCase _getReferralByIdUseCase;
@@ -31,6 +32,7 @@ namespace BrokerageApi.V1.Controllers
         private readonly IGetBudgetApprovalsUseCase _getBudgetApprovalsUseCase;
 
         public ReferralsController(ICreateReferralUseCase createReferralUseCase,
+            IGetApprovedReferralsUseCase getApprovedReferralsUseCase,
             IGetAssignedReferralsUseCase getAssignedReferralsUseCase,
             IGetCurrentReferralsUseCase getCurrentReferralsUseCase,
             IGetReferralByIdUseCase getReferralByIdUseCase,
@@ -40,6 +42,7 @@ namespace BrokerageApi.V1.Controllers
             IGetBudgetApprovalsUseCase getBudgetApprovalsUseCase)
         {
             _createReferralUseCase = createReferralUseCase;
+            _getApprovedReferralsUseCase = getApprovedReferralsUseCase;
             _getAssignedReferralsUseCase = getAssignedReferralsUseCase;
             _getCurrentReferralsUseCase = getCurrentReferralsUseCase;
             _getReferralByIdUseCase = getReferralByIdUseCase;
@@ -78,6 +81,16 @@ namespace BrokerageApi.V1.Controllers
                     StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
                 );
             }
+        }
+
+        [HttpGet]
+        [Route("approved")]
+        [ProducesResponseType(typeof(List<ReferralResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetApprovedReferrals()
+        {
+            var referrals = await _getApprovedReferralsUseCase.ExecuteAsync();
+            return Ok(referrals.Select(r => r.ToResponse()).ToList());
         }
 
         [HttpGet]
