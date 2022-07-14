@@ -29,7 +29,7 @@ namespace BrokerageApi.V1.Gateways
             var requestSocialCareId = request.SocialCareId;
             var requestServiceUserName = request.ServiceUserName;
             var requestDateOfBirth = request.DateOfBirth;
-            var requestProvider = request.Provider;
+            var requestProvider = request.ProviderId;
 
             if (requestSocialCareId != null)
             {

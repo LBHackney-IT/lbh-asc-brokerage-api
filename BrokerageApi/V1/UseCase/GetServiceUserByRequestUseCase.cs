@@ -24,18 +24,21 @@ namespace BrokerageApi.V1.UseCase
 
         public async Task<IEnumerable<ServiceUser>> ExecuteAsync(GetServiceUserRequest request)
         {
-            var provider = request.Provider;
+            var provider = request.ProviderId;
             if (provider != null)
             {
+                //retrieving the elements for this provider
                 var elements = await _elementGateway.GetByProviderIdAsync(provider);
                 var serviceUsers = new List<ServiceUser>();
                 foreach (var element in elements)
                 {
+                    //for each element found passing the socialcareid to the gateway 
                     var thisRequest = new GetServiceUserRequest();
                     thisRequest.SocialCareId = element.SocialCareId;
                     var serviceUser = await _serviceUserGateway.GetByRequestAsync(thisRequest);
                     foreach (var thisServiceUser in serviceUser)
                     {
+                        //adding each service user found to the list
                         serviceUsers.Add(thisServiceUser);
                     }
 
