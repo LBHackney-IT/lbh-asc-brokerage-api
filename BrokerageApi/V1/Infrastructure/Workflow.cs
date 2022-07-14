@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BrokerageApi.V1.Infrastructure
 {
-    public class Workflow: BaseEntity
+    public class Workflow : BaseEntity
     {
         [Key]
         public string Id { get; set; }
