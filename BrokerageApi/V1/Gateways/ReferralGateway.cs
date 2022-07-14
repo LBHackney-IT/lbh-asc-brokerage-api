@@ -65,6 +65,18 @@ namespace BrokerageApi.V1.Gateways
             }
         }
 
+        public async Task<IEnumerable<Referral>> GetApprovedAsync()
+        {
+            return await _context.Referrals
+                .Include(r => r.AssignedBroker)
+                .Include(r => r.AssignedApprover)
+                .Include(r => r.ReferralAmendments)
+                .Where(r => r.Status == ReferralStatus.Approved)
+                .Where(r => r.CareChargesConfirmedAt == null)
+                .OrderBy(r => r.Id)
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<Referral>> GetBySocialCareIdWithElementsAsync(string socialCareId)
         {
             var referrals = _context.Referrals
