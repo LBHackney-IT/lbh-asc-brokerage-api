@@ -1,5 +1,6 @@
 using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Infrastructure;
+using System.Collections.Generic;
 
 namespace BrokerageApi.V1.Factories
 {
@@ -19,7 +20,18 @@ namespace BrokerageApi.V1.Factories
                 UrgentSince = request.UrgentSince,
                 Status = ReferralStatus.Unassigned,
                 Note = request.Note,
-                Workflows = request.Workflows
+                Workflows = new List<Workflow>
+                    {
+                        new Workflow
+                        {
+                            Id = request.WorkflowId,
+                            FormName = request.FormName,
+                            Note = request.Note,
+                            PrimarySupportReason = request.PrimarySupportReason,
+                            DirectPayments = request.DirectPayments,
+                            UrgentSince = request.UrgentSince,
+                        }
+                    }
             };
         }
 

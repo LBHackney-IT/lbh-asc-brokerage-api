@@ -22,8 +22,6 @@ namespace BrokerageApi.V1.Boundary.Request
         [Required]
         public string ResidentName { get; set; }
 
-        public List<Workflow> Workflows { get; set; }
-
         public string PrimarySupportReason { get; set; }
 
         public string DirectPayments { get; set; }
