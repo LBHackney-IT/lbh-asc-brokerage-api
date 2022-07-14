@@ -7,6 +7,7 @@ using BrokerageApi.V1.Gateways;
 using BrokerageApi.V1.Infrastructure;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
 using NUnit.Framework;
 
 namespace BrokerageApi.Tests.V1.Gateways
@@ -21,7 +22,6 @@ namespace BrokerageApi.Tests.V1.Gateways
         public void Setup()
         {
             _fixture = FixtureHelpers.Fixture;
-
             _classUnderTest = new ElementGateway(BrokerageContext);
         }
 
@@ -57,6 +57,54 @@ namespace BrokerageApi.Tests.V1.Gateways
 
             var resultElements = await _classUnderTest.GetBySocialCareId(socialCareId);
 
+            resultElements.Should().BeEquivalentTo(expectedElements.OrderBy(e => e.Id));
+        }
+
+        [Test]
+        public async Task CanGetCurrentBySocialCareId()
+        {
+            // Arrange
+            const string socialCareId = "expectedId";
+
+            var approvedElements = (await CreateElementBuilder())
+                .With(e => e.SocialCareId, socialCareId)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .With(e => e.StartDate, Clock.Today - Period.FromDays(60))
+                .With(e => e.EndDate, Clock.Today + Period.FromDays(30))
+                .CreateMany();
+
+            var ongoingElements = (await CreateElementBuilder())
+                .With(e => e.SocialCareId, socialCareId)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .With(e => e.StartDate, Clock.Today - Period.FromDays(60))
+                .Without(e => e.EndDate)
+                .CreateMany();
+
+            var inProgressElements = (await CreateElementBuilder())
+                .With(e => e.SocialCareId, socialCareId)
+                .With(e => e.StartDate, Clock.Today + Period.FromDays(7))
+                .Without(e => e.EndDate)
+                .With(e => e.InternalStatus, ElementStatus.InProgress)
+                .CreateMany();
+
+            var endedElements = (await CreateElementBuilder())
+                .With(e => e.SocialCareId, socialCareId)
+                .With(e => e.StartDate, Clock.Today - Period.FromDays(60))
+                .With(e => e.EndDate, Clock.Today - Period.FromDays(30))
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .CreateMany();
+
+            var expectedElements = ongoingElements.Concat(approvedElements);
+            var unexpectedElements = inProgressElements.Concat(endedElements);
+
+            await SeedElements(expectedElements
+                .Concat(unexpectedElements)
+                .ToArray());
+
+            // Act
+            var resultElements = (await _classUnderTest.GetCurrentBySocialCareId(socialCareId)).ToArray();
+
+            // Assert
             resultElements.Should().BeEquivalentTo(expectedElements.OrderBy(e => e.Id));
         }
 

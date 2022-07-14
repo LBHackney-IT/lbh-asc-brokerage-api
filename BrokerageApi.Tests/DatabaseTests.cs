@@ -20,12 +20,12 @@ namespace BrokerageApi.Tests
     public class DatabaseTests
     {
         private IDbContextTransaction _transaction;
-        private IClockService _clock;
-        protected Fixture Fixture { get; set; }
+        protected IClockService Clock { get; private set; }
+        protected Fixture Fixture { get; private set; }
         protected BrokerageContext BrokerageContext { get; private set; }
-        protected Instant CurrentInstant => _clock.Now;
-        protected Instant PreviousInstant => _clock.Now - Duration.FromHours(2);
-        protected LocalDate CurrentDate => _clock.Today;
+        protected Instant CurrentInstant => Clock.Now;
+        protected Instant PreviousInstant => Clock.Now - Duration.FromHours(2);
+        protected LocalDate CurrentDate => Clock.Today;
 
         [SetUp]
         public void RunBeforeAnyTests()
@@ -39,9 +39,9 @@ namespace BrokerageApi.Tests
 
             var currentTime = SystemClock.Instance.GetCurrentInstant();
             var fakeClock = new FakeClock(currentTime);
-            _clock = new ClockService(fakeClock);
+            Clock = new ClockService(fakeClock);
 
-            BrokerageContext = new BrokerageContext(builder.Options, _clock);
+            BrokerageContext = new BrokerageContext(builder.Options, Clock);
             BrokerageContext.Database.Migrate();
             _transaction = BrokerageContext.Database.BeginTransaction();
         }
@@ -79,9 +79,11 @@ namespace BrokerageApi.Tests
         {
             JsonConvert.DefaultSettings = () =>
             {
-                var settings = new JsonSerializerSettings();
-                settings.Formatting = Formatting.Indented;
-                settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                var settings = new JsonSerializerSettings
+                {
+                    Formatting = Formatting.Indented,
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                };
 
                 settings.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
                 settings.Converters.Add(new StringEnumConverter());

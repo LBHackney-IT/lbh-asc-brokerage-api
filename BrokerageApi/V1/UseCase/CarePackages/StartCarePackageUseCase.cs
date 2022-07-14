@@ -10,18 +10,21 @@ namespace BrokerageApi.V1.UseCase.CarePackages
     public class StartCarePackageUseCase : IStartCarePackageUseCase
     {
         private readonly IReferralGateway _referralGateway;
+        private readonly IElementGateway _elementGateway;
         private readonly IUserService _userService;
         private readonly IClockService _clock;
         private readonly IDbSaver _dbSaver;
 
         public StartCarePackageUseCase(
             IReferralGateway referralGateway,
+            IElementGateway elementGateway,
             IUserService userService,
             IClockService clock,
             IDbSaver dbSaver
         )
         {
             _referralGateway = referralGateway;
+            _elementGateway = elementGateway;
             _userService = userService;
             _clock = clock;
             _dbSaver = dbSaver;
@@ -48,6 +51,16 @@ namespace BrokerageApi.V1.UseCase.CarePackages
 
             if (referral.Status == ReferralStatus.Assigned)
             {
+                var elements = await _elementGateway.GetCurrentBySocialCareId(referral.SocialCareId);
+
+                referral.ReferralElements.Clear();
+
+                foreach (var element in elements)
+                {
+                    var referralElement = new ReferralElement() { ReferralId = referral.Id, ElementId = element.Id };
+                    referral.ReferralElements.Add(referralElement);
+                }
+
                 referral.Status = ReferralStatus.InProgress;
                 referral.StartedAt = _clock.Now;
                 await _dbSaver.SaveChangesAsync();

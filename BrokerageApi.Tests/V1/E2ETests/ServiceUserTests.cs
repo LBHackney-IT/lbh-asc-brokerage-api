@@ -47,6 +47,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ServiceId = 1,
                 Name = "Day Opportunities (hourly)",
                 CostType = ElementCostType.Hourly,
+                CostOperation = MathOperation.Add,
+                PaymentOperation = MathOperation.Add,
                 NonPersonalBudget = false,
                 IsArchived = false
             };
@@ -57,6 +59,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ServiceId = 2,
                 Name = "Day Opportunities (daily)",
                 CostType = ElementCostType.Daily,
+                CostOperation = MathOperation.Add,
+                PaymentOperation = MathOperation.Add,
                 NonPersonalBudget = false,
                 IsArchived = false
             };
@@ -126,9 +130,9 @@ namespace BrokerageApi.Tests.V1.E2ETests
                         ParentElementId = null,
                         StartDate = startDate,
                         EndDate = null,
-                        Wednesday = new ElementCost(1, -100),
+                        Wednesday = new ElementCost(1, 100),
                         Quantity = 1,
-                        Cost = -100,
+                        Cost = 100,
                         CreatedAt = CurrentInstant,
                         UpdatedAt = CurrentInstant
                     },
@@ -176,8 +180,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             Assert.That(response[0].Id, Is.EqualTo(referral.Id));
             Assert.That(response[0].StartDate, Is.EqualTo(previousStartDate));
-            Assert.That(response[0].WeeklyCost, Is.EqualTo(225));
-            Assert.That(response[0].WeeklyPayment, Is.EqualTo(125));
+            Assert.That(response[0].WeeklyCost, Is.EqualTo(325));
+            Assert.That(response[0].WeeklyPayment, Is.EqualTo(325));
             Assert.That(response[0].Elements.Count, Is.EqualTo(2));
             Assert.That(response[0].CarePackageName, Is.EqualTo("A Different Service, Supported Living"));
 
@@ -209,7 +213,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             await Context.SaveChangesAsync();
             Context.ChangeTracker.Clear();
-            //Act 
+            //Act
             var (code, response) = await Get<List<ServiceUserResponse>>($"/api/v1/service-users/?SocialCareId={serviceUser.SocialCareId}");
             // Assert
             Assert.That(response, Has.Count.EqualTo(1));

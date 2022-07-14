@@ -766,6 +766,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var elementType = _fixture.BuildElementType(service.Id)
                 .With(et => et.CostType, ElementCostType.OneOff)
+                .With(et => et.CostOperation, MathOperation.Ignore)
+                .With(et => et.PaymentOperation, MathOperation.Ignore)
                 .Create();
 
             var belowLimitElement = _fixture.BuildElement(elementType.Id, provider.Id)

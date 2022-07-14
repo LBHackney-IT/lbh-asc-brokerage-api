@@ -10,6 +10,8 @@ namespace BrokerageApi.V1.Gateways.Interfaces
 
         public Task<IEnumerable<Element>> GetBySocialCareId(string socialCareId);
 
+        public Task<IEnumerable<Element>> GetCurrentBySocialCareId(string socialCareId);
+
         public Task<Element> GetByIdAsync(int id);
 
         public Task AddElementAsync(Element element);

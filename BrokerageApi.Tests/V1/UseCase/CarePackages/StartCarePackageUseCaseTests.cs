@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using BrokerageApi.Tests.V1.Helpers;
@@ -6,6 +8,7 @@ using BrokerageApi.V1.Gateways.Interfaces;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Services.Interfaces;
 using BrokerageApi.V1.UseCase.CarePackages;
+using FluentAssertions.Common;
 using Moq;
 using NodaTime;
 using NUnit.Framework;
@@ -18,6 +21,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
         private StartCarePackageUseCase _classUnderTest;
         private Fixture _fixture;
         private Mock<IReferralGateway> _mockReferralGateway;
+        private Mock<IElementGateway> _mockElementGateway;
         private Mock<IUserService> _mockUserService;
         private Mock<IClockService> _mockClock;
         private Mock<IDbSaver> _mockDbSaver;
@@ -27,12 +31,14 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
         {
             _fixture = FixtureHelpers.Fixture;
             _mockReferralGateway = new Mock<IReferralGateway>();
+            _mockElementGateway = new Mock<IElementGateway>();
             _mockUserService = new Mock<IUserService>();
             _mockClock = new Mock<IClockService>();
             _mockDbSaver = new Mock<IDbSaver>();
 
             _classUnderTest = new StartCarePackageUseCase(
                 _mockReferralGateway.Object,
+                _mockElementGateway.Object,
                 _mockUserService.Object,
                 _mockClock.Object,
                 _mockDbSaver.Object
@@ -47,12 +53,21 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
 
             var referral = _fixture.BuildReferral(ReferralStatus.Assigned)
                 .With(x => x.AssignedBrokerEmail, "a.broker@hackney.gov.uk")
+                .With(x => x.ReferralElements, new List<ReferralElement>())
                 .Without(x => x.StartedAt)
                 .Create();
+
+            var elements = _fixture.BuildElement(1, 1)
+                .With(e => e.InternalStatus, ElementStatus.Approved)
+                .CreateMany().ToList();
 
             _mockReferralGateway
                 .Setup(x => x.GetByIdAsync(referral.Id))
                 .ReturnsAsync(referral);
+
+            _mockElementGateway
+                .Setup(x => x.GetCurrentBySocialCareId(referral.SocialCareId))
+                .ReturnsAsync(elements);
 
             _mockUserService
                 .SetupGet(x => x.Email)
@@ -72,6 +87,7 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             // Assert
             Assert.That(result.Status, Is.EqualTo(ReferralStatus.InProgress));
             Assert.That(result.StartedAt, Is.EqualTo(currentInstant));
+            Assert.That(result.ReferralElements.Count, Is.EqualTo(elements.Count));
             _mockDbSaver.Verify(x => x.SaveChangesAsync(), Times.Once());
         }
 
