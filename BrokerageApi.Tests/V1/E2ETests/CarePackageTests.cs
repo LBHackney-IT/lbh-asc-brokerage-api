@@ -10,6 +10,7 @@ using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
@@ -317,6 +318,108 @@ namespace BrokerageApi.Tests.V1.E2ETests
             response.Status.Should().Be(ReferralStatus.InProgress);
             response.StartedAt.Should().Be(CurrentInstant);
             response.UpdatedAt.Should().BeEquivalentTo(CurrentInstant);
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CantStartCarePackageWhenAnotherIsInProgress()
+        {
+            // Arrange
+            var referral = new Referral()
+            {
+                WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                Status = ReferralStatus.Assigned,
+                AssignedBrokerEmail = "api.user@hackney.gov.uk",
+                StartedAt = null,
+                CreatedAt = CurrentInstant,
+                UpdatedAt = CurrentInstant
+            };
+
+            var otherReferral = new Referral()
+            {
+                WorkflowId = "c827cb90-e5a8-013a-99f8-5a4fae5edecc",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                Status = ReferralStatus.InProgress,
+                AssignedBrokerEmail = "api.user@hackney.gov.uk",
+                StartedAt = PreviousInstant,
+                CreatedAt = PreviousInstant,
+                UpdatedAt = PreviousInstant
+            };
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.Referrals.AddAsync(otherReferral);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            // Act
+            var (code, response) = await Post<ProblemDetails>($"/api/v1/referrals/{referral.Id}/care-package/start", null);
+
+            // Assert
+            code.Should().Be(HttpStatusCode.UnprocessableEntity);
+            response.Status.Should().Be((int) HttpStatusCode.UnprocessableEntity);
+            response.Detail.Should().Be("A referral for A Service User is already in progress or awaiting approval");
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CantStartCarePackageWhenAnotherIsAwaitingApproval()
+        {
+            // Arrange
+            var referral = new Referral()
+            {
+                WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                Status = ReferralStatus.Assigned,
+                AssignedBrokerEmail = "api.user@hackney.gov.uk",
+                StartedAt = null,
+                CreatedAt = CurrentInstant,
+                UpdatedAt = CurrentInstant
+            };
+
+            var otherReferral = new Referral()
+            {
+                WorkflowId = "c827cb90-e5a8-013a-99f8-5a4fae5edecc",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                Status = ReferralStatus.AwaitingApproval,
+                AssignedBrokerEmail = "api.user@hackney.gov.uk",
+                StartedAt = PreviousInstant,
+                CreatedAt = PreviousInstant,
+                UpdatedAt = PreviousInstant
+            };
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.Referrals.AddAsync(otherReferral);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            // Act
+            var (code, response) = await Post<ProblemDetails>($"/api/v1/referrals/{referral.Id}/care-package/start", null);
+
+            // Assert
+            code.Should().Be(HttpStatusCode.UnprocessableEntity);
+            response.Status.Should().Be((int) HttpStatusCode.UnprocessableEntity);
+            response.Detail.Should().Be("A referral for A Service User is already in progress or awaiting approval");
         }
 
         [Test, Property("AsUser", "Broker")]

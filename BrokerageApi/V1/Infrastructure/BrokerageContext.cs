@@ -224,6 +224,11 @@ namespace BrokerageApi.V1.Infrastructure
                 .IsUnique();
 
             modelBuilder.Entity<Referral>()
+                .HasIndex(r => r.SocialCareId)
+                .HasFilter("status = 'in_progress' OR status = 'awaiting_approval'")
+                .IsUnique();
+
+            modelBuilder.Entity<Referral>()
                 .HasMany(r => r.Elements)
                 .WithMany(e => e.Referrals)
                 .UsingEntity<ReferralElement>(
