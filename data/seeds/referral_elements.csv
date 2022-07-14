@@ -1,5 +1,5 @@
 "referral_id","element_id","pending_cancellation","pending_comment","pending_end_date"
-2,1,,,
-3,2,,,
-3,3,,,
-4,4,,,
+2,1,FALSE,,
+3,2,FALSE,,
+3,3,FALSE,,
+4,4,FALSE,,
