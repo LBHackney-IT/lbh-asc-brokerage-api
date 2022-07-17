@@ -5,6 +5,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -15,9 +16,10 @@ using NpgsqlTypes;
 namespace V1.Infrastructure.Migrations
 {
     [DbContext(typeof(BrokerageContext))]
-    partial class BrokerageContextModelSnapshot : ModelSnapshot
+    [Migration("20220715093824_AddIsResidentialToElementType")]
+    partial class AddIsResidentialToElementType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,6 +28,7 @@ namespace V1.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "amendment_status", new[] { "in_progress", "resolved" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "audit_event_type", new[] { "referral_broker_assignment", "referral_broker_reassignment", "element_ended", "element_cancelled", "element_suspended", "care_package_ended", "care_package_cancelled", "care_package_suspended", "referral_archived", "import_note", "care_package_budget_approver_assigned", "care_package_approved", "amendment_requested", "care_charges_confirmed" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "care_charge_status", new[] { "new", "existing", "termination", "suspension" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_billing_type", new[] { "supplier", "customer", "none", "ccg" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_cost_type", new[] { "hourly", "daily", "weekly", "transport", "one_off" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_status", new[] { "in_progress", "awaiting_approval", "approved", "inactive", "active", "ended", "suspended", "cancelled" });
@@ -127,10 +130,6 @@ namespace V1.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("form_name");
-
-                    b.Property<bool>("IsResidential")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_residential");
 
                     b.Property<string>("Note")
                         .HasColumnType("text")
@@ -516,6 +515,12 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("assigned_broker_email");
 
+                    b.Property<CareChargeStatus>("CareChargeStatus")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("care_charge_status")
+                        .HasDefaultValue(CareChargeStatus.New)
+                        .HasColumnName("care_charge_status");
+
                     b.Property<Instant?>("CareChargesConfirmedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("care_charges_confirmed_at");
@@ -536,10 +541,6 @@ namespace V1.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("form_name");
-
-                    b.Property<bool>("IsResidential")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_residential");
 
                     b.Property<string>("Note")
                         .HasColumnType("text")

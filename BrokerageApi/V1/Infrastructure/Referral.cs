@@ -44,6 +44,8 @@ namespace BrokerageApi.V1.Infrastructure
 
         public Instant? StartedAt { get; set; }
 
+        public bool IsResidential { get; set; }
+
         public Instant? CareChargesConfirmedAt { get; set; }
 
         public string Comment { get; set; }

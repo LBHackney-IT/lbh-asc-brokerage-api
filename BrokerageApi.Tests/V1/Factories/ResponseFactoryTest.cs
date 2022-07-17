@@ -81,6 +81,7 @@ namespace BrokerageApi.Tests.V1.Factories
             response.Billing.Should().Be(elementType.Billing);
             response.NonPersonalBudget.Should().Be(elementType.NonPersonalBudget);
             response.IsS117.Should().Be(elementType.IsS117);
+            response.IsResidential.Should().Be(elementType.IsResidential);
             response.Service.Should().BeEquivalentTo(elementType.Service?.ToResponse());
         }
 
@@ -181,6 +182,7 @@ namespace BrokerageApi.Tests.V1.Factories
             response.Note.Should().Be(referral.Note);
             response.Comment.Should().Be(referral.Comment);
             response.StartedAt.Should().Be(referral.StartedAt);
+            response.IsResidential.Should().Be(referral.IsResidential);
             response.CareChargesConfirmedAt.Should().Be(referral.CareChargesConfirmedAt);
             response.CreatedAt.Should().Be(referral.CreatedAt);
             response.UpdatedAt.Should().Be(referral.UpdatedAt);
@@ -217,6 +219,7 @@ namespace BrokerageApi.Tests.V1.Factories
             response.Status.Should().Be(carePackage.Status);
             response.Note.Should().Be(carePackage.Note);
             response.StartedAt.Should().Be(carePackage.StartedAt);
+            response.IsResidential.Should().Be(carePackage.IsResidential);
             response.CareChargesConfirmedAt.Should().Be(carePackage.CareChargesConfirmedAt);
             response.CreatedAt.Should().Be(carePackage.CreatedAt);
             response.UpdatedAt.Should().Be(carePackage.UpdatedAt);

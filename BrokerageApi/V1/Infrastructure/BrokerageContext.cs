@@ -208,6 +208,10 @@ namespace BrokerageApi.V1.Infrastructure
                 .HasDefaultValue(false);
 
             modelBuilder.Entity<ElementType>()
+                .Property(et => et.IsResidential)
+                .HasDefaultValue(false);
+
+            modelBuilder.Entity<ElementType>()
                 .Property(et => et.Type)
                 .HasDefaultValue(ElementTypeType.Service);
 

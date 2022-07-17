@@ -42,6 +42,8 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public Instant? StartedAt { get; set; }
 
+        public bool IsResidential { get; set; }
+
         public Instant? CareChargesConfirmedAt { get; set; }
 
         public Instant CreatedAt { get; set; }

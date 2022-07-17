@@ -20,6 +20,8 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public bool IsS117 { get; set; }
 
+        public bool IsResidential { get; set; }
+
         public ServiceResponse Service { get; set; }
 
         public bool ShouldSerializeService() => Service != null;

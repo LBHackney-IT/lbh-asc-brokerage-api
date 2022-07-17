@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Infrastructure;
@@ -28,6 +27,7 @@ namespace BrokerageApi.V1.Factories
                 AssignedApprover = carePackage.AssignedApprover?.ToResponse(),
                 Note = carePackage.Note,
                 StartedAt = carePackage.StartedAt,
+                IsResidential = carePackage.IsResidential,
                 CareChargesConfirmedAt = carePackage.CareChargesConfirmedAt,
                 CreatedAt = carePackage.CreatedAt,
                 UpdatedAt = carePackage.UpdatedAt,
@@ -90,6 +90,7 @@ namespace BrokerageApi.V1.Factories
                 Billing = elementType.Billing,
                 NonPersonalBudget = elementType.NonPersonalBudget,
                 IsS117 = elementType.IsS117,
+                IsResidential = elementType.IsResidential,
                 Service = elementType.Service != null
                     ? new ServiceResponse
                     {
@@ -133,6 +134,7 @@ namespace BrokerageApi.V1.Factories
                 Note = referral.Note,
                 Comment = referral.Comment,
                 StartedAt = referral.StartedAt,
+                IsResidential = referral.IsResidential,
                 CareChargesConfirmedAt = referral.CareChargesConfirmedAt,
                 CreatedAt = referral.CreatedAt,
                 UpdatedAt = referral.UpdatedAt,

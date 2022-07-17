@@ -141,6 +141,10 @@ namespace BrokerageApi.V1.Infrastructure
             }
         }
 
+        public bool IsResidential =>
+            ElementType is { IsResidential: true } &&
+            InternalStatus == ElementStatus.Approved;
+
         private LocalDate Today
         {
             get => _clock.Today;

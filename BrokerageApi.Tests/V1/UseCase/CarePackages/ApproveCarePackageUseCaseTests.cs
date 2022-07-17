@@ -122,6 +122,38 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
         }
 
         [Test]
+        public async Task UpdatesIsResidential()
+        {
+            // Arrange
+            var service = _fixture.BuildService()
+                .Create();
+
+            var elementType = _fixture.BuildElementType(service.Id)
+                .With(et => et.Service, service)
+                .With(et => et.IsResidential, true)
+                .Create();
+
+            var element = _fixture.BuildElement(elementType.Id)
+                .With(e => e.ElementType, elementType)
+                .Create();
+
+            var elements = new Element[] { element };
+
+            var (referral, carePackage) = SetupReferralAndCarePackage(ReferralStatus.AwaitingApproval, 1000, elements);
+
+            SetupUser(carePackage.EstimatedYearlyCost + 10);
+
+            // Act
+            await _classUnderTest.ExecuteAsync(referral.Id);
+
+            // Assert
+            referral.Status.Should().Be(ReferralStatus.Approved);
+            referral.IsResidential.Should().BeTrue();
+
+            _mockDbSaver.VerifyChangesSaved();
+        }
+
+        [Test]
         public async Task ThrowsArgumentNullExceptionWhenReferralNotFound()
         {
             const int unknownReferralId = 1234;

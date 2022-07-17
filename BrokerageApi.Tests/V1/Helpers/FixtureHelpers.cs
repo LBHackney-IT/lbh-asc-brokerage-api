@@ -4,6 +4,7 @@ using AutoFixture.Dsl;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Controllers.Parameters;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
+using BrokerageApi.V1.Services;
 using BrokerageApi.V1.Services.Interfaces;
 using MicroElements.AutoFixture.NodaTime;
 
@@ -12,6 +13,7 @@ namespace BrokerageApi.Tests.V1.Helpers
     public static class FixtureHelpers
     {
         public static Fixture Fixture => CreateFixture();
+
         private static Fixture CreateFixture()
         {
             var fixture = new Fixture();
@@ -27,6 +29,7 @@ namespace BrokerageApi.Tests.V1.Helpers
         {
             return fixture.Create<int>() % (max - min + 1) + min;
         }
+
         public static IPostprocessComposer<CarePackage> BuildCarePackage(this IFixture fixture, string socialCareId = null, bool withElements = false)
         {
             var builder = fixture.Build<CarePackage>()
@@ -51,6 +54,7 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(p => p.Elements)
                 .With(p => p.Type, ProviderType.Framework);
         }
+
         public static IPostprocessComposer<Service> BuildService(this IFixture fixture)
         {
             return fixture.Build<Service>()
@@ -60,6 +64,7 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(s => s.ParentId)
                 .With(s => s.IsArchived, false);
         }
+
         public static IPostprocessComposer<ElementType> BuildElementType(this IFixture fixture, int serviceId, ElementTypeType type = ElementTypeType.Service)
         {
             return fixture.Build<ElementType>()
@@ -71,6 +76,7 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .With(et => et.PaymentOperation, MathOperation.Add)
                 .With(et => et.IsArchived, false);
         }
+
         public static IPostprocessComposer<Referral> BuildReferral(this IFixture fixture, ReferralStatus? status = null)
         {
             var builder = fixture.Build<Referral>()
@@ -163,10 +169,12 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(a => a.Referral)
                 .Without(a => a.ReferralId);
         }
+
         public static IPostprocessComposer<ServiceUser> BuildServiceUser(this IFixture fixture)
         {
             return fixture.Build<ServiceUser>();
         }
+
         public static IPostprocessComposer<GetServiceUserRequest> BuildServiceUserRequest(this IFixture fixture, string socialCareId)
         {
 
