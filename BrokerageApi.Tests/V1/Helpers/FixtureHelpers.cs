@@ -7,6 +7,8 @@ using BrokerageApi.V1.Infrastructure.AuditEvents;
 using BrokerageApi.V1.Services;
 using BrokerageApi.V1.Services.Interfaces;
 using MicroElements.AutoFixture.NodaTime;
+using NodaTime;
+using NodaTime.Testing;
 
 namespace BrokerageApi.Tests.V1.Helpers
 {
@@ -113,7 +115,8 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .With(e => e.ProviderId, providerId)
                 .With(e => e.ElementTypeId, elementTypeId)
                 .With(e => e.InternalStatus, ElementStatus.InProgress)
-                .With(e => e.IsSuspension, false);
+                .With(e => e.IsSuspension, false)
+                .With(e => e.Clock, FakeClockFactory());
         }
 
         public static IPostprocessComposer<Element> WithoutCost(this IPostprocessComposer<Element> elementBuilder)
@@ -180,6 +183,14 @@ namespace BrokerageApi.Tests.V1.Helpers
 
             return fixture.Build<GetServiceUserRequest>()
             .With(su => su.SocialCareId, socialCareId);
+        }
+
+        public static IClockService FakeClockFactory()
+        {
+            var currentTime = SystemClock.Instance.GetCurrentInstant();
+            var fakeClock = new FakeClock(currentTime);
+
+            return new ClockService(fakeClock);
         }
     }
 }
