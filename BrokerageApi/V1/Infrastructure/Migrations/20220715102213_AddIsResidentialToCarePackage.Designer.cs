@@ -28,7 +28,7 @@ namespace V1.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "amendment_status", new[] { "in_progress", "resolved" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "audit_event_type", new[] { "referral_broker_assignment", "referral_broker_reassignment", "element_ended", "element_cancelled", "element_suspended", "care_package_ended", "care_package_cancelled", "care_package_suspended", "referral_archived", "import_note", "care_package_budget_approver_assigned", "care_package_approved", "amendment_requested", "care_charges_confirmed" });
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "care_charge_status", new[] { "new", "existing", "termination", "suspension" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "care_charge_status", new[] { "new", "existing", "termination", "suspension", "cancellation" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_billing_type", new[] { "supplier", "customer", "none", "ccg" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_cost_type", new[] { "hourly", "daily", "weekly", "transport", "one_off" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_status", new[] { "in_progress", "awaiting_approval", "approved", "inactive", "active", "ended", "suspended", "cancelled" });

@@ -89,7 +89,8 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(r => r.AssignedBrokerEmail)
                 .Without(r => r.AssignedApproverEmail)
                 .Without(r => r.ReferralAmendments)
-                .With(r => r.WorkflowType, WorkflowType.Assessment);
+                .With(r => r.WorkflowType, WorkflowType.Assessment)
+                .With(r => r.CareChargeStatus, CareChargeStatus.New);
 
             if (status != null)
             {

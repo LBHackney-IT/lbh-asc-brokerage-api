@@ -145,6 +145,10 @@ namespace BrokerageApi.V1.Infrastructure
             ElementType is { IsResidential: true } &&
             InternalStatus == ElementStatus.Approved;
 
+        public bool IsServiceElement =>
+            ElementType is { Type: ElementTypeType.Service } &&
+            !IsSuspension;
+
         [NotMapped]
         public IClockService Clock { get; set; }
 

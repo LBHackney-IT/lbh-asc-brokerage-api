@@ -16,6 +16,7 @@ namespace BrokerageApi.V1.Infrastructure
         {
             NpgsqlConnection.GlobalTypeMapper.UseNodaTime();
 
+            NpgsqlConnection.GlobalTypeMapper.MapEnum<CareChargeStatus>("care_charge_status");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementBillingType>("element_billing_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementCostType>("element_cost_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementStatus>("element_status");
@@ -61,6 +62,7 @@ namespace BrokerageApi.V1.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasPostgresEnum<CareChargeStatus>();
             modelBuilder.HasPostgresEnum<ElementBillingType>();
             modelBuilder.HasPostgresEnum<ElementCostType>();
             modelBuilder.HasPostgresEnum<ElementStatus>();
@@ -233,6 +235,10 @@ namespace BrokerageApi.V1.Infrastructure
                     p => new { p.Name, p.Address })
                 .HasIndex(p => p.SearchVector)
                 .HasMethod("GIN");
+
+            modelBuilder.Entity<Referral>()
+                .Property(r => r.CareChargeStatus)
+                .HasDefaultValue(CareChargeStatus.New);
 
             modelBuilder.Entity<Referral>()
                 .HasIndex(r => r.WorkflowId)

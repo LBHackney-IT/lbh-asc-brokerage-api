@@ -48,6 +48,8 @@ namespace BrokerageApi.V1.Infrastructure
 
         public bool IsResidential { get; set; }
 
+        public CareChargeStatus CareChargeStatus { get; set; }
+
         public Instant? CareChargesConfirmedAt { get; set; }
 
         public Instant CreatedAt { get; set; }
