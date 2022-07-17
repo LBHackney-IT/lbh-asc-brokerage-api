@@ -285,5 +285,22 @@ namespace BrokerageApi.Tests.V1.Factories
             response.DateOfBirth.Should().Be(serviceUser.DateOfBirth);
         }
 
+        [Test]
+        public void WorkflowMapsCorrectly()
+        {
+            var workflow = _fixture.Build<Workflow>()
+                .Without(w => w.Referral)
+                .Create();
+
+            var response = workflow.ToResponse();
+
+            response.Id.Should().Be(workflow.Id);
+            response.WorkflowType.Should().Be(workflow.WorkflowType);
+            response.FormName.Should().Be(workflow.FormName);
+            response.Note.Should().Be(workflow.Note);
+            response.PrimarySupportReason.Should().Be(workflow.PrimarySupportReason);
+            response.DirectPayments.Should().Be(workflow.DirectPayments);
+            response.UrgentSince.Should().Be(workflow.UrgentSince);
+        }
     }
 }

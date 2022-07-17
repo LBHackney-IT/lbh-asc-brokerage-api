@@ -68,7 +68,7 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public List<FollowUpResponse> FollowUps { get; set; }
 
-        public List<Workflow> Workflows { get; set; }
+        public List<WorkflowResponse> Workflows { get; set; }
 
         public string Comment { get; set; }
     }

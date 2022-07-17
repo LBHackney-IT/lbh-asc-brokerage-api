@@ -672,11 +672,20 @@ namespace BrokerageApi.Tests.V1.E2ETests
             // Arrange
             var user = _fixture.BuildUser().Create();
 
+            var workflow = new Workflow()
+            {
+                Id = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No"
+            };
+
             var referral = new Referral()
             {
                 WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
                 WorkflowType = WorkflowType.Assessment,
-                Workflows = new List<Workflow>(),
+                Workflows = new List<Workflow> { workflow },
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
@@ -686,7 +695,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 Status = ReferralStatus.Unassigned,
                 AssignedBrokerEmail = user.Email,
                 ReferralAmendments = new List<ReferralAmendment>(),
-                ReferralFollowUps = new List<ReferralFollowUp>()
+                ReferralFollowUps = new List<ReferralFollowUp>(),
             };
 
             await Context.Referrals.AddAsync(referral);
@@ -702,6 +711,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             code.Should().Be(HttpStatusCode.OK);
             response.Should().BeEquivalentTo(referral.ToResponse());
             response.Comment.Should().BeEquivalentTo(referral.Comment);
+            response.Workflows[0].Should().BeEquivalentTo(workflow.ToResponse());
             response.AssignedBroker.Should().BeEquivalentTo(user.ToResponse());
         }
 

@@ -41,7 +41,7 @@ namespace BrokerageApi.V1.Factories
                 Comment = carePackage.Comment,
                 Amendments = carePackage.ReferralAmendments?.Select(a => a.ToResponse()).ToList(),
                 FollowUps = carePackage.ReferralFollowUps?.Select(f => f.ToResponse()).ToList(),
-                Workflows = carePackage.Workflows
+                Workflows = carePackage.Workflows?.Select(w => w.ToResponse()).ToList()
             };
         }
 
@@ -145,7 +145,7 @@ namespace BrokerageApi.V1.Factories
                 AssignedApprover = referral.AssignedApprover?.ToResponse(),
                 Amendments = referral.ReferralAmendments?.Select(a => a.ToResponse()).ToList(),
                 FollowUps = referral.ReferralFollowUps?.Select(f => f.ToResponse()).ToList(),
-                Workflows = referral.Workflows
+                Workflows = referral.Workflows?.Select(w => w.ToResponse()).ToList()
             };
         }
 
@@ -239,6 +239,20 @@ namespace BrokerageApi.V1.Factories
                 SocialCareId = serviceUser.SocialCareId,
                 ServiceUserName = serviceUser.ServiceUserName,
                 DateOfBirth = serviceUser.DateOfBirth
+            };
+        }
+
+        public static WorkflowResponse ToResponse(this Workflow workflow)
+        {
+            return new WorkflowResponse
+            {
+                Id = workflow.Id,
+                WorkflowType = workflow.WorkflowType,
+                FormName = workflow.FormName,
+                Note = workflow.Note,
+                PrimarySupportReason = workflow.PrimarySupportReason,
+                DirectPayments = workflow.DirectPayments,
+                UrgentSince = workflow.UrgentSince
             };
         }
     }

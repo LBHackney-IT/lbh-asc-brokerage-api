@@ -13,8 +13,6 @@ namespace BrokerageApi.V1.Boundary.Response
         [JsonProperty(Required = Required.DisallowNull)]
         public string WorkflowId { get; set; }
 
-        public List<Workflow> Workflows { get; set; }
-
         public WorkflowType WorkflowType { get; set; }
 
         [JsonProperty(Required = Required.DisallowNull)]
@@ -59,5 +57,7 @@ namespace BrokerageApi.V1.Boundary.Response
         public List<AmendmentResponse> Amendments { get; set; }
 
         public List<FollowUpResponse> FollowUps { get; set; }
+
+        public List<WorkflowResponse> Workflows { get; set; }
     }
 }
