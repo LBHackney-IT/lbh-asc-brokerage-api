@@ -5,6 +5,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -15,9 +16,10 @@ using NpgsqlTypes;
 namespace V1.Infrastructure.Migrations
 {
     [DbContext(typeof(BrokerageContext))]
-    partial class BrokerageContextModelSnapshot : ModelSnapshot
+    [Migration("20220717131202_AddFollowUpRequestedToAuditEventType")]
+    partial class AddFollowUpRequestedToAuditEventType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -643,12 +645,12 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnName("status");
 
                     b.HasKey("Id")
-                        .HasName("pk_referral_amendment");
+                        .HasName("pk_referral_amendments");
 
                     b.HasIndex("ReferralId")
-                        .HasDatabaseName("ix_referral_amendment_referral_id");
+                        .HasDatabaseName("ix_referral_amendments_referral_id");
 
-                    b.ToTable("referral_amendment", (string)null);
+                    b.ToTable("referral_amendments", (string)null);
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ReferralElement", b =>
@@ -1022,14 +1024,14 @@ namespace V1.Infrastructure.Migrations
                         .HasForeignKey("ReferralId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_referral_amendment_care_packages_care_package_id");
+                        .HasConstraintName("fk_referral_amendments_care_packages_care_package_id");
 
                     b.HasOne("BrokerageApi.V1.Infrastructure.Referral", "Referral")
                         .WithMany("ReferralAmendments")
                         .HasForeignKey("ReferralId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_referral_amendment_referrals_referral_id");
+                        .HasConstraintName("fk_referral_amendments_referrals_referral_id");
 
                     b.Navigation("Referral");
                 });

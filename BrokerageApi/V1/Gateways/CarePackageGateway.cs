@@ -31,6 +31,8 @@ namespace BrokerageApi.V1.Gateways
                 .Include(cp => cp.AssignedBroker)
                 .Include(cp => cp.AssignedApprover)
                 .Include(cp => cp.ReferralAmendments)
+                .Include(r => r.ReferralFollowUps)
+                    .ThenInclude(f => f.RequestedBy)
                 .Include(cp => cp.Workflows)
                 .SingleOrDefaultAsync(cp => cp.Id == id);
         }
@@ -46,6 +48,8 @@ namespace BrokerageApi.V1.Gateways
                 .Include(cp => cp.AssignedBroker)
                 .Include(cp => cp.AssignedApprover)
                 .Include(cp => cp.ReferralAmendments)
+                .Include(r => r.ReferralFollowUps)
+                    .ThenInclude(f => f.RequestedBy)
                 .Include(cp => cp.Workflows)
                 .ToListAsync();
         }
@@ -63,6 +67,8 @@ namespace BrokerageApi.V1.Gateways
                 .Include(cp => cp.AssignedBroker)
                 .Include(cp => cp.AssignedApprover)
                 .Include(cp => cp.ReferralAmendments)
+                .Include(r => r.ReferralFollowUps)
+                    .ThenInclude(f => f.RequestedBy)
                 .Include(cp => cp.Workflows)
                 .ToListAsync();
         }

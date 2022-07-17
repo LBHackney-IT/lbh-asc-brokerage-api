@@ -891,5 +891,48 @@ namespace BrokerageApi.Tests.V1.E2ETests
             amendment.Status.Should().Be(AmendmentStatus.InProgress);
             amendment.RequestedAt.Should().Be(CurrentInstant);
         }
+
+        [Test, Property("AsUser", "CareChargesOfficer"), Property("WithApprovalLimit", 1000)]
+        public async Task CanRequestFollowUp()
+        {
+            // Arrange
+            var service = _fixture.BuildService()
+                .Create();
+
+            var provider = _fixture.BuildProvider()
+                .Create();
+
+            var oneOffElementType = _fixture.BuildElementType(service.Id)
+                .With(et => et.CostType, ElementCostType.OneOff)
+                .Create();
+
+            var referral = _fixture.BuildReferral(ReferralStatus.Approved)
+                .Create();
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.Services.AddAsync(service);
+            await Context.Providers.AddAsync(provider);
+            await Context.ElementTypes.AddAsync(oneOffElementType);
+            await Context.Referrals.AddAsync(referral);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            var request = _fixture.Create<FollowUpRequest>();
+
+            var code = await Post($"/api/v1/referrals/{referral.Id}/care-package/request-follow-up", request);
+
+            code.Should().Be(HttpStatusCode.OK);
+
+            var (carePackageCode, response) = await Get<CarePackageResponse>($"/api/v1/referrals/{referral.Id}/care-package");
+
+            carePackageCode.Should().Be((int) HttpStatusCode.OK);
+            var followUp = response.FollowUps.Single();
+            followUp.Comment.Should().Be(request.Comment);
+            followUp.Date.Should().Be(request.Date);
+            followUp.Status.Should().Be(FollowUpStatus.InProgress);
+            followUp.RequestedAt.Should().Be(CurrentInstant);
+            followUp.RequestedBy.Should().BeEquivalentTo(ApiUser.ToResponse());
+        }
     }
 }

@@ -27,6 +27,7 @@ namespace BrokerageApi.V1.Infrastructure
             NpgsqlConnection.GlobalTypeMapper.MapEnum<UserRole>("user_role");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<AuditEventType>("audit_event_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<AmendmentStatus>("amendment_status");
+            NpgsqlConnection.GlobalTypeMapper.MapEnum<FollowUpStatus>("follow_up_status");
         }
 
         public BrokerageContext(DbContextOptions options, IClockService clock) : base(options)
@@ -45,6 +46,7 @@ namespace BrokerageApi.V1.Infrastructure
         public DbSet<Provider> Providers { get; set; }
         public DbSet<Referral> Referrals { get; set; }
         public DbSet<ReferralElement> ReferralElements { get; set; }
+        public DbSet<ReferralFollowUp> ReferralFollowUps { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<AuditEvent> AuditEvents { get; set; }
@@ -73,6 +75,7 @@ namespace BrokerageApi.V1.Infrastructure
             modelBuilder.HasPostgresEnum<UserRole>();
             modelBuilder.HasPostgresEnum<AuditEventType>();
             modelBuilder.HasPostgresEnum<AmendmentStatus>();
+            modelBuilder.HasPostgresEnum<FollowUpStatus>();
 
             modelBuilder.Entity<AuditEvent>()
                 .Property(ae => ae.Metadata)
@@ -120,9 +123,9 @@ namespace BrokerageApi.V1.Infrastructure
                 .WithOne()
                 .HasForeignKey("ReferralId");
 
-            modelBuilder.Entity<ReferralAmendment>()
-                .HasOne(a => a.Referral)
-                .WithMany(r => r.ReferralAmendments)
+            modelBuilder.Entity<CarePackage>()
+                .HasMany(c => c.ReferralFollowUps)
+                .WithOne()
                 .HasForeignKey("ReferralId");
 
             modelBuilder.Entity<CarePackage>()
@@ -269,6 +272,22 @@ namespace BrokerageApi.V1.Infrastructure
             modelBuilder.Entity<ReferralElement>()
                 .Property(re => re.PendingCancellation)
                 .HasDefaultValue(false);
+
+            modelBuilder.Entity<ReferralAmendment>()
+                .HasOne(a => a.Referral)
+                .WithMany(r => r.ReferralAmendments)
+                .HasForeignKey("ReferralId");
+
+            modelBuilder.Entity<ReferralFollowUp>()
+                .HasOne(a => a.Referral)
+                .WithMany(r => r.ReferralFollowUps)
+                .HasForeignKey("ReferralId");
+
+            modelBuilder.Entity<ReferralFollowUp>()
+                .HasOne(rf => rf.RequestedBy)
+                .WithMany()
+                .HasForeignKey("RequestedByEmail")
+                .HasPrincipalKey("Email");
 
             modelBuilder.Entity<Service>()
                 .Property(s => s.Id)

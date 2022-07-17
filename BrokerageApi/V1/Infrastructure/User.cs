@@ -23,6 +23,5 @@ namespace BrokerageApi.V1.Infrastructure
         public List<CarePackage> BrokerCarePackages { get; set; }
 
         public List<CarePackage> ApproverCarePackages { get; set; }
-
     }
 }

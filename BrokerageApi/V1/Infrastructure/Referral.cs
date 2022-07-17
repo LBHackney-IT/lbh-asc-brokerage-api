@@ -61,6 +61,9 @@ namespace BrokerageApi.V1.Infrastructure
         [CanBeNull]
         public List<ReferralAmendment> ReferralAmendments { get; set; }
 
+        [CanBeNull]
+        public List<ReferralFollowUp> ReferralFollowUps { get; set; }
+
         [NotMapped]
         public List<Element> ServiceElements => (Elements ?? new List<Element> { }).FindAll(e => e.IsServiceElement);
 

@@ -56,7 +56,8 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public Instant UpdatedAt { get; set; }
 
-
         public List<AmendmentResponse> Amendments { get; set; }
+
+        public List<FollowUpResponse> FollowUps { get; set; }
     }
 }

@@ -685,7 +685,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 Comment = "A comment",
                 Status = ReferralStatus.Unassigned,
                 AssignedBrokerEmail = user.Email,
-                ReferralAmendments = new List<ReferralAmendment>()
+                ReferralAmendments = new List<ReferralAmendment>(),
+                ReferralFollowUps = new List<ReferralFollowUp>()
             };
 
             await Context.Referrals.AddAsync(referral);

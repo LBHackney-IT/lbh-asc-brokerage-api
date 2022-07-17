@@ -71,6 +71,9 @@ namespace BrokerageApi.V1.Infrastructure
         [CanBeNull]
         public List<ReferralAmendment> ReferralAmendments { get; set; }
 
+        [CanBeNull]
+        public List<ReferralFollowUp> ReferralFollowUps { get; set; }
+
         public string Comment { get; set; }
         public decimal EstimatedYearlyCost { get; set; }
     }

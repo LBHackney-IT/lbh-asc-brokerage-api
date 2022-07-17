@@ -22,6 +22,8 @@ namespace BrokerageApi.V1.Gateways
                 .Include(r => r.AssignedBroker)
                 .Include(r => r.AssignedApprover)
                 .Include(r => r.ReferralAmendments)
+                .Include(r => r.ReferralFollowUps)
+                    .ThenInclude(f => f.RequestedBy)
                 .Include(r => r.Workflows)
                 .OrderBy(r => r.Id);
         }
@@ -72,6 +74,8 @@ namespace BrokerageApi.V1.Gateways
                 .Include(r => r.AssignedBroker)
                 .Include(r => r.AssignedApprover)
                 .Include(r => r.ReferralAmendments)
+                .Include(r => r.ReferralFollowUps)
+                    .ThenInclude(f => f.RequestedBy)
                 .Where(r => r.Status == ReferralStatus.Approved)
                 .Where(r => r.CareChargesConfirmedAt == null)
                 .OrderBy(r => r.Id)
@@ -84,6 +88,8 @@ namespace BrokerageApi.V1.Gateways
                 .Include(r => r.AssignedBroker)
                 .Include(r => r.AssignedApprover)
                 .Include(r => r.ReferralAmendments)
+                .Include(r => r.ReferralFollowUps)
+                    .ThenInclude(f => f.RequestedBy)
                 .Include(r => r.Workflows)
                 .Where(r => r.SocialCareId == socialCareId);
 
@@ -96,6 +102,8 @@ namespace BrokerageApi.V1.Gateways
                 .Include(r => r.AssignedBroker)
                 .Include(r => r.AssignedApprover)
                 .Include(r => r.ReferralAmendments)
+                .Include(r => r.ReferralFollowUps)
+                    .ThenInclude(f => f.RequestedBy)
                 .Include(r => r.Workflows)
                 .Where(r => r.WorkflowId == workflowId)
                 .SingleOrDefaultAsync();
@@ -108,6 +116,8 @@ namespace BrokerageApi.V1.Gateways
                 .Include(r => r.AssignedBroker)
                 .Include(r => r.AssignedApprover)
                 .Include(r => r.ReferralAmendments)
+                .Include(r => r.ReferralFollowUps)
+                    .ThenInclude(f => f.RequestedBy)
                 .Include(r => r.ReferralElements)
                 .Include(r => r.Workflows)
                 .SingleOrDefaultAsync();
@@ -124,6 +134,8 @@ namespace BrokerageApi.V1.Gateways
                 .Include(r => r.Elements)
                     .ThenInclude(e => e.ReferralElements)
                 .Include(r => r.ReferralAmendments)
+                .Include(r => r.ReferralFollowUps)
+                    .ThenInclude(f => f.RequestedBy)
                 .Include(r => r.Workflows)
                 .SingleOrDefaultAsync();
         }

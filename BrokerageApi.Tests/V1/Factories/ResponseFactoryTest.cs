@@ -161,10 +161,12 @@ namespace BrokerageApi.Tests.V1.Factories
             var broker = _fixture.BuildUser().Create();
             var approver = _fixture.BuildUser().Create();
             var amendments = _fixture.BuildReferralAmendment().CreateMany();
+            var followUps = _fixture.BuildReferralFollowUp().CreateMany();
             var referral = _fixture.BuildReferral(status)
                 .With(r => r.AssignedBroker, broker)
                 .With(r => r.AssignedApprover, approver)
                 .With(r => r.ReferralAmendments, amendments.ToList)
+                .With(c => c.ReferralFollowUps, followUps.ToList)
                 .Create();
 
             var response = referral.ToResponse();
@@ -191,6 +193,7 @@ namespace BrokerageApi.Tests.V1.Factories
             response.AssignedApprover.Should().BeEquivalentTo(referral.AssignedApprover?.ToResponse());
             response.AssignedTo.Should().Be(status == ReferralStatus.AwaitingApproval ? referral.AssignedApprover.Email : referral.AssignedBroker.Email);
             response.Amendments.Should().BeEquivalentTo(referral.ReferralAmendments.Select(a => a.ToResponse()));
+            response.FollowUps.Should().BeEquivalentTo(referral.ReferralFollowUps.Select(f => f.ToResponse()));
         }
 
         [Test]
@@ -199,11 +202,13 @@ namespace BrokerageApi.Tests.V1.Factories
             var broker = _fixture.BuildUser().Create();
             var approver = _fixture.BuildUser().Create();
             var amendments = _fixture.BuildReferralAmendment().CreateMany();
+            var followUps = _fixture.BuildReferralFollowUp().CreateMany();
             var carePackage = _fixture.BuildCarePackage()
                 .With(c => c.Status, status)
                 .With(c => c.AssignedBroker, broker)
                 .With(c => c.AssignedApprover, approver)
                 .With(c => c.ReferralAmendments, amendments.ToList)
+                .With(c => c.ReferralFollowUps, followUps.ToList)
                 .Create();
 
             var response = carePackage.ToResponse();
@@ -236,6 +241,7 @@ namespace BrokerageApi.Tests.V1.Factories
             response.AssignedTo.Should().Be(status == ReferralStatus.AwaitingApproval ? carePackage.AssignedApprover.Email : carePackage.AssignedBroker.Email);
             response.EstimatedYearlyCost.Should().Be(carePackage.EstimatedYearlyCost);
             response.Amendments.Should().BeEquivalentTo(carePackage.ReferralAmendments.Select(a => a.ToResponse()));
+            response.FollowUps.Should().BeEquivalentTo(carePackage.ReferralFollowUps.Select(f => f.ToResponse()));
         }
 
         [Test]

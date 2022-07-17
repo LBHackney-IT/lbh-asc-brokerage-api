@@ -40,6 +40,7 @@ namespace BrokerageApi.V1.Factories
                 Elements = carePackage.ReferralElements?.Select(re => re.Element.ToResponse(re.ReferralId)).ToList(),
                 Comment = carePackage.Comment,
                 Amendments = carePackage.ReferralAmendments?.Select(a => a.ToResponse()).ToList(),
+                FollowUps = carePackage.ReferralFollowUps?.Select(f => f.ToResponse()).ToList(),
                 Workflows = carePackage.Workflows
             };
         }
@@ -143,6 +144,7 @@ namespace BrokerageApi.V1.Factories
                 AssignedBroker = referral.AssignedBroker?.ToResponse(),
                 AssignedApprover = referral.AssignedApprover?.ToResponse(),
                 Amendments = referral.ReferralAmendments?.Select(a => a.ToResponse()).ToList(),
+                FollowUps = referral.ReferralFollowUps?.Select(f => f.ToResponse()).ToList(),
                 Workflows = referral.Workflows
             };
         }
@@ -217,6 +219,19 @@ namespace BrokerageApi.V1.Factories
                 RequestedAt = amendment.RequestedAt
             };
         }
+
+        public static FollowUpResponse ToResponse(this ReferralFollowUp followUp)
+        {
+            return new FollowUpResponse
+            {
+                Comment = followUp.Comment,
+                Date = followUp.Date,
+                Status = followUp.Status,
+                RequestedAt = followUp.RequestedAt,
+                RequestedBy = followUp.RequestedBy?.ToResponse()
+            };
+        }
+
         public static ServiceUserResponse ToResponse(this ServiceUser serviceUser)
         {
             return new ServiceUserResponse
