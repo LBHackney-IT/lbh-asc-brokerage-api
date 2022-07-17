@@ -6,7 +6,7 @@ using BrokerageApi.V1.Infrastructure;
 
 namespace BrokerageApi.V1.Boundary.Response
 {
-    public class CarePackageResponse : IAssigmentResponse
+    public class CarePackageResponse : IAssignmentResponse
     {
         public int Id { get; set; }
 
