@@ -45,6 +45,7 @@ namespace BrokerageApi.V1.Infrastructure
         public DbSet<ElementType> ElementTypes { get; set; }
         public DbSet<Provider> Providers { get; set; }
         public DbSet<Referral> Referrals { get; set; }
+        public DbSet<ReferralAmendment> ReferralAmendments { get; set; }
         public DbSet<ReferralElement> ReferralElements { get; set; }
         public DbSet<ReferralFollowUp> ReferralFollowUps { get; set; }
         public DbSet<Service> Services { get; set; }
