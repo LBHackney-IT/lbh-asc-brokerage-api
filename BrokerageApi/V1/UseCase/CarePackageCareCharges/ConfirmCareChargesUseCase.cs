@@ -64,6 +64,14 @@ namespace BrokerageApi.V1.UseCase.CarePackageCareCharges
                 }
             }
 
+            if (referral.ReferralFollowUps != null)
+            {
+                foreach (var followUp in referral.ReferralFollowUps)
+                {
+                    followUp.Status = FollowUpStatus.Resolved;
+                }
+            }
+
             referral.CareChargesConfirmedAt = timeNow;
             referral.UpdatedAt = timeNow;
 
