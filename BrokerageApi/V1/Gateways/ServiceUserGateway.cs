@@ -20,8 +20,6 @@ namespace BrokerageApi.V1.Gateways
             _context = context;
         }
 
-
-
         public async Task<IEnumerable<ServiceUser>> GetByRequestAsync(GetServiceUserRequest request)
         {
             var socialCareId = request.SocialCareId;
@@ -59,5 +57,10 @@ namespace BrokerageApi.V1.Gateways
             }
         }
 
+        public async Task<ServiceUser> GetBySocialCareIdAsync(string socialCareId)
+        {
+            return await _context.ServiceUsers
+                .SingleOrDefaultAsync(su => su.SocialCareId == socialCareId);
+        }
     }
 }

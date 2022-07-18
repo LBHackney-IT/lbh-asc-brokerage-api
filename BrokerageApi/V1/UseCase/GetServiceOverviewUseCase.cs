@@ -8,25 +8,29 @@ using BrokerageApi.V1.UseCase.Interfaces;
 
 namespace BrokerageApi.V1.UseCase
 {
-    public class GetServiceOverviewUseCase : IGetServiceOverviewUseCase
+    public class GetServiceOverviewsUseCase : IGetServiceOverviewsUseCase
     {
-        private readonly IElementGateway _elementGateway;
+        private readonly IServiceUserGateway _serviceUserGateway;
+        private readonly IServiceOverviewGateway _serviceOverviewGateway;
 
-        public GetServiceOverviewUseCase(IElementGateway elementGateway)
+        public GetServiceOverviewsUseCase(
+            IServiceUserGateway serviceUserGateway,
+            IServiceOverviewGateway serviceOverviewGateway)
         {
-            _elementGateway = elementGateway;
+            _serviceUserGateway = serviceUserGateway;
+            _serviceOverviewGateway = serviceOverviewGateway;
         }
 
-        public async Task<IEnumerable<Element>> ExecuteAsync(string socialCareId)
+        public async Task<IEnumerable<ServiceOverview>> ExecuteAsync(string socialCareId)
         {
-            var elements = await _elementGateway.GetBySocialCareId(socialCareId);
+            var serviceUser = await _serviceUserGateway.GetBySocialCareIdAsync(socialCareId);
 
-            if (!elements.Any())
+            if (serviceUser == null)
             {
-                throw new ArgumentException($"Service overview not found for: {socialCareId}");
+                throw new ArgumentNullException(nameof(socialCareId), $"Service user not found for: {socialCareId}");
             }
 
-            return elements;
+            return await _serviceOverviewGateway.GetBySocialCareIdAsync(socialCareId);
         }
     }
 }

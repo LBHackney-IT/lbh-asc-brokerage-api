@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using AutoFixture;
 using BrokerageApi.Tests.V1.Helpers;
-using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Controllers;
 using BrokerageApi.V1.Factories;
@@ -15,13 +14,12 @@ using BrokerageApi.V1.UseCase.Interfaces;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using NodaTime;
 
 namespace BrokerageApi.Tests.V1.Controllers
 {
     public class ServiceUserControllerTests : ControllerTests
     {
-        private Mock<IGetServiceOverviewUseCase> _mockGetServiceOverviewUseCase;
+        private Mock<IGetServiceOverviewsUseCase> _mockGetServiceOverviewUseCase;
         private ServiceUserController _classUnderTest;
         private Fixture _fixture;
         private Mock<IGetCarePackagesByServiceUserIdUseCase> _mockGetCarePackagesByServiceUserIdUseCase;
@@ -32,7 +30,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         public void SetUp()
         {
             _fixture = FixtureHelpers.Fixture;
-            _mockGetServiceOverviewUseCase = new Mock<IGetServiceOverviewUseCase>();
+            _mockGetServiceOverviewUseCase = new Mock<IGetServiceOverviewsUseCase>();
             _mockGetCarePackagesByServiceUserIdUseCase = new Mock<IGetCarePackagesByServiceUserIdUseCase>();
             _mockGetServiceUserByRequestUseCase = new Mock<IGetServiceUserByRequestUseCase>();
 
@@ -47,37 +45,37 @@ namespace BrokerageApi.Tests.V1.Controllers
         }
 
         [Test]
-        public async Task CanGetServiceOverview()
+        public async Task CanGetServiceOverviews()
         {
             const string socialCareId = "expectedId";
-            var elements = _fixture.BuildElement(1, 1)
-                .With(e => e.SocialCareId, socialCareId)
-                .CreateMany();
+            var serviceOverviews = _fixture.BuildServiceOverview().CreateMany();
             _mockGetServiceOverviewUseCase.Setup(x => x.ExecuteAsync(socialCareId))
-                .ReturnsAsync(elements);
+                .ReturnsAsync(serviceOverviews);
 
-            var response = await _classUnderTest.GetServiceOverview(socialCareId);
+            var response = await _classUnderTest.GetServiceOverviews(socialCareId);
             var statusCode = GetStatusCode(response);
-            var result = GetResultData<List<ElementResponse>>(response);
+            var result = GetResultData<List<ServiceOverviewResponse>>(response);
 
             statusCode.Should().Be((int) HttpStatusCode.OK);
-            result.Should().BeEquivalentTo(elements.Select(e => e.ToResponse()));
+            result.Should().BeEquivalentTo(serviceOverviews.Select(e => e.ToResponse()));
         }
 
         [Test]
         public async Task Returns404WhenOverviewNotFound()
         {
             const string socialCareId = "expectedId";
-            _mockGetServiceOverviewUseCase.Setup(x => x.ExecuteAsync(socialCareId))
-                .ThrowsAsync(new ArgumentException("test"));
+            _mockGetServiceOverviewUseCase
+                .Setup(x => x.ExecuteAsync(socialCareId))
+                .Callback((string socialCareId) => throw new ArgumentNullException(nameof(socialCareId), "Service user not found for: expectedId"))
+                .Returns(Task.FromResult(new List<ServiceOverview>() as IEnumerable<ServiceOverview>));
 
-            var response = await _classUnderTest.GetServiceOverview(socialCareId);
+            var response = await _classUnderTest.GetServiceOverviews(socialCareId);
             var statusCode = GetStatusCode(response);
             var result = GetResultData<ProblemDetails>(response);
 
             statusCode.Should().Be((int) HttpStatusCode.NotFound);
             result.Status.Should().Be((int) HttpStatusCode.NotFound);
-            result.Detail.Should().Be("test");
+            result.Detail.Should().Be("Service user not found for: expectedId (Parameter 'socialCareId')");
         }
         [Test]
         public async Task CanGetCarePackagesByServiceUserId()
@@ -151,9 +149,6 @@ namespace BrokerageApi.Tests.V1.Controllers
         public async Task GetsExceptionWhenBadRequest()
         {
             //Arrange
-            var serviceUsers = _fixture.BuildServiceUser()
-            .CreateMany();
-
             var serviceUserRequest = _fixture.BuildServiceUserRequest("notThatServiceUser")
             .Create();
 

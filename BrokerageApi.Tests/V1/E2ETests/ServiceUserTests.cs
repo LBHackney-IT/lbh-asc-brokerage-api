@@ -6,6 +6,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.Tests.V1.Helpers;
 using NUnit.Framework;
 using AutoFixture;
+using NodaTime;
 
 
 namespace BrokerageApi.Tests.V1.E2ETests
@@ -19,6 +20,133 @@ namespace BrokerageApi.Tests.V1.E2ETests
         public void Setup()
         {
             _fixture = FixtureHelpers.Fixture;
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanGetServiceOverviews()
+        {
+            // Arrange
+            var service = new Service()
+            {
+                Id = 1,
+                Name = "Home Care",
+                Position = 1,
+                IsArchived = false
+            };
+
+            var serviceUser = new ServiceUser()
+            {
+                SocialCareId = "33445566",
+                DateOfBirth = new LocalDate(1968, 10, 31),
+                ServiceUserName = "Joey Tribiani"
+            };
+
+            var provider = new Provider()
+            {
+                Id = 1,
+                Name = "Central Perk",
+                Address = "Central Park, New York, NY",
+                CedarNumber = "123456",
+                CedarSite = "0",
+                Type = ProviderType.Spot,
+                IsArchived = false
+            };
+
+            var serviceElementType = new ElementType()
+            {
+                Id = 1,
+                ServiceId = service.Id,
+                Type = ElementTypeType.Service,
+                Name = "Personal Home Care (weekly)",
+                SubjectiveCode = "520050",
+                FrameworkSubjectiveCode = "520061",
+                CostType = ElementCostType.Weekly,
+                Billing = ElementBillingType.Supplier,
+                CostOperation = MathOperation.Add,
+                PaymentOperation = MathOperation.Add,
+                NonPersonalBudget = false,
+                Position = 1,
+                IsArchived = false,
+                Elements = new List<Element>()
+                {
+                    new Element()
+                    {
+                        Id = 20210621,
+                        SocialCareId = "33445566",
+                        ProviderId = 1,
+                        Cost = 450.0m,
+                        Quantity = 1.0m,
+                        StartDate = new LocalDate(2021, 6,21),
+                        EndDate = new LocalDate(2022, 3, 31),
+                        InternalStatus = ElementStatus.Approved
+                    },
+                    new Element()
+                    {
+                        Id = 20220401,
+                        SocialCareId = "33445566",
+                        ProviderId = 1,
+                        Cost = 500.0m,
+                        Quantity = 1.0m,
+                        StartDate = new LocalDate(2022, 4,1),
+                        EndDate = null,
+                        InternalStatus = ElementStatus.Approved
+                    }
+                }
+            };
+
+            var careChargeElementType = new ElementType()
+            {
+                Id = 2,
+                ServiceId = service.Id,
+                Type = ElementTypeType.ConfirmedCareCharge,
+                Name = "Non-Residential Care Charges (collected by Hackney)",
+                SubjectiveCode = "920128",
+                FrameworkSubjectiveCode = null,
+                CostType = ElementCostType.Weekly,
+                Billing = ElementBillingType.Customer,
+                CostOperation = MathOperation.Ignore,
+                PaymentOperation = MathOperation.Subtract,
+                NonPersonalBudget = false,
+                Position = 2,
+                IsArchived = false,
+                Elements = new List<Element>()
+                {
+                    new Element()
+                    {
+                        Id = 20210721,
+                        SocialCareId = "33445566",
+                        Cost = 100.0m,
+                        Quantity = 1.0m,
+                        StartDate = new LocalDate(2021, 7, 21),
+                        EndDate = null,
+                        InternalStatus = ElementStatus.Approved
+                    }
+                }
+            };
+
+            await Context.Services.AddAsync(service);
+            await Context.ServiceUsers.AddAsync(serviceUser);
+            await Context.Providers.AddAsync(provider);
+            await Context.ElementTypes.AddAsync(serviceElementType);
+            await Context.ElementTypes.AddAsync(careChargeElementType);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            // Act
+            var (code, response) = await Get<List<ServiceOverviewResponse>>($"/api/v1/service-users/33445566/services");
+
+            // Assert
+            Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(response.Count, Is.EqualTo(1));
+            Assert.That(response[0].Id, Is.EqualTo(1));
+            Assert.That(response[0].Name, Is.EqualTo("Home Care"));
+            Assert.That(response[0].StartDate, Is.EqualTo(new LocalDate(2021, 6, 21)));
+            Assert.That(response[0].EndDate, Is.Null);
+            Assert.That(response[0].WeeklyCost, Is.EqualTo(500.0m));
+            Assert.That(response[0].WeeklyPayment, Is.EqualTo(400.0m));
+            Assert.That(response[0].AnnualCost, Is.EqualTo(26000.0m));
+            Assert.That(response[0].Status, Is.EqualTo(ServiceStatus.Active));
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -175,6 +303,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             // Act
             var (code, response) = await Get<List<CarePackageResponse>>($"/api/v1/service-users/{referral.SocialCareId}/care-packages");
+
             // Assert
             Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
 

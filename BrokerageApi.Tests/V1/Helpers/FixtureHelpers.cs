@@ -184,6 +184,11 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(f => f.RequestedBy);
         }
 
+        public static IPostprocessComposer<ServiceOverview> BuildServiceOverview(this IFixture fixture)
+        {
+            return fixture.Build<ServiceOverview>();
+        }
+
         public static IPostprocessComposer<ServiceUser> BuildServiceUser(this IFixture fixture)
         {
             return fixture.Build<ServiceUser>();
@@ -191,7 +196,6 @@ namespace BrokerageApi.Tests.V1.Helpers
 
         public static IPostprocessComposer<GetServiceUserRequest> BuildServiceUserRequest(this IFixture fixture, string socialCareId)
         {
-
             return fixture.Build<GetServiceUserRequest>()
             .With(su => su.SocialCareId, socialCareId);
         }

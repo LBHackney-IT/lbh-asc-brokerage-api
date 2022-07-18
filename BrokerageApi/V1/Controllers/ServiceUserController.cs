@@ -19,40 +19,39 @@ namespace BrokerageApi.V1.Controllers
     [ApiVersion("1.0")]
     public class ServiceUserController : BaseController
     {
-        private readonly IGetServiceOverviewUseCase _serviceOverviewUseCase;
-
+        private readonly IGetServiceOverviewsUseCase _getServiceOverviewsUseCase;
         private readonly IGetServiceUserByRequestUseCase _serviceUserByRequestUseCase;
-
         private readonly IGetCarePackagesByServiceUserIdUseCase _getCarePackagesByServiceUserIdUseCase;
+
         public ServiceUserController(
-            IGetServiceOverviewUseCase serviceOverviewUseCase,
+            IGetServiceOverviewsUseCase getServiceOverviewsUseCase,
             IGetCarePackagesByServiceUserIdUseCase getCarePackagesByServiceUserIdUseCase,
             IGetServiceUserByRequestUseCase serviceUserByRequestUseCase
         )
         {
-            _serviceOverviewUseCase = serviceOverviewUseCase;
+            _getServiceOverviewsUseCase = getServiceOverviewsUseCase;
             _getCarePackagesByServiceUserIdUseCase = getCarePackagesByServiceUserIdUseCase;
             _serviceUserByRequestUseCase = serviceUserByRequestUseCase;
         }
 
         [Authorize]
         [HttpGet]
-        [Route("{socialCareId}/serviceOverview")]
-        [ProducesResponseType(typeof(List<ElementResponse>), StatusCodes.Status200OK)]
+        [Route("{socialCareId}/services")]
+        [ProducesResponseType(typeof(List<ServiceOverviewResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetServiceOverview([FromRoute] string socialCareId)
+        public async Task<IActionResult> GetServiceOverviews([FromRoute] string socialCareId)
         {
             try
             {
-                var result = await _serviceOverviewUseCase.ExecuteAsync(socialCareId);
+                var result = await _getServiceOverviewsUseCase.ExecuteAsync(socialCareId);
                 return Ok(result.Select(e => e.ToResponse()).ToList());
             }
-            catch (ArgumentException e)
+            catch (ArgumentNullException e)
             {
                 return Problem(
                     e.Message,
-                    $"api/v1/service-users/{socialCareId}/serviceOverview",
+                    $"api/v1/service-users/{socialCareId}/services",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }

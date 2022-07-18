@@ -51,6 +51,7 @@ namespace BrokerageApi.V1.Infrastructure
         public DbSet<Service> Services { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<AuditEvent> AuditEvents { get; set; }
+        public DbSet<ServiceOverview> ServiceOverviews { get; set; }
         public DbSet<ServiceUser> ServiceUsers { get; set; }
         public DbSet<Workflow> Workflows { get; set; }
 
@@ -301,6 +302,14 @@ namespace BrokerageApi.V1.Infrastructure
             modelBuilder.Entity<Service>()
                 .Property(s => s.HasProvisionalClientContributions)
                 .HasDefaultValue(false);
+
+            modelBuilder.Entity<ServiceOverview>()
+                .ToView("service_overviews")
+                .HasKey(so => new { so.SocialCareId, so.Id });
+
+            modelBuilder.Entity<ServiceOverview>()
+                .Property(so => so.Id)
+                .ValueGeneratedNever();
 
             modelBuilder.Entity<ServiceUser>()
                 .HasGeneratedTsVectorColumn(

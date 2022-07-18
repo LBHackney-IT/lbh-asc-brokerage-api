@@ -162,6 +162,21 @@ namespace BrokerageApi.V1.Factories
             };
         }
 
+        public static ServiceOverviewResponse ToResponse(this ServiceOverview serviceOverview)
+        {
+            return new ServiceOverviewResponse
+            {
+                Id = serviceOverview.Id,
+                Name = serviceOverview.Name,
+                StartDate = serviceOverview.StartDate,
+                EndDate = serviceOverview.EndDate,
+                WeeklyCost = serviceOverview.WeeklyCost,
+                WeeklyPayment = serviceOverview.WeeklyPayment,
+                AnnualCost = serviceOverview.AnnualCost,
+                Status = serviceOverview.Status
+            };
+        }
+
         public static UserResponse ToResponse(this User user)
         {
             return new UserResponse
