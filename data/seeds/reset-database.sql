@@ -40,7 +40,7 @@ TRUNCATE TABLE
   service_users
 RESTART IDENTITY;
 
-\COPY element_types(id, service_id, name, subjective_code, framework_subjective_code, type, cost_type, billing, cost_operation, payment_operation, non_personal_budget, position, is_archived, is_s117) FROM 'element_types.csv' CSV HEADER;
+\COPY element_types(id, service_id, name, subjective_code, framework_subjective_code, type, cost_type, billing, cost_operation, payment_operation, non_personal_budget, position, is_archived, is_s117, is_residential) FROM 'element_types.csv' CSV HEADER;
 \COPY referrals(id, workflow_id, workflow_type, form_name, social_care_id, resident_name, primary_support_reason, direct_payments, urgent_since, note, status, assigned_broker_email, assigned_approver_email, comment, started_at, created_at, updated_at) FROM 'referrals.csv' CSV HEADER;
 \COPY elements(id, social_care_id, element_type_id, non_personal_budget, provider_id, details, internal_status, parent_element_id, start_date, end_date, monday, tuesday, wednesday, thursday, friday, saturday, sunday, quantity, cost, cost_centre, is_suspension, suspended_element_id, comment, created_by, created_at, updated_at) FROM 'elements.csv' CSV HEADER;
 \COPY referral_elements(referral_id, element_id, pending_cancellation, pending_comment, pending_end_date) FROM 'referral_elements.csv' CSV HEADER;

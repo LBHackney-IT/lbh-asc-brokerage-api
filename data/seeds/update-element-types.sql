@@ -15,11 +15,12 @@ CREATE TEMPORARY TABLE element_types_update (
   payment_operation integer NOT NULL,
   position integer NOT NULL,
   is_archived boolean NOT NULL,
-  is_s117 boolean NOT NULL
+  is_s117 boolean NOT NULL,
+  is_residential boolean NOT NULL
 );
 
 -- Import element type updates
-\copy element_types_update(id, service_id, name, subjective_code, framework_subjective_code, type, cost_type, billing, cost_operation, payment_operation, non_personal_budget, position, is_archived, is_s117) FROM 'element_types.csv' CSV HEADER;
+\copy element_types_update(id, service_id, name, subjective_code, framework_subjective_code, type, cost_type, billing, cost_operation, payment_operation, non_personal_budget, position, is_archived, is_s117, is_residential) FROM 'element_types.csv' CSV HEADER;
 
 -- Delete any element types
 DELETE FROM element_types WHERE id NOT IN (
@@ -30,12 +31,12 @@ DELETE FROM element_types WHERE id NOT IN (
 INSERT INTO element_types (
   id, service_id, name, subjective_code, framework_subjective_code,
   type, cost_type, billing, cost_operation, payment_operation,
-  non_personal_budget, position, is_archived, is_s117
+  non_personal_budget, position, is_archived, is_s117, is_residential
 )
 SELECT
   id, service_id, name, subjective_code, framework_subjective_code,
   type, cost_type, billing, cost_operation, payment_operation,
-  non_personal_budget, position, is_archived, is_s117
+  non_personal_budget, position, is_archived, is_s117, is_residential
 FROM
   element_types_update
 ON CONFLICT (id) DO UPDATE SET
@@ -51,7 +52,8 @@ ON CONFLICT (id) DO UPDATE SET
   payment_operation = EXCLUDED.payment_operation,
   position = EXCLUDED.position,
   is_archived = EXCLUDED.is_archived,
-  is_s117 = EXCLUDED.is_s117;
+  is_s117 = EXCLUDED.is_s117,
+  is_residential = EXCLUDED.is_residential;
 
 -- We created the table as temporary so PostgreSQL will clean
 -- it up anyway but we'll drop it here for the sake of completeness

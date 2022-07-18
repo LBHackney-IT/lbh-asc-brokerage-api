@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoFixture;
 using BrokerageApi.Tests.V1.Helpers;
@@ -476,10 +477,35 @@ namespace BrokerageApi.Tests.V1.Gateways
                 CareChargesConfirmedAt = CurrentInstant
             };
 
+            var approvedWithFollowUpReferral = new Referral()
+            {
+                WorkflowId = "5a2287f0-e81f-013a-99f9-5a4fae5edecc",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556684",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBrokerEmail = brokerUser.Email,
+                Status = ReferralStatus.Approved,
+                ReferralFollowUps = new List<ReferralFollowUp>
+                {
+                    new ReferralFollowUp
+                    {
+                        Comment = "Some comments",
+                        Date = CurrentDate.PlusDays(30),
+                        Status = FollowUpStatus.InProgress,
+                        RequestedAt = CurrentInstant,
+                        RequestedByEmail = brokerUser.Email
+                    }
+                }
+            };
+
             await BrokerageContext.Referrals.AddAsync(inProgressReferral);
             await BrokerageContext.Referrals.AddAsync(awaitingApprovalReferral);
             await BrokerageContext.Referrals.AddAsync(approvedReferral);
             await BrokerageContext.Referrals.AddAsync(approvedAndConfirmedReferral);
+            await BrokerageContext.Referrals.AddAsync(approvedWithFollowUpReferral);
             await BrokerageContext.Users.AddAsync(brokerUser);
             await BrokerageContext.SaveChangesAsync();
 
@@ -490,6 +516,110 @@ namespace BrokerageApi.Tests.V1.Gateways
             Assert.That(result, Contains.Item(approvedReferral));
             Assert.That(result, Does.Not.Contain(inProgressReferral));
             Assert.That(result, Does.Not.Contain(awaitingApprovalReferral));
+            Assert.That(result, Does.Not.Contain(approvedAndConfirmedReferral));
+            Assert.That(result, Does.Not.Contain(approvedWithFollowUpReferral));
+        }
+
+        [Test]
+        public async Task GetsFollowUpReferrals()
+        {
+            // Arrange
+            var brokerUser = Fixture.BuildUser().Create();
+
+            var inProgressReferral = new Referral()
+            {
+                WorkflowId = "3e48adb1-0ca2-456c-845a-efcd4eca4554",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556681",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBrokerEmail = brokerUser.Email,
+                Status = ReferralStatus.InProgress,
+                StartedAt = CurrentInstant
+            };
+
+            var awaitingApprovalReferral = new Referral()
+            {
+                WorkflowId = "9cab0511-094f-4d6b-ba81-7246ec0dc716",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556682",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBrokerEmail = brokerUser.Email,
+                Status = ReferralStatus.AwaitingApproval
+            };
+
+            var approvedReferral = new Referral()
+            {
+                WorkflowId = "174079ae-75b4-43b4-9d29-363e88e7dd40",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556683",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBrokerEmail = brokerUser.Email,
+                Status = ReferralStatus.Approved
+            };
+
+            var approvedAndConfirmedReferral = new Referral()
+            {
+                WorkflowId = "82af1790-e591-013a-99f7-5a4fae5edecc",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556684",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBrokerEmail = brokerUser.Email,
+                Status = ReferralStatus.Approved,
+                CareChargesConfirmedAt = CurrentInstant
+            };
+
+            var approvedWithFollowUpReferral = new Referral()
+            {
+                WorkflowId = "5a2287f0-e81f-013a-99f9-5a4fae5edecc",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556684",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBrokerEmail = brokerUser.Email,
+                Status = ReferralStatus.Approved,
+                ReferralFollowUps = new List<ReferralFollowUp>
+                {
+                    new ReferralFollowUp
+                    {
+                        Comment = "Some comments",
+                        Date = CurrentDate.PlusDays(30),
+                        Status = FollowUpStatus.InProgress,
+                        RequestedAt = CurrentInstant,
+                        RequestedByEmail = brokerUser.Email
+                    }
+                }
+            };
+
+            await BrokerageContext.Referrals.AddAsync(inProgressReferral);
+            await BrokerageContext.Referrals.AddAsync(awaitingApprovalReferral);
+            await BrokerageContext.Referrals.AddAsync(approvedReferral);
+            await BrokerageContext.Referrals.AddAsync(approvedAndConfirmedReferral);
+            await BrokerageContext.Referrals.AddAsync(approvedWithFollowUpReferral);
+            await BrokerageContext.Users.AddAsync(brokerUser);
+            await BrokerageContext.SaveChangesAsync();
+
+            // Act
+            var result = await _classUnderTest.GetFollowUpAsync();
+
+            // Assert
+            Assert.That(result, Contains.Item(approvedWithFollowUpReferral));
+            Assert.That(result, Does.Not.Contain(inProgressReferral));
+            Assert.That(result, Does.Not.Contain(awaitingApprovalReferral));
+            Assert.That(result, Does.Not.Contain(approvedReferral));
             Assert.That(result, Does.Not.Contain(approvedAndConfirmedReferral));
         }
 

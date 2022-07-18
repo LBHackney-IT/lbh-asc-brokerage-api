@@ -1,3 +1,5 @@
+using NodaTime;
+
 namespace BrokerageApi.V1.Infrastructure.AuditEvents
 {
     public class ReferralAssignmentAuditEventMetadata : AuditMetadataBase
@@ -22,6 +24,12 @@ namespace BrokerageApi.V1.Infrastructure.AuditEvents
     {
         public int ReferralId { get; set; }
         public string Comment { get; set; }
+    }
+    public class ReferralFollowUpAuditEventMetadata : AuditMetadataBase
+    {
+        public int ReferralId { get; set; }
+        public string Comment { get; set; }
+        public LocalDate Date { get; set; }
     }
     public class CarePackageApprovalAuditEventMetadata : AuditMetadataBase
     {

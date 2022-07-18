@@ -4,14 +4,18 @@ using AutoFixture.Dsl;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Controllers.Parameters;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
+using BrokerageApi.V1.Services;
 using BrokerageApi.V1.Services.Interfaces;
 using MicroElements.AutoFixture.NodaTime;
+using NodaTime;
+using NodaTime.Testing;
 
 namespace BrokerageApi.Tests.V1.Helpers
 {
     public static class FixtureHelpers
     {
         public static Fixture Fixture => CreateFixture();
+
         private static Fixture CreateFixture()
         {
             var fixture = new Fixture();
@@ -27,10 +31,12 @@ namespace BrokerageApi.Tests.V1.Helpers
         {
             return fixture.Create<int>() % (max - min + 1) + min;
         }
+
         public static IPostprocessComposer<CarePackage> BuildCarePackage(this IFixture fixture, string socialCareId = null, bool withElements = false)
         {
             var builder = fixture.Build<CarePackage>()
-                .Without(c => c.ReferralAmendments);
+                .Without(c => c.ReferralAmendments)
+                .Without(c => c.ReferralFollowUps);
 
             if (!withElements)
             {
@@ -51,6 +57,7 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(p => p.Elements)
                 .With(p => p.Type, ProviderType.Framework);
         }
+
         public static IPostprocessComposer<Service> BuildService(this IFixture fixture)
         {
             return fixture.Build<Service>()
@@ -60,6 +67,7 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(s => s.ParentId)
                 .With(s => s.IsArchived, false);
         }
+
         public static IPostprocessComposer<ElementType> BuildElementType(this IFixture fixture, int serviceId, ElementTypeType type = ElementTypeType.Service)
         {
             return fixture.Build<ElementType>()
@@ -71,6 +79,7 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .With(et => et.PaymentOperation, MathOperation.Add)
                 .With(et => et.IsArchived, false);
         }
+
         public static IPostprocessComposer<Referral> BuildReferral(this IFixture fixture, ReferralStatus? status = null)
         {
             var builder = fixture.Build<Referral>()
@@ -81,7 +90,9 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(r => r.AssignedBrokerEmail)
                 .Without(r => r.AssignedApproverEmail)
                 .Without(r => r.ReferralAmendments)
-                .With(r => r.WorkflowType, WorkflowType.Assessment);
+                .Without(r => r.ReferralFollowUps)
+                .With(r => r.WorkflowType, WorkflowType.Assessment)
+                .With(r => r.CareChargeStatus, CareChargeStatus.New);
 
             if (status != null)
             {
@@ -107,7 +118,8 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .With(e => e.ProviderId, providerId)
                 .With(e => e.ElementTypeId, elementTypeId)
                 .With(e => e.InternalStatus, ElementStatus.InProgress)
-                .With(e => e.IsSuspension, false);
+                .With(e => e.IsSuspension, false)
+                .With(e => e.Clock, FakeClockFactory());
         }
 
         public static IPostprocessComposer<Element> WithoutCost(this IPostprocessComposer<Element> elementBuilder)
@@ -163,15 +175,33 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(a => a.Referral)
                 .Without(a => a.ReferralId);
         }
+
+        public static IPostprocessComposer<ReferralFollowUp> BuildReferralFollowUp(this IFixture fixture)
+        {
+            return fixture.Build<ReferralFollowUp>()
+                .Without(f => f.Referral)
+                .Without(f => f.ReferralId)
+                .Without(f => f.RequestedBy);
+        }
+
         public static IPostprocessComposer<ServiceUser> BuildServiceUser(this IFixture fixture)
         {
             return fixture.Build<ServiceUser>();
         }
+
         public static IPostprocessComposer<GetServiceUserRequest> BuildServiceUserRequest(this IFixture fixture, string socialCareId)
         {
 
             return fixture.Build<GetServiceUserRequest>()
             .With(su => su.SocialCareId, socialCareId);
+        }
+
+        public static IClockService FakeClockFactory()
+        {
+            var currentTime = SystemClock.Instance.GetCurrentInstant();
+            var fakeClock = new FakeClock(currentTime);
+
+            return new ClockService(fakeClock);
         }
     }
 }

@@ -5,6 +5,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -15,9 +16,10 @@ using NpgsqlTypes;
 namespace V1.Infrastructure.Migrations
 {
     [DbContext(typeof(BrokerageContext))]
-    partial class BrokerageContextModelSnapshot : ModelSnapshot
+    [Migration("20220717125202_CreateReferralFollowUps")]
+    partial class CreateReferralFollowUps
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,7 +27,7 @@ namespace V1.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "amendment_status", new[] { "in_progress", "resolved" });
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "audit_event_type", new[] { "referral_broker_assignment", "referral_broker_reassignment", "element_ended", "element_cancelled", "element_suspended", "care_package_ended", "care_package_cancelled", "care_package_suspended", "referral_archived", "import_note", "care_package_budget_approver_assigned", "care_package_approved", "amendment_requested", "care_charges_confirmed", "follow_up_requested" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "audit_event_type", new[] { "referral_broker_assignment", "referral_broker_reassignment", "element_ended", "element_cancelled", "element_suspended", "care_package_ended", "care_package_cancelled", "care_package_suspended", "referral_archived", "import_note", "care_package_budget_approver_assigned", "care_package_approved", "amendment_requested", "care_charges_confirmed" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "care_charge_status", new[] { "new", "existing", "termination", "suspension", "cancellation" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_billing_type", new[] { "supplier", "customer", "none", "ccg" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_cost_type", new[] { "hourly", "daily", "weekly", "transport", "one_off" });
@@ -643,12 +645,12 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnName("status");
 
                     b.HasKey("Id")
-                        .HasName("pk_referral_amendments");
+                        .HasName("pk_referral_amendment");
 
                     b.HasIndex("ReferralId")
-                        .HasDatabaseName("ix_referral_amendments_referral_id");
+                        .HasDatabaseName("ix_referral_amendment_referral_id");
 
-                    b.ToTable("referral_amendments", (string)null);
+                    b.ToTable("referral_amendment", (string)null);
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ReferralElement", b =>
@@ -1022,14 +1024,14 @@ namespace V1.Infrastructure.Migrations
                         .HasForeignKey("ReferralId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_referral_amendments_care_packages_care_package_id");
+                        .HasConstraintName("fk_referral_amendment_care_packages_care_package_id");
 
                     b.HasOne("BrokerageApi.V1.Infrastructure.Referral", "Referral")
                         .WithMany("ReferralAmendments")
                         .HasForeignKey("ReferralId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_referral_amendments_referrals_referral_id");
+                        .HasConstraintName("fk_referral_amendment_referrals_referral_id");
 
                     b.Navigation("Referral");
                 });
@@ -1066,13 +1068,6 @@ namespace V1.Infrastructure.Migrations
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ReferralFollowUp", b =>
                 {
-                    b.HasOne("BrokerageApi.V1.Infrastructure.CarePackage", null)
-                        .WithMany("ReferralFollowUps")
-                        .HasForeignKey("ReferralId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_referral_follow_ups_care_packages_care_package_id");
-
                     b.HasOne("BrokerageApi.V1.Infrastructure.Referral", "Referral")
                         .WithMany("ReferralFollowUps")
                         .HasForeignKey("ReferralId")
@@ -1125,8 +1120,6 @@ namespace V1.Infrastructure.Migrations
                     b.Navigation("ReferralAmendments");
 
                     b.Navigation("ReferralElements");
-
-                    b.Navigation("ReferralFollowUps");
 
                     b.Navigation("Workflows");
                 });

@@ -35,7 +35,8 @@ namespace BrokerageApi.Tests
             Fixture = FixtureHelpers.Fixture;
             var builder = new DbContextOptionsBuilder();
             builder.UseNpgsql(ConnectionString.TestDatabase())
-                .UseSnakeCaseNamingConvention();
+                .UseSnakeCaseNamingConvention()
+                .EnableSensitiveDataLogging(true);
 
             var currentTime = SystemClock.Instance.GetCurrentInstant();
             var fakeClock = new FakeClock(currentTime);

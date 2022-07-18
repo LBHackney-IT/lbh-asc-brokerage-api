@@ -226,6 +226,7 @@ namespace BrokerageApi
             services.AddTransient<ICreateReferralUseCase, CreateReferralUseCase>();
             services.AddTransient<IFindProvidersUseCase, FindProvidersUseCase>();
             services.AddTransient<IGetApprovedReferralsUseCase, GetApprovedReferralsUseCase>();
+            services.AddTransient<IGetFollowUpReferralsUseCase, GetFollowUpReferralsUseCase>();
             services.AddTransient<IGetAssignedReferralsUseCase, GetAssignedReferralsUseCase>();
             services.AddTransient<IGetCurrentReferralsUseCase, GetCurrentReferralsUseCase>();
             services.AddTransient<IGetCurrentElementsUseCase, GetCurrentElementsUseCase>();
@@ -263,6 +264,7 @@ namespace BrokerageApi
             services.AddTransient<IGetBudgetApprovalsUseCase, GetBudgetApprovalsUseCase>();
             services.AddTransient<IApproveCarePackageUseCase, ApproveCarePackageUseCase>();
             services.AddTransient<IRequestAmendmentToCarePackageUseCase, RequestAmendmentToCarePackageUseCase>();
+            services.AddTransient<IRequestFollowUpToCarePackageUseCase, RequestFollowUpToCarePackageUseCase>();
             services.AddTransient<IResetCareChargeUseCase, ResetCareChargeUseCase>();
             services.AddTransient<IResetElementUseCase, ResetElementUseCase>();
         }

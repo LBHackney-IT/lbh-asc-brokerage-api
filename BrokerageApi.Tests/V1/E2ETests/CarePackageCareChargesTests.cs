@@ -40,11 +40,17 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 .With(e => e.UpdatedAt, PreviousInstant)
                 .Create();
 
+            var followUp = _fixture.BuildReferralFollowUp()
+                .With(f => f.RequestedByEmail, ApiUser.Email)
+                .With(f => f.Status, FollowUpStatus.InProgress)
+                .Create();
+
             var referral = _fixture.BuildReferral(ReferralStatus.Approved)
                 .Without(r => r.CareChargesConfirmedAt)
                 .With(r => r.CreatedAt, PreviousInstant)
                 .With(r => r.UpdatedAt, PreviousInstant)
                 .With(r => r.Elements, new List<Element> { element })
+                .With(r => r.ReferralFollowUps, new List<ReferralFollowUp> { followUp })
                 .Create();
 
             await Context.Referrals.AddAsync(referral);
@@ -70,6 +76,9 @@ namespace BrokerageApi.Tests.V1.E2ETests
             resultElement.InternalStatus.Should().Be(ElementStatus.Approved);
             resultElement.CreatedAt.Should().BeEquivalentTo(PreviousInstant);
             resultElement.UpdatedAt.Should().BeEquivalentTo(CurrentInstant);
+
+            var resultFollowUp = await Context.ReferralFollowUps.SingleAsync(f => f.Id == followUp.Id);
+            resultFollowUp.Status.Should().Be(FollowUpStatus.Resolved);
 
             Context.AuditEvents.Should().ContainSingle(ae => ae.EventType == AuditEventType.CareChargesConfirmed);
         }

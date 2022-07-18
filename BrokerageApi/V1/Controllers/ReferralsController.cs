@@ -23,6 +23,7 @@ namespace BrokerageApi.V1.Controllers
     {
         private readonly ICreateReferralUseCase _createReferralUseCase;
         private readonly IGetApprovedReferralsUseCase _getApprovedReferralsUseCase;
+        private readonly IGetFollowUpReferralsUseCase _getFollowUpReferralsUseCase;
         private readonly IGetAssignedReferralsUseCase _getAssignedReferralsUseCase;
         private readonly IGetCurrentReferralsUseCase _getCurrentReferralsUseCase;
         private readonly IGetReferralByIdUseCase _getReferralByIdUseCase;
@@ -33,6 +34,7 @@ namespace BrokerageApi.V1.Controllers
 
         public ReferralsController(ICreateReferralUseCase createReferralUseCase,
             IGetApprovedReferralsUseCase getApprovedReferralsUseCase,
+            IGetFollowUpReferralsUseCase getFollowUpReferralsUseCase,
             IGetAssignedReferralsUseCase getAssignedReferralsUseCase,
             IGetCurrentReferralsUseCase getCurrentReferralsUseCase,
             IGetReferralByIdUseCase getReferralByIdUseCase,
@@ -43,6 +45,7 @@ namespace BrokerageApi.V1.Controllers
         {
             _createReferralUseCase = createReferralUseCase;
             _getApprovedReferralsUseCase = getApprovedReferralsUseCase;
+            _getFollowUpReferralsUseCase = getFollowUpReferralsUseCase;
             _getAssignedReferralsUseCase = getAssignedReferralsUseCase;
             _getCurrentReferralsUseCase = getCurrentReferralsUseCase;
             _getReferralByIdUseCase = getReferralByIdUseCase;
@@ -90,6 +93,16 @@ namespace BrokerageApi.V1.Controllers
         public async Task<IActionResult> GetApprovedReferrals()
         {
             var referrals = await _getApprovedReferralsUseCase.ExecuteAsync();
+            return Ok(referrals.Select(r => r.ToResponse()).ToList());
+        }
+
+        [HttpGet]
+        [Route("follow-up")]
+        [ProducesResponseType(typeof(List<ReferralResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetFollowUpReferrals()
+        {
+            var referrals = await _getFollowUpReferralsUseCase.ExecuteAsync();
             return Ok(referrals.Select(r => r.ToResponse()).ToList());
         }
 
