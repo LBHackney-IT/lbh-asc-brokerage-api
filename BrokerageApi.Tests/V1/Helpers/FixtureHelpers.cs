@@ -186,7 +186,16 @@ namespace BrokerageApi.Tests.V1.Helpers
 
         public static IPostprocessComposer<ServiceOverview> BuildServiceOverview(this IFixture fixture)
         {
-            return fixture.Build<ServiceOverview>();
+            return fixture.Build<ServiceOverview>()
+                .Without(so => so.Elements);
+        }
+
+        public static IPostprocessComposer<ServiceOverviewElement> BuildServiceOverviewElement(this IFixture fixture)
+        {
+            return fixture.Build<ServiceOverviewElement>()
+                .Without(e => e.Service)
+                .Without(e => e.Provider)
+                .Without(e => e.Referral);
         }
 
         public static IPostprocessComposer<ServiceUser> BuildServiceUser(this IFixture fixture)

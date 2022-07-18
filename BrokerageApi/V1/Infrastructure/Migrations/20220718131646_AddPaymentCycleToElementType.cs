@@ -1,4 +1,4 @@
-﻿using BrokerageApi.V1.Infrastructure;
+using BrokerageApi.V1.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable

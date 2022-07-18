@@ -23,5 +23,24 @@ namespace BrokerageApi.V1.Gateways
                 .OrderBy(so => so.Name)
                 .ToListAsync();
         }
+
+        public async Task<ServiceOverview> GetBySocialCareIdAndServiceIdAsync(string socialCareId, int serviceId)
+        {
+            return await _context.ServiceOverviews
+                .Include(so => so.Elements.OrderBy(e => e.StartDate))
+                    .ThenInclude(e => e.Referral)
+                        .ThenInclude(r => r.Workflows)
+                .Include(so => so.Elements.OrderBy(e => e.StartDate))
+                    .ThenInclude(e => e.Service)
+                .Include(so => so.Elements.OrderBy(e => e.StartDate))
+                    .ThenInclude(e => e.Provider)
+                .Include(so => so.Elements.OrderBy(e => e.StartDate))
+                    .ThenInclude(e => e.Suspensions)
+                        .ThenInclude(s => s.Referral)
+                            .ThenInclude(r => r.Workflows)
+                .Where(so => so.SocialCareId == socialCareId)
+                .Where(so => so.Id == serviceId)
+                .SingleOrDefaultAsync();
+        }
     }
 }

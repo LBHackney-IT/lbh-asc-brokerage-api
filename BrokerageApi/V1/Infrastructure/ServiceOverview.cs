@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using BrokerageApi.V1.Services.Interfaces;
@@ -55,6 +56,8 @@ namespace BrokerageApi.V1.Infrastructure
                 }
             }
         }
+
+        public List<ServiceOverviewElement> Elements { get; set; }
 
         [NotMapped]
         public IClockService Clock { get; set; }

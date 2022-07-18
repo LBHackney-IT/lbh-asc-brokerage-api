@@ -7,5 +7,6 @@ namespace BrokerageApi.V1.Gateways.Interfaces
     public interface IServiceOverviewGateway
     {
         public Task<IEnumerable<ServiceOverview>> GetBySocialCareIdAsync(string socialCareId);
+        public Task<ServiceOverview> GetBySocialCareIdAndServiceIdAsync(string socialCareId, int serviceId);
     }
 }

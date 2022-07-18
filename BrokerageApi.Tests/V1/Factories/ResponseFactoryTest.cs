@@ -48,7 +48,7 @@ namespace BrokerageApi.Tests.V1.Factories
         }
 
         [Test]
-        public void PageMetadataMapsCorrectly()
+        public void PageMetadataResponseMapsCorrectly()
         {
             var pageMetadata = _fixture.Create<IPagedList>();
 
@@ -87,7 +87,7 @@ namespace BrokerageApi.Tests.V1.Factories
         }
 
         [Test]
-        public void ElementMapsCorrectly()
+        public void ElementResponseMapsCorrectly()
         {
             var expectedReferralId = 1234;
             var grandParentElement = _fixture.BuildElement(1, 1)
@@ -157,7 +157,7 @@ namespace BrokerageApi.Tests.V1.Factories
         }
 
         [Test]
-        public void ReferralMapsCorrectly([Values] ReferralStatus status)
+        public void ReferralResponseMapsCorrectly([Values] ReferralStatus status)
         {
             var broker = _fixture.BuildUser().Create();
             var approver = _fixture.BuildUser().Create();
@@ -198,7 +198,7 @@ namespace BrokerageApi.Tests.V1.Factories
         }
 
         [Test]
-        public void CarePackageMapsCorrectly([Values] ReferralStatus status)
+        public void CarePackageResponseMapsCorrectly([Values] ReferralStatus status)
         {
             var broker = _fixture.BuildUser().Create();
             var approver = _fixture.BuildUser().Create();
@@ -246,7 +246,7 @@ namespace BrokerageApi.Tests.V1.Factories
         }
 
         [Test]
-        public void UserMapsCorrectly()
+        public void UserResponseMapsCorrectly()
         {
             var user = _fixture.BuildUser().Create();
 
@@ -263,7 +263,7 @@ namespace BrokerageApi.Tests.V1.Factories
         }
 
         [Test]
-        public void AmendmentMapsCorrectly()
+        public void AmendmentResponseMapsCorrectly()
         {
             var amendment = _fixture.BuildReferralAmendment().Create();
 
@@ -275,7 +275,76 @@ namespace BrokerageApi.Tests.V1.Factories
         }
 
         [Test]
-        public void ServiceUserMapsCorrectly()
+        public void ServiceOverviewResponseMapsCorrectly()
+        {
+            var serviceOverview = _fixture.BuildServiceOverview().Create();
+            var response = serviceOverview.ToResponse();
+
+            response.Id.Should().Be(serviceOverview.Id);
+            response.Name.Should().Be(serviceOverview.Name);
+            response.StartDate.Should().Be(serviceOverview.StartDate);
+            response.EndDate.Should().Be(serviceOverview.EndDate);
+            response.WeeklyCost.Should().Be(serviceOverview.WeeklyCost);
+            response.WeeklyPayment.Should().Be(serviceOverview.WeeklyPayment);
+            response.AnnualCost.Should().Be(serviceOverview.AnnualCost);
+            response.Status.Should().Be(serviceOverview.Status);
+            response.Elements.Should().BeNull();
+        }
+
+        [Test]
+        public void ServiceOverviewResponseWithElementsMapsCorrectly()
+        {
+            var referral = _fixture.BuildReferral().Create();
+            var provider = _fixture.BuildProvider().Create();
+            var elements = _fixture.BuildServiceOverviewElement()
+                .With(e => e.Referral, referral)
+                .With(e => e.Provider, provider)
+                .CreateMany().ToList();
+
+            var serviceOverview = _fixture.BuildServiceOverview()
+                .With(so => so.Elements, elements)
+                .Create();
+
+            var response = serviceOverview.ToResponse();
+
+            response.Id.Should().Be(serviceOverview.Id);
+            response.Name.Should().Be(serviceOverview.Name);
+            response.StartDate.Should().Be(serviceOverview.StartDate);
+            response.EndDate.Should().Be(serviceOverview.EndDate);
+            response.WeeklyCost.Should().Be(serviceOverview.WeeklyCost);
+            response.WeeklyPayment.Should().Be(serviceOverview.WeeklyPayment);
+            response.AnnualCost.Should().Be(serviceOverview.AnnualCost);
+            response.Status.Should().Be(serviceOverview.Status);
+            response.Elements.Should().BeEquivalentTo(elements.Select(e => e.ToResponse()).ToList());
+        }
+
+        [Test]
+        public void ServiceOverviewElementResponseMapsCorrectly()
+        {
+            var referral = _fixture.BuildReferral().Create();
+            var provider = _fixture.BuildProvider().Create();
+            var element = _fixture.BuildServiceOverviewElement()
+                .With(e => e.Referral, referral)
+                .With(e => e.Provider, provider)
+                .Create();
+
+            var response = element.ToResponse();
+
+            response.Id.Should().Be(element.Id);
+            response.Type.Should().Be(element.Type);
+            response.Name.Should().Be(element.Name);
+            response.Referral.Should().BeEquivalentTo(referral.ToResponse());
+            response.Provider.Should().BeEquivalentTo(provider.ToResponse());
+            response.StartDate.Should().Be(element.StartDate);
+            response.EndDate.Should().Be(element.EndDate);
+            response.Status.Should().Be(element.Status);
+            response.PaymentCycle.Should().Be(element.PaymentCycle);
+            response.Quantity.Should().Be(element.Quantity);
+            response.Cost.Should().Be(element.Cost);
+        }
+
+        [Test]
+        public void ServiceUserResponseMapsCorrectly()
         {
             var serviceUser = _fixture.BuildServiceUser().Create();
 
@@ -287,7 +356,7 @@ namespace BrokerageApi.Tests.V1.Factories
         }
 
         [Test]
-        public void WorkflowMapsCorrectly()
+        public void WorkflowResponseMapsCorrectly()
         {
             var workflow = _fixture.Build<Workflow>()
                 .Without(w => w.Referral)

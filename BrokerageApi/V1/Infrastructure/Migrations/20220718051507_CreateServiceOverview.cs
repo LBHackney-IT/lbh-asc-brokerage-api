@@ -25,11 +25,13 @@ namespace V1.Infrastructure.Migrations
                 WHERE
                     e.internal_status = 'approved'
                 AND
+                    e.is_suspension = FALSE
+                AND
                     e.start_date <= CURRENT_DATE
                 AND
                     (e.end_date IS NULL OR e.end_date > CURRENT_DATE)
                 GROUP BY
-                    e.social_care_id, et.service_id;
+                    e.social_care_id, et.service_id
             ");
 
             migrationBuilder.Sql(@"
@@ -48,7 +50,7 @@ namespace V1.Infrastructure.Migrations
                 AND
                     et.type = 'service'
                 GROUP BY
-                    e.social_care_id, et.service_id;
+                    e.social_care_id, et.service_id
             ");
 
             migrationBuilder.Sql(@"

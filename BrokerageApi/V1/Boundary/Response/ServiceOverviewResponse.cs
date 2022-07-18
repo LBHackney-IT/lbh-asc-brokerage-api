@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using NodaTime;
 using BrokerageApi.V1.Infrastructure;
@@ -22,5 +23,9 @@ namespace BrokerageApi.V1.Boundary.Response
         public decimal? AnnualCost { get; set; }
 
         public ServiceStatus Status { get; set; }
+
+        public List<ServiceOverviewElementResponse> Elements { get; set; }
+
+        public bool ShouldSerializeElements() => Elements != null;
     }
 }

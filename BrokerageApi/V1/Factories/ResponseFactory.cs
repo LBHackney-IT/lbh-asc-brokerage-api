@@ -174,7 +174,41 @@ namespace BrokerageApi.V1.Factories
                 WeeklyCost = serviceOverview.WeeklyCost,
                 WeeklyPayment = serviceOverview.WeeklyPayment,
                 AnnualCost = serviceOverview.AnnualCost,
-                Status = serviceOverview.Status
+                Status = serviceOverview.Status,
+                Elements = serviceOverview.Elements?.Select(e => e.ToResponse()).ToList()
+            };
+        }
+
+        public static ServiceOverviewElementResponse ToResponse(this ServiceOverviewElement element)
+        {
+            return new ServiceOverviewElementResponse
+            {
+                Id = element.Id,
+                Type = element.Type,
+                Name = element.Name,
+                Referral = element.Referral?.ToResponse(),
+                Provider = element.Provider?.ToResponse(),
+                StartDate = element.StartDate,
+                EndDate = element.EndDate,
+                Status = element.Status,
+                PaymentCycle = element.PaymentCycle,
+                Quantity = element.Quantity,
+                Cost = element.Cost,
+                Suspensions = element.Suspensions?.Select(s => s.ToResponse()).ToList()
+            };
+        }
+
+        public static ServiceOverviewSuspensionResponse ToResponse(this ServiceOverviewSuspension element)
+        {
+            return new ServiceOverviewSuspensionResponse
+            {
+                Id = element.Id,
+                Referral = element.Referral?.ToResponse(),
+                StartDate = element.StartDate,
+                EndDate = element.EndDate,
+                Status = element.Status,
+                Quantity = element.Quantity,
+                Cost = element.Cost
             };
         }
 
