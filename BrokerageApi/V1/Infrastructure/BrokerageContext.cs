@@ -21,6 +21,7 @@ namespace BrokerageApi.V1.Infrastructure
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementCostType>("element_cost_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementStatus>("element_status");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementTypeType>("element_type_type");
+            NpgsqlConnection.GlobalTypeMapper.MapEnum<PaymentCycle>("payment_cycle");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ProviderType>("provider_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ReferralStatus>("referral_status");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<WorkflowType>("workflow_type");
@@ -71,6 +72,7 @@ namespace BrokerageApi.V1.Infrastructure
             modelBuilder.HasPostgresEnum<ElementCostType>();
             modelBuilder.HasPostgresEnum<ElementStatus>();
             modelBuilder.HasPostgresEnum<ElementTypeType>();
+            modelBuilder.HasPostgresEnum<PaymentCycle>();
             modelBuilder.HasPostgresEnum<ProviderType>();
             modelBuilder.HasPostgresEnum<ReferralStatus>();
             modelBuilder.HasPostgresEnum<WorkflowType>();
@@ -197,6 +199,10 @@ namespace BrokerageApi.V1.Infrastructure
             modelBuilder.Entity<ElementType>()
                 .Property(et => et.CostOperation)
                 .HasDefaultValue(MathOperation.Ignore);
+
+            modelBuilder.Entity<ElementType>()
+                .Property(et => et.PaymentCycle)
+                .HasDefaultValue(PaymentCycle.Weekly);
 
             modelBuilder.Entity<ElementType>()
                 .Property(et => et.PaymentOperation)

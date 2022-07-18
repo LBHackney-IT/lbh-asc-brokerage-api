@@ -90,6 +90,7 @@ namespace BrokerageApi.V1.Factories
                 Type = elementType.Type,
                 CostType = elementType.CostType,
                 Billing = elementType.Billing,
+                PaymentCycle = elementType.PaymentCycle,
                 NonPersonalBudget = elementType.NonPersonalBudget,
                 IsS117 = elementType.IsS117,
                 IsResidential = elementType.IsResidential,

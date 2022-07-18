@@ -79,6 +79,7 @@ namespace BrokerageApi.Tests.V1.Factories
             response.Type.Should().Be(elementType.Type);
             response.CostType.Should().Be(elementType.CostType);
             response.Billing.Should().Be(elementType.Billing);
+            response.PaymentCycle.Should().Be(elementType.PaymentCycle);
             response.NonPersonalBudget.Should().Be(elementType.NonPersonalBudget);
             response.IsS117.Should().Be(elementType.IsS117);
             response.IsResidential.Should().Be(elementType.IsResidential);
