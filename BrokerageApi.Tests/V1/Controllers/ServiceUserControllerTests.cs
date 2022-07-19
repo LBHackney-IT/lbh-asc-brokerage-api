@@ -12,6 +12,7 @@ using BrokerageApi.V1.Controllers;
 using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.UseCase.Interfaces;
+using BrokerageApi.V1.UseCase.Interfaces.ServiceUsers;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;

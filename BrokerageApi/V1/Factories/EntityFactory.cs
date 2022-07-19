@@ -116,5 +116,12 @@ namespace BrokerageApi.V1.Factories
 
             return existingElement;
         }
+
+        public static ServiceUser ToDatabase(this EditServiceUserRequest request, ServiceUser existingServiceUser)
+        {
+            existingServiceUser.CedarNumber = request.CedarNumber;
+            return existingServiceUser;
+        }
+
     }
 }

@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BrokerageApi.V1.Controllers.Parameters;
+using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.UseCase.Interfaces;
+using BrokerageApi.V1.UseCase.Interfaces.ServiceUsers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -24,6 +26,8 @@ namespace BrokerageApi.V1.Controllers
         private readonly IGetServiceUserByRequestUseCase _serviceUserByRequestUseCase;
 
         private readonly IGetCarePackagesByServiceUserIdUseCase _getCarePackagesByServiceUserIdUseCase;
+
+        private readonly IEditServiceUserUseCase _editElementUseCase;
         public ServiceUserController(
             IGetServiceOverviewUseCase serviceOverviewUseCase,
             IGetCarePackagesByServiceUserIdUseCase getCarePackagesByServiceUserIdUseCase,
@@ -102,6 +106,57 @@ namespace BrokerageApi.V1.Controllers
                     "Invalid request",
                     $"/api/v1/service-users/",
                     StatusCodes.Status400BadRequest, "Bad Request"
+                );
+            }
+        }
+
+
+        [Authorize(Roles = "CareChargesOfficer")]
+        [HttpPost]
+        [Route("cedar-number")]
+        [ProducesResponseType(typeof(ElementResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateServiceUserCedarNumber([FromBody] EditServiceUserRequest request)
+        {
+            try
+            {
+                var element = await _editElementUseCase.ExecuteAsync(request);
+                return Ok(element.ToResponse());
+            }
+            catch (ArgumentNullException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"/api/v1/service-users/",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (ArgumentException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"/api/v1/service-users/",
+                    StatusCodes.Status400BadRequest, "Bad Request"
+                );
+            }
+            catch (InvalidOperationException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"/api/v1/service-users/",
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
+                );
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"/api/v1/service-users/",
+                    StatusCodes.Status403Forbidden, "Forbidden"
                 );
             }
         }

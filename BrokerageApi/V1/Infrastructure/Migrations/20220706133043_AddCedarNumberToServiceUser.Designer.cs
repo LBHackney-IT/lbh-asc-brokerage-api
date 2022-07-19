@@ -5,6 +5,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -15,9 +16,10 @@ using NpgsqlTypes;
 namespace V1.Infrastructure.Migrations
 {
     [DbContext(typeof(BrokerageContext))]
-    partial class BrokerageContextModelSnapshot : ModelSnapshot
+    [Migration("20220706133043_AddCedarNumberToServiceUser")]
+    partial class AddCedarNumberToServiceUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -351,12 +353,6 @@ namespace V1.Infrastructure.Migrations
                         .HasDefaultValue(ElementBillingType.Supplier)
                         .HasColumnName("billing");
 
-                    b.Property<int>("CostOperation")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("cost_operation");
-
                     b.Property<ElementCostType>("CostType")
                         .HasColumnType("element_cost_type")
                         .HasColumnName("cost_type");
@@ -387,12 +383,6 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(false)
                         .HasColumnName("non_personal_budget");
-
-                    b.Property<int>("PaymentOperation")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("payment_operation");
 
                     b.Property<int>("Position")
                         .HasColumnType("integer")
@@ -579,11 +569,6 @@ namespace V1.Infrastructure.Migrations
                     b.HasIndex("AssignedBrokerEmail")
                         .HasDatabaseName("ix_referrals_assigned_broker_email");
 
-                    b.HasIndex("SocialCareId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_referrals_social_care_id")
-                        .HasFilter("status = 'in_progress' OR status = 'awaiting_approval'");
-
                     b.HasIndex("WorkflowId")
                         .IsUnique()
                         .HasDatabaseName("ix_referrals_workflow_id");
@@ -635,10 +620,8 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("referral_id");
 
-                    b.Property<bool>("PendingCancellation")
-                        .ValueGeneratedOnAdd()
+                    b.Property<bool?>("PendingCancellation")
                         .HasColumnType("boolean")
-                        .HasDefaultValue(false)
                         .HasColumnName("pending_cancellation");
 
                     b.Property<string>("PendingComment")
@@ -792,58 +775,6 @@ namespace V1.Infrastructure.Migrations
                         .HasDatabaseName("ix_users_email");
 
                     b.ToTable("users", (string)null);
-                });
-
-            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Workflow", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text")
-                        .HasColumnName("id");
-
-                    b.Property<Instant>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("DirectPayments")
-                        .HasColumnType("text")
-                        .HasColumnName("direct_payments");
-
-                    b.Property<string>("FormName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("form_name");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("text")
-                        .HasColumnName("note");
-
-                    b.Property<string>("PrimarySupportReason")
-                        .HasColumnType("text")
-                        .HasColumnName("primary_support_reason");
-
-                    b.Property<int>("ReferralId")
-                        .HasColumnType("integer")
-                        .HasColumnName("referral_id");
-
-                    b.Property<Instant>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<Instant?>("UrgentSince")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("urgent_since");
-
-                    b.Property<WorkflowType>("WorkflowType")
-                        .HasColumnType("workflow_type")
-                        .HasColumnName("workflow_type");
-
-                    b.HasKey("Id")
-                        .HasName("pk_workflows");
-
-                    b.HasIndex("ReferralId")
-                        .HasDatabaseName("ix_workflows_referral_id");
-
-                    b.ToTable("workflows", (string)null);
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.AuditEvents.AuditEvent", b =>
@@ -1007,32 +938,11 @@ namespace V1.Infrastructure.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Workflow", b =>
-                {
-                    b.HasOne("BrokerageApi.V1.Infrastructure.CarePackage", null)
-                        .WithMany("Workflows")
-                        .HasForeignKey("ReferralId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_workflows_care_packages_care_package_id");
-
-                    b.HasOne("BrokerageApi.V1.Infrastructure.Referral", "Referral")
-                        .WithMany("Workflows")
-                        .HasForeignKey("ReferralId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_workflows_referrals_referral_id");
-
-                    b.Navigation("Referral");
-                });
-
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.CarePackage", b =>
                 {
                     b.Navigation("ReferralAmendments");
 
                     b.Navigation("ReferralElements");
-
-                    b.Navigation("Workflows");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Element", b =>
@@ -1059,8 +969,6 @@ namespace V1.Infrastructure.Migrations
                     b.Navigation("ReferralAmendments");
 
                     b.Navigation("ReferralElements");
-
-                    b.Navigation("Workflows");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Service", b =>

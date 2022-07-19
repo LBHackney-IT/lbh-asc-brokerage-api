@@ -16,10 +16,12 @@ using BrokerageApi.V1.UseCase;
 using BrokerageApi.V1.UseCase.CarePackageCareCharges;
 using BrokerageApi.V1.UseCase.CarePackageElements;
 using BrokerageApi.V1.UseCase.CarePackages;
+using BrokerageApi.V1.UseCase.ServiceUsers;
 using BrokerageApi.V1.UseCase.Interfaces;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackageCareCharges;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackageElements;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackages;
+using BrokerageApi.V1.UseCase.Interfaces.ServiceUsers;
 using BrokerageApi.Versioning;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -265,6 +267,8 @@ namespace BrokerageApi
             services.AddTransient<IRequestAmendmentToCarePackageUseCase, RequestAmendmentToCarePackageUseCase>();
             services.AddTransient<IResetCareChargeUseCase, ResetCareChargeUseCase>();
             services.AddTransient<IResetElementUseCase, ResetElementUseCase>();
+            services.AddTransient<IEditServiceUserUseCase, EditServiceUserUseCase>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
