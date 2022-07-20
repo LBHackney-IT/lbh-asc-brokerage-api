@@ -38,7 +38,7 @@ namespace BrokerageApi.V1.UseCase.ServiceUsers
             var serviceUser = serviceUserList.FirstOrDefault();
             if (serviceUser is null)
             {
-                throw new ArgumentNullException(nameof(serviceUser), $"ServiceUser with ID {serviceUserRequestId} not found");
+                throw new ArgumentNullException(nameof(request), $"ServiceUser with ID {serviceUserRequestId} not found");
             }
             else
             {
