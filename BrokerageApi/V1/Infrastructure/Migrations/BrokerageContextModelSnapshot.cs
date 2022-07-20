@@ -206,6 +206,9 @@ namespace V1.Infrastructure.Migrations
                     b.HasIndex("AssignedBrokerId")
                         .HasDatabaseName("ix__assigned_broker_id");
 
+                    b.HasIndex("SocialCareId")
+                        .HasDatabaseName("ix__social_care_id");
+
                     b.ToTable((string)null);
 
                     b.ToView("care_packages");
@@ -946,9 +949,18 @@ namespace V1.Infrastructure.Migrations
                         .HasPrincipalKey("Email")
                         .HasConstraintName("fk__users_assigned_broker_id1");
 
+                    b.HasOne("BrokerageApi.V1.Infrastructure.ServiceUser", "ServiceUser")
+                        .WithMany("CarePackages")
+                        .HasForeignKey("SocialCareId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_care_packages_service_users_service_user_temp_id");
+
                     b.Navigation("AssignedApprover");
 
                     b.Navigation("AssignedBroker");
+
+                    b.Navigation("ServiceUser");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Element", b =>
@@ -1166,6 +1178,11 @@ namespace V1.Infrastructure.Migrations
                     b.Navigation("ElementTypes");
 
                     b.Navigation("Services");
+                });
+
+            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ServiceUser", b =>
+                {
+                    b.Navigation("CarePackages");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.User", b =>

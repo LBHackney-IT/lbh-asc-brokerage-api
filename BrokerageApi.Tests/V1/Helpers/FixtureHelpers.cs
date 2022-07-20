@@ -186,7 +186,8 @@ namespace BrokerageApi.Tests.V1.Helpers
 
         public static IPostprocessComposer<ServiceUser> BuildServiceUser(this IFixture fixture)
         {
-            return fixture.Build<ServiceUser>();
+            return fixture.Build<ServiceUser>()
+                .Without(u => u.CarePackages);
         }
 
         public static IPostprocessComposer<GetServiceUserRequest> BuildServiceUserRequest(this IFixture fixture, string socialCareId)

@@ -34,12 +34,14 @@ namespace BrokerageApi.V1.Gateways
             if (requestSocialCareId != null)
             {
                 return await _context.ServiceUsers
+                   .Include(u => u.CarePackages)
                    .Where(u => u.SocialCareId == requestSocialCareId)
                    .ToListAsync();
             }
             else if (requestDateOfBirth != null && requestServiceUserName != null)
             {
                 return await _context.ServiceUsers
+                    .Include(u => u.CarePackages)
                     .Where(u => u.DateOfBirth == requestDateOfBirth)
                     .Where(p => p.NameSearchVector.Matches(EF.Functions.ToTsQuery("simple", ParsingHelpers.ParsedQuery(requestServiceUserName))))
                     .ToListAsync();
@@ -47,12 +49,14 @@ namespace BrokerageApi.V1.Gateways
             else if (requestDateOfBirth != null)
             {
                 return await _context.ServiceUsers
+                    .Include(u => u.CarePackages)
                     .Where(u => u.DateOfBirth == requestDateOfBirth)
                     .ToListAsync();
             }
             else if (requestServiceUserName != null)
             {
                 return await _context.ServiceUsers
+                    .Include(u => u.CarePackages)
                     .Where(p => p.NameSearchVector.Matches(EF.Functions.ToTsQuery("simple", ParsingHelpers.ParsedQuery(requestServiceUserName))))
                     .ToListAsync();
             }
