@@ -27,16 +27,18 @@ namespace BrokerageApi.V1.Controllers
 
         private readonly IGetCarePackagesByServiceUserIdUseCase _getCarePackagesByServiceUserIdUseCase;
 
-        private readonly IEditServiceUserUseCase _editElementUseCase;
+        private readonly IEditServiceUserUseCase _editServiceUserUseCase;
         public ServiceUserController(
             IGetServiceOverviewUseCase serviceOverviewUseCase,
             IGetCarePackagesByServiceUserIdUseCase getCarePackagesByServiceUserIdUseCase,
-            IGetServiceUserByRequestUseCase serviceUserByRequestUseCase
+            IGetServiceUserByRequestUseCase serviceUserByRequestUseCase,
+            IEditServiceUserUseCase editServiceUserUseCase
         )
         {
             _serviceOverviewUseCase = serviceOverviewUseCase;
             _getCarePackagesByServiceUserIdUseCase = getCarePackagesByServiceUserIdUseCase;
             _serviceUserByRequestUseCase = serviceUserByRequestUseCase;
+            _editServiceUserUseCase = editServiceUserUseCase;
         }
 
         [Authorize]
@@ -124,7 +126,7 @@ namespace BrokerageApi.V1.Controllers
         {
             try
             {
-                var element = await _editElementUseCase.ExecuteAsync(request);
+                var element = await _editServiceUserUseCase.ExecuteAsync(request);
                 return Ok(element.ToResponse());
             }
             catch (ArgumentNullException e)

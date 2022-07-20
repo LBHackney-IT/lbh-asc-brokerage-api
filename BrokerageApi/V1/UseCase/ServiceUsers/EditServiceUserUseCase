@@ -40,13 +40,12 @@ namespace BrokerageApi.V1.UseCase.ServiceUsers
             {
                 throw new ArgumentNullException(nameof(serviceUser), $"ServiceUser with ID {serviceUserRequestId} not found");
             }
-
-            request.ToDatabase(serviceUser);
-
-
-            await _dbSaver.SaveChangesAsync();
-
-            return serviceUser;
+            else
+            {
+                request.ToDatabase(serviceUser);
+                await _dbSaver.SaveChangesAsync();
+                return serviceUser;
+            }
         }
     }
 }

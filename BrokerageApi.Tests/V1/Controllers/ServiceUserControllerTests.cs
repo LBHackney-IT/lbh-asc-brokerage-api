@@ -29,6 +29,9 @@ namespace BrokerageApi.Tests.V1.Controllers
 
         private Mock<IGetServiceUserByRequestUseCase> _mockGetServiceUserByRequestUseCase;
 
+        private Mock<IEditServiceUserUseCase> _mockEditServiceUserUsecase;
+
+
         [SetUp]
         public void SetUp()
         {
@@ -36,11 +39,14 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockGetServiceOverviewUseCase = new Mock<IGetServiceOverviewUseCase>();
             _mockGetCarePackagesByServiceUserIdUseCase = new Mock<IGetCarePackagesByServiceUserIdUseCase>();
             _mockGetServiceUserByRequestUseCase = new Mock<IGetServiceUserByRequestUseCase>();
+            _mockEditServiceUserUsecase = new Mock<IEditServiceUserUseCase>();
+
 
             _classUnderTest = new ServiceUserController(
                 _mockGetServiceOverviewUseCase.Object,
                 _mockGetCarePackagesByServiceUserIdUseCase.Object,
-                _mockGetServiceUserByRequestUseCase.Object
+                _mockGetServiceUserByRequestUseCase.Object,
+                _mockEditServiceUserUsecase.Object
                 );
             SetupAuthentication(_classUnderTest);
 
