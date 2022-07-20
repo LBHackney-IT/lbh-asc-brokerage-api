@@ -10,6 +10,8 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public LocalDate? DateOfBirth { get; set; }
 
+        public string CedarNumber { get; set; }
+
         public Instant CreatedAt { get; set; }
 
         public Instant UpdatedAt { get; set; }
