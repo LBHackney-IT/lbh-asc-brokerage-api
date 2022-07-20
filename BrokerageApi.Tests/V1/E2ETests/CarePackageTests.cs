@@ -116,6 +116,14 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ParentElement = parentElement
             };
 
+            var workflow = new Workflow()
+            {
+                Id = "3e48adb1-0ca2-456c-845a-efcd4eca4554",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                PrimarySupportReason = "Physical Support"
+            };
+
             var referral = new Referral()
             {
                 Id = 1234,
@@ -129,7 +137,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant,
                 CreatedAt = PreviousInstant,
-                UpdatedAt = CurrentInstant
+                UpdatedAt = CurrentInstant,
+                Workflows = new List<Workflow> { workflow }
             };
 
             var referralElements = new List<ReferralElement>
@@ -167,6 +176,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             response.StartDate.Should().Be(previousStartDate);
             response.WeeklyCost.Should().Be(325);
             response.WeeklyPayment.Should().Be(325);
+            response.Workflows[0].Should().BeEquivalentTo(workflow.ToResponse());
             response.Elements.Should().HaveCount(3);
 
             var responseElement1 = response.Elements.Single(e => e.Id == element1.Id);
@@ -890,6 +900,49 @@ namespace BrokerageApi.Tests.V1.E2ETests
             amendment.Comment.Should().Be(request.Comment);
             amendment.Status.Should().Be(AmendmentStatus.InProgress);
             amendment.RequestedAt.Should().Be(CurrentInstant);
+        }
+
+        [Test, Property("AsUser", "CareChargesOfficer"), Property("WithApprovalLimit", 1000)]
+        public async Task CanRequestFollowUp()
+        {
+            // Arrange
+            var service = _fixture.BuildService()
+                .Create();
+
+            var provider = _fixture.BuildProvider()
+                .Create();
+
+            var oneOffElementType = _fixture.BuildElementType(service.Id)
+                .With(et => et.CostType, ElementCostType.OneOff)
+                .Create();
+
+            var referral = _fixture.BuildReferral(ReferralStatus.Approved)
+                .Create();
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.Services.AddAsync(service);
+            await Context.Providers.AddAsync(provider);
+            await Context.ElementTypes.AddAsync(oneOffElementType);
+            await Context.Referrals.AddAsync(referral);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            var request = _fixture.Create<FollowUpRequest>();
+
+            var code = await Post($"/api/v1/referrals/{referral.Id}/care-package/request-follow-up", request);
+
+            code.Should().Be(HttpStatusCode.OK);
+
+            var (carePackageCode, response) = await Get<CarePackageResponse>($"/api/v1/referrals/{referral.Id}/care-package");
+
+            carePackageCode.Should().Be((int) HttpStatusCode.OK);
+            var followUp = response.FollowUps.Single();
+            followUp.Comment.Should().Be(request.Comment);
+            followUp.Date.Should().Be(request.Date);
+            followUp.Status.Should().Be(FollowUpStatus.InProgress);
+            followUp.RequestedAt.Should().Be(CurrentInstant);
+            followUp.RequestedBy.Should().BeEquivalentTo(ApiUser.ToResponse());
         }
     }
 }

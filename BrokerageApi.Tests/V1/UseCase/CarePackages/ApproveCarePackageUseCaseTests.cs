@@ -29,6 +29,8 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
         private ApproveCarePackageUseCase _classUnderTest;
         private Fixture _fixture;
         private MockAuditGateway _mockAuditGateway;
+        private Mock<IClockService> _mockClock;
+        private IClockService _clock;
 
         [SetUp]
         public void Setup()
@@ -40,6 +42,9 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             _mockUserGateway = new Mock<IUserGateway>();
             _mockDbSaver = new MockDbSaver();
             _mockAuditGateway = new MockAuditGateway();
+            _mockClock = new Mock<IClockService>();
+
+            _clock = _mockClock.Object;
 
             _classUnderTest = new ApproveCarePackageUseCase(
                 _mockCarePackageGateway.Object,
@@ -47,7 +52,8 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
                 _mockUserService.Object,
                 _mockUserGateway.Object,
                 _mockDbSaver.Object,
-                _mockAuditGateway.Object
+                _mockAuditGateway.Object,
+                _mockClock.Object
             );
         }
 
@@ -117,6 +123,209 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackages
             oldApprovedReferral.Status.Should().Be(ReferralStatus.Ended);
             oldEndedReferral.Status.Should().Be(ReferralStatus.Ended);
             oldArchivedReferral.Status.Should().Be(ReferralStatus.Archived);
+
+            _mockDbSaver.VerifyChangesSaved();
+        }
+
+        [Test]
+        public async Task UpdatesIsResidential()
+        {
+            // Arrange
+            var service = _fixture.BuildService()
+                .Create();
+
+            var elementType = _fixture.BuildElementType(service.Id)
+                .With(et => et.Service, service)
+                .With(et => et.IsResidential, true)
+                .Create();
+
+            var element = _fixture.BuildElement(elementType.Id)
+                .With(e => e.ElementType, elementType)
+                .Create();
+
+            var elements = new Element[] { element };
+
+            var (referral, carePackage) = SetupReferralAndCarePackage(ReferralStatus.AwaitingApproval, 1000, elements);
+
+            SetupUser(carePackage.EstimatedYearlyCost + 10);
+
+            // Act
+            await _classUnderTest.ExecuteAsync(referral.Id);
+
+            // Assert
+            referral.Status.Should().Be(ReferralStatus.Approved);
+            referral.IsResidential.Should().BeTrue();
+
+            _mockDbSaver.VerifyChangesSaved();
+        }
+
+        [Test]
+        public async Task UpdatesCareChargeStatusToExistingIfOldReferralLessThanSixMonths()
+        {
+            // Arrange
+            var (referral, carePackage) = SetupReferralAndCarePackage(ReferralStatus.AwaitingApproval, 1000);
+
+            var threeMonthsAgo = _clock.Now.Minus(Duration.FromDays(90));
+
+            var oldReferral = _fixture.BuildReferral(ReferralStatus.Approved)
+                .With(r => r.CareChargesConfirmedAt, threeMonthsAgo)
+                .Create();
+
+            _mockReferralGateway
+                .Setup(x => x.GetBySocialCareIdWithElementsAsync(referral.SocialCareId))
+                .ReturnsAsync(new List<Referral> { oldReferral });
+
+            SetupUser(carePackage.EstimatedYearlyCost + 10);
+
+            // Act
+            await _classUnderTest.ExecuteAsync(referral.Id);
+
+            // Assert
+            referral.Status.Should().Be(ReferralStatus.Approved);
+            referral.CareChargeStatus.Should().Be(CareChargeStatus.Existing);
+
+            _mockDbSaver.VerifyChangesSaved();
+        }
+
+        [Test]
+        public async Task UpdatesCareChargeStatusToCancellationIfAllElementsCancelled()
+        {
+            // Arrange
+            var service = _fixture.BuildService().Create();
+            var provider = _fixture.BuildProvider().Create();
+            var elementType = _fixture.BuildElementType(service.Id).Create();
+
+            var element = _fixture.BuildElement(elementType.Id, provider.Id)
+                .With(e => e.ElementType, elementType)
+                .With(e => e.InternalStatus, ElementStatus.AwaitingApproval)
+                .Create();
+
+            var referral = _fixture.BuildReferral(ReferralStatus.AwaitingApproval)
+                .With(r => r.Elements, new List<Element> { element })
+                .Create();
+
+            var referralElement = _fixture.BuildReferralElement(referral.Id, element.Id)
+                .With(re => re.PendingCancellation, true)
+                .Create();
+
+            element.ReferralElements = new List<ReferralElement> { referralElement };
+            referral.ReferralElements = new List<ReferralElement> { referralElement };
+
+            _mockReferralGateway
+                .Setup(x => x.GetByIdWithElementsAsync(referral.Id))
+                .ReturnsAsync(referral);
+
+            _mockCarePackageGateway
+                .Setup(x => x.GetByIdAsync(referral.Id))
+                .ReturnsAsync(new CarePackage { Id = referral.Id, Status = referral.Status });
+
+            var expectedUser = SetupUser(element.Cost * 100);
+
+            // Act
+            await _classUnderTest.ExecuteAsync(referral.Id);
+
+            // Assert
+            referral.Status.Should().Be(ReferralStatus.Approved);
+            referral.ServiceElements.Count.Should().Be(1);
+            referral.CareChargeStatus.Should().Be(CareChargeStatus.Cancellation);
+
+            _mockDbSaver.VerifyChangesSaved();
+        }
+
+        [Test]
+        public async Task UpdatesCareChargeStatusToTerminationIfAllElementsEnded()
+        {
+            // Arrange
+            var endDate = LocalDate.FromDateTime(DateTime.Today).PlusDays(-1);
+            var service = _fixture.BuildService().Create();
+            var provider = _fixture.BuildProvider().Create();
+            var elementType = _fixture.BuildElementType(service.Id).Create();
+
+            var element = _fixture.BuildElement(elementType.Id, provider.Id)
+                .With(e => e.ElementType, elementType)
+                .With(e => e.InternalStatus, ElementStatus.AwaitingApproval)
+                .Create();
+
+            var referral = _fixture.BuildReferral(ReferralStatus.AwaitingApproval)
+                .With(r => r.Elements, new List<Element> { element })
+                .Create();
+
+            var referralElement = _fixture.BuildReferralElement(referral.Id, element.Id)
+                .With(re => re.PendingEndDate, endDate)
+                .Create();
+
+            element.ReferralElements = new List<ReferralElement> { referralElement };
+            referral.ReferralElements = new List<ReferralElement> { referralElement };
+
+            _mockReferralGateway
+                .Setup(x => x.GetByIdWithElementsAsync(referral.Id))
+                .ReturnsAsync(referral);
+
+            _mockCarePackageGateway
+                .Setup(x => x.GetByIdAsync(referral.Id))
+                .ReturnsAsync(new CarePackage { Id = referral.Id, Status = referral.Status });
+
+            var expectedUser = SetupUser(element.Cost * 100);
+
+            // Act
+            await _classUnderTest.ExecuteAsync(referral.Id);
+
+            // Assert
+            referral.Status.Should().Be(ReferralStatus.Approved);
+            referral.ServiceElements.Count.Should().Be(1);
+            referral.CareChargeStatus.Should().Be(CareChargeStatus.Termination);
+
+            _mockDbSaver.VerifyChangesSaved();
+        }
+
+        [Test]
+        public async Task UpdatesCareChargeStatusToSuspensionIfAllElementsSuspended()
+        {
+            // Arrange
+            var startDate = LocalDate.FromDateTime(DateTime.Today).PlusDays(-180);
+            var suspensionDate = LocalDate.FromDateTime(DateTime.Today).PlusDays(-3);
+            var service = _fixture.BuildService().Create();
+            var provider = _fixture.BuildProvider().Create();
+            var elementType = _fixture.BuildElementType(service.Id).Create();
+
+            var element = _fixture.BuildElement(elementType.Id, provider.Id)
+                .With(e => e.ElementType, elementType)
+                .With(e => e.InternalStatus, ElementStatus.AwaitingApproval)
+                .With(e => e.StartDate, startDate)
+                .Create();
+
+            var suspensionElement = _fixture.BuildElement(elementType.Id, provider.Id)
+                .With(e => e.ElementType, elementType)
+                .With(e => e.InternalStatus, ElementStatus.AwaitingApproval)
+                .With(e => e.StartDate, suspensionDate)
+                .With(e => e.IsSuspension, true)
+                .With(e => e.SuspendedElementId, element.Id)
+                .With(e => e.SuspendedElement, element)
+                .Create();
+
+            element.SuspensionElements = new List<Element> { suspensionElement };
+
+            var referral = _fixture.BuildReferral(ReferralStatus.AwaitingApproval)
+                .With(r => r.Elements, new List<Element> { element, suspensionElement })
+                .Create();
+
+            _mockReferralGateway
+                .Setup(x => x.GetByIdWithElementsAsync(referral.Id))
+                .ReturnsAsync(referral);
+
+            _mockCarePackageGateway
+                .Setup(x => x.GetByIdAsync(referral.Id))
+                .ReturnsAsync(new CarePackage { Id = referral.Id, Status = referral.Status });
+
+            var expectedUser = SetupUser(element.Cost * 100);
+
+            // Act
+            await _classUnderTest.ExecuteAsync(referral.Id);
+
+            // Assert
+            referral.Status.Should().Be(ReferralStatus.Approved);
+            referral.ServiceElements.Count.Should().Be(1);
+            referral.CareChargeStatus.Should().Be(CareChargeStatus.Suspension);
 
             _mockDbSaver.VerifyChangesSaved();
         }

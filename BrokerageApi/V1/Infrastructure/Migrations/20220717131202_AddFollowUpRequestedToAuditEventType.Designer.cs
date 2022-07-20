@@ -5,6 +5,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -15,9 +16,10 @@ using NpgsqlTypes;
 namespace V1.Infrastructure.Migrations
 {
     [DbContext(typeof(BrokerageContext))]
-    partial class BrokerageContextModelSnapshot : ModelSnapshot
+    [Migration("20220717131202_AddFollowUpRequestedToAuditEventType")]
+    partial class AddFollowUpRequestedToAuditEventType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -778,10 +780,6 @@ namespace V1.Infrastructure.Migrations
                     b.Property<string>("SocialCareId")
                         .HasColumnType("text")
                         .HasColumnName("social_care_id");
-
-                    b.Property<string>("CedarNumber")
-                        .HasColumnType("text")
-                        .HasColumnName("cedar_number");
 
                     b.Property<Instant>("CreatedAt")
                         .HasColumnType("timestamp with time zone")

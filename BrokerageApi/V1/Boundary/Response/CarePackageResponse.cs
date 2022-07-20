@@ -6,7 +6,7 @@ using BrokerageApi.V1.Infrastructure;
 
 namespace BrokerageApi.V1.Boundary.Response
 {
-    public class CarePackageResponse : IAssigmentResponse
+    public class CarePackageResponse : IAssignmentResponse
     {
         public int Id { get; set; }
 
@@ -42,6 +42,10 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public Instant? StartedAt { get; set; }
 
+        public bool IsResidential { get; set; }
+
+        public CareChargeStatus CareChargeStatus { get; set; }
+
         public Instant? CareChargesConfirmedAt { get; set; }
 
         public Instant CreatedAt { get; set; }
@@ -62,7 +66,9 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public List<AmendmentResponse> Amendments { get; set; }
 
-        public List<Workflow> Workflows { get; set; }
+        public List<FollowUpResponse> FollowUps { get; set; }
+
+        public List<WorkflowResponse> Workflows { get; set; }
 
         public string Comment { get; set; }
     }
