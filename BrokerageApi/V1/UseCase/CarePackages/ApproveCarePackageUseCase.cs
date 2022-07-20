@@ -6,6 +6,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using BrokerageApi.V1.Services.Interfaces;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackages;
+using NodaTime;
 
 namespace BrokerageApi.V1.UseCase.CarePackages
 {
@@ -17,13 +18,15 @@ namespace BrokerageApi.V1.UseCase.CarePackages
         private readonly IUserGateway _userGateway;
         private readonly IDbSaver _dbSaver;
         private readonly IAuditGateway _auditGateway;
+        private readonly IClockService _clock;
 
         public ApproveCarePackageUseCase(ICarePackageGateway carePackageGateway,
             IReferralGateway referralGateway,
             IUserService userService,
             IUserGateway userGateway,
             IDbSaver dbSaver,
-            IAuditGateway auditGateway)
+            IAuditGateway auditGateway,
+            IClockService clock)
         {
             _carePackageGateway = carePackageGateway;
             _referralGateway = referralGateway;
@@ -31,6 +34,7 @@ namespace BrokerageApi.V1.UseCase.CarePackages
             _userGateway = userGateway;
             _dbSaver = dbSaver;
             _auditGateway = auditGateway;
+            _clock = clock;
         }
 
         public async Task ExecuteAsync(int referralId)
@@ -62,10 +66,16 @@ namespace BrokerageApi.V1.UseCase.CarePackages
             }
 
             var existingReferrals = await _referralGateway.GetBySocialCareIdWithElementsAsync(referral.SocialCareId);
+            var sixMonthsAgo = _clock.Now - Duration.FromDays(180);
 
             foreach (var oldReferral in existingReferrals.Where(r => r.Status == ReferralStatus.Approved))
             {
                 oldReferral.Status = ReferralStatus.Ended;
+
+                if (oldReferral.CareChargesConfirmedAt > sixMonthsAgo)
+                {
+                    referral.CareChargeStatus = CareChargeStatus.Existing;
+                }
             }
 
             referral.Status = ReferralStatus.Approved;
@@ -82,6 +92,26 @@ namespace BrokerageApi.V1.UseCase.CarePackages
                     }
 
                     await ApplyPendingStates(e, referral);
+                }
+
+                if (referral.IsCancelled)
+                {
+                    referral.CareChargeStatus = CareChargeStatus.Cancellation;
+                }
+
+                if (referral.IsEnded)
+                {
+                    referral.CareChargeStatus = CareChargeStatus.Termination;
+                }
+
+                if (referral.IsSuspended)
+                {
+                    referral.CareChargeStatus = CareChargeStatus.Suspension;
+                }
+
+                if (referral.ServiceElements.Any(e => e.IsResidential))
+                {
+                    referral.IsResidential = true;
                 }
             }
 
@@ -121,10 +151,10 @@ namespace BrokerageApi.V1.UseCase.CarePackages
                 await _auditGateway.AddAuditEvent(AuditEventType.ElementEnded, referral.SocialCareId, _userService.UserId, metadata);
             }
 
-            if (referralElement.PendingCancellation != null)
+            if (referralElement.PendingCancellation)
             {
                 e.InternalStatus = ElementStatus.Cancelled;
-                referralElement.PendingCancellation = null;
+                referralElement.PendingCancellation = false;
                 await _auditGateway.AddAuditEvent(AuditEventType.ElementCancelled, referral.SocialCareId, _userService.UserId, metadata);
             }
         }

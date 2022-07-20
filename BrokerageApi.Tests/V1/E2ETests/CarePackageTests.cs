@@ -10,6 +10,7 @@ using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 
@@ -107,12 +108,20 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 ParentElementId = null,
                 StartDate = startDate,
                 EndDate = null,
-                Wednesday = new ElementCost(1, -100),
+                Wednesday = new ElementCost(1, 100),
                 Quantity = 1,
-                Cost = -100,
+                Cost = 100,
                 CreatedAt = CurrentInstant,
                 UpdatedAt = CurrentInstant,
                 ParentElement = parentElement
+            };
+
+            var workflow = new Workflow()
+            {
+                Id = "3e48adb1-0ca2-456c-845a-efcd4eca4554",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                PrimarySupportReason = "Physical Support"
             };
 
             var referral = new Referral()
@@ -128,7 +137,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 Status = ReferralStatus.InProgress,
                 StartedAt = CurrentInstant,
                 CreatedAt = PreviousInstant,
-                UpdatedAt = CurrentInstant
+                UpdatedAt = CurrentInstant,
+                Workflows = new List<Workflow> { workflow }
             };
 
             var referralElements = new List<ReferralElement>
@@ -164,8 +174,9 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             response.Id.Should().Be(referral.Id);
             response.StartDate.Should().Be(previousStartDate);
-            response.WeeklyCost.Should().Be(225);
-            response.WeeklyPayment.Should().Be(125);
+            response.WeeklyCost.Should().Be(325);
+            response.WeeklyPayment.Should().Be(325);
+            response.Workflows[0].Should().BeEquivalentTo(workflow.ToResponse());
             response.Elements.Should().HaveCount(3);
 
             var responseElement1 = response.Elements.Single(e => e.Id == element1.Id);
@@ -180,6 +191,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             ValidateElementResponse(responseElement3, elementWithSuspensions, hourlyElementType, service, provider, null, referral.Id);
             responseElement3.SuspensionElements.Should().BeEquivalentTo(suspensions.Select(e => e.ToResponse()));
         }
+
         private static void ValidateElementResponse(ElementResponse elementResponse,
             Element element,
             ElementType elementType,
@@ -207,6 +219,22 @@ namespace BrokerageApi.Tests.V1.E2ETests
         public async Task CanStartCarePackage()
         {
             // Arrange
+            var service = _fixture.BuildService()
+                .Create();
+
+            var elementType = _fixture.BuildElementType(service.Id)
+                .With(et => et.CostType, ElementCostType.Hourly)
+                .With(et => et.NonPersonalBudget, false)
+                .Create();
+
+            var provider = _fixture.BuildProvider()
+                .Create();
+
+            var startDate = CurrentDate.PlusDays(-100);
+
+            var parentElement = _fixture.BuildElement(elementType.Id, provider.Id)
+                .Create();
+
             var referral = new Referral()
             {
                 WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
@@ -223,6 +251,32 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 UpdatedAt = PreviousInstant
             };
 
+            var element = new Element
+            {
+                Id = 111,
+                SocialCareId = "33556688",
+                ElementTypeId = elementType.Id,
+                NonPersonalBudget = false,
+                ProviderId = provider.Id,
+                Details = "Some notes",
+                InternalStatus = ElementStatus.Approved,
+                ParentElementId = null,
+                StartDate = startDate,
+                EndDate = null,
+                Monday = new ElementCost(3, 75),
+                Tuesday = new ElementCost(3, 75),
+                Thursday = new ElementCost(3, 75),
+                Quantity = 6,
+                Cost = 225,
+                CreatedAt = CurrentInstant,
+                UpdatedAt = CurrentInstant,
+                ParentElement = parentElement
+            };
+
+            await Context.Services.AddAsync(service);
+            await Context.ElementTypes.AddAsync(elementType);
+            await Context.Providers.AddAsync(provider);
+            await Context.Elements.AddAsync(element);
             await Context.Referrals.AddAsync(referral);
             await Context.SaveChangesAsync();
 
@@ -236,6 +290,9 @@ namespace BrokerageApi.Tests.V1.E2ETests
             response.Status.Should().Be(ReferralStatus.InProgress);
             response.StartedAt.Should().Be(CurrentInstant);
             response.UpdatedAt.Should().BeEquivalentTo(CurrentInstant);
+
+            var referralElements = await Context.ReferralElements.Where(re => re.ReferralId == referral.Id).ToListAsync();
+            referralElements.Count.Should().Be(1);
         }
 
         [Test, Property("AsUser", "ReferrerAndBroker")]
@@ -271,6 +328,108 @@ namespace BrokerageApi.Tests.V1.E2ETests
             response.Status.Should().Be(ReferralStatus.InProgress);
             response.StartedAt.Should().Be(CurrentInstant);
             response.UpdatedAt.Should().BeEquivalentTo(CurrentInstant);
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CantStartCarePackageWhenAnotherIsInProgress()
+        {
+            // Arrange
+            var referral = new Referral()
+            {
+                WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                Status = ReferralStatus.Assigned,
+                AssignedBrokerEmail = "api.user@hackney.gov.uk",
+                StartedAt = null,
+                CreatedAt = CurrentInstant,
+                UpdatedAt = CurrentInstant
+            };
+
+            var otherReferral = new Referral()
+            {
+                WorkflowId = "c827cb90-e5a8-013a-99f8-5a4fae5edecc",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                Status = ReferralStatus.InProgress,
+                AssignedBrokerEmail = "api.user@hackney.gov.uk",
+                StartedAt = PreviousInstant,
+                CreatedAt = PreviousInstant,
+                UpdatedAt = PreviousInstant
+            };
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.Referrals.AddAsync(otherReferral);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            // Act
+            var (code, response) = await Post<ProblemDetails>($"/api/v1/referrals/{referral.Id}/care-package/start", null);
+
+            // Assert
+            code.Should().Be(HttpStatusCode.UnprocessableEntity);
+            response.Status.Should().Be((int) HttpStatusCode.UnprocessableEntity);
+            response.Detail.Should().Be("A referral for A Service User is already in progress or awaiting approval");
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CantStartCarePackageWhenAnotherIsAwaitingApproval()
+        {
+            // Arrange
+            var referral = new Referral()
+            {
+                WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                Status = ReferralStatus.Assigned,
+                AssignedBrokerEmail = "api.user@hackney.gov.uk",
+                StartedAt = null,
+                CreatedAt = CurrentInstant,
+                UpdatedAt = CurrentInstant
+            };
+
+            var otherReferral = new Referral()
+            {
+                WorkflowId = "c827cb90-e5a8-013a-99f8-5a4fae5edecc",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                Status = ReferralStatus.AwaitingApproval,
+                AssignedBrokerEmail = "api.user@hackney.gov.uk",
+                StartedAt = PreviousInstant,
+                CreatedAt = PreviousInstant,
+                UpdatedAt = PreviousInstant
+            };
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.Referrals.AddAsync(otherReferral);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            // Act
+            var (code, response) = await Post<ProblemDetails>($"/api/v1/referrals/{referral.Id}/care-package/start", null);
+
+            // Assert
+            code.Should().Be(HttpStatusCode.UnprocessableEntity);
+            response.Status.Should().Be((int) HttpStatusCode.UnprocessableEntity);
+            response.Detail.Should().Be("A referral for A Service User is already in progress or awaiting approval");
         }
 
         [Test, Property("AsUser", "Broker")]
@@ -500,6 +659,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var oneOffElementType = _fixture.BuildElementType(service.Id)
                 .With(et => et.CostType, ElementCostType.OneOff)
+                .With(et => et.CostOperation, MathOperation.Ignore)
+                .With(et => et.PaymentOperation, MathOperation.Ignore)
                 .Create();
 
             var dailyElements = _fixture.BuildElement(dailyElementType.Id, provider.Id)
@@ -610,6 +771,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var oneOffElementType = _fixture.BuildElementType(service.Id)
                 .With(et => et.CostType, ElementCostType.OneOff)
+                .With(et => et.CostOperation, MathOperation.Ignore)
+                .With(et => et.PaymentOperation, MathOperation.Ignore)
                 .Create();
 
             var referral = _fixture.BuildReferral(ReferralStatus.AwaitingApproval)
@@ -737,6 +900,49 @@ namespace BrokerageApi.Tests.V1.E2ETests
             amendment.Comment.Should().Be(request.Comment);
             amendment.Status.Should().Be(AmendmentStatus.InProgress);
             amendment.RequestedAt.Should().Be(CurrentInstant);
+        }
+
+        [Test, Property("AsUser", "CareChargesOfficer"), Property("WithApprovalLimit", 1000)]
+        public async Task CanRequestFollowUp()
+        {
+            // Arrange
+            var service = _fixture.BuildService()
+                .Create();
+
+            var provider = _fixture.BuildProvider()
+                .Create();
+
+            var oneOffElementType = _fixture.BuildElementType(service.Id)
+                .With(et => et.CostType, ElementCostType.OneOff)
+                .Create();
+
+            var referral = _fixture.BuildReferral(ReferralStatus.Approved)
+                .Create();
+
+            await Context.Referrals.AddAsync(referral);
+            await Context.Services.AddAsync(service);
+            await Context.Providers.AddAsync(provider);
+            await Context.ElementTypes.AddAsync(oneOffElementType);
+            await Context.Referrals.AddAsync(referral);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            var request = _fixture.Create<FollowUpRequest>();
+
+            var code = await Post($"/api/v1/referrals/{referral.Id}/care-package/request-follow-up", request);
+
+            code.Should().Be(HttpStatusCode.OK);
+
+            var (carePackageCode, response) = await Get<CarePackageResponse>($"/api/v1/referrals/{referral.Id}/care-package");
+
+            carePackageCode.Should().Be((int) HttpStatusCode.OK);
+            var followUp = response.FollowUps.Single();
+            followUp.Comment.Should().Be(request.Comment);
+            followUp.Date.Should().Be(request.Date);
+            followUp.Status.Should().Be(FollowUpStatus.InProgress);
+            followUp.RequestedAt.Should().Be(CurrentInstant);
+            followUp.RequestedBy.Should().BeEquivalentTo(ApiUser.ToResponse());
         }
     }
 }

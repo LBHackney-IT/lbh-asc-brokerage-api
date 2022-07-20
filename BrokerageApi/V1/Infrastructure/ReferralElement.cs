@@ -14,7 +14,7 @@ namespace BrokerageApi.V1.Infrastructure
         public LocalDate?
         PendingEndDate
         { get; set; }
-        public bool? PendingCancellation { get; set; }
+        public bool PendingCancellation { get; set; }
         [CanBeNull]
         public string PendingComment { get; set; }
     }

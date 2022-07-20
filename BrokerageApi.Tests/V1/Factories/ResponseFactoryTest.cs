@@ -81,6 +81,7 @@ namespace BrokerageApi.Tests.V1.Factories
             response.Billing.Should().Be(elementType.Billing);
             response.NonPersonalBudget.Should().Be(elementType.NonPersonalBudget);
             response.IsS117.Should().Be(elementType.IsS117);
+            response.IsResidential.Should().Be(elementType.IsResidential);
             response.Service.Should().BeEquivalentTo(elementType.Service?.ToResponse());
         }
 
@@ -160,10 +161,12 @@ namespace BrokerageApi.Tests.V1.Factories
             var broker = _fixture.BuildUser().Create();
             var approver = _fixture.BuildUser().Create();
             var amendments = _fixture.BuildReferralAmendment().CreateMany();
+            var followUps = _fixture.BuildReferralFollowUp().CreateMany();
             var referral = _fixture.BuildReferral(status)
                 .With(r => r.AssignedBroker, broker)
                 .With(r => r.AssignedApprover, approver)
                 .With(r => r.ReferralAmendments, amendments.ToList)
+                .With(c => c.ReferralFollowUps, followUps.ToList)
                 .Create();
 
             var response = referral.ToResponse();
@@ -181,6 +184,8 @@ namespace BrokerageApi.Tests.V1.Factories
             response.Note.Should().Be(referral.Note);
             response.Comment.Should().Be(referral.Comment);
             response.StartedAt.Should().Be(referral.StartedAt);
+            response.IsResidential.Should().Be(referral.IsResidential);
+            response.CareChargeStatus.Should().Be(referral.CareChargeStatus);
             response.CareChargesConfirmedAt.Should().Be(referral.CareChargesConfirmedAt);
             response.CreatedAt.Should().Be(referral.CreatedAt);
             response.UpdatedAt.Should().Be(referral.UpdatedAt);
@@ -188,6 +193,7 @@ namespace BrokerageApi.Tests.V1.Factories
             response.AssignedApprover.Should().BeEquivalentTo(referral.AssignedApprover?.ToResponse());
             response.AssignedTo.Should().Be(status == ReferralStatus.AwaitingApproval ? referral.AssignedApprover.Email : referral.AssignedBroker.Email);
             response.Amendments.Should().BeEquivalentTo(referral.ReferralAmendments.Select(a => a.ToResponse()));
+            response.FollowUps.Should().BeEquivalentTo(referral.ReferralFollowUps.Select(f => f.ToResponse()));
         }
 
         [Test]
@@ -196,11 +202,13 @@ namespace BrokerageApi.Tests.V1.Factories
             var broker = _fixture.BuildUser().Create();
             var approver = _fixture.BuildUser().Create();
             var amendments = _fixture.BuildReferralAmendment().CreateMany();
+            var followUps = _fixture.BuildReferralFollowUp().CreateMany();
             var carePackage = _fixture.BuildCarePackage()
                 .With(c => c.Status, status)
                 .With(c => c.AssignedBroker, broker)
                 .With(c => c.AssignedApprover, approver)
                 .With(c => c.ReferralAmendments, amendments.ToList)
+                .With(c => c.ReferralFollowUps, followUps.ToList)
                 .Create();
 
             var response = carePackage.ToResponse();
@@ -217,6 +225,8 @@ namespace BrokerageApi.Tests.V1.Factories
             response.Status.Should().Be(carePackage.Status);
             response.Note.Should().Be(carePackage.Note);
             response.StartedAt.Should().Be(carePackage.StartedAt);
+            response.IsResidential.Should().Be(carePackage.IsResidential);
+            response.CareChargeStatus.Should().Be(carePackage.CareChargeStatus);
             response.CareChargesConfirmedAt.Should().Be(carePackage.CareChargesConfirmedAt);
             response.CreatedAt.Should().Be(carePackage.CreatedAt);
             response.UpdatedAt.Should().Be(carePackage.UpdatedAt);
@@ -231,6 +241,7 @@ namespace BrokerageApi.Tests.V1.Factories
             response.AssignedTo.Should().Be(status == ReferralStatus.AwaitingApproval ? carePackage.AssignedApprover.Email : carePackage.AssignedBroker.Email);
             response.EstimatedYearlyCost.Should().Be(carePackage.EstimatedYearlyCost);
             response.Amendments.Should().BeEquivalentTo(carePackage.ReferralAmendments.Select(a => a.ToResponse()));
+            response.FollowUps.Should().BeEquivalentTo(carePackage.ReferralFollowUps.Select(f => f.ToResponse()));
         }
 
         [Test]
@@ -274,5 +285,22 @@ namespace BrokerageApi.Tests.V1.Factories
             response.DateOfBirth.Should().Be(serviceUser.DateOfBirth);
         }
 
+        [Test]
+        public void WorkflowMapsCorrectly()
+        {
+            var workflow = _fixture.Build<Workflow>()
+                .Without(w => w.Referral)
+                .Create();
+
+            var response = workflow.ToResponse();
+
+            response.Id.Should().Be(workflow.Id);
+            response.WorkflowType.Should().Be(workflow.WorkflowType);
+            response.FormName.Should().Be(workflow.FormName);
+            response.Note.Should().Be(workflow.Note);
+            response.PrimarySupportReason.Should().Be(workflow.PrimarySupportReason);
+            response.DirectPayments.Should().Be(workflow.DirectPayments);
+            response.UrgentSince.Should().Be(workflow.UrgentSince);
+        }
     }
 }

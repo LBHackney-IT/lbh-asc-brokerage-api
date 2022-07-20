@@ -29,17 +29,10 @@ namespace BrokerageApi.Tests.V1.E2ETests
         }
 
         [Test, Property("AsUser", "Broker")]
-        public async Task CanFindProvidersByService()
+        public async Task CanFindProviders()
         {
             // Arrange
             var comparer = new ProviderResponseComparer();
-
-            var service = new Service()
-            {
-                Id = 1,
-                Name = "Shared Lives",
-                Position = 1
-            };
 
             var provider = new Provider()
             {
@@ -57,7 +50,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 Type = ProviderType.Framework
             };
 
-            await Context.Services.AddAsync(service);
             await Context.Providers.AddAsync(provider);
             await Context.Providers.AddAsync(otherProvider);
             await Context.SaveChangesAsync();
@@ -65,7 +57,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Context.ChangeTracker.Clear();
 
             // Act
-            var (code, response) = await Get<List<ProviderResponse>>($"/api/v1/services/1/providers?query=Acme");
+            var (code, response) = await Get<List<ProviderResponse>>($"/api/v1/providers?query=Acme");
 
             // Assert
             Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
@@ -75,17 +67,10 @@ namespace BrokerageApi.Tests.V1.E2ETests
         }
 
         [Test, Property("AsUser", "Broker")]
-        public async Task CanFindProvidersByServiceAndPartialName()
+        public async Task CanFindProvidersByPartialName()
         {
             // Arrange
             var comparer = new ProviderResponseComparer();
-
-            var service = new Service()
-            {
-                Id = 1,
-                Name = "Home Care",
-                Position = 1
-            };
 
             var provider = new Provider()
             {
@@ -103,7 +88,6 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 Type = ProviderType.Framework
             };
 
-            await Context.Services.AddAsync(service);
             await Context.Providers.AddAsync(provider);
             await Context.Providers.AddAsync(otherProvider);
             await Context.SaveChangesAsync();
@@ -111,7 +95,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Context.ChangeTracker.Clear();
 
             // Act
-            var (code, response) = await Get<List<ProviderResponse>>($"/api/v1/services/1/providers?query=hart+care");
+            var (code, response) = await Get<List<ProviderResponse>>($"/api/v1/providers?query=hart+care");
 
             // Assert
             Assert.That(code, Is.EqualTo(HttpStatusCode.OK));

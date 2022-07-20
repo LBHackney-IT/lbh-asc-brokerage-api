@@ -1,6 +1,6 @@
 namespace BrokerageApi.V1.Boundary.Response.Interfaces
 {
-    public interface IAssigmentResponse
+    public interface IAssignmentResponse
     {
         public UserResponse AssignedBroker { get; set; }
 

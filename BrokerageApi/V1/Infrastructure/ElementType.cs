@@ -23,6 +23,10 @@ namespace BrokerageApi.V1.Infrastructure
 
         public ElementBillingType Billing { get; set; }
 
+        public MathOperation CostOperation { get; set; }
+
+        public MathOperation PaymentOperation { get; set; }
+
         public bool NonPersonalBudget { get; set; }
 
         public bool IsS117 { get; set; }
@@ -30,6 +34,8 @@ namespace BrokerageApi.V1.Infrastructure
         public int Position { get; set; }
 
         public bool IsArchived { get; set; }
+
+        public bool IsResidential { get; set; }
 
         public Service Service { get; set; }
 

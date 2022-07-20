@@ -43,7 +43,8 @@ namespace BrokerageApi.Tests
         {
             _builder = new DbContextOptionsBuilder();
             _builder.UseNpgsql(ConnectionString.TestDatabase(), o => o.UseNodaTime())
-                .UseSnakeCaseNamingConvention();
+                .UseSnakeCaseNamingConvention()
+                .EnableSensitiveDataLogging(true);
         }
 
         [SetUp]

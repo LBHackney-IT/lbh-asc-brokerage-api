@@ -10,18 +10,18 @@ namespace BrokerageApi.V1.Infrastructure
 {
     public class Element : BaseEntity
     {
-        private IClockService _clock;
-
         public Element()
         {
         }
 
         public Element(BrokerageContext db)
         {
-            _clock = db.Clock;
+            Clock = db.Clock;
         }
+
         public Element(Element element)
         {
+            Clock = element.Clock;
             SocialCareId = element.SocialCareId;
             ElementTypeId = element.ElementTypeId;
             NonPersonalBudget = element.NonPersonalBudget;
@@ -141,9 +141,17 @@ namespace BrokerageApi.V1.Infrastructure
             }
         }
 
-        private LocalDate Today
-        {
-            get => _clock.Today;
-        }
+        public bool IsResidential =>
+            ElementType is { IsResidential: true } &&
+            InternalStatus == ElementStatus.Approved;
+
+        public bool IsServiceElement =>
+            ElementType is { Type: ElementTypeType.Service } &&
+            !IsSuspension;
+
+        [NotMapped]
+        public IClockService Clock { get; set; }
+
+        private LocalDate Today => Clock.Today;
     }
 }

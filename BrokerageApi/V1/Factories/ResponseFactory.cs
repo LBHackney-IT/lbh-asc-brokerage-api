@@ -27,6 +27,8 @@ namespace BrokerageApi.V1.Factories
                 AssignedApprover = carePackage.AssignedApprover?.ToResponse(),
                 Note = carePackage.Note,
                 StartedAt = carePackage.StartedAt,
+                IsResidential = carePackage.IsResidential,
+                CareChargeStatus = carePackage.CareChargeStatus,
                 CareChargesConfirmedAt = carePackage.CareChargesConfirmedAt,
                 CreatedAt = carePackage.CreatedAt,
                 UpdatedAt = carePackage.UpdatedAt,
@@ -37,7 +39,9 @@ namespace BrokerageApi.V1.Factories
                 EstimatedYearlyCost = carePackage.EstimatedYearlyCost,
                 Elements = carePackage.ReferralElements?.Select(re => re.Element.ToResponse(re.ReferralId)).ToList(),
                 Comment = carePackage.Comment,
-                Amendments = carePackage.ReferralAmendments?.Select(a => a.ToResponse()).ToList()
+                Amendments = carePackage.ReferralAmendments?.Select(a => a.ToResponse()).ToList(),
+                FollowUps = carePackage.ReferralFollowUps?.Select(f => f.ToResponse()).ToList(),
+                Workflows = carePackage.Workflows?.Select(w => w.ToResponse()).ToList()
             };
         }
 
@@ -88,6 +92,7 @@ namespace BrokerageApi.V1.Factories
                 Billing = elementType.Billing,
                 NonPersonalBudget = elementType.NonPersonalBudget,
                 IsS117 = elementType.IsS117,
+                IsResidential = elementType.IsResidential,
                 Service = elementType.Service != null
                     ? new ServiceResponse
                     {
@@ -131,12 +136,16 @@ namespace BrokerageApi.V1.Factories
                 Note = referral.Note,
                 Comment = referral.Comment,
                 StartedAt = referral.StartedAt,
+                IsResidential = referral.IsResidential,
+                CareChargeStatus = referral.CareChargeStatus,
                 CareChargesConfirmedAt = referral.CareChargesConfirmedAt,
                 CreatedAt = referral.CreatedAt,
                 UpdatedAt = referral.UpdatedAt,
                 AssignedBroker = referral.AssignedBroker?.ToResponse(),
                 AssignedApprover = referral.AssignedApprover?.ToResponse(),
-                Amendments = referral.ReferralAmendments?.Select(a => a.ToResponse()).ToList()
+                Amendments = referral.ReferralAmendments?.Select(a => a.ToResponse()).ToList(),
+                FollowUps = referral.ReferralFollowUps?.Select(f => f.ToResponse()).ToList(),
+                Workflows = referral.Workflows?.Select(w => w.ToResponse()).ToList()
             };
         }
 
@@ -210,6 +219,19 @@ namespace BrokerageApi.V1.Factories
                 RequestedAt = amendment.RequestedAt
             };
         }
+
+        public static FollowUpResponse ToResponse(this ReferralFollowUp followUp)
+        {
+            return new FollowUpResponse
+            {
+                Comment = followUp.Comment,
+                Date = followUp.Date,
+                Status = followUp.Status,
+                RequestedAt = followUp.RequestedAt,
+                RequestedBy = followUp.RequestedBy?.ToResponse()
+            };
+        }
+
         public static ServiceUserResponse ToResponse(this ServiceUser serviceUser)
         {
             return new ServiceUserResponse
@@ -217,6 +239,20 @@ namespace BrokerageApi.V1.Factories
                 SocialCareId = serviceUser.SocialCareId,
                 ServiceUserName = serviceUser.ServiceUserName,
                 DateOfBirth = serviceUser.DateOfBirth
+            };
+        }
+
+        public static WorkflowResponse ToResponse(this Workflow workflow)
+        {
+            return new WorkflowResponse
+            {
+                Id = workflow.Id,
+                WorkflowType = workflow.WorkflowType,
+                FormName = workflow.FormName,
+                Note = workflow.Note,
+                PrimarySupportReason = workflow.PrimarySupportReason,
+                DirectPayments = workflow.DirectPayments,
+                UrgentSince = workflow.UrgentSince
             };
         }
     }

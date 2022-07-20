@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using BrokerageApi.V1.UseCase.Interfaces;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackages;
+using NodaTime;
 
 namespace BrokerageApi.Tests.V1.Controllers
 {
@@ -33,6 +34,7 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Mock<IAssignBudgetApproverToCarePackageUseCase> _mockAssignBudgetApproverUseCase;
         private Mock<IApproveCarePackageUseCase> _mockApproveCarePackageUseCase;
         private Mock<IRequestAmendmentToCarePackageUseCase> _mockRequestAmendmentUseCase;
+        private Mock<IRequestFollowUpToCarePackageUseCase> _mockRequestFollowUpUseCase;
 
         [SetUp]
         public void SetUp()
@@ -47,6 +49,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockAssignBudgetApproverUseCase = new Mock<IAssignBudgetApproverToCarePackageUseCase>();
             _mockApproveCarePackageUseCase = new Mock<IApproveCarePackageUseCase>();
             _mockRequestAmendmentUseCase = new Mock<IRequestAmendmentToCarePackageUseCase>();
+            _mockRequestFollowUpUseCase = new Mock<IRequestFollowUpToCarePackageUseCase>();
 
             _classUnderTest = new CarePackagesController(
                 _mockGetCarePackageByIdUseCase.Object,
@@ -57,7 +60,8 @@ namespace BrokerageApi.Tests.V1.Controllers
                 _mockGetBudgetApproversUseCase.Object,
                 _mockAssignBudgetApproverUseCase.Object,
                 _mockApproveCarePackageUseCase.Object,
-                _mockRequestAmendmentUseCase.Object
+                _mockRequestAmendmentUseCase.Object,
+                _mockRequestFollowUpUseCase.Object
             );
 
             SetupAuthentication(_classUnderTest);
@@ -453,6 +457,49 @@ namespace BrokerageApi.Tests.V1.Controllers
                 .ThrowsAsync(exception);
 
             var response = await _classUnderTest.RequestAmendment(referralId, request);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
+
+            statusCode.Should().Be((int) expectedStatusCode);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
+        }
+
+        [Test, Property("AsUser", "CareChargesOfficer")]
+        public async Task CanRequestFollowUp()
+        {
+            const int referralId = 1234;
+            var request = _fixture.Create<FollowUpRequest>();
+
+            var response = await _classUnderTest.RequestFollowUp(referralId, request);
+            var statusCode = GetStatusCode(response);
+
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            _mockRequestFollowUpUseCase.Verify(x => x.ExecuteAsync(referralId, request.Comment, request.Date));
+        }
+
+        private static readonly object[] _followUpErrorList =
+        {
+            new object[]
+            {
+                new ArgumentNullException(null, "message"), HttpStatusCode.NotFound
+            },
+            new object[]
+            {
+                new InvalidOperationException("message"), HttpStatusCode.UnprocessableEntity
+            }
+        };
+
+        [TestCaseSource(nameof(_followUpErrorList)), Property("AsUser", "CareChargesOfficer")]
+        public async Task CanRequestFollowUpMapsErrors(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            const int referralId = 1234;
+            var request = _fixture.Create<FollowUpRequest>();
+            _mockRequestFollowUpUseCase
+                .Setup(x => x.ExecuteAsync(referralId, It.IsAny<string>(), It.IsAny<LocalDate>()))
+                .ThrowsAsync(exception);
+
+            var response = await _classUnderTest.RequestFollowUp(referralId, request);
             var statusCode = GetStatusCode(response);
             var result = GetResultData<ProblemDetails>(response);
 

@@ -73,11 +73,16 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageCareCharges
                 .With(e => e.UpdatedAt, previousInstant)
                 .Create();
 
+            var followUp = _fixture.BuildReferralFollowUp()
+                .With(f => f.Status, FollowUpStatus.InProgress)
+                .Create();
+
             var referral = _fixture.BuildReferral(ReferralStatus.Approved)
                 .Without(r => r.CareChargesConfirmedAt)
                 .With(r => r.CreatedAt, previousInstant)
                 .With(r => r.UpdatedAt, previousInstant)
                 .With(r => r.Elements, new List<Element> { element })
+                .With(r => r.ReferralFollowUps, new List<ReferralFollowUp> { followUp })
                 .Create();
 
             _mockReferralGateway.Setup(x => x.GetByIdWithElementsAsync(referral.Id))
@@ -98,6 +103,8 @@ namespace BrokerageApi.Tests.V1.UseCase.CarePackageCareCharges
             element.InternalStatus.Should().Be(ElementStatus.Approved);
             element.CreatedAt.Should().Be(previousInstant);
             element.UpdatedAt.Should().Be(currentInstant);
+
+            followUp.Status.Should().Be(FollowUpStatus.Resolved);
 
             _mockDbSaver.VerifyChangesSaved();
 

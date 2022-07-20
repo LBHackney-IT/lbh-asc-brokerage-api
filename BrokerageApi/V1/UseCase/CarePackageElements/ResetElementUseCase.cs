@@ -62,7 +62,7 @@ namespace BrokerageApi.V1.UseCase.CarePackageElements
         private async Task ResetApprovedElement(Referral referral, Element element)
         {
             var referralElement = referral.ReferralElements.Single(re => re.ElementId == element.Id);
-            referralElement.PendingCancellation = null;
+            referralElement.PendingCancellation = false;
             referralElement.PendingEndDate = null;
             referralElement.PendingComment = null;
 

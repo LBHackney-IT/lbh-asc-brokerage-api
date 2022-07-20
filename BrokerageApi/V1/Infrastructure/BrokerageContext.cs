@@ -16,6 +16,7 @@ namespace BrokerageApi.V1.Infrastructure
         {
             NpgsqlConnection.GlobalTypeMapper.UseNodaTime();
 
+            NpgsqlConnection.GlobalTypeMapper.MapEnum<CareChargeStatus>("care_charge_status");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementBillingType>("element_billing_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementCostType>("element_cost_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementStatus>("element_status");
@@ -26,6 +27,7 @@ namespace BrokerageApi.V1.Infrastructure
             NpgsqlConnection.GlobalTypeMapper.MapEnum<UserRole>("user_role");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<AuditEventType>("audit_event_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<AmendmentStatus>("amendment_status");
+            NpgsqlConnection.GlobalTypeMapper.MapEnum<FollowUpStatus>("follow_up_status");
         }
 
         public BrokerageContext(DbContextOptions options, IClockService clock) : base(options)
@@ -43,11 +45,14 @@ namespace BrokerageApi.V1.Infrastructure
         public DbSet<ElementType> ElementTypes { get; set; }
         public DbSet<Provider> Providers { get; set; }
         public DbSet<Referral> Referrals { get; set; }
+        public DbSet<ReferralAmendment> ReferralAmendments { get; set; }
         public DbSet<ReferralElement> ReferralElements { get; set; }
+        public DbSet<ReferralFollowUp> ReferralFollowUps { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<AuditEvent> AuditEvents { get; set; }
         public DbSet<ServiceUser> ServiceUsers { get; set; }
+        public DbSet<Workflow> Workflows { get; set; }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -60,6 +65,7 @@ namespace BrokerageApi.V1.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasPostgresEnum<CareChargeStatus>();
             modelBuilder.HasPostgresEnum<ElementBillingType>();
             modelBuilder.HasPostgresEnum<ElementCostType>();
             modelBuilder.HasPostgresEnum<ElementStatus>();
@@ -70,6 +76,7 @@ namespace BrokerageApi.V1.Infrastructure
             modelBuilder.HasPostgresEnum<UserRole>();
             modelBuilder.HasPostgresEnum<AuditEventType>();
             modelBuilder.HasPostgresEnum<AmendmentStatus>();
+            modelBuilder.HasPostgresEnum<FollowUpStatus>();
 
             modelBuilder.Entity<AuditEvent>()
                 .Property(ae => ae.Metadata)
@@ -117,9 +124,9 @@ namespace BrokerageApi.V1.Infrastructure
                 .WithOne()
                 .HasForeignKey("ReferralId");
 
-            modelBuilder.Entity<ReferralAmendment>()
-                .HasOne(a => a.Referral)
-                .WithMany(r => r.ReferralAmendments)
+            modelBuilder.Entity<CarePackage>()
+                .HasMany(c => c.ReferralFollowUps)
+                .WithOne()
                 .HasForeignKey("ReferralId");
 
             modelBuilder.Entity<CarePackage>()
@@ -133,6 +140,16 @@ namespace BrokerageApi.V1.Infrastructure
                 .WithMany(u => u.ApproverCarePackages)
                 .HasForeignKey("AssignedApproverId")
                 .HasPrincipalKey("Email");
+
+            modelBuilder.Entity<CarePackage>()
+              .HasMany(cp => cp.Workflows)
+              .WithOne()
+              .HasForeignKey("ReferralId");
+
+            modelBuilder.Entity<Workflow>()
+              .HasOne(a => a.Referral)
+              .WithMany(r => r.Workflows)
+              .HasForeignKey("ReferralId");
 
             modelBuilder.Entity<Referral>()
                 .HasOne(cp => cp.AssignedBroker)
@@ -177,6 +194,14 @@ namespace BrokerageApi.V1.Infrastructure
                 .HasDefaultValue(ElementBillingType.Supplier);
 
             modelBuilder.Entity<ElementType>()
+                .Property(et => et.CostOperation)
+                .HasDefaultValue(MathOperation.Ignore);
+
+            modelBuilder.Entity<ElementType>()
+                .Property(et => et.PaymentOperation)
+                .HasDefaultValue(MathOperation.Ignore);
+
+            modelBuilder.Entity<ElementType>()
                 .Property(et => et.NonPersonalBudget)
                 .HasDefaultValue(false);
 
@@ -186,6 +211,10 @@ namespace BrokerageApi.V1.Infrastructure
 
             modelBuilder.Entity<ElementType>()
                 .Property(et => et.IsArchived)
+                .HasDefaultValue(false);
+
+            modelBuilder.Entity<ElementType>()
+                .Property(et => et.IsResidential)
                 .HasDefaultValue(false);
 
             modelBuilder.Entity<ElementType>()
@@ -212,7 +241,16 @@ namespace BrokerageApi.V1.Infrastructure
                 .HasMethod("GIN");
 
             modelBuilder.Entity<Referral>()
+                .Property(r => r.CareChargeStatus)
+                .HasDefaultValue(CareChargeStatus.New);
+
+            modelBuilder.Entity<Referral>()
                 .HasIndex(r => r.WorkflowId)
+                .IsUnique();
+
+            modelBuilder.Entity<Referral>()
+                .HasIndex(r => r.SocialCareId)
+                .HasFilter("status = 'in_progress' OR status = 'awaiting_approval'")
                 .IsUnique();
 
             modelBuilder.Entity<Referral>()
@@ -231,6 +269,26 @@ namespace BrokerageApi.V1.Infrastructure
                     {
                         j.HasKey(re => new { re.ElementId, re.ReferralId });
                     });
+
+            modelBuilder.Entity<ReferralElement>()
+                .Property(re => re.PendingCancellation)
+                .HasDefaultValue(false);
+
+            modelBuilder.Entity<ReferralAmendment>()
+                .HasOne(a => a.Referral)
+                .WithMany(r => r.ReferralAmendments)
+                .HasForeignKey("ReferralId");
+
+            modelBuilder.Entity<ReferralFollowUp>()
+                .HasOne(a => a.Referral)
+                .WithMany(r => r.ReferralFollowUps)
+                .HasForeignKey("ReferralId");
+
+            modelBuilder.Entity<ReferralFollowUp>()
+                .HasOne(rf => rf.RequestedBy)
+                .WithMany()
+                .HasForeignKey("RequestedByEmail")
+                .HasPrincipalKey("Email");
 
             modelBuilder.Entity<Service>()
                 .Property(s => s.Id)

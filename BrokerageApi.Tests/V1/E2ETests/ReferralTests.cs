@@ -135,7 +135,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
                 WorkflowType = WorkflowType.Assessment,
                 FormName = "Care act assessment",
-                SocialCareId = "33556688",
+                SocialCareId = "33556681",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
@@ -147,7 +147,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "b018672b-a169-4b35-afa7-b8a9344073c1",
                 WorkflowType = WorkflowType.Assessment,
                 FormName = "Care act assessment",
-                SocialCareId = "33556688",
+                SocialCareId = "33556682",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
@@ -159,7 +159,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "755caa62-3602-4229-90da-e30199a0336d",
                 WorkflowType = WorkflowType.Assessment,
                 FormName = "Care act assessment",
-                SocialCareId = "33556688",
+                SocialCareId = "33556683",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
@@ -172,7 +172,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "ff245519-a28e-426c-ad13-4459216a2b2f",
                 WorkflowType = WorkflowType.Assessment,
                 FormName = "Care act assessment",
-                SocialCareId = "33556688",
+                SocialCareId = "33556684",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
@@ -184,7 +184,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "c265bf16-dbc4-4d6d-afdf-9f9fd4ec7d14",
                 WorkflowType = WorkflowType.Assessment,
                 FormName = "Care act assessment",
-                SocialCareId = "33556688",
+                SocialCareId = "33556685",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
@@ -196,7 +196,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "3e48adb1-0ca2-456c-845a-efcd4eca4554",
                 WorkflowType = WorkflowType.Assessment,
                 FormName = "Care act assessment",
-                SocialCareId = "33556688",
+                SocialCareId = "33556686",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
@@ -210,7 +210,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "9cab0511-094f-4d6b-ba81-7246ec0dc716",
                 WorkflowType = WorkflowType.Assessment,
                 FormName = "Care act assessment",
-                SocialCareId = "33556688",
+                SocialCareId = "33556687",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
@@ -302,8 +302,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
             Assert.That(response, Does.Not.Contain(inReviewReferral.ToResponse()).Using(comparer));
         }
 
-        [Test, Property("AsUser", "Broker")]
-        public async Task CanGetAssignedReferrals()
+        [Test, Property("AsUser", "CareChargesOfficer")]
+        public async Task CanGetApprovedReferrals()
         {
             // Arrange
             var comparer = new ReferralResponseComparer();
@@ -314,7 +314,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
                 WorkflowType = WorkflowType.Assessment,
                 FormName = "Care act assessment",
-                SocialCareId = "33556688",
+                SocialCareId = "33556681",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
@@ -326,7 +326,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "b018672b-a169-4b35-afa7-b8a9344073c1",
                 WorkflowType = WorkflowType.Assessment,
                 FormName = "Care act assessment",
-                SocialCareId = "33556688",
+                SocialCareId = "33556682",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
@@ -338,7 +338,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "755caa62-3602-4229-90da-e30199a0336d",
                 WorkflowType = WorkflowType.Assessment,
                 FormName = "Care act assessment",
-                SocialCareId = "33556688",
+                SocialCareId = "33556683",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
@@ -351,7 +351,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "501d5410-a6ca-4766-8080-23a3c2da374b",
                 WorkflowType = WorkflowType.Assessment,
                 FormName = "Care act assessment",
-                SocialCareId = "33556688",
+                SocialCareId = "33556684",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
@@ -364,7 +364,392 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "ff245519-a28e-426c-ad13-4459216a2b2f",
                 WorkflowType = WorkflowType.Assessment,
                 FormName = "Care act assessment",
+                SocialCareId = "33556685",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                Status = ReferralStatus.OnHold
+            };
+
+            var archivedReferral = new Referral()
+            {
+                WorkflowId = "c265bf16-dbc4-4d6d-afdf-9f9fd4ec7d14",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556686",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                Status = ReferralStatus.Archived
+            };
+
+            var inProgressReferral = new Referral()
+            {
+                WorkflowId = "3e48adb1-0ca2-456c-845a-efcd4eca4554",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556687",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBrokerEmail = ApiUser.Email,
+                Status = ReferralStatus.InProgress,
+                StartedAt = CurrentInstant
+            };
+
+            var awaitingApprovalReferral = new Referral()
+            {
+                WorkflowId = "9cab0511-094f-4d6b-ba81-7246ec0dc716",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
                 SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBrokerEmail = ApiUser.Email,
+                Status = ReferralStatus.AwaitingApproval
+            };
+
+            var approvedReferral = new Referral()
+            {
+                WorkflowId = "174079ae-75b4-43b4-9d29-363e88e7dd40",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556689",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBrokerEmail = ApiUser.Email,
+                Status = ReferralStatus.Approved
+            };
+
+            var approvedAndConfirmedReferral = new Referral()
+            {
+                WorkflowId = "82af1790-e591-013a-99f7-5a4fae5edecc",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556690",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBrokerEmail = ApiUser.Email,
+                Status = ReferralStatus.Approved,
+                CareChargesConfirmedAt = CurrentInstant
+            };
+
+            var approvedWithFollowUpReferral = new Referral()
+            {
+                WorkflowId = "5a2287f0-e81f-013a-99f9-5a4fae5edecc",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556690",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBrokerEmail = ApiUser.Email,
+                Status = ReferralStatus.Approved,
+                CareChargesConfirmedAt = CurrentInstant,
+                ReferralFollowUps = new List<ReferralFollowUp>
+                {
+                    new ReferralFollowUp
+                    {
+                        Comment = "Some comments",
+                        Date = CurrentDate.PlusDays(30),
+                        Status = FollowUpStatus.InProgress,
+                        RequestedAt = CurrentInstant,
+                        RequestedByEmail = ApiUser.Email
+                    }
+                }
+            };
+
+            await Context.Referrals.AddAsync(unassignedReferral);
+            await Context.Referrals.AddAsync(inReviewReferral);
+            await Context.Referrals.AddAsync(assignedReferral);
+            await Context.Referrals.AddAsync(otherAssignedReferral);
+            await Context.Referrals.AddAsync(onHoldReferral);
+            await Context.Referrals.AddAsync(archivedReferral);
+            await Context.Referrals.AddAsync(inProgressReferral);
+            await Context.Referrals.AddAsync(awaitingApprovalReferral);
+            await Context.Referrals.AddAsync(approvedReferral);
+            await Context.Referrals.AddAsync(approvedAndConfirmedReferral);
+            await Context.Referrals.AddAsync(approvedWithFollowUpReferral);
+            await Context.Users.AddAsync(otherUser);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            // Act
+            var (code, response) = await Get<List<ReferralResponse>>($"/api/v1/referrals/approved");
+
+            // Assert
+            Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(response, Contains.Item(approvedReferral.ToResponse()).Using(comparer));
+            Assert.That(response, Does.Not.Contain(assignedReferral.ToResponse()).Using(comparer));
+            Assert.That(response, Does.Not.Contain(inProgressReferral.ToResponse()).Using(comparer));
+            Assert.That(response, Does.Not.Contain(awaitingApprovalReferral.ToResponse()).Using(comparer));
+            Assert.That(response, Does.Not.Contain(unassignedReferral.ToResponse()).Using(comparer));
+            Assert.That(response, Does.Not.Contain(inReviewReferral.ToResponse()).Using(comparer));
+            Assert.That(response, Does.Not.Contain(otherAssignedReferral.ToResponse()).Using(comparer));
+            Assert.That(response, Does.Not.Contain(onHoldReferral.ToResponse()).Using(comparer));
+            Assert.That(response, Does.Not.Contain(archivedReferral.ToResponse()).Using(comparer));
+            Assert.That(response, Does.Not.Contain(approvedAndConfirmedReferral.ToResponse()).Using(comparer));
+            Assert.That(response, Does.Not.Contain(approvedWithFollowUpReferral.ToResponse()).Using(comparer));
+        }
+
+        [Test, Property("AsUser", "CareChargesOfficer")]
+        public async Task CanGetFollowUpReferrals()
+        {
+            // Arrange
+            var comparer = new ReferralResponseComparer();
+            var otherUser = _fixture.BuildUser().Create();
+
+            var unassignedReferral = new Referral()
+            {
+                WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556681",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                Status = ReferralStatus.Unassigned
+            };
+
+            var inReviewReferral = new Referral()
+            {
+                WorkflowId = "b018672b-a169-4b35-afa7-b8a9344073c1",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556682",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                Status = ReferralStatus.InReview
+            };
+
+            var assignedReferral = new Referral()
+            {
+                WorkflowId = "755caa62-3602-4229-90da-e30199a0336d",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556683",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBrokerEmail = ApiUser.Email,
+                Status = ReferralStatus.Assigned
+            };
+
+            var otherAssignedReferral = new Referral()
+            {
+                WorkflowId = "501d5410-a6ca-4766-8080-23a3c2da374b",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556684",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBrokerEmail = otherUser.Email,
+                Status = ReferralStatus.Assigned
+            };
+
+            var onHoldReferral = new Referral()
+            {
+                WorkflowId = "ff245519-a28e-426c-ad13-4459216a2b2f",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556685",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                Status = ReferralStatus.OnHold
+            };
+
+            var archivedReferral = new Referral()
+            {
+                WorkflowId = "c265bf16-dbc4-4d6d-afdf-9f9fd4ec7d14",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556686",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                Status = ReferralStatus.Archived
+            };
+
+            var inProgressReferral = new Referral()
+            {
+                WorkflowId = "3e48adb1-0ca2-456c-845a-efcd4eca4554",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556687",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBrokerEmail = ApiUser.Email,
+                Status = ReferralStatus.InProgress,
+                StartedAt = CurrentInstant
+            };
+
+            var awaitingApprovalReferral = new Referral()
+            {
+                WorkflowId = "9cab0511-094f-4d6b-ba81-7246ec0dc716",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556688",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBrokerEmail = ApiUser.Email,
+                Status = ReferralStatus.AwaitingApproval
+            };
+
+            var approvedReferral = new Referral()
+            {
+                WorkflowId = "174079ae-75b4-43b4-9d29-363e88e7dd40",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556689",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBrokerEmail = ApiUser.Email,
+                Status = ReferralStatus.Approved
+            };
+
+            var approvedAndConfirmedReferral = new Referral()
+            {
+                WorkflowId = "82af1790-e591-013a-99f7-5a4fae5edecc",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556690",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBrokerEmail = ApiUser.Email,
+                Status = ReferralStatus.Approved,
+                CareChargesConfirmedAt = CurrentInstant
+            };
+
+            var approvedWithFollowUpReferral = new Referral()
+            {
+                WorkflowId = "5a2287f0-e81f-013a-99f9-5a4fae5edecc",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556690",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBrokerEmail = ApiUser.Email,
+                Status = ReferralStatus.Approved,
+                ReferralFollowUps = new List<ReferralFollowUp>
+                {
+                    new ReferralFollowUp
+                    {
+                        Comment = "Some comments",
+                        Date = CurrentDate.PlusDays(30),
+                        Status = FollowUpStatus.InProgress,
+                        RequestedAt = CurrentInstant,
+                        RequestedByEmail = ApiUser.Email
+                    }
+                }
+            };
+
+            await Context.Referrals.AddAsync(unassignedReferral);
+            await Context.Referrals.AddAsync(inReviewReferral);
+            await Context.Referrals.AddAsync(assignedReferral);
+            await Context.Referrals.AddAsync(otherAssignedReferral);
+            await Context.Referrals.AddAsync(onHoldReferral);
+            await Context.Referrals.AddAsync(archivedReferral);
+            await Context.Referrals.AddAsync(inProgressReferral);
+            await Context.Referrals.AddAsync(awaitingApprovalReferral);
+            await Context.Referrals.AddAsync(approvedReferral);
+            await Context.Referrals.AddAsync(approvedAndConfirmedReferral);
+            await Context.Referrals.AddAsync(approvedWithFollowUpReferral);
+            await Context.Users.AddAsync(otherUser);
+            await Context.SaveChangesAsync();
+
+            Context.ChangeTracker.Clear();
+
+            // Act
+            var (code, response) = await Get<List<ReferralResponse>>($"/api/v1/referrals/follow-up");
+
+            // Assert
+            Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(response, Contains.Item(approvedWithFollowUpReferral.ToResponse()).Using(comparer));
+            Assert.That(response, Does.Not.Contain(assignedReferral.ToResponse()).Using(comparer));
+            Assert.That(response, Does.Not.Contain(inProgressReferral.ToResponse()).Using(comparer));
+            Assert.That(response, Does.Not.Contain(awaitingApprovalReferral.ToResponse()).Using(comparer));
+            Assert.That(response, Does.Not.Contain(unassignedReferral.ToResponse()).Using(comparer));
+            Assert.That(response, Does.Not.Contain(inReviewReferral.ToResponse()).Using(comparer));
+            Assert.That(response, Does.Not.Contain(otherAssignedReferral.ToResponse()).Using(comparer));
+            Assert.That(response, Does.Not.Contain(onHoldReferral.ToResponse()).Using(comparer));
+            Assert.That(response, Does.Not.Contain(archivedReferral.ToResponse()).Using(comparer));
+            Assert.That(response, Does.Not.Contain(approvedReferral.ToResponse()).Using(comparer));
+            Assert.That(response, Does.Not.Contain(approvedAndConfirmedReferral.ToResponse()).Using(comparer));
+        }
+
+        [Test, Property("AsUser", "Broker")]
+        public async Task CanGetAssignedReferrals()
+        {
+            // Arrange
+            var comparer = new ReferralResponseComparer();
+            var otherUser = _fixture.BuildUser().Create();
+
+            var unassignedReferral = new Referral()
+            {
+                WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556681",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                Status = ReferralStatus.Unassigned
+            };
+
+            var inReviewReferral = new Referral()
+            {
+                WorkflowId = "b018672b-a169-4b35-afa7-b8a9344073c1",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556682",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                Status = ReferralStatus.InReview
+            };
+
+            var assignedReferral = new Referral()
+            {
+                WorkflowId = "755caa62-3602-4229-90da-e30199a0336d",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556683",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBrokerEmail = ApiUser.Email,
+                Status = ReferralStatus.Assigned
+            };
+
+            var otherAssignedReferral = new Referral()
+            {
+                WorkflowId = "501d5410-a6ca-4766-8080-23a3c2da374b",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556684",
+                ResidentName = "A Service User",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No",
+                AssignedBrokerEmail = otherUser.Email,
+                Status = ReferralStatus.Assigned
+            };
+
+            var onHoldReferral = new Referral()
+            {
+                WorkflowId = "ff245519-a28e-426c-ad13-4459216a2b2f",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                SocialCareId = "33556685",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
@@ -387,7 +772,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "3e48adb1-0ca2-456c-845a-efcd4eca4554",
                 WorkflowType = WorkflowType.Assessment,
                 FormName = "Care act assessment",
-                SocialCareId = "33556688",
+                SocialCareId = "33556686",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
@@ -401,7 +786,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 WorkflowId = "9cab0511-094f-4d6b-ba81-7246ec0dc716",
                 WorkflowType = WorkflowType.Assessment,
                 FormName = "Care act assessment",
-                SocialCareId = "33556688",
+                SocialCareId = "33556687",
                 ResidentName = "A Service User",
                 PrimarySupportReason = "Physical Support",
                 DirectPayments = "No",
@@ -506,10 +891,20 @@ namespace BrokerageApi.Tests.V1.E2ETests
             // Arrange
             var user = _fixture.BuildUser().Create();
 
+            var workflow = new Workflow()
+            {
+                Id = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
+                WorkflowType = WorkflowType.Assessment,
+                FormName = "Care act assessment",
+                PrimarySupportReason = "Physical Support",
+                DirectPayments = "No"
+            };
+
             var referral = new Referral()
             {
                 WorkflowId = "3a386bf5-036d-47eb-ba58-704f3333e4fd",
                 WorkflowType = WorkflowType.Assessment,
+                Workflows = new List<Workflow> { workflow },
                 FormName = "Care act assessment",
                 SocialCareId = "33556688",
                 ResidentName = "A Service User",
@@ -518,7 +913,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
                 Comment = "A comment",
                 Status = ReferralStatus.Unassigned,
                 AssignedBrokerEmail = user.Email,
-                ReferralAmendments = new List<ReferralAmendment>()
+                ReferralAmendments = new List<ReferralAmendment>(),
+                ReferralFollowUps = new List<ReferralFollowUp>(),
             };
 
             await Context.Referrals.AddAsync(referral);
@@ -534,6 +930,7 @@ namespace BrokerageApi.Tests.V1.E2ETests
             code.Should().Be(HttpStatusCode.OK);
             response.Should().BeEquivalentTo(referral.ToResponse());
             response.Comment.Should().BeEquivalentTo(referral.Comment);
+            response.Workflows[0].Should().BeEquivalentTo(workflow.ToResponse());
             response.AssignedBroker.Should().BeEquivalentTo(user.ToResponse());
         }
 
@@ -765,6 +1162,8 @@ namespace BrokerageApi.Tests.V1.E2ETests
 
             var elementType = _fixture.BuildElementType(service.Id)
                 .With(et => et.CostType, ElementCostType.OneOff)
+                .With(et => et.CostOperation, MathOperation.Ignore)
+                .With(et => et.PaymentOperation, MathOperation.Ignore)
                 .Create();
 
             var belowLimitElement = _fixture.BuildElement(elementType.Id, provider.Id)
