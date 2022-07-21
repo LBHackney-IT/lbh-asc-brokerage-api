@@ -7,7 +7,7 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 
-namespace BrokerageApi.Tests.V1.UseCase
+namespace BrokerageApi.Tests.V1.UseCase.ServiceUsers
 {
     public class GetServiceUsersByRequestUseCaseTests
     {
