@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.Tests.V1.Helpers;
@@ -218,6 +219,26 @@ namespace BrokerageApi.Tests.V1.E2ETests
             // Assert
             Assert.That(response, Has.Count.EqualTo(1));
             Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
+
+        }
+        [Test, Property("AsUser", "CareChargesOfficer")]
+        public async Task CanEditServiceUserCedarNumber()
+        {
+            //Arrange
+            var serviceUser = _fixture.BuildServiceUser().Create();
+            await Context.ServiceUsers.AddAsync(serviceUser);
+
+            await Context.SaveChangesAsync();
+            Context.ChangeTracker.Clear();
+            var request = _fixture.Build<EditServiceUserRequest>()
+                .With(su => su.SocialCareId, serviceUser.SocialCareId)
+                .With(su => su.CedarNumber, "aCedarNumber")
+                .Create();
+            //Act
+            var (code, response) = await Post<ServiceUserResponse>($"/api/v1/service-users/cedar-number", request);
+            // Assert
+            Assert.That(code, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(response.CedarNumber, Is.EqualTo("aCedarNumber"));
 
         }
     }
