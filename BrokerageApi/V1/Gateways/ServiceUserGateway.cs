@@ -20,6 +20,12 @@ namespace BrokerageApi.V1.Gateways
             _context = context;
         }
 
+        public async Task<IEnumerable<ServiceUser>> GetByIdAsync(string socialCareId)
+        {
+            return await _context.ServiceUsers
+               .Where(u => u.SocialCareId == socialCareId)
+               .ToListAsync();
+        }
 
 
         public async Task<IEnumerable<ServiceUser>> GetByRequestAsync(GetServiceUserRequest request)

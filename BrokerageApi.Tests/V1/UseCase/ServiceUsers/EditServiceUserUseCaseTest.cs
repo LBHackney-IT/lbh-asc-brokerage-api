@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using AutoFixture;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ namespace BrokerageApi.Tests.V1.UseCase.ServiceUsers
             _classUnderTest = new EditServiceUserUseCase(_mockServiceUserGateway.Object, _mockDbSaver.Object);
         }
         [Test]
-        public async Task EditsServiceUserCedarNumber()    
+        public async Task EditsServiceUserCedarNumber()
         {
             //Arrange
             var serviceUsers = _fixture.BuildServiceUser().CreateMany();
@@ -38,16 +39,37 @@ namespace BrokerageApi.Tests.V1.UseCase.ServiceUsers
             var request = _fixture.BuildEditServiceUserRequest(serviceUsers.ElementAt(0).SocialCareId).Create();
 
             _mockServiceUserGateway
-                .Setup(x => x.GetByRequestAsync(serviceUserRequest))
-                .ReturnsAsync(serviceUsers);            
+                .Setup(x => x.GetByIdAsync(serviceUsers.ElementAt(0).SocialCareId))
+                .ReturnsAsync(serviceUsers);
 
-            
             //Act
             var result = await _classUnderTest.ExecuteAsync(request);
 
             //Assert
             result.Should().BeEquivalentTo(request.ToDatabase(serviceUsers.ElementAt(0)));
+        }
 
-        }    
+        [Test]
+        public async Task ThrowsArgumentNullExceptionWhenServiceUserDoesntExist()
+        {
+
+            var serviceUsers = _fixture.BuildServiceUser().CreateMany();
+            var serviceUserRequest = _fixture.BuildServiceUserRequest(serviceUsers.ElementAt(0).SocialCareId)
+            .Without(sur => sur.DateOfBirth)
+            .Without(sur => sur.ServiceUserName)
+            .Create();
+
+            var request = _fixture.BuildEditServiceUserRequest("fakeUserId").Create();
+
+            _mockServiceUserGateway
+                .Setup(x => x.GetByIdAsync(serviceUsers.ElementAt(0).SocialCareId))
+                .ReturnsAsync(serviceUsers);
+
+            var act = () => _classUnderTest.ExecuteAsync(request);
+
+            await act.Should().ThrowAsync<ArgumentNullException>()
+                .WithMessage($"ServiceUser with ID fakeUserId not found (Parameter 'request')");
+            _mockDbSaver.VerifyChangesNotSaved();
+        }
     }
-}    
+}

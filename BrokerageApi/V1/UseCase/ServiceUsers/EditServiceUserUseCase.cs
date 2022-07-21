@@ -30,11 +30,9 @@ namespace BrokerageApi.V1.UseCase.ServiceUsers
         public async Task<ServiceUser> ExecuteAsync(EditServiceUserRequest request)
         {
 
-            var serviceUserRequest = new GetServiceUserRequest();
             var serviceUserRequestId = request.SocialCareId;
-            serviceUserRequest.SocialCareId = serviceUserRequestId;
 
-            var serviceUserList = await _serviceUserGateway.GetByRequestAsync(serviceUserRequest);
+            var serviceUserList = await _serviceUserGateway.GetByIdAsync(serviceUserRequestId);
             var serviceUser = serviceUserList.FirstOrDefault();
             if (serviceUser is null)
             {
