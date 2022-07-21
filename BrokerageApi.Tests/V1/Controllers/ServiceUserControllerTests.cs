@@ -175,5 +175,66 @@ namespace BrokerageApi.Tests.V1.Controllers
             statusCode.Should().Be((int) HttpStatusCode.BadRequest);
 
         }
+        [Test]
+        public async Task CanUpdateCedarNumberOnServiceUser()
+        {
+            //Arrange
+            var serviceUsers = _fixture.BuildServiceUser()
+            .CreateMany();
+            var aServiceUser = serviceUsers.ElementAt(0);
+            var serviceUserRequest = _fixture.BuildEditServiceUserRequest(aServiceUser.SocialCareId)
+            .Create();
+
+            _mockEditServiceUserUsecase
+                .Setup(x => x.ExecuteAsync(serviceUserRequest))
+                .ReturnsAsync(aServiceUser);
+            var objectResult = await _classUnderTest.UpdateServiceUserCedarNumber(serviceUserRequest);
+            var statusCode = GetStatusCode(objectResult);
+            var result = GetResultData<ServiceUserResponse>(objectResult);
+
+            //Assert
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            result.Should().BeEquivalentTo(serviceUsers.Select(su => su.ToResponse()));
+        }  
+        [TestCaseSource(nameof(_editServiceUserErrorList)), Property("AsUser", "CareChargeOfficer")]
+         public async Task UpdateCedarNumberGetsExceptionWhenBadRequest(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            //Arrange
+            var serviceUsers = _fixture.BuildServiceUser()
+            .CreateMany();
+
+            var serviceUserRequest = _fixture.BuildEditServiceUserRequest("notThatServiceUser")
+            .Create();
+
+            _mockEditServiceUserUsecase
+                .Setup(x => x.ExecuteAsync(serviceUserRequest))
+                .ThrowsAsync(exception);
+            //Act
+            var response = await _classUnderTest.UpdateServiceUserCedarNumber(serviceUserRequest);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
+
+            //Assert
+            statusCode.Should().Be((int) expectedStatusCode);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
+        }  
+        private static readonly object[] _editServiceUserErrorList =
+            {
+                new object[]
+                {
+                    new ArgumentNullException(null, "message"), HttpStatusCode.NotFound
+                },
+                new object[]
+                {
+                    new ArgumentException("message"), HttpStatusCode.BadRequest
+                },
+                new object[]
+                {
+                    new InvalidOperationException("message"), HttpStatusCode.UnprocessableEntity
+                }
+            };
+
+
     }
 }

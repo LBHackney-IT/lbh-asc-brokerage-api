@@ -2,6 +2,7 @@ using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoFixture.Dsl;
 using BrokerageApi.V1.Infrastructure;
+using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Controllers.Parameters;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using BrokerageApi.V1.Services;
@@ -195,6 +196,13 @@ namespace BrokerageApi.Tests.V1.Helpers
             return fixture.Build<GetServiceUserRequest>()
             .With(su => su.SocialCareId, socialCareId);
         }
+
+        public static IPostprocessComposer<EditServiceUserRequest> BuildEditServiceUserRequest(this IFixture fixture, string socialCareId)
+        {
+
+            return fixture.Build<EditServiceUserRequest>()
+            .With(su => su.SocialCareId, socialCareId);
+        }        
 
         public static IClockService FakeClockFactory()
         {
