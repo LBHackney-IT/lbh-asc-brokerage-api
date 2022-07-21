@@ -252,7 +252,8 @@ namespace BrokerageApi.V1.Factories
                 Note = workflow.Note,
                 PrimarySupportReason = workflow.PrimarySupportReason,
                 DirectPayments = workflow.DirectPayments,
-                UrgentSince = workflow.UrgentSince
+                UrgentSince = workflow.UrgentSince,
+                CreatedAt = workflow.CreatedAt
             };
         }
     }

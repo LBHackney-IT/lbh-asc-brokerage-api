@@ -301,6 +301,7 @@ namespace BrokerageApi.Tests.V1.Factories
             response.PrimarySupportReason.Should().Be(workflow.PrimarySupportReason);
             response.DirectPayments.Should().Be(workflow.DirectPayments);
             response.UrgentSince.Should().Be(workflow.UrgentSince);
+            response.CreatedAt.Should().Be(workflow.CreatedAt);
         }
     }
 }
