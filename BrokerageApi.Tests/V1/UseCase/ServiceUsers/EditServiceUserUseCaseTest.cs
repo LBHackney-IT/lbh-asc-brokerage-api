@@ -30,7 +30,10 @@ namespace BrokerageApi.Tests.V1.UseCase.ServiceUsers
         {
             //Arrange
             var serviceUsers = _fixture.BuildServiceUser().CreateMany();
-            var serviceUserRequest = _fixture.BuildServiceUserRequest(serviceUsers.ElementAt(0).SocialCareId).Create();
+            var serviceUserRequest = _fixture.BuildServiceUserRequest(serviceUsers.ElementAt(0).SocialCareId)
+            .Without(sur => sur.DateOfBirth)
+            .Without(sur => sur.ServiceUserName)
+            .Create();
 
             var request = _fixture.BuildEditServiceUserRequest(serviceUsers.ElementAt(0).SocialCareId).Create();
 
