@@ -32,8 +32,7 @@ namespace BrokerageApi.V1.UseCase.ServiceUsers
 
             var serviceUserRequestId = request.SocialCareId;
 
-            var serviceUserList = await _serviceUserGateway.GetByIdAsync(serviceUserRequestId);
-            var serviceUser = serviceUserList.FirstOrDefault();
+            var serviceUser = await _serviceUserGateway.GetBySocialCareIdAsync(serviceUserRequestId);
             if (serviceUser is null)
             {
                 throw new ArgumentNullException(nameof(request), $"ServiceUser with ID {serviceUserRequestId} not found");

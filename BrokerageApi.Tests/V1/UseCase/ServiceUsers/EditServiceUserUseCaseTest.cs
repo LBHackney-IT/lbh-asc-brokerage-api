@@ -30,31 +30,31 @@ namespace BrokerageApi.Tests.V1.UseCase.ServiceUsers
         public async Task EditsServiceUserCedarNumber()
         {
             //Arrange
-            var serviceUsers = _fixture.BuildServiceUser().CreateMany();
-            var serviceUserRequest = _fixture.BuildServiceUserRequest(serviceUsers.ElementAt(0).SocialCareId)
+            var serviceUser = _fixture.BuildServiceUser().Create();
+            var serviceUserRequest = _fixture.BuildServiceUserRequest(serviceUser.SocialCareId)
             .Without(sur => sur.DateOfBirth)
             .Without(sur => sur.ServiceUserName)
             .Create();
 
-            var request = _fixture.BuildEditServiceUserRequest(serviceUsers.ElementAt(0).SocialCareId).Create();
+            var request = _fixture.BuildEditServiceUserRequest(serviceUser.SocialCareId).Create();
 
             _mockServiceUserGateway
-                .Setup(x => x.GetByIdAsync(serviceUsers.ElementAt(0).SocialCareId))
-                .ReturnsAsync(serviceUsers);
+                .Setup(x => x.GetBySocialCareIdAsync(serviceUser.SocialCareId))
+                .ReturnsAsync(serviceUser);
 
             //Act
             var result = await _classUnderTest.ExecuteAsync(request);
 
             //Assert
-            result.Should().BeEquivalentTo(request.ToDatabase(serviceUsers.ElementAt(0)));
+            result.Should().BeEquivalentTo(request.ToDatabase(serviceUser));
         }
 
         [Test]
         public async Task ThrowsArgumentNullExceptionWhenServiceUserDoesntExist()
         {
 
-            var serviceUsers = _fixture.BuildServiceUser().CreateMany();
-            var serviceUserRequest = _fixture.BuildServiceUserRequest(serviceUsers.ElementAt(0).SocialCareId)
+            var serviceUser = _fixture.BuildServiceUser().Create();
+            var serviceUserRequest = _fixture.BuildServiceUserRequest(serviceUser.SocialCareId)
             .Without(sur => sur.DateOfBirth)
             .Without(sur => sur.ServiceUserName)
             .Create();
@@ -62,8 +62,8 @@ namespace BrokerageApi.Tests.V1.UseCase.ServiceUsers
             var request = _fixture.BuildEditServiceUserRequest("fakeUserId").Create();
 
             _mockServiceUserGateway
-                .Setup(x => x.GetByIdAsync(serviceUsers.ElementAt(0).SocialCareId))
-                .ReturnsAsync(serviceUsers);
+                .Setup(x => x.GetBySocialCareIdAsync(serviceUser.SocialCareId))
+                .ReturnsAsync(serviceUser);
 
             var act = () => _classUnderTest.ExecuteAsync(request);
 
