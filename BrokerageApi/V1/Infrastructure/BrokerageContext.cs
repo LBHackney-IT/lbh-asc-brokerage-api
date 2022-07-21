@@ -21,6 +21,7 @@ namespace BrokerageApi.V1.Infrastructure
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementCostType>("element_cost_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementStatus>("element_status");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ElementTypeType>("element_type_type");
+            NpgsqlConnection.GlobalTypeMapper.MapEnum<PaymentCycle>("payment_cycle");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ProviderType>("provider_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<ReferralStatus>("referral_status");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<WorkflowType>("workflow_type");
@@ -51,6 +52,9 @@ namespace BrokerageApi.V1.Infrastructure
         public DbSet<Service> Services { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<AuditEvent> AuditEvents { get; set; }
+        public DbSet<ServiceOverview> ServiceOverviews { get; set; }
+        public DbSet<ServiceOverviewElement> ServiceOverviewElements { get; set; }
+        public DbSet<ServiceOverviewSuspension> ServiceOverviewSuspensions { get; set; }
         public DbSet<ServiceUser> ServiceUsers { get; set; }
         public DbSet<Workflow> Workflows { get; set; }
 
@@ -70,6 +74,7 @@ namespace BrokerageApi.V1.Infrastructure
             modelBuilder.HasPostgresEnum<ElementCostType>();
             modelBuilder.HasPostgresEnum<ElementStatus>();
             modelBuilder.HasPostgresEnum<ElementTypeType>();
+            modelBuilder.HasPostgresEnum<PaymentCycle>();
             modelBuilder.HasPostgresEnum<ProviderType>();
             modelBuilder.HasPostgresEnum<ReferralStatus>();
             modelBuilder.HasPostgresEnum<WorkflowType>();
@@ -198,6 +203,10 @@ namespace BrokerageApi.V1.Infrastructure
                 .HasDefaultValue(MathOperation.Ignore);
 
             modelBuilder.Entity<ElementType>()
+                .Property(et => et.PaymentCycle)
+                .HasDefaultValue(PaymentCycle.Weekly);
+
+            modelBuilder.Entity<ElementType>()
                 .Property(et => et.PaymentOperation)
                 .HasDefaultValue(MathOperation.Ignore);
 
@@ -302,6 +311,60 @@ namespace BrokerageApi.V1.Infrastructure
                 .Property(s => s.HasProvisionalClientContributions)
                 .HasDefaultValue(false);
 
+            modelBuilder.Entity<ServiceOverview>()
+                .ToView("service_overviews")
+                .HasKey(so => new { so.SocialCareId, so.Id });
+
+            modelBuilder.Entity<ServiceOverview>()
+                .Property(so => so.Id)
+                .ValueGeneratedNever();
+
+            modelBuilder.Entity<ServiceOverview>()
+                .HasMany(so => so.Elements)
+                .WithOne()
+                .HasForeignKey("SocialCareId", "ServiceId");
+
+            modelBuilder.Entity<ServiceOverviewSuspension>()
+                .ToView("service_overview_suspensions")
+                .HasKey(e => e.Id);
+
+            modelBuilder.Entity<ServiceOverviewSuspension>()
+                .Property(e => e.Id)
+                .ValueGeneratedNever();
+
+            modelBuilder.Entity<ServiceOverviewSuspension>()
+                .HasOne(e => e.Referral)
+                .WithMany()
+                .HasForeignKey("ReferralId");
+
+            modelBuilder.Entity<ServiceOverviewElement>()
+                .ToView("service_overview_elements")
+                .HasKey(e => e.Id);
+
+            modelBuilder.Entity<ServiceOverviewElement>()
+                .Property(e => e.Id)
+                .ValueGeneratedNever();
+
+            modelBuilder.Entity<ServiceOverviewElement>()
+                .HasOne(e => e.Provider)
+                .WithMany()
+                .HasForeignKey("ProviderId");
+
+            modelBuilder.Entity<ServiceOverviewElement>()
+                .HasOne(e => e.Referral)
+                .WithMany()
+                .HasForeignKey("ReferralId");
+
+            modelBuilder.Entity<ServiceOverviewElement>()
+                .HasOne(e => e.Service)
+                .WithMany()
+                .HasForeignKey("ServiceId");
+
+            modelBuilder.Entity<ServiceOverviewElement>()
+                .HasMany(e => e.Suspensions)
+                .WithOne()
+                .HasForeignKey("SuspendedElementId");
+
             modelBuilder.Entity<ServiceUser>()
                 .HasGeneratedTsVectorColumn(
                     s => s.NameSearchVector, "simple",
@@ -310,7 +373,6 @@ namespace BrokerageApi.V1.Infrastructure
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
-
         }
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)

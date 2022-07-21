@@ -5,6 +5,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -15,9 +16,10 @@ using NpgsqlTypes;
 namespace V1.Infrastructure.Migrations
 {
     [DbContext(typeof(BrokerageContext))]
-    partial class BrokerageContextModelSnapshot : ModelSnapshot
+    [Migration("20220718051507_CreateServiceOverview")]
+    partial class CreateServiceOverview
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,14 +27,11 @@ namespace V1.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "amendment_status", new[] { "in_progress", "resolved" });
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "audit_event_type", new[] { "referral_broker_assignment", "referral_broker_reassignment", "element_ended", "element_cancelled", "element_suspended", "care_package_ended", "care_package_cancelled", "care_package_suspended", "referral_archived", "import_note", "care_package_budget_approver_assigned", "care_package_approved", "amendment_requested", "care_charges_confirmed", "follow_up_requested" });
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "care_charge_status", new[] { "new", "existing", "termination", "suspension", "cancellation" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "audit_event_type", new[] { "referral_broker_assignment", "referral_broker_reassignment", "element_ended", "element_cancelled", "element_suspended", "care_package_ended", "care_package_cancelled", "care_package_suspended", "referral_archived", "import_note", "care_package_budget_approver_assigned", "care_package_approved", "amendment_requested", "care_charges_confirmed" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_billing_type", new[] { "supplier", "customer", "none", "ccg" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_cost_type", new[] { "hourly", "daily", "weekly", "transport", "one_off" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_status", new[] { "in_progress", "awaiting_approval", "approved", "inactive", "active", "ended", "suspended", "cancelled" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_type_type", new[] { "service", "provisional_care_charge", "confirmed_care_charge", "nursing_care" });
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "follow_up_status", new[] { "in_progress", "resolved" });
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "payment_cycle", new[] { "weekly", "fortnightly", "four_weekly", "varying", "once" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "provider_type", new[] { "framework", "spot" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "referral_status", new[] { "unassigned", "in_review", "assigned", "on_hold", "archived", "in_progress", "awaiting_approval", "approved", "active", "ended", "cancelled" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "user_role", new[] { "brokerage_assistant", "broker", "approver", "care_charges_officer", "referrer" });
@@ -106,10 +105,6 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("assigned_broker_id");
 
-                    b.Property<CareChargeStatus>("CareChargeStatus")
-                        .HasColumnType("care_charge_status")
-                        .HasColumnName("care_charge_status");
-
                     b.Property<Instant?>("CareChargesConfirmedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("care_charges_confirmed_at");
@@ -134,10 +129,6 @@ namespace V1.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("form_name");
-
-                    b.Property<bool>("IsResidential")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_residential");
 
                     b.Property<string>("Note")
                         .HasColumnType("text")
@@ -382,12 +373,6 @@ namespace V1.Infrastructure.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("is_archived");
 
-                    b.Property<bool>("IsResidential")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_residential");
-
                     b.Property<bool>("IsS117")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -404,12 +389,6 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(false)
                         .HasColumnName("non_personal_budget");
-
-                    b.Property<PaymentCycle>("PaymentCycle")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("payment_cycle")
-                        .HasDefaultValue(PaymentCycle.Weekly)
-                        .HasColumnName("payment_cycle");
 
                     b.Property<int>("PaymentOperation")
                         .ValueGeneratedOnAdd()
@@ -529,12 +508,6 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("assigned_broker_email");
 
-                    b.Property<CareChargeStatus>("CareChargeStatus")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("care_charge_status")
-                        .HasDefaultValue(CareChargeStatus.New)
-                        .HasColumnName("care_charge_status");
-
                     b.Property<Instant?>("CareChargesConfirmedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("care_charges_confirmed_at");
@@ -555,10 +528,6 @@ namespace V1.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("form_name");
-
-                    b.Property<bool>("IsResidential")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_residential");
 
                     b.Property<string>("Note")
                         .HasColumnType("text")
@@ -650,12 +619,12 @@ namespace V1.Infrastructure.Migrations
                         .HasColumnName("status");
 
                     b.HasKey("Id")
-                        .HasName("pk_referral_amendments");
+                        .HasName("pk_referral_amendment");
 
                     b.HasIndex("ReferralId")
-                        .HasDatabaseName("ix_referral_amendments_referral_id");
+                        .HasDatabaseName("ix_referral_amendment_referral_id");
 
-                    b.ToTable("referral_amendments", (string)null);
+                    b.ToTable("referral_amendment", (string)null);
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ReferralElement", b =>
@@ -689,51 +658,6 @@ namespace V1.Infrastructure.Migrations
                         .HasDatabaseName("ix_referral_elements_referral_id");
 
                     b.ToTable("referral_elements", (string)null);
-                });
-
-            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ReferralFollowUp", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Comment")
-                        .HasColumnType("text")
-                        .HasColumnName("comment");
-
-                    b.Property<LocalDate>("Date")
-                        .HasColumnType("date")
-                        .HasColumnName("date");
-
-                    b.Property<int>("ReferralId")
-                        .HasColumnType("integer")
-                        .HasColumnName("referral_id");
-
-                    b.Property<Instant>("RequestedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("requested_at");
-
-                    b.Property<string>("RequestedByEmail")
-                        .HasColumnType("text")
-                        .HasColumnName("requested_by_email");
-
-                    b.Property<FollowUpStatus>("Status")
-                        .HasColumnType("follow_up_status")
-                        .HasColumnName("status");
-
-                    b.HasKey("Id")
-                        .HasName("pk_referral_follow_ups");
-
-                    b.HasIndex("ReferralId")
-                        .HasDatabaseName("ix_referral_follow_ups_referral_id");
-
-                    b.HasIndex("RequestedByEmail")
-                        .HasDatabaseName("ix_referral_follow_ups_requested_by_email");
-
-                    b.ToTable("referral_follow_ups", (string)null);
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Service", b =>
@@ -778,171 +702,6 @@ namespace V1.Infrastructure.Migrations
                         .HasDatabaseName("ix_services_parent_id");
 
                     b.ToTable("services", (string)null);
-                });
-
-            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ServiceOverview", b =>
-                {
-                    b.Property<string>("SocialCareId")
-                        .HasColumnType("text")
-                        .HasColumnName("social_care_id");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    b.Property<decimal?>("AnnualCost")
-                        .HasColumnType("numeric")
-                        .HasColumnName("annual_cost");
-
-                    b.Property<LocalDate?>("EndDate")
-                        .HasColumnType("date")
-                        .HasColumnName("end_date");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
-
-                    b.Property<LocalDate>("StartDate")
-                        .HasColumnType("date")
-                        .HasColumnName("start_date");
-
-                    b.Property<decimal?>("WeeklyCost")
-                        .HasColumnType("numeric")
-                        .HasColumnName("weekly_cost");
-
-                    b.Property<decimal?>("WeeklyPayment")
-                        .HasColumnType("numeric")
-                        .HasColumnName("weekly_payment");
-
-                    b.HasKey("SocialCareId", "Id");
-
-                    b.ToTable((string)null);
-
-                    b.ToView("service_overviews");
-                });
-
-            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ServiceOverviewElement", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    b.Property<decimal>("Cost")
-                        .HasColumnType("numeric")
-                        .HasColumnName("cost");
-
-                    b.Property<LocalDate?>("EndDate")
-                        .HasColumnType("date")
-                        .HasColumnName("end_date");
-
-                    b.Property<ElementStatus>("InternalStatus")
-                        .HasColumnType("element_status")
-                        .HasColumnName("internal_status");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text")
-                        .HasColumnName("name");
-
-                    b.Property<PaymentCycle>("PaymentCycle")
-                        .HasColumnType("payment_cycle")
-                        .HasColumnName("payment_cycle");
-
-                    b.Property<int?>("ProviderId")
-                        .HasColumnType("integer")
-                        .HasColumnName("provider_id");
-
-                    b.Property<decimal?>("Quantity")
-                        .HasColumnType("numeric")
-                        .HasColumnName("quantity");
-
-                    b.Property<int>("ReferralId")
-                        .HasColumnType("integer")
-                        .HasColumnName("referral_id");
-
-                    b.Property<int>("ServiceId")
-                        .HasColumnType("integer")
-                        .HasColumnName("service_id");
-
-                    b.Property<string>("SocialCareId")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("social_care_id");
-
-                    b.Property<LocalDate>("StartDate")
-                        .HasColumnType("date")
-                        .HasColumnName("start_date");
-
-                    b.Property<ElementTypeType>("Type")
-                        .HasColumnType("element_type_type")
-                        .HasColumnName("type");
-
-                    b.HasKey("Id")
-                        .HasName("pk_service_overview_elements");
-
-                    b.HasIndex("ProviderId")
-                        .HasDatabaseName("ix_service_overview_elements_provider_id");
-
-                    b.HasIndex("ReferralId")
-                        .HasDatabaseName("ix_service_overview_elements_referral_id");
-
-                    b.HasIndex("ServiceId")
-                        .HasDatabaseName("ix_service_overview_elements_service_id");
-
-                    b.HasIndex("SocialCareId", "ServiceId")
-                        .HasDatabaseName("ix_service_overview_elements_social_care_id_service_id");
-
-                    b.ToTable((string)null);
-
-                    b.ToView("service_overview_elements");
-                });
-
-            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ServiceOverviewSuspension", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    b.Property<decimal>("Cost")
-                        .HasColumnType("numeric")
-                        .HasColumnName("cost");
-
-                    b.Property<LocalDate?>("EndDate")
-                        .HasColumnType("date")
-                        .HasColumnName("end_date");
-
-                    b.Property<ElementStatus>("InternalStatus")
-                        .HasColumnType("element_status")
-                        .HasColumnName("internal_status");
-
-                    b.Property<decimal?>("Quantity")
-                        .HasColumnType("numeric")
-                        .HasColumnName("quantity");
-
-                    b.Property<int>("ReferralId")
-                        .HasColumnType("integer")
-                        .HasColumnName("referral_id");
-
-                    b.Property<LocalDate>("StartDate")
-                        .HasColumnType("date")
-                        .HasColumnName("start_date");
-
-                    b.Property<int>("SuspendedElementId")
-                        .HasColumnType("integer")
-                        .HasColumnName("suspended_element_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_service_overview_suspensions");
-
-                    b.HasIndex("ReferralId")
-                        .HasDatabaseName("ix_service_overview_suspensions_referral_id");
-
-                    b.HasIndex("SuspendedElementId")
-                        .HasDatabaseName("ix__suspended_element_id");
-
-                    b.ToTable((string)null);
-
-                    b.ToView("service_overview_suspensions");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ServiceUser", b =>
@@ -1194,14 +953,14 @@ namespace V1.Infrastructure.Migrations
                         .HasForeignKey("ReferralId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_referral_amendments_care_packages_care_package_id");
+                        .HasConstraintName("fk_referral_amendment_care_packages_care_package_id");
 
                     b.HasOne("BrokerageApi.V1.Infrastructure.Referral", "Referral")
                         .WithMany("ReferralAmendments")
                         .HasForeignKey("ReferralId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_referral_amendments_referrals_referral_id");
+                        .HasConstraintName("fk_referral_amendment_referrals_referral_id");
 
                     b.Navigation("Referral");
                 });
@@ -1236,33 +995,6 @@ namespace V1.Infrastructure.Migrations
                     b.Navigation("Referral");
                 });
 
-            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ReferralFollowUp", b =>
-                {
-                    b.HasOne("BrokerageApi.V1.Infrastructure.CarePackage", null)
-                        .WithMany("ReferralFollowUps")
-                        .HasForeignKey("ReferralId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_referral_follow_ups_care_packages_care_package_id");
-
-                    b.HasOne("BrokerageApi.V1.Infrastructure.Referral", "Referral")
-                        .WithMany("ReferralFollowUps")
-                        .HasForeignKey("ReferralId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_referral_follow_ups_referrals_referral_id");
-
-                    b.HasOne("BrokerageApi.V1.Infrastructure.User", "RequestedBy")
-                        .WithMany()
-                        .HasForeignKey("RequestedByEmail")
-                        .HasPrincipalKey("Email")
-                        .HasConstraintName("fk_referral_follow_ups_users_requested_by_id");
-
-                    b.Navigation("Referral");
-
-                    b.Navigation("RequestedBy");
-                });
-
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Service", b =>
                 {
                     b.HasOne("BrokerageApi.V1.Infrastructure.Service", "Parent")
@@ -1271,60 +1003,6 @@ namespace V1.Infrastructure.Migrations
                         .HasConstraintName("fk_services_services_parent_id");
 
                     b.Navigation("Parent");
-                });
-
-            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ServiceOverviewElement", b =>
-                {
-                    b.HasOne("BrokerageApi.V1.Infrastructure.Provider", "Provider")
-                        .WithMany()
-                        .HasForeignKey("ProviderId")
-                        .HasConstraintName("fk_service_overview_elements_providers_provider_id");
-
-                    b.HasOne("BrokerageApi.V1.Infrastructure.Referral", "Referral")
-                        .WithMany()
-                        .HasForeignKey("ReferralId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_service_overview_elements_referrals_referral_id");
-
-                    b.HasOne("BrokerageApi.V1.Infrastructure.Service", "Service")
-                        .WithMany()
-                        .HasForeignKey("ServiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_service_overview_elements_services_service_id");
-
-                    b.HasOne("BrokerageApi.V1.Infrastructure.ServiceOverview", null)
-                        .WithMany("Elements")
-                        .HasForeignKey("SocialCareId", "ServiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_service_overview_elements_service_overviews_service_overvie");
-
-                    b.Navigation("Provider");
-
-                    b.Navigation("Referral");
-
-                    b.Navigation("Service");
-                });
-
-            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ServiceOverviewSuspension", b =>
-                {
-                    b.HasOne("BrokerageApi.V1.Infrastructure.Referral", "Referral")
-                        .WithMany()
-                        .HasForeignKey("ReferralId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_service_overview_suspensions_referrals_referral_id");
-
-                    b.HasOne("BrokerageApi.V1.Infrastructure.ServiceOverviewElement", null)
-                        .WithMany("Suspensions")
-                        .HasForeignKey("SuspendedElementId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_service_overview_suspensions_service_overview_elements_serv");
-
-                    b.Navigation("Referral");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Workflow", b =>
@@ -1351,8 +1029,6 @@ namespace V1.Infrastructure.Migrations
                     b.Navigation("ReferralAmendments");
 
                     b.Navigation("ReferralElements");
-
-                    b.Navigation("ReferralFollowUps");
 
                     b.Navigation("Workflows");
                 });
@@ -1382,8 +1058,6 @@ namespace V1.Infrastructure.Migrations
 
                     b.Navigation("ReferralElements");
 
-                    b.Navigation("ReferralFollowUps");
-
                     b.Navigation("Workflows");
                 });
 
@@ -1392,16 +1066,6 @@ namespace V1.Infrastructure.Migrations
                     b.Navigation("ElementTypes");
 
                     b.Navigation("Services");
-                });
-
-            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ServiceOverview", b =>
-                {
-                    b.Navigation("Elements");
-                });
-
-            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ServiceOverviewElement", b =>
-                {
-                    b.Navigation("Suspensions");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.User", b =>
