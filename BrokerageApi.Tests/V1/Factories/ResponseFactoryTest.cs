@@ -283,6 +283,10 @@ namespace BrokerageApi.Tests.V1.Factories
             response.SocialCareId.Should().Be(serviceUser.SocialCareId);
             response.ServiceUserName.Should().Be(serviceUser.ServiceUserName);
             response.DateOfBirth.Should().Be(serviceUser.DateOfBirth);
+            response.CedarNumber.Should().Be(serviceUser.CedarNumber);
+            response.CreatedAt.Should().Be(serviceUser.CreatedAt);
+            response.UpdatedAt.Should().Be(serviceUser.UpdatedAt);
+
         }
 
         [Test]
