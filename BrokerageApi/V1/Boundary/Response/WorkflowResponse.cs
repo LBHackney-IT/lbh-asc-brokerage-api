@@ -23,5 +23,7 @@ namespace BrokerageApi.V1.Boundary.Response
         public string DirectPayments { get; set; }
 
         public Instant? UrgentSince { get; set; }
+
+        public Instant? CreatedAt { get; set; }
     }
 }

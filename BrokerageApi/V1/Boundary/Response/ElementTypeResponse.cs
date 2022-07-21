@@ -16,6 +16,8 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public ElementBillingType Billing { get; set; }
 
+        public PaymentCycle PaymentCycle { get; set; }
+
         public bool NonPersonalBudget { get; set; }
 
         public bool IsS117 { get; set; }

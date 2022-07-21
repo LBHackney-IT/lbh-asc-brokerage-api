@@ -21,21 +21,22 @@ namespace BrokerageApi.V1.Controllers
     [ApiVersion("1.0")]
     public class ServiceUserController : BaseController
     {
-        private readonly IGetServiceOverviewUseCase _serviceOverviewUseCase;
-
+        private readonly IGetServiceOverviewsUseCase _getServiceOverviewsUseCase;
+        private readonly IGetServiceOverviewByIdUseCase _getServiceOverviewByIdUseCase;
         private readonly IGetServiceUserByRequestUseCase _serviceUserByRequestUseCase;
-
         private readonly IGetCarePackagesByServiceUserIdUseCase _getCarePackagesByServiceUserIdUseCase;
 
         private readonly IEditServiceUserUseCase _editServiceUserUseCase;
         public ServiceUserController(
-            IGetServiceOverviewUseCase serviceOverviewUseCase,
+            IGetServiceOverviewsUseCase getServiceOverviewsUseCase,
+            IGetServiceOverviewByIdUseCase getServiceOverviewByIdUseCase,
             IGetCarePackagesByServiceUserIdUseCase getCarePackagesByServiceUserIdUseCase,
             IGetServiceUserByRequestUseCase serviceUserByRequestUseCase,
             IEditServiceUserUseCase editServiceUserUseCase
         )
         {
-            _serviceOverviewUseCase = serviceOverviewUseCase;
+            _getServiceOverviewsUseCase = getServiceOverviewsUseCase;
+            _getServiceOverviewByIdUseCase = getServiceOverviewByIdUseCase;
             _getCarePackagesByServiceUserIdUseCase = getCarePackagesByServiceUserIdUseCase;
             _serviceUserByRequestUseCase = serviceUserByRequestUseCase;
             _editServiceUserUseCase = editServiceUserUseCase;
@@ -43,22 +44,45 @@ namespace BrokerageApi.V1.Controllers
 
         [Authorize]
         [HttpGet]
-        [Route("{socialCareId}/serviceOverview")]
-        [ProducesResponseType(typeof(List<ElementResponse>), StatusCodes.Status200OK)]
+        [Route("{socialCareId}/services")]
+        [ProducesResponseType(typeof(List<ServiceOverviewResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetServiceOverview([FromRoute] string socialCareId)
+        public async Task<IActionResult> GetServiceOverviews([FromRoute] string socialCareId)
         {
             try
             {
-                var result = await _serviceOverviewUseCase.ExecuteAsync(socialCareId);
+                var result = await _getServiceOverviewsUseCase.ExecuteAsync(socialCareId);
                 return Ok(result.Select(e => e.ToResponse()).ToList());
             }
-            catch (ArgumentException e)
+            catch (ArgumentNullException e)
             {
                 return Problem(
                     e.Message,
-                    $"api/v1/service-users/{socialCareId}/serviceOverview",
+                    $"api/v1/service-users/{socialCareId}/services",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+        }
+
+        [Authorize]
+        [HttpGet]
+        [Route("{socialCareId}/services/{serviceId}")]
+        [ProducesResponseType(typeof(ServiceOverviewResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetServiceOverviewById([FromRoute] string socialCareId, [FromRoute] int serviceId)
+        {
+            try
+            {
+                var result = await _getServiceOverviewByIdUseCase.ExecuteAsync(socialCareId, serviceId);
+                return Ok(result.ToResponse());
+            }
+            catch (ArgumentNullException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/service-users/{socialCareId}/services/{serviceId}",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }

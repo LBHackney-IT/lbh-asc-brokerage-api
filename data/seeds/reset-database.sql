@@ -34,20 +34,32 @@ TRUNCATE TABLE
   audit_events,
   element_types,
   elements,
-  referral_amendment,
+  referral_amendments,
   referral_elements,
+  referral_follow_ups,
   referrals,
-  service_users
+  service_users,
+  workflows
 RESTART IDENTITY;
 
-\COPY element_types(id, service_id, name, subjective_code, framework_subjective_code, type, cost_type, billing, cost_operation, payment_operation, non_personal_budget, position, is_archived, is_s117, is_residential) FROM 'element_types.csv' CSV HEADER;
+\COPY element_types(id, service_id, name, subjective_code, framework_subjective_code, type, cost_type, billing, payment_cycle, cost_operation, payment_operation, non_personal_budget, position, is_archived, is_s117, is_residential) FROM 'element_types.csv' CSV HEADER;
 \COPY referrals(id, workflow_id, workflow_type, form_name, social_care_id, resident_name, primary_support_reason, direct_payments, urgent_since, note, status, assigned_broker_email, assigned_approver_email, comment, started_at, created_at, updated_at) FROM 'referrals.csv' CSV HEADER;
 \COPY elements(id, social_care_id, element_type_id, non_personal_budget, provider_id, details, internal_status, parent_element_id, start_date, end_date, monday, tuesday, wednesday, thursday, friday, saturday, sunday, quantity, cost, cost_centre, is_suspension, suspended_element_id, comment, created_by, created_at, updated_at) FROM 'elements.csv' CSV HEADER;
 \COPY referral_elements(referral_id, element_id, pending_cancellation, pending_comment, pending_end_date) FROM 'referral_elements.csv' CSV HEADER;
 \COPY service_users(social_care_id, service_user_name, date_of_birth, created_at, updated_at) FROM 'service_users.csv' CSV HEADER;
 
+INSERT INTO workflows (
+  id, referral_id, form_name, workflow_type,
+  note, primary_support_reason, direct_payments,
+  urgent_since, created_at, updated_at
+)
+SELECT
+  workflow_id, id, form_name, workflow_type,
+  note, primary_support_reason, direct_payments,
+  urgent_since, created_at, updated_at
+FROM referrals;
+
 SELECT setval('referrals_id_seq', (SELECT COALESCE(MAX(id), 1) FROM referrals));
 SELECT setval('elements_id_seq', (SELECT COALESCE(MAX(id), 1) FROM elements));
-
 
 COMMIT;

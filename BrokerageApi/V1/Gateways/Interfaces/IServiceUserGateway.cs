@@ -8,8 +8,6 @@ namespace BrokerageApi.V1.Gateways.Interfaces
     public interface IServiceUserGateway
     {
         public Task<IEnumerable<ServiceUser>> GetByRequestAsync(GetServiceUserRequest request);
-
-        public Task<IEnumerable<ServiceUser>> GetByIdAsync(string socialCareId);
-
+        public Task<ServiceUser> GetBySocialCareIdAsync(string socialCareId);
     }
 }
