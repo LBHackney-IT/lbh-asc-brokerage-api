@@ -202,7 +202,7 @@ namespace BrokerageApi.Tests.V1.Helpers
 
             return fixture.Build<EditServiceUserRequest>()
             .With(su => su.SocialCareId, socialCareId);
-        }        
+        }
 
         public static IClockService FakeClockFactory()
         {

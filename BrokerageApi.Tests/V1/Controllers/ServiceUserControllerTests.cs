@@ -194,10 +194,11 @@ namespace BrokerageApi.Tests.V1.Controllers
 
             //Assert
             statusCode.Should().Be((int) HttpStatusCode.OK);
-            result.Should().BeEquivalentTo(serviceUsers.Select(su => su.ToResponse()));
-        }  
+            result.Should().BeEquivalentTo(aServiceUser.ToResponse());
+        }
+
         [TestCaseSource(nameof(_editServiceUserErrorList)), Property("AsUser", "CareChargeOfficer")]
-         public async Task UpdateCedarNumberGetsExceptionWhenBadRequest(Exception exception, HttpStatusCode expectedStatusCode)
+        public async Task UpdateCedarNumberGetsExceptionWhenBadRequest(Exception exception, HttpStatusCode expectedStatusCode)
         {
             //Arrange
             var serviceUsers = _fixture.BuildServiceUser()
@@ -218,7 +219,7 @@ namespace BrokerageApi.Tests.V1.Controllers
             statusCode.Should().Be((int) expectedStatusCode);
             result.Status.Should().Be((int) expectedStatusCode);
             result.Detail.Should().Be(exception.Message);
-        }  
+        }
         private static readonly object[] _editServiceUserErrorList =
             {
                 new object[]
