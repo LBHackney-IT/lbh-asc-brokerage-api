@@ -2,12 +2,12 @@ using AutoFixture;
 using System.Threading.Tasks;
 using BrokerageApi.Tests.V1.Helpers;
 using BrokerageApi.V1.Gateways.Interfaces;
-using BrokerageApi.V1.UseCase;
+using BrokerageApi.V1.UseCase.ServiceUsers;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 
-namespace BrokerageApi.Tests.V1.UseCase
+namespace BrokerageApi.Tests.V1.UseCase.ServiceUsers
 {
     public class GetServiceUsersByRequestUseCaseTests
     {

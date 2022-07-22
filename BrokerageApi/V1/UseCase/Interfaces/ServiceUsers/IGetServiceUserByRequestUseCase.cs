@@ -5,7 +5,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Controllers.Parameters;
 
 
-namespace BrokerageApi.V1.UseCase.Interfaces
+namespace BrokerageApi.V1.UseCase.Interfaces.ServiceUsers
 {
     public interface IGetServiceUserByRequestUseCase
     {

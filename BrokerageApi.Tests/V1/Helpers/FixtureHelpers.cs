@@ -2,6 +2,7 @@ using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoFixture.Dsl;
 using BrokerageApi.V1.Infrastructure;
+using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Controllers.Parameters;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using BrokerageApi.V1.Services;
@@ -184,6 +185,20 @@ namespace BrokerageApi.Tests.V1.Helpers
                 .Without(f => f.RequestedBy);
         }
 
+        public static IPostprocessComposer<ServiceOverview> BuildServiceOverview(this IFixture fixture)
+        {
+            return fixture.Build<ServiceOverview>()
+                .Without(so => so.Elements);
+        }
+
+        public static IPostprocessComposer<ServiceOverviewElement> BuildServiceOverviewElement(this IFixture fixture)
+        {
+            return fixture.Build<ServiceOverviewElement>()
+                .Without(e => e.Service)
+                .Without(e => e.Provider)
+                .Without(e => e.Referral);
+        }
+
         public static IPostprocessComposer<ServiceUser> BuildServiceUser(this IFixture fixture)
         {
             return fixture.Build<ServiceUser>()
@@ -192,10 +207,16 @@ namespace BrokerageApi.Tests.V1.Helpers
 
         public static IPostprocessComposer<GetServiceUserRequest> BuildServiceUserRequest(this IFixture fixture, string socialCareId)
         {
-
             return fixture.Build<GetServiceUserRequest>()
             .With(su => su.SocialCareId, socialCareId)
             .Without(su => su.ProviderId);
+        }
+
+        public static IPostprocessComposer<EditServiceUserRequest> BuildEditServiceUserRequest(this IFixture fixture, string socialCareId)
+        {
+
+            return fixture.Build<EditServiceUserRequest>()
+            .With(su => su.SocialCareId, socialCareId);
         }
 
         public static IClockService FakeClockFactory()

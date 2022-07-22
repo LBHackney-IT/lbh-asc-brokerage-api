@@ -102,6 +102,7 @@ namespace BrokerageApi.V1.Factories
                 Type = elementType.Type,
                 CostType = elementType.CostType,
                 Billing = elementType.Billing,
+                PaymentCycle = elementType.PaymentCycle,
                 NonPersonalBudget = elementType.NonPersonalBudget,
                 IsS117 = elementType.IsS117,
                 IsResidential = elementType.IsResidential,
@@ -171,6 +172,55 @@ namespace BrokerageApi.V1.Factories
                 Description = service.Description,
                 HasProvisionalClientContributions = service.HasProvisionalClientContributions,
                 ElementTypes = service.ElementTypes?.Select(et => et.ToResponse()).ToList()
+            };
+        }
+
+        public static ServiceOverviewResponse ToResponse(this ServiceOverview serviceOverview)
+        {
+            return new ServiceOverviewResponse
+            {
+                Id = serviceOverview.Id,
+                Name = serviceOverview.Name,
+                StartDate = serviceOverview.StartDate,
+                EndDate = serviceOverview.EndDate,
+                WeeklyCost = serviceOverview.WeeklyCost,
+                WeeklyPayment = serviceOverview.WeeklyPayment,
+                AnnualCost = serviceOverview.AnnualCost,
+                Status = serviceOverview.Status,
+                Elements = serviceOverview.Elements?.Select(e => e.ToResponse()).ToList()
+            };
+        }
+
+        public static ServiceOverviewElementResponse ToResponse(this ServiceOverviewElement element)
+        {
+            return new ServiceOverviewElementResponse
+            {
+                Id = element.Id,
+                Type = element.Type,
+                Name = element.Name,
+                Referral = element.Referral?.ToResponse(),
+                Provider = element.Provider?.ToResponse(),
+                StartDate = element.StartDate,
+                EndDate = element.EndDate,
+                Status = element.Status,
+                PaymentCycle = element.PaymentCycle,
+                Quantity = element.Quantity,
+                Cost = element.Cost,
+                Suspensions = element.Suspensions?.Select(s => s.ToResponse()).ToList()
+            };
+        }
+
+        public static ServiceOverviewSuspensionResponse ToResponse(this ServiceOverviewSuspension element)
+        {
+            return new ServiceOverviewSuspensionResponse
+            {
+                Id = element.Id,
+                Referral = element.Referral?.ToResponse(),
+                StartDate = element.StartDate,
+                EndDate = element.EndDate,
+                Status = element.Status,
+                Quantity = element.Quantity,
+                Cost = element.Cost
             };
         }
 
@@ -252,6 +302,9 @@ namespace BrokerageApi.V1.Factories
                 ServiceUserName = serviceUser.ServiceUserName,
                 DateOfBirth = serviceUser.DateOfBirth,
                 CarePackages = serviceUser.CarePackages?.ToResponse()
+                CedarNumber = serviceUser.CedarNumber,
+                CreatedAt = serviceUser.CreatedAt,
+                UpdatedAt = serviceUser.UpdatedAt
             };
         }
 
@@ -265,7 +318,8 @@ namespace BrokerageApi.V1.Factories
                 Note = workflow.Note,
                 PrimarySupportReason = workflow.PrimarySupportReason,
                 DirectPayments = workflow.DirectPayments,
-                UrgentSince = workflow.UrgentSince
+                UrgentSince = workflow.UrgentSince,
+                CreatedAt = workflow.CreatedAt
             };
         }
     }

@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BrokerageApi.V1.Controllers.Parameters;
+using BrokerageApi.V1.Boundary.Request;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.UseCase.Interfaces;
+using BrokerageApi.V1.UseCase.Interfaces.ServiceUsers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,40 +21,68 @@ namespace BrokerageApi.V1.Controllers
     [ApiVersion("1.0")]
     public class ServiceUserController : BaseController
     {
-        private readonly IGetServiceOverviewUseCase _serviceOverviewUseCase;
-
+        private readonly IGetServiceOverviewsUseCase _getServiceOverviewsUseCase;
+        private readonly IGetServiceOverviewByIdUseCase _getServiceOverviewByIdUseCase;
         private readonly IGetServiceUserByRequestUseCase _serviceUserByRequestUseCase;
-
         private readonly IGetCarePackagesByServiceUserIdUseCase _getCarePackagesByServiceUserIdUseCase;
+
+        private readonly IEditServiceUserUseCase _editServiceUserUseCase;
         public ServiceUserController(
-            IGetServiceOverviewUseCase serviceOverviewUseCase,
+            IGetServiceOverviewsUseCase getServiceOverviewsUseCase,
+            IGetServiceOverviewByIdUseCase getServiceOverviewByIdUseCase,
             IGetCarePackagesByServiceUserIdUseCase getCarePackagesByServiceUserIdUseCase,
-            IGetServiceUserByRequestUseCase serviceUserByRequestUseCase
+            IGetServiceUserByRequestUseCase serviceUserByRequestUseCase,
+            IEditServiceUserUseCase editServiceUserUseCase
         )
         {
-            _serviceOverviewUseCase = serviceOverviewUseCase;
+            _getServiceOverviewsUseCase = getServiceOverviewsUseCase;
+            _getServiceOverviewByIdUseCase = getServiceOverviewByIdUseCase;
             _getCarePackagesByServiceUserIdUseCase = getCarePackagesByServiceUserIdUseCase;
             _serviceUserByRequestUseCase = serviceUserByRequestUseCase;
+            _editServiceUserUseCase = editServiceUserUseCase;
         }
 
         [Authorize]
         [HttpGet]
-        [Route("{socialCareId}/serviceOverview")]
-        [ProducesResponseType(typeof(List<ElementResponse>), StatusCodes.Status200OK)]
+        [Route("{socialCareId}/services")]
+        [ProducesResponseType(typeof(List<ServiceOverviewResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetServiceOverview([FromRoute] string socialCareId)
+        public async Task<IActionResult> GetServiceOverviews([FromRoute] string socialCareId)
         {
             try
             {
-                var result = await _serviceOverviewUseCase.ExecuteAsync(socialCareId);
+                var result = await _getServiceOverviewsUseCase.ExecuteAsync(socialCareId);
                 return Ok(result.Select(e => e.ToResponse()).ToList());
             }
-            catch (ArgumentException e)
+            catch (ArgumentNullException e)
             {
                 return Problem(
                     e.Message,
-                    $"api/v1/service-users/{socialCareId}/serviceOverview",
+                    $"api/v1/service-users/{socialCareId}/services",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+        }
+
+        [Authorize]
+        [HttpGet]
+        [Route("{socialCareId}/services/{serviceId}")]
+        [ProducesResponseType(typeof(ServiceOverviewResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetServiceOverviewById([FromRoute] string socialCareId, [FromRoute] int serviceId)
+        {
+            try
+            {
+                var result = await _getServiceOverviewByIdUseCase.ExecuteAsync(socialCareId, serviceId);
+                return Ok(result.ToResponse());
+            }
+            catch (ArgumentNullException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"api/v1/service-users/{socialCareId}/services/{serviceId}",
                     StatusCodes.Status404NotFound, "Not Found"
                 );
             }
@@ -102,6 +132,57 @@ namespace BrokerageApi.V1.Controllers
                     "Invalid request",
                     $"/api/v1/service-users/",
                     StatusCodes.Status400BadRequest, "Bad Request"
+                );
+            }
+        }
+
+
+        [Authorize(Roles = "CareChargesOfficer")]
+        [HttpPost]
+        [Route("cedar-number")]
+        [ProducesResponseType(typeof(ElementResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateServiceUserCedarNumber([FromBody] EditServiceUserRequest request)
+        {
+            try
+            {
+                var element = await _editServiceUserUseCase.ExecuteAsync(request);
+                return Ok(element.ToResponse());
+            }
+            catch (ArgumentNullException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"/api/v1/service-users/",
+                    StatusCodes.Status404NotFound, "Not Found"
+                );
+            }
+            catch (ArgumentException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"/api/v1/service-users/",
+                    StatusCodes.Status400BadRequest, "Bad Request"
+                );
+            }
+            catch (InvalidOperationException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"/api/v1/service-users/",
+                    StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity"
+                );
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return Problem(
+                    e.Message,
+                    $"/api/v1/service-users/",
+                    StatusCodes.Status403Forbidden, "Forbidden"
                 );
             }
         }

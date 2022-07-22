@@ -4,9 +4,8 @@ using BrokerageApi.V1.Infrastructure;
 
 namespace BrokerageApi.V1.UseCase.Interfaces
 {
-    public interface IGetServiceOverviewUseCase
+    public interface IGetServiceOverviewsUseCase
     {
-        public Task<IEnumerable<Element>> ExecuteAsync(string socialCareId);
+        public Task<IEnumerable<ServiceOverview>> ExecuteAsync(string socialCareId);
     }
-
 }

@@ -5,6 +5,7 @@ using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -15,9 +16,10 @@ using NpgsqlTypes;
 namespace V1.Infrastructure.Migrations
 {
     [DbContext(typeof(BrokerageContext))]
-    partial class BrokerageContextModelSnapshot : ModelSnapshot
+    [Migration("20220718222120_CreateServiceOverviewSuspensions")]
+    partial class CreateServiceOverviewSuspensions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -206,9 +208,6 @@ namespace V1.Infrastructure.Migrations
 
                     b.HasIndex("AssignedBrokerId")
                         .HasDatabaseName("ix__assigned_broker_id");
-
-                    b.HasIndex("SocialCareId")
-                        .HasDatabaseName("ix__social_care_id");
 
                     b.ToTable((string)null);
 
@@ -900,63 +899,11 @@ namespace V1.Infrastructure.Migrations
                     b.ToView("service_overview_elements");
                 });
 
-            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ServiceOverviewSuspension", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    b.Property<decimal>("Cost")
-                        .HasColumnType("numeric")
-                        .HasColumnName("cost");
-
-                    b.Property<LocalDate?>("EndDate")
-                        .HasColumnType("date")
-                        .HasColumnName("end_date");
-
-                    b.Property<ElementStatus>("InternalStatus")
-                        .HasColumnType("element_status")
-                        .HasColumnName("internal_status");
-
-                    b.Property<decimal?>("Quantity")
-                        .HasColumnType("numeric")
-                        .HasColumnName("quantity");
-
-                    b.Property<int>("ReferralId")
-                        .HasColumnType("integer")
-                        .HasColumnName("referral_id");
-
-                    b.Property<LocalDate>("StartDate")
-                        .HasColumnType("date")
-                        .HasColumnName("start_date");
-
-                    b.Property<int>("SuspendedElementId")
-                        .HasColumnType("integer")
-                        .HasColumnName("suspended_element_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_service_overview_suspensions");
-
-                    b.HasIndex("ReferralId")
-                        .HasDatabaseName("ix_service_overview_suspensions_referral_id");
-
-                    b.HasIndex("SuspendedElementId")
-                        .HasDatabaseName("ix__suspended_element_id");
-
-                    b.ToTable((string)null);
-
-                    b.ToView("service_overview_suspensions");
-                });
-
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ServiceUser", b =>
                 {
                     b.Property<string>("SocialCareId")
                         .HasColumnType("text")
                         .HasColumnName("social_care_id");
-
-                    b.Property<string>("CedarNumber")
-                        .HasColumnType("text")
-                        .HasColumnName("cedar_number");
 
                     b.Property<Instant>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1125,18 +1072,9 @@ namespace V1.Infrastructure.Migrations
                         .HasPrincipalKey("Email")
                         .HasConstraintName("fk__users_assigned_broker_id1");
 
-                    b.HasOne("BrokerageApi.V1.Infrastructure.ServiceUser", "ServiceUser")
-                        .WithMany("CarePackages")
-                        .HasForeignKey("SocialCareId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_care_packages_service_users_service_user_temp_id");
-
                     b.Navigation("AssignedApprover");
 
                     b.Navigation("AssignedBroker");
-
-                    b.Navigation("ServiceUser");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Element", b =>
@@ -1324,25 +1262,6 @@ namespace V1.Infrastructure.Migrations
                     b.Navigation("Service");
                 });
 
-            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ServiceOverviewSuspension", b =>
-                {
-                    b.HasOne("BrokerageApi.V1.Infrastructure.Referral", "Referral")
-                        .WithMany()
-                        .HasForeignKey("ReferralId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_service_overview_suspensions_referrals_referral_id");
-
-                    b.HasOne("BrokerageApi.V1.Infrastructure.ServiceOverviewElement", null)
-                        .WithMany("Suspensions")
-                        .HasForeignKey("SuspendedElementId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_service_overview_suspensions_service_overview_elements_serv");
-
-                    b.Navigation("Referral");
-                });
-
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.Workflow", b =>
                 {
                     b.HasOne("BrokerageApi.V1.Infrastructure.CarePackage", null)
@@ -1413,16 +1332,6 @@ namespace V1.Infrastructure.Migrations
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ServiceOverview", b =>
                 {
                     b.Navigation("Elements");
-                });
-
-            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ServiceOverviewElement", b =>
-                {
-                    b.Navigation("Suspensions");
-                });
-
-            modelBuilder.Entity("BrokerageApi.V1.Infrastructure.ServiceUser", b =>
-                {
-                    b.Navigation("CarePackages");
                 });
 
             modelBuilder.Entity("BrokerageApi.V1.Infrastructure.User", b =>

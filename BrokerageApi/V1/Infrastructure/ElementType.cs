@@ -23,6 +23,8 @@ namespace BrokerageApi.V1.Infrastructure
 
         public ElementBillingType Billing { get; set; }
 
+        public PaymentCycle PaymentCycle { get; set; }
+
         public MathOperation CostOperation { get; set; }
 
         public MathOperation PaymentOperation { get; set; }

@@ -16,10 +16,12 @@ using BrokerageApi.V1.UseCase;
 using BrokerageApi.V1.UseCase.CarePackageCareCharges;
 using BrokerageApi.V1.UseCase.CarePackageElements;
 using BrokerageApi.V1.UseCase.CarePackages;
+using BrokerageApi.V1.UseCase.ServiceUsers;
 using BrokerageApi.V1.UseCase.Interfaces;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackageCareCharges;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackageElements;
 using BrokerageApi.V1.UseCase.Interfaces.CarePackages;
+using BrokerageApi.V1.UseCase.Interfaces.ServiceUsers;
 using BrokerageApi.Versioning;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -214,6 +216,7 @@ namespace BrokerageApi
             services.AddScoped<IServiceGateway, ServiceGateway>();
             services.AddScoped<IUserGateway, UserGateway>();
             services.AddScoped<IAuditGateway, AuditGateway>();
+            services.AddScoped<IServiceOverviewGateway, ServiceOverviewGateway>();
             services.AddScoped<IServiceUserGateway, ServiceUserGateway>();
 
         }
@@ -246,7 +249,8 @@ namespace BrokerageApi
             services.AddTransient<IGetServiceUserByRequestUseCase, GetServiceUserByRequestUseCase>();
             services.AddTransient<IEndCareChargeUseCase, EndCareChargeUseCase>();
             services.AddTransient<IEndElementUseCase, EndElementUseCase>();
-            services.AddTransient<IGetServiceOverviewUseCase, GetServiceOverviewUseCase>();
+            services.AddTransient<IGetServiceOverviewsUseCase, GetServiceOverviewsUseCase>();
+            services.AddTransient<IGetServiceOverviewByIdUseCase, GetServiceOverviewByIdUseCase>();
             services.AddTransient<IGetCarePackagesByServiceUserIdUseCase, GetCarePackagesByServiceUserIdUseCase>();
             services.AddTransient<ICancelCareChargeUseCase, CancelCareChargeUseCase>();
             services.AddTransient<ICancelElementUseCase, CancelElementUseCase>();
@@ -267,6 +271,8 @@ namespace BrokerageApi
             services.AddTransient<IRequestFollowUpToCarePackageUseCase, RequestFollowUpToCarePackageUseCase>();
             services.AddTransient<IResetCareChargeUseCase, ResetCareChargeUseCase>();
             services.AddTransient<IResetElementUseCase, ResetElementUseCase>();
+            services.AddTransient<IEditServiceUserUseCase, EditServiceUserUseCase>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
