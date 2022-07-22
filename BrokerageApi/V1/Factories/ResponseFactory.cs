@@ -301,7 +301,7 @@ namespace BrokerageApi.V1.Factories
                 SocialCareId = serviceUser.SocialCareId,
                 ServiceUserName = serviceUser.ServiceUserName,
                 DateOfBirth = serviceUser.DateOfBirth,
-                CarePackages = serviceUser.CarePackages?.ToResponse()
+                CarePackages = serviceUser.CarePackages?.ToResponse(),
                 CedarNumber = serviceUser.CedarNumber,
                 CreatedAt = serviceUser.CreatedAt,
                 UpdatedAt = serviceUser.UpdatedAt
