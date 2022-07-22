@@ -288,7 +288,10 @@ namespace BrokerageApi.V1.Factories
             {
                 SocialCareId = serviceUser.SocialCareId,
                 ServiceUserName = serviceUser.ServiceUserName,
-                DateOfBirth = serviceUser.DateOfBirth
+                DateOfBirth = serviceUser.DateOfBirth,
+                CedarNumber = serviceUser.CedarNumber,
+                CreatedAt = serviceUser.CreatedAt,
+                UpdatedAt = serviceUser.UpdatedAt
             };
         }
 

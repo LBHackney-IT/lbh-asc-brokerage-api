@@ -11,6 +11,7 @@ using BrokerageApi.V1.Controllers;
 using BrokerageApi.V1.Factories;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.UseCase.Interfaces;
+using BrokerageApi.V1.UseCase.Interfaces.ServiceUsers;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
@@ -26,6 +27,9 @@ namespace BrokerageApi.Tests.V1.Controllers
         private Fixture _fixture;
         private ServiceUserController _classUnderTest;
 
+        private Mock<IEditServiceUserUseCase> _mockEditServiceUserUsecase;
+
+
         [SetUp]
         public void SetUp()
         {
@@ -34,12 +38,15 @@ namespace BrokerageApi.Tests.V1.Controllers
             _mockGetServiceOverviewByIdUseCase = new Mock<IGetServiceOverviewByIdUseCase>();
             _mockGetCarePackagesByServiceUserIdUseCase = new Mock<IGetCarePackagesByServiceUserIdUseCase>();
             _mockGetServiceUserByRequestUseCase = new Mock<IGetServiceUserByRequestUseCase>();
+            _mockEditServiceUserUsecase = new Mock<IEditServiceUserUseCase>();
+
 
             _classUnderTest = new ServiceUserController(
                 _mockGetServiceOverviewsUseCase.Object,
                 _mockGetServiceOverviewByIdUseCase.Object,
                 _mockGetCarePackagesByServiceUserIdUseCase.Object,
-                _mockGetServiceUserByRequestUseCase.Object
+                _mockGetServiceUserByRequestUseCase.Object,
+                _mockEditServiceUserUsecase.Object
                 );
 
             SetupAuthentication(_classUnderTest);
@@ -220,5 +227,67 @@ namespace BrokerageApi.Tests.V1.Controllers
             //Assert
             statusCode.Should().Be((int) HttpStatusCode.BadRequest);
         }
+        [Test]
+        public async Task CanUpdateCedarNumberOnServiceUser()
+        {
+            //Arrange
+            var serviceUsers = _fixture.BuildServiceUser()
+            .CreateMany();
+            var aServiceUser = serviceUsers.ElementAt(0);
+            var serviceUserRequest = _fixture.BuildEditServiceUserRequest(aServiceUser.SocialCareId)
+            .Create();
+
+            _mockEditServiceUserUsecase
+                .Setup(x => x.ExecuteAsync(serviceUserRequest))
+                .ReturnsAsync(aServiceUser);
+            var objectResult = await _classUnderTest.UpdateServiceUserCedarNumber(serviceUserRequest);
+            var statusCode = GetStatusCode(objectResult);
+            var result = GetResultData<ServiceUserResponse>(objectResult);
+
+            //Assert
+            statusCode.Should().Be((int) HttpStatusCode.OK);
+            result.Should().BeEquivalentTo(aServiceUser.ToResponse());
+        }
+
+        [TestCaseSource(nameof(_editServiceUserErrorList)), Property("AsUser", "CareChargeOfficer")]
+        public async Task UpdateCedarNumberGetsExceptionWhenBadRequest(Exception exception, HttpStatusCode expectedStatusCode)
+        {
+            //Arrange
+            var serviceUsers = _fixture.BuildServiceUser()
+            .CreateMany();
+
+            var serviceUserRequest = _fixture.BuildEditServiceUserRequest("notThatServiceUser")
+            .Create();
+
+            _mockEditServiceUserUsecase
+                .Setup(x => x.ExecuteAsync(serviceUserRequest))
+                .ThrowsAsync(exception);
+            //Act
+            var response = await _classUnderTest.UpdateServiceUserCedarNumber(serviceUserRequest);
+            var statusCode = GetStatusCode(response);
+            var result = GetResultData<ProblemDetails>(response);
+
+            //Assert
+            statusCode.Should().Be((int) expectedStatusCode);
+            result.Status.Should().Be((int) expectedStatusCode);
+            result.Detail.Should().Be(exception.Message);
+        }
+        private static readonly object[] _editServiceUserErrorList =
+            {
+                new object[]
+                {
+                    new ArgumentNullException(null, "message"), HttpStatusCode.NotFound
+                },
+                new object[]
+                {
+                    new ArgumentException("message"), HttpStatusCode.BadRequest
+                },
+                new object[]
+                {
+                    new InvalidOperationException("message"), HttpStatusCode.UnprocessableEntity
+                }
+            };
+
+
     }
 }

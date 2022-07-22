@@ -8,7 +8,9 @@ namespace BrokerageApi.V1.Boundary.Response
 
         public string ServiceUserName { get; set; }
 
-        public LocalDate DateOfBirth { get; set; }
+        public LocalDate? DateOfBirth { get; set; }
+
+        public string CedarNumber { get; set; }
 
         public Instant CreatedAt { get; set; }
 
