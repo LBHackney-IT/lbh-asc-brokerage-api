@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Linq;
+using Amazon.Runtime.Internal;
 using BrokerageApi.V1.Boundary.Response;
 using BrokerageApi.V1.Infrastructure;
 using BrokerageApi.V1.Infrastructure.AuditEvents;
@@ -43,6 +45,16 @@ namespace BrokerageApi.V1.Factories
                 FollowUps = carePackage.ReferralFollowUps?.Select(f => f.ToResponse()).ToList(),
                 Workflows = carePackage.Workflows?.Select(w => w.ToResponse()).ToList()
             };
+        }
+
+        public static List<CarePackageResponse> ToResponse(this List<CarePackage> carePackages)
+        {
+            var carePackageResponses = new List<CarePackageResponse>();
+            foreach (CarePackage carePackage in carePackages)
+            {
+                carePackageResponses.Add(carePackage.ToResponse());
+            }
+            return carePackageResponses;
         }
 
         public static ElementResponse ToResponse(this Element element, int? referralId = null, bool includeParent = true)
@@ -289,6 +301,7 @@ namespace BrokerageApi.V1.Factories
                 SocialCareId = serviceUser.SocialCareId,
                 ServiceUserName = serviceUser.ServiceUserName,
                 DateOfBirth = serviceUser.DateOfBirth,
+                CarePackages = serviceUser.CarePackages?.ToResponse(),
                 CedarNumber = serviceUser.CedarNumber,
                 CreatedAt = serviceUser.CreatedAt,
                 UpdatedAt = serviceUser.UpdatedAt

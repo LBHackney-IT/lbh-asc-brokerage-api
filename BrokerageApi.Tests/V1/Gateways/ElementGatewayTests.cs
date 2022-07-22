@@ -109,6 +109,24 @@ namespace BrokerageApi.Tests.V1.Gateways
         }
 
         [Test]
+        public async Task CanGetCurrentByProviderIdAsync()
+        {
+            // Arrange
+            var elements = (await CreateElementBuilder())
+                .With(e => e.StartDate, Clock.Today - Period.FromDays(60))
+                .With(e => e.EndDate, Clock.Today + Period.FromDays(30))
+                .Create();
+
+            await SeedElements(elements);
+
+            // Act
+            var resultElements = await _classUnderTest.GetByProviderIdAsync(elements.ProviderId);
+
+            // Assert
+            resultElements.Should().BeEquivalentTo(elements);
+        }
+
+        [Test]
         public async Task CanAddElement()
         {
             var service = _fixture.BuildService().Create();

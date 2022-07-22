@@ -9,6 +9,8 @@ namespace BrokerageApi.V1.Controllers.Parameters
         public string ServiceUserName { get; set; }
 
         public LocalDate? DateOfBirth { get; set; }
+        public int? ProviderId { get; set; }
+
     }
 
 }

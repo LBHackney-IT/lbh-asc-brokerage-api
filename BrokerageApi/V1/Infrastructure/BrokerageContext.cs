@@ -370,6 +370,16 @@ namespace BrokerageApi.V1.Infrastructure
                     s => s.NameSearchVector, "simple",
                     s => new { s.ServiceUserName });
 
+            modelBuilder.Entity<ServiceUser>()
+               .HasMany(s => s.CarePackages)
+               .WithOne()
+               .HasForeignKey("SocialCareId");
+
+            modelBuilder.Entity<CarePackage>()
+                .HasOne(cp => cp.ServiceUser)
+                .WithMany(cp => cp.CarePackages)
+                .HasForeignKey("SocialCareId");
+
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();

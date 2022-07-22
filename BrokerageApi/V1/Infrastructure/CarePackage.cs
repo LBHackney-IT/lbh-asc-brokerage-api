@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 using NodaTime;
 
 namespace BrokerageApi.V1.Infrastructure
@@ -76,5 +77,7 @@ namespace BrokerageApi.V1.Infrastructure
 
         public string Comment { get; set; }
         public decimal EstimatedYearlyCost { get; set; }
+        [JsonIgnore]
+        public ServiceUser ServiceUser { get; set; }
     }
 }

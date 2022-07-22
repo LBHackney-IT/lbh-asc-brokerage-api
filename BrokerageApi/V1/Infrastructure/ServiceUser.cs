@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using NodaTime;
 using NpgsqlTypes;
@@ -17,6 +18,10 @@ namespace BrokerageApi.V1.Infrastructure
         [Required]
         public LocalDate DateOfBirth { get; set; }
         public NpgsqlTsVector NameSearchVector { get; set; }
+
+        public List<CarePackage> CarePackages { get; set; }
+
+
         public string CedarNumber { get; set; }
     }
 }

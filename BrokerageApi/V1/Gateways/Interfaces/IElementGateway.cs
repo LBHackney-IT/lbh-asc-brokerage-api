@@ -14,6 +14,8 @@ namespace BrokerageApi.V1.Gateways.Interfaces
 
         public Task<Element> GetByIdAsync(int id);
 
+        public Task<IEnumerable<Element>> GetByProviderIdAsync(int? id);
+
         public Task AddElementAsync(Element element);
     }
 }

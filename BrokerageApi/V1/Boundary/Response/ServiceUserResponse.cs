@@ -1,4 +1,5 @@
 using NodaTime;
+using System.Collections.Generic;
 
 namespace BrokerageApi.V1.Boundary.Response
 {
@@ -15,6 +16,8 @@ namespace BrokerageApi.V1.Boundary.Response
         public Instant CreatedAt { get; set; }
 
         public Instant UpdatedAt { get; set; }
+
+        public List<CarePackageResponse> CarePackages { get; set; }
 
     }
 }
